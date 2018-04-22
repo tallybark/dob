@@ -1,0 +1,9 @@
+.coverage
+.git/
+.pytest_cache/
+.tox/
+docs/_build
+hamster_*.egg-info/
+htmlcov/
+messages.pot
+
