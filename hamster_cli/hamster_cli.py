@@ -187,7 +187,7 @@ def _search(controler, start = None, end = None, activity = None, category = Non
     Args:
         search_term: Term that need to be matched by the fact in order to be considered a hit.
         time_range: Only facts within this timerange will be considered.
-        tag: 
+        tag:
     """
 
     def search_facts(tree, search_list, search_attr, search_sub_attr = None):
