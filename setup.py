@@ -17,13 +17,13 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'appdirs',
-    'Click',
+    'configparser >= 3.5.0b2',
+    'future',
     'hamster-lib',
-    'tabulate',
     # py27 compatibility related
     'six',
-    'future',
-    'configparser >= 3.5.0b2',
+    'tabulate',
+    'Click',
 ]
 
 setup(
