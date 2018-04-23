@@ -142,7 +142,10 @@ pass_controler = click.make_pass_decorator(Controler, ensure=True)
 @pass_controler
 def run(controler):
     """General context run right before any of the commands."""
-    click.clear()
+    if controler.client_config['term_paging']:
+        # FIXME/2018-04-22: (lb): Well, actually, don't clear, but rely on paging...
+        #   after implementing paging. (Also add --paging option.)
+        click.clear()
     _show_greeting()
     _run(controler)
 
