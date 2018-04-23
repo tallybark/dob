@@ -82,7 +82,7 @@ def base_config():
 @pytest.fixture
 def lib_config(tmpdir):
     """
-    Provide a backend config fixture. This can be passed to a controler directly.
+    Provide a backend config fixture. This can be passed to a controller directly.
 
     That means this fixture represents the the result of all typechecks and
     type conversions.
@@ -100,7 +100,7 @@ def lib_config(tmpdir):
 @pytest.fixture
 def client_config(tmpdir):
     """
-    Provide a client config fixture. This can be passed to a controler directly.
+    Provide a client config fixture. This can be passed to a controller directly.
 
     That means this fixture represents the the result of all typechecks and
     type conversions.
@@ -197,10 +197,10 @@ def db_port(request):
 
 
 @pytest.fixture
-def tmp_fact(controler_with_logging, fact):
+def tmp_fact(controller_with_logging, fact):
     """Fixture that ensures there is a ``ongoing fact`` file present at the expected place."""
     fact.end = None
-    fact = controler_with_logging.facts.save(fact)
+    fact = controller_with_logging.facts.save(fact)
     return fact
 
 
@@ -212,24 +212,24 @@ def invalid_tmp_fact(tmpdir, client_config):
 
 
 @pytest.yield_fixture
-def controler(lib_config, client_config):
-    """Provide a pseudo controler instance."""
-    controler = hamster_lib.HamsterControl(lib_config)
-    controler.client_config = client_config
-    yield controler
-    controler.store.cleanup()
+def controller(lib_config, client_config):
+    """Provide a pseudo controller instance."""
+    controller = hamster_lib.HamsterControl(lib_config)
+    controller.client_config = client_config
+    yield controller
+    controller.store.cleanup()
 
 
 @pytest.yield_fixture
-def controler_with_logging(lib_config, client_config):
-    """Provide a pseudo controler instance with logging setup."""
-    controler = hamster_lib.HamsterControl(lib_config)
-    controler.client_config = client_config
+def controller_with_logging(lib_config, client_config):
+    """Provide a pseudo controller instance with logging setup."""
+    controller = hamster_lib.HamsterControl(lib_config)
+    controller.client_config = client_config
     # [FIXME]
     # We souldn't shortcut like this!
-    hamster_cli._setup_logging(controler)
-    yield controler
-    controler.store.cleanup()
+    hamster_cli._setup_logging(controller)
+    yield controller
+    controller.store.cleanup()
 
 
 @pytest.fixture(params=[

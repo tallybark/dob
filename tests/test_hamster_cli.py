@@ -21,12 +21,12 @@ class TestSearch(object):
     """Unit tests for search command."""
 
     @freeze_time('2015-12-12 18:00')
-    def test_search(self, controler, mocker, fact, search_parameter_parametrized):
+    def test_search(self, controller, mocker, fact, search_parameter_parametrized):
         """Ensure that your search parameters get passed on to the apropiate backend function."""
         search_term, time_range, expectation = search_parameter_parametrized
-        controler.facts.get_all = mocker.MagicMock(return_value=[fact])
-        hamster_cli._search(controler, search_term, time_range)
-        controler.facts.get_all.assert_called_with(**expectation)
+        controller.facts.get_all = mocker.MagicMock(return_value=[fact])
+        hamster_cli._search(controller, search_term, time_range)
+        controller.facts.get_all.assert_called_with(**expectation)
 
 
 class TestStart(object):
@@ -60,16 +60,16 @@ class TestStart(object):
             'end': None,
         }),
     ])
-    def test_start_add_new_fact(self, controler_with_logging, mocker, raw_fact,
+    def test_start_add_new_fact(self, controller_with_logging, mocker, raw_fact,
             start, end, expectation):
         """
         Test that inpul validation and assignment of start/endtime works is done as expected.
         """
-        controler = controler_with_logging
-        controler.facts.save = mocker.MagicMock()
-        hamster_cli._start(controler, raw_fact, start, end)
-        assert controler.facts.save.called
-        args, kwargs = controler.facts.save.call_args
+        controller = controller_with_logging
+        controller.facts.save = mocker.MagicMock()
+        hamster_cli._start(controller, raw_fact, start, end)
+        assert controller.facts.save.called
+        args, kwargs = controller.facts.save.call_args
         fact = args[0]
         assert fact.start == expectation['start']
         assert fact.end == expectation['end']
@@ -80,17 +80,17 @@ class TestStart(object):
 class TestStop(object):
     """Unit test concerning the stop command."""
 
-    def test_stop_existing_tmp_fact(self, tmp_fact, controler_with_logging, mocker):
+    def test_stop_existing_tmp_fact(self, tmp_fact, controller_with_logging, mocker):
         """Make sure stoping an ongoing fact works as intended."""
-        controler_with_logging.facts.stop_tmp_fact = mocker.MagicMock()
-        hamster_cli._stop(controler_with_logging)
-        assert controler_with_logging.facts.stop_tmp_fact.called
+        controller_with_logging.facts.stop_tmp_fact = mocker.MagicMock()
+        hamster_cli._stop(controller_with_logging)
+        assert controller_with_logging.facts.stop_tmp_fact.called
 
-    def test_stop_no_existing_tmp_fact(self, controler_with_logging, capsys):
+    def test_stop_no_existing_tmp_fact(self, controller_with_logging, capsys):
         """Make sure that stop without actually an ongoing fact leads to an error."""
-        controler = controler_with_logging
+        controller = controller_with_logging
         with pytest.raises(ClickException):
-            hamster_cli._stop(controler)
+            hamster_cli._stop(controller)
             out, err = capsys.readouterr()
             assert 'Unable to continue' in err
 
@@ -98,20 +98,20 @@ class TestStop(object):
 class TestCancel(object):
     """Unit tests related to cancelation of an ongoing fact."""
 
-    def test_cancel_existing_tmp_fact(self, tmp_fact, controler_with_logging, mocker,
+    def test_cancel_existing_tmp_fact(self, tmp_fact, controller_with_logging, mocker,
             capsys):
         """Test cancelation in case there is an ongoing fact."""
-        controler = controler_with_logging
-        controler.facts.cancel_tmp_fact = mocker.MagicMock(return_value=None)
-        hamster_cli._cancel(controler)
+        controller = controller_with_logging
+        controller.facts.cancel_tmp_fact = mocker.MagicMock(return_value=None)
+        hamster_cli._cancel(controller)
         out, err = capsys.readouterr()
-        assert controler.facts.cancel_tmp_fact.called
+        assert controller.facts.cancel_tmp_fact.called
         assert 'canceled' in out
 
-    def test_cancel_no_existing_tmp_fact(self, controler_with_logging, capsys):
+    def test_cancel_no_existing_tmp_fact(self, controller_with_logging, capsys):
         """Test cancelation in case there is no actual ongoing fact."""
         with pytest.raises(ClickException):
-            hamster_cli._cancel(controler_with_logging)
+            hamster_cli._cancel(controller_with_logging)
             out, err = capsys.readouterr()
             assert 'Nothing tracked right now' in err
 
@@ -119,85 +119,85 @@ class TestCancel(object):
 class TestExport(object):
     """Unittests related to data export."""
     @pytest.mark.parametrize('format', ['html', fauxfactory.gen_latin1()])
-    def test_invalid_format(self, controler_with_logging, format, mocker):
+    def test_invalid_format(self, controller_with_logging, format, mocker):
         """Make sure that passing an invalid format exits prematurely."""
-        controler = controler_with_logging
+        controller = controller_with_logging
         with pytest.raises(ClickException):
-            hamster_cli._export(controler, format, None, None)
+            hamster_cli._export(controller, format, None, None)
 
-    def test_csv(self, controler, controler_with_logging, mocker):
+    def test_csv(self, controller, controller_with_logging, mocker):
         """Make sure that a valid format returns the apropiate writer class."""
         hamster_lib.reports.TSVWriter = mocker.MagicMock()
-        hamster_cli._export(controler, 'csv', None, None)
+        hamster_cli._export(controller, 'csv', None, None)
         assert hamster_lib.reports.TSVWriter.called
 
-    def test_ical(self, controler, controler_with_logging, mocker):
+    def test_ical(self, controller, controller_with_logging, mocker):
         """Make sure that a valid format returns the apropiate writer class."""
         hamster_lib.reports.ICALWriter = mocker.MagicMock()
-        hamster_cli._export(controler, 'ical', None, None)
+        hamster_cli._export(controller, 'ical', None, None)
         assert hamster_lib.reports.ICALWriter.called
 
-    def test_xml(self, controler, controler_with_logging, mocker):
+    def test_xml(self, controller, controller_with_logging, mocker):
         """Make sure that passing 'xml' as format parameter returns the apropiate writer class."""
         hamster_lib.reports.XMLWriter = mocker.MagicMock()
-        hamster_cli._export(controler, 'xml', None, None)
+        hamster_cli._export(controller, 'xml', None, None)
         assert hamster_lib.reports.XMLWriter.called
 
-    def test_with_start(self, controler, controler_with_logging, tmpdir, mocker):
+    def test_with_start(self, controller, controller_with_logging, tmpdir, mocker):
         """Make sure that passing a end date is passed to the fact gathering method."""
-        controler.facts.get_all = mocker.MagicMock()
+        controller.facts.get_all = mocker.MagicMock()
         path = os.path.join(tmpdir.mkdir('report').strpath, 'report.csv')
         hamster_lib.reports.TSVWriter = mocker.MagicMock(
             return_value=hamster_lib.reports.TSVWriter(path)
         )
         start = fauxfactory.gen_datetime()
-        hamster_cli._export(controler, 'csv', start, None)
-        args, kwargs = controler.facts.get_all.call_args
+        hamster_cli._export(controller, 'csv', start, None)
+        args, kwargs = controller.facts.get_all.call_args
         assert kwargs['start'] == start
 
-    def test_with_end(self, controler, controler_with_logging, tmpdir, mocker):
+    def test_with_end(self, controller, controller_with_logging, tmpdir, mocker):
         """Make sure that passing a end date is passed to the fact gathering method."""
-        controler.facts.get_all = mocker.MagicMock()
+        controller.facts.get_all = mocker.MagicMock()
         path = os.path.join(tmpdir.mkdir('report').strpath, 'report.csv')
         hamster_lib.reports.TSVWriter = mocker.MagicMock(
             return_value=hamster_lib.reports.TSVWriter(path)
         )
         end = fauxfactory.gen_datetime()
-        hamster_cli._export(controler, 'csv', None, end)
-        args, kwargs = controler.facts.get_all.call_args
+        hamster_cli._export(controller, 'csv', None, end)
+        args, kwargs = controller.facts.get_all.call_args
         assert kwargs['end'] == end
 
 
 class TestCategories(object):
     """Unittest related to category listings."""
 
-    def test_categories(self, controler_with_logging, category, mocker, capsys):
+    def test_categories(self, controller_with_logging, category, mocker, capsys):
         """Make sure the categories get displayed to the user."""
-        controler = controler_with_logging
-        controler.categories.get_all = mocker.MagicMock(return_value=[category])
-        hamster_cli._categories(controler)
+        controller = controller_with_logging
+        controller.categories.get_all = mocker.MagicMock(return_value=[category])
+        hamster_cli._categories(controller)
         out, err = capsys.readouterr()
         assert category.name in out
-        assert controler.categories.get_all.called
+        assert controller.categories.get_all.called
 
 
 class TestCurrent(object):
     """Unittest for dealing with 'ongoing facts'."""
 
-    def test_tmp_fact(self, controler, tmp_fact, controler_with_logging, capsys, fact, mocker):
+    def test_tmp_fact(self, controller, tmp_fact, controller_with_logging, capsys, fact, mocker):
         """Make sure the current fact is displayed if there is one."""
-        controler = controler_with_logging
-        controler.facts.get_tmp_fact = mocker.MagicMock(return_value=fact)
-        hamster_cli._current(controler)
+        controller = controller_with_logging
+        controller.facts.get_tmp_fact = mocker.MagicMock(return_value=fact)
+        hamster_cli._current(controller)
         out, err = capsys.readouterr()
-        assert controler.facts.get_tmp_fact
+        assert controller.facts.get_tmp_fact
         assert str(fact) in out
 
-    def test_no_tmp_fact(self, controler_with_logging, capsys):
+    def test_no_tmp_fact(self, controller_with_logging, capsys):
         """Make sure we display proper feedback if there is no current 'ongoing fact."""
-        controler = controler_with_logging
+        controller = controller_with_logging
         with pytest.raises(ClickException):
-            hamster_cli._current(controler)
+            hamster_cli._current(controller)
             out, err = capsys.readouterr()
             assert 'There seems no be no activity beeing tracked right now' in err
 
@@ -205,38 +205,38 @@ class TestCurrent(object):
 class TestActivities(object):
     """Unittests for the ``activities`` command."""
 
-    def test_activities_no_category(self, controler, activity, mocker, capsys):
+    def test_activities_no_category(self, controller, activity, mocker, capsys):
         """Make sure command works if activities do not have a category associated."""
         activity.category = None
-        controler.activities.get_all = mocker.MagicMock(
+        controller.activities.get_all = mocker.MagicMock(
             return_value=[activity])
         mocker.patch('hamster_cli.hamster_cli.tabulate')
         hamster_cli.tabulate = mocker.MagicMock(
             return_value='{}, {}'.format(activity.name, None))
-        hamster_cli._activities(controler, '')
+        hamster_cli._activities(controller, '')
         out, err = capsys.readouterr()
         assert activity.name in out
         hamster_cli.tabulate.call_args[0] == [(activity.name, None)]
 
-    def test_activities_with_category(self, controler, activity, mocker,
+    def test_activities_with_category(self, controller, activity, mocker,
             capsys):
         """Make sure activity name and category are displayed if present."""
-        controler.activities.get_all = mocker.MagicMock(
+        controller.activities.get_all = mocker.MagicMock(
             return_value=[activity])
-        hamster_cli._activities(controler, '')
+        hamster_cli._activities(controller, '')
         out, err = capsys.readouterr()
         assert activity.name in out
         assert activity.category.name in out
 
-    def test_activities_with_search_term(self, controler, activity, mocker,
+    def test_activities_with_search_term(self, controller, activity, mocker,
             capsys):
         """Make sure the search term is passed on."""
-        controler.activities.get_all = mocker.MagicMock(
+        controller.activities.get_all = mocker.MagicMock(
             return_value=[activity])
-        hamster_cli._activities(controler, 'foobar')
+        hamster_cli._activities(controller, 'foobar')
         out, err = capsys.readouterr()
-        assert controler.activities.get_all.called
-        controler.activities.get_all.assert_called_with(search_term='foobar')
+        assert controller.activities.get_all.called
+        controller.activities.get_all.assert_called_with(search_term='foobar')
         assert activity.name in out
         assert activity.category.name in out
 
@@ -244,41 +244,41 @@ class TestActivities(object):
 class TestDetails(object):
     """Unittests for the ``details`` command."""
 
-    def test_details_general_data_is_shown(self, controler, capsys):
+    def test_details_general_data_is_shown(self, controller, capsys):
         """Make sure user recieves the desired output."""
-        hamster_cli._details(controler)
+        hamster_cli._details(controller)
         out, err = capsys.readouterr()
         strings = (__appname__, __version__, 'Configuration', 'Logfile', 'Reports')
         for string in strings:
             assert string in out
 
-    def test_details_sqlite(self, controler, appdirs, mocker, capsys):
+    def test_details_sqlite(self, controller, appdirs, mocker, capsys):
         """Make sure database details for sqlite are shown properly."""
-        controler._get_store = mocker.MagicMock()
+        controller._get_store = mocker.MagicMock()
         engine, path = 'sqlite', appdirs.user_data_dir
-        controler.config['db_engine'] = engine
-        controler.config['db_path'] = path
-        hamster_cli._details(controler)
+        controller.config['db_engine'] = engine
+        controller.config['db_path'] = path
+        hamster_cli._details(controller)
         out, err = capsys.readouterr()
         for item in (engine, path):
             assert item in out
 
-    def test_details_non_sqlite(self, controler, capsys, db_port, db_host, db_name,
+    def test_details_non_sqlite(self, controller, capsys, db_port, db_host, db_name,
             db_user, db_password, mocker):
         """
         Make sure database details for non-sqlite are shown properly.
 
-        We need to mock the backend Controler because it would try to setup a
+        We need to mock the backend Controller because it would try to setup a
         database connection right away otherwise.
         """
-        controler._get_store = mocker.MagicMock()
-        controler.config['db_engine'] = 'postgres'
-        controler.config['db_name'] = db_name
-        controler.config['db_host'] = db_host
-        controler.config['db_user'] = db_user
-        controler.config['db_password'] = db_password
-        controler.config['db_port'] = db_port
-        hamster_cli._details(controler)
+        controller._get_store = mocker.MagicMock()
+        controller.config['db_engine'] = 'postgres'
+        controller.config['db_name'] = db_name
+        controller.config['db_host'] = db_host
+        controller.config['db_user'] = db_user
+        controller.config['db_password'] = db_password
+        controller.config['db_port'] = db_port
+        hamster_cli._details(controller)
         out, err = capsys.readouterr()
         for item in ('postgres', db_host, db_name, db_user):
             assert item in out
@@ -302,37 +302,37 @@ class TestLicense(object):
 class TestSetupLogging(object):
     """Make sure that our logging setup is executed as expected."""
 
-    def test_setup_logging(self, controler, client_config, lib_config):
+    def test_setup_logging(self, controller, client_config, lib_config):
         """Test that library and client logger have log level set according to config."""
-        hamster_cli._setup_logging(controler)
-        assert controler.lib_logger.level == (
-            controler.client_config['log_level'])
-        assert controler.client_logger.level == (
-            controler.client_config['log_level'])
+        hamster_cli._setup_logging(controller)
+        assert controller.lib_logger.level == (
+            controller.client_config['log_level'])
+        assert controller.client_logger.level == (
+            controller.client_config['log_level'])
 
-    def test_setup_logging_log_console_true(self, controler):
+    def test_setup_logging_log_console_true(self, controller):
         """Make sure that if console loggin is on lib and client logger have a streamhandler."""
-        controler.client_config['log_console'] = True
-        hamster_cli._setup_logging(controler)
-        assert isinstance(controler.client_logger.handlers[0],
+        controller.client_config['log_console'] = True
+        hamster_cli._setup_logging(controller)
+        assert isinstance(controller.client_logger.handlers[0],
             logging.StreamHandler)
-        assert isinstance(controler.lib_logger.handlers[0],
+        assert isinstance(controller.lib_logger.handlers[0],
             logging.StreamHandler)
-        assert controler.client_logger.handlers[0].formatter
+        assert controller.client_logger.handlers[0].formatter
 
-    def test_setup_logging_no_logging(self, controler):
+    def test_setup_logging_no_logging(self, controller):
         """Make sure that if no logging enabled, our loggers don't have any handlers."""
-        hamster_cli._setup_logging(controler)
-        assert controler.lib_logger.handlers == []
-        assert controler.client_logger.handlers == []
+        hamster_cli._setup_logging(controller)
+        assert controller.lib_logger.handlers == []
+        assert controller.client_logger.handlers == []
 
-    def test_setup_logging_log_file_true(self, controler, appdirs):
+    def test_setup_logging_log_file_true(self, controller, appdirs):
         """Make sure that if we enable a logfile_path, both loggers recieve a ``FileHandler``."""
-        controler.client_config['logfile_path'] = os.path.join(appdirs.user_log_dir, 'foobar.log')
-        hamster_cli._setup_logging(controler)
-        assert isinstance(controler.lib_logger.handlers[0],
+        controller.client_config['logfile_path'] = os.path.join(appdirs.user_log_dir, 'foobar.log')
+        hamster_cli._setup_logging(controller)
+        assert isinstance(controller.lib_logger.handlers[0],
             logging.FileHandler)
-        assert isinstance(controler.client_logger.handlers[0],
+        assert isinstance(controller.client_logger.handlers[0],
             logging.FileHandler)
 
 

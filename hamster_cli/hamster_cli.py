@@ -114,13 +114,13 @@ class HamsterAppDirs(appdirs.AppDirs):
         return directory
 
 
-class Controler(HamsterControl):
-    """A custom controler that adds config handling on top of its regular functionality."""
+class Controller(HamsterControl):
+    """A custom controller that adds config handling on top of its regular functionality."""
 
     def __init__(self):
-        """Instantiate controler instance and adding client_config to it."""
+        """Instantiate controller instance and adding client_config to it."""
         lib_config, client_config = _get_config(_get_config_instance())
-        super(Controler, self).__init__(lib_config)
+        super(Controller, self).__init__(lib_config)
         self.client_config = client_config
 
 
@@ -135,26 +135,26 @@ LOG_LEVELS = {
 AppDirs = HamsterAppDirs('hamster_cli')
 
 
-pass_controler = click.make_pass_decorator(Controler, ensure=True)
+pass_controller = click.make_pass_decorator(Controller, ensure=True)
 
 
 @click.group(help=help_strings.RUN_HELP)
-@pass_controler
-def run(controler):
+@pass_controller
+def run(controller):
     """General context run right before any of the commands."""
-    if controler.client_config['term_paging']:
+    if controller.client_config['term_paging']:
         # FIXME/2018-04-22: (lb): Well, actually, don't clear, but rely on paging...
         #   after implementing paging. (Also add --paging option.)
         click.clear()
     # FIXME/2018-04-22: (lb): I disabled the _show_greeting code; it's not useful info.
     # Instead, we could make a hamster-about command.
     #   _show_greeting()
-    _run(controler)
+    _run(controller)
 
 
-def _run(controler):
+def _run(controller):
     """Make sure that loggers are setup properly."""
-    _setup_logging(controler)
+    _setup_logging(controller)
 
 
 @run.command(help=help_strings.SEARCH_HELP)
@@ -166,17 +166,17 @@ def _run(controler):
 @click.option('-t', '--tag', help = 'The tags search string (e.g. "tag1 AND (tag2 OR tag3)".')
 @click.option('-d', '--description', help = 'The description search string (e.g. "string1 OR (string2 AND string3).')
 @click.option('-k', '--key', help = 'The database key of the fact.')
-@pass_controler
-def search(controler, start, end, activity, category, tag, description, key):
+@pass_controller
+def search(controller, start, end, activity, category, tag, description, key):
     """Fetch facts matching certain criteria."""
     # [FIXME]
     # Check what we actually match against.
-    results = _search(controler, start, end, activity, category, tag, description, key)
+    results = _search(controller, start, end, activity, category, tag, description, key)
     table, headers = _generate_facts_table(results)
     click.echo(tabulate(table, headers=headers))
 
 
-def _search(controler, start = None, end = None, activity = None, category = None,
+def _search(controller, start = None, end = None, activity = None, category = None,
             tag = None, description = None, key = None):
     """
     Search facts machting given timerange and search term. Both are optional.
@@ -294,7 +294,7 @@ def _search(controler, start = None, end = None, activity = None, category = Non
         return search_list
 
     if key:
-        results = [controler.facts.get(pk = key),]
+        results = [controller.facts.get(pk = key),]
     else:
         # Convert the start and time strings to datetimes.
         if start:
@@ -302,7 +302,7 @@ def _search(controler, start = None, end = None, activity = None, category = Non
         if end:
             end = datetime.datetime.strptime(end, '%Y-%m-%d %H:%M')
 
-        results = controler.facts.get_all(start=start, end=end)
+        results = controller.facts.get_all(start=start, end=end)
 
         if activity:
             identifier = pp.Word(pp.alphanums + pp.alphas8bit + '_' + '-')
@@ -353,10 +353,10 @@ def _search(controler, start = None, end = None, activity = None, category = Non
 @run.command(help=help_strings.LIST_HELP)
 @click.option('-s', '--start', help = 'The start time string (e.g. "2017-01-01 00:00").')
 @click.option('-e', '--end', help = 'The end time string (e.g. "2017-02-01 00:00").')
-@pass_controler
-def list(controler, start, end):
+@pass_controller
+def list(controller, start, end):
     """List all facts within a timerange."""
-    results = _search(controler, start = start, end = end)
+    results = _search(controller, start = start, end = end)
     table, headers = _generate_facts_table(results)
     click.echo(tabulate(table, headers=headers))
 
@@ -365,17 +365,17 @@ def list(controler, start, end):
 @click.argument('raw_fact')
 @click.argument('start', default='')
 @click.argument('end', default='')
-@pass_controler
-def start(controler, raw_fact, start, end):
+@pass_controller
+def start(controller, raw_fact, start, end):
     """Start or add a fact."""
     # [FIXME]
     # The original semantics do not work anymore. As we make a clear difference
     # between *adding* a (complete) fact and *starting* a (ongoing) fact.
     # This needs to be reflected in this command.
-    _start(controler, raw_fact, start, end)
+    _start(controller, raw_fact, start, end)
 
 
-def _start(controler, raw_fact, start, end):
+def _start(controller, raw_fact, start, end):
     """
     Start or add a fact.
 
@@ -437,7 +437,7 @@ def _start(controler, raw_fact, start, end):
 
         timeframe = time_helpers.TimeFrame(
             fact.start.date(), fact.start.time(), end_date, end_time, None)
-        fact.start, fact.end = time_helpers.complete_timeframe(timeframe, controler.config)
+        fact.start, fact.end = time_helpers.complete_timeframe(timeframe, controller.config)
 
     if tmp_fact:
         # Quick fix for tmp facts. that way we can use the default helper
@@ -446,20 +446,20 @@ def _start(controler, raw_fact, start, end):
         # recieved an ``end`` value now. In that case we reset it to ``None``.
         fact.end = None
 
-    controler.client_logger.debug(_(
+    controller.client_logger.debug(_(
         "New fact instance created: {fact}".format(fact=fact)
     ))
-    fact = controler.facts.save(fact)
+    fact = controller.facts.save(fact)
 
 
 @run.command(help=help_strings.STOP_HELP)
-@pass_controler
-def stop(controler):
+@pass_controller
+def stop(controller):
     """Stop tracking current fact. Saving the result."""
-    _stop(controler)
+    _stop(controller)
 
 
-def _stop(controler):
+def _stop(controller):
     """
     Stop cucrrent 'ongoing fact' and save it to the backend.
 
@@ -470,7 +470,7 @@ def _stop(controler):
         ValueError: If no *ongoing fact* can be found.
     """
     try:
-        fact = controler.facts.stop_tmp_fact()
+        fact = controller.facts.stop_tmp_fact()
     except ValueError:
         message = _(
             "Unable to continue temporary fact. Are you sure there is one?"
@@ -483,18 +483,18 @@ def _stop(controler):
         end = fact.end.strftime("%Y-%m-%d %H:%M")
         fact_string = u'{0:s} to {1:s} {2:s}@{3:s}'.format(start, end, fact.activity.name, fact.category.name)
         message = "Stopped {fact} ({duration} minutes).".format(fact = fact_string,duration = fact.get_string_delta())
-        controler.client_logger.info(_(message))
+        controller.client_logger.info(_(message))
         click.echo(_(message))
 
 
 @run.command(help=help_strings.CANCEL_HELP)
-@pass_controler
-def cancel(controler):
+@pass_controller
+def cancel(controller):
     """Cancel 'ongoing fact'. E.g stop it without storing in the backend."""
-    _cancel(controler)
+    _cancel(controller)
 
 
-def _cancel(controler):
+def _cancel(controller):
     """
     Cancel tracking current temporary fact, discaring the result.
 
@@ -505,15 +505,15 @@ def _cancel(controler):
         KeyErŕor: No *ongoing fact* can be found.
     """
     try:
-        controler.facts.cancel_tmp_fact()
+        controller.facts.cancel_tmp_fact()
     except KeyError:
         message = _("Nothing tracked right now. Not doing anything.")
-        controler.client_logger.info(message)
+        controller.client_logger.info(message)
         raise click.ClickException(message)
     else:
         message = _("Tracking canceled.")
         click.echo(message)
-        controler.client_logger.debug(message)
+        controller.client_logger.debug(message)
 
 
 @run.command(help=help_strings.EXPORT_HELP)
@@ -524,15 +524,15 @@ def _cancel(controler):
 @click.option('-t', '--tag', help = 'The tags search string (e.g. "tag1 AND (tag2 OR tag3)".')
 @click.option('-d', '--description', help = 'The description search string (e.g. "string1 OR (string2 AND string3).')
 @click.option('-k', '--key', help = 'The database key of the fact.')
-@pass_controler
-def remove(controler, start, end, activity, category, tag, description, key):
+@pass_controller
+def remove(controller, start, end, activity, category, tag, description, key):
     """Export all facts of within a given timewindow to a file of specified format."""
-    facts = _search(controler, start, end, activity, category, tag, description, key)
+    facts = _search(controller, start, end, activity, category, tag, description, key)
     table, headers = _generate_facts_table(facts)
     click.echo(tabulate(table, headers=headers))
     if click.confirm('Do you really want to delete the facts listed above?', abort = True):
         for cur_fact in facts:
-            controler.facts.remove(cur_fact)
+            controller.facts.remove(cur_fact)
 
 
 @run.command(help=help_strings.EXPORT_HELP)
@@ -545,10 +545,10 @@ def remove(controler, start, end, activity, category, tag, description, key):
 @click.option('-d', '--description', help = 'The description search string (e.g. "string1 OR (string2 AND string3).')
 @click.option('-k', '--key', help = 'The database key of the fact.')
 @click.option('-r', '--remove', is_flag=True, help = 'Set this flag to remove the specified tag_name from the selected facts.')
-@pass_controler
-def tag(controler, tag_name, start, end, activity, category, tag, description, key, remove):
+@pass_controller
+def tag(controller, tag_name, start, end, activity, category, tag, description, key, remove):
     """Export all facts of within a given timewindow to a file of specified format."""
-    facts = _search(controler, start, end, activity, category, tag, description, key)
+    facts = _search(controller, start, end, activity, category, tag, description, key)
     table, headers = _generate_facts_table(facts)
     click.echo(tabulate(table, headers=headers))
 
@@ -556,12 +556,12 @@ def tag(controler, tag_name, start, end, activity, category, tag, description, k
         if click.confirm('Do you really want to REMOVE the tag #%s to the facts listed above?' % tag_name, abort = True):
             for cur_fact in facts:
                 cur_fact.tags = [x for x in cur_fact.tags if x.name != tag_name]
-                controler.facts._update(cur_fact)
+                controller.facts._update(cur_fact)
     else:
         if click.confirm('Do you really want to ADD the tag #%s to the facts listed above?' % tag_name, abort = True):
             for cur_fact in facts:
                 cur_fact.tags.append(hamster_lib.Tag(name = tag_name))
-                controler.facts._update(cur_fact)
+                controller.facts._update(cur_fact)
 
 
 @run.command(help=help_strings.EXPORT_HELP)
@@ -571,10 +571,10 @@ def tag(controler, tag_name, start, end, activity, category, tag, description, k
 @click.option('-a', '--activity', help = "The new activity.")
 @click.option('-c', '--category', help = "The new category.")
 @click.option('-d', '--description', help = 'The new description.')
-@pass_controler
-def edit(controler, key, start, end, activity, category, description):
+@pass_controller
+def edit(controller, key, start, end, activity, category, description):
     """Export all facts of within a given timewindow to a file of specified format."""
-    fact = controler.facts.get(pk = key)
+    fact = controller.facts.get(pk = key)
 
     if fact:
         if start:
@@ -593,7 +593,7 @@ def edit(controler, key, start, end, activity, category, description):
         if description:
             fact.description = description
 
-        controler.facts._update(fact)
+        controller.facts._update(fact)
 
 
 
@@ -607,13 +607,13 @@ def edit(controler, key, start, end, activity, category, description):
 @click.option('-d', '--description', help = 'The description search string (e.g. "string1 OR (string2 AND string3).')
 @click.option('-k', '--key', help = 'The database key of the fact.')
 @click.option('-f', '--filename', help = "The filename where to store the export file.")
-@pass_controler
-def export(controler, format, start, end, activity, category, tag, description, key, filename):
+@pass_controller
+def export(controller, format, start, end, activity, category, tag, description, key, filename):
     """Export all facts of within a given timewindow to a file of specified format."""
-    _export(controler, format, start, end, activity, category, tag, description, key, filename)
+    _export(controller, format, start, end, activity, category, tag, description, key, filename)
 
 
-def _export(controler, format, start, end, activity = None, category = None, tag = None, description = None, filename = None):
+def _export(controller, format, start, end, activity = None, category = None, tag = None, description = None, filename = None):
     """
     Export all facts in the given timeframe in the format specified.
 
@@ -634,7 +634,7 @@ def _export(controler, format, start, end, activity = None, category = None, tag
     # to streamline this.
     if format not in accepted_formats:
         message = _("Unrecocgnized export format recieved")
-        controler.client_logger.info(message)
+        controller.client_logger.info(message)
         raise click.ClickException(message)
     if not start:
         start = None
@@ -644,11 +644,11 @@ def _export(controler, format, start, end, activity = None, category = None, tag
     if filename:
         filepath = filename
     else:
-        filepath = controler.client_config['export_path']
+        filepath = controller.client_config['export_path']
         filepath = filepath + '.' + format
 
-    #facts = controler.facts.get_all(start=start, end=end)
-    facts = _search(controler,
+    #facts = controller.facts.get_all(start=start, end=end)
+    facts = _search(controller,
                     activity = activity,
                     category = category,
                     tag = tag,
@@ -673,20 +673,20 @@ def _export(controler, format, start, end, activity = None, category = None, tag
 
 
 @run.command(help=help_strings.CATEGORIES_HELP)
-@pass_controler
-def categories(controler):
+@pass_controller
+def categories(controller):
     """List all existing categories, ordered by name."""
-    _categories(controler)
+    _categories(controller)
 
 
-def _categories(controler):
+def _categories(controller):
     """
     List all existing categories, ordered by name.
 
     Returns:
         None: If success.
     """
-    result = controler.categories.get_all()
+    result = controller.categories.get_all()
     # [TODO]
     # Provide nicer looking tabulated output.
     for category in result:
@@ -694,13 +694,13 @@ def _categories(controler):
 
 
 @run.command(help=help_strings.CURRENT_HELP)
-@pass_controler
-def current(controler):
+@pass_controller
+def current(controller):
     """Display current *ongoing fact*."""
-    _current(controler)
+    _current(controller)
 
 
-def _current(controler):
+def _current(controller):
     """
     Return current *ongoing fact*.
 
@@ -711,7 +711,7 @@ def _current(controler):
         click.ClickException: If we fail to fetch any *ongoing fact*.
     """
     try:
-        fact = controler.facts.get_tmp_fact()
+        fact = controller.facts.get_tmp_fact()
     except KeyError:
         message = _(
             "There seems no be no activity beeing tracked right now."
@@ -726,13 +726,13 @@ def _current(controler):
 
 @run.command(help=help_strings.ACTIVITIES_HELP)
 @click.argument('search_term', default='')
-@pass_controler
-def activities(controler, search_term):
+@pass_controller
+def activities(controller, search_term):
     """List all activities. Provide optional filtering by name."""
-    _activities(controler, search_term)
+    _activities(controller, search_term)
 
 
-def _activities(controler, search_term):
+def _activities(controller, search_term):
     """
     List all activities. Provide optional filtering by name.
 
@@ -742,7 +742,7 @@ def _activities(controler, search_term):
     Returns:
         None: If success.
     """
-    result = controler.activities.get_all(search_term=search_term)
+    result = controller.activities.get_all(search_term=search_term)
     table = []
     headers = (_("Activity"), _("Category"))
     for activity in result:
@@ -781,32 +781,32 @@ def _license():
 
 
 @run.command(help=help_strings.DETAILS_HELP)
-@pass_controler
-def details(controler):
+@pass_controller
+def details(controller):
     """List details about the runtime environment."""
-    _details(controler)
+    _details(controller)
 
 
-def _details(controler):
+def _details(controller):
     """List details about the runtime environment."""
     def get_db_info():
         result = None
 
         def get_sqlalchemy_info():
-            engine = controler.config['db_engine']
+            engine = controller.config['db_engine']
             if engine == 'sqlite':
                 sqlalchemy_string = _("Using 'sqlite' with database stored under: {}".format(
-                    controler.config['db_path']))
+                    controller.config['db_path']))
             else:
-                port = controler.config.get('db_port', '')
+                port = controller.config.get('db_port', '')
                 if port:
                     port = ':{}'.format(port)
 
                 sqlalchemy_string = _(
                     "Using '{engine}' connecting to database {name} on {host}{port}"
                     " as user {username}.".format(
-                        engine=engine, host=controler.config['db_host'], port=port,
-                        username=controler.config['db_user'], name=controler.config['db_name'])
+                        engine=engine, host=controller.config['db_host'], port=port,
+                        username=controller.config['db_user'], name=controller.config['db_name'])
                 )
             return sqlalchemy_string
 
@@ -822,34 +822,34 @@ def _details(controler):
         )
     ))
     click.echo("Configuration found under: {}".format(_get_config_path()))
-    click.echo("Logfile stored under: {}".format(controler.client_config['logfile_path']))
-    click.echo("Reports exported to: {}".format(controler.client_config['export_path']))
+    click.echo("Logfile stored under: {}".format(controller.client_config['logfile_path']))
+    click.echo("Reports exported to: {}".format(controller.client_config['export_path']))
     click.echo(get_db_info())
 
 
 # Helper functions
-def _setup_logging(controler):
+def _setup_logging(controller):
     """Setup logging for the lib_logger as well as client specific logging."""
     formatter = logging.Formatter(
         '[%(levelname)s] %(asctime)s %(name)s %(funcName)s:  %(message)s')
 
-    lib_logger = controler.lib_logger
+    lib_logger = controller.lib_logger
     client_logger = logging.getLogger('hamster_cli')
     # Clear any existing (null)Handlers
     lib_logger.handlers = []
     client_logger.handlers = []
-    client_logger.setLevel(controler.client_config['log_level'])
-    lib_logger.setLevel(controler.client_config['log_level'])
-    controler.client_logger = client_logger
+    client_logger.setLevel(controller.client_config['log_level'])
+    lib_logger.setLevel(controller.client_config['log_level'])
+    controller.client_logger = client_logger
 
-    if controler.client_config['log_console']:
+    if controller.client_config['log_console']:
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
         lib_logger.addHandler(console_handler)
         client_logger.addHandler(console_handler)
 
-    if controler.client_config['logfile_path']:
-        filename = controler.client_config['logfile_path']
+    if controller.client_config['logfile_path']:
+        filename = controller.client_config['logfile_path']
         file_handler = logging.FileHandler(filename, encoding='utf-8')
         file_handler.setFormatter(formatter)
         lib_logger.addHandler(file_handler)
