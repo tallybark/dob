@@ -146,7 +146,9 @@ def run(controler):
         # FIXME/2018-04-22: (lb): Well, actually, don't clear, but rely on paging...
         #   after implementing paging. (Also add --paging option.)
         click.clear()
-    _show_greeting()
+    # FIXME/2018-04-22: (lb): I disabled the _show_greeting code; it's not useful info.
+    # Instead, we could make a hamster-about command.
+    #   _show_greeting()
     _run(controler)
 
 
@@ -1132,10 +1134,12 @@ def _generate_facts_table(facts):
 
 def _show_greeting():
     """Display a greeting message providing basic set of information."""
+    # 2018-04-22: (lb): It seems to me there are no i18n/l10n files for gettext/_.
     click.echo(_("Welcome to 'hamster_cli', your friendly time tracker for the command line."))
     click.echo("Copyright (C) 2015-2016, Eric Goller <elbenfreund@DenkenInEchtzeit.net>")
     click.echo(_(
         "'hamster_cli' is published under the terms of the GPL3, for details please use"
-        "the 'license' command."
+        " the 'license' command."
     ))
     click.echo()
+
