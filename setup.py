@@ -17,6 +17,9 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'appdirs',
+    # Click color support.
+    # http://click.pocoo.org/5/utils/#ansi-colors
+    'colorama',
     'configparser >= 3.5.0b2',
     'future',
     'hamster-lib',
