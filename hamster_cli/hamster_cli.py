@@ -811,11 +811,14 @@ def _details(controler):
         return result
 
     from hamster_cli import __version__, __appname__
-    click.echo(_("You are running {name} version {version}.".format(
-        name=__appname__, version=__version__)))
-    click.echo("Configuration found under: {}.".format(_get_config_path()))
-    click.echo("Logfile stored under: {}.".format(controler.client_config['logfile_path']))
-    click.echo("Reports exported to: {}.".format(controler.client_config['export_path']))
+    click.echo(_(
+        "You are running {name} version {version}".format(
+            name=__appname__, version=__version__,
+        )
+    ))
+    click.echo("Configuration found under: {}".format(_get_config_path()))
+    click.echo("Logfile stored under: {}".format(controler.client_config['logfile_path']))
+    click.echo("Reports exported to: {}".format(controler.client_config['export_path']))
     click.echo(get_db_info())
 
 
