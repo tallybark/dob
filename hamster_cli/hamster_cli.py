@@ -677,6 +677,7 @@ def _export(
     category=None,
     tag=None,
     description=None,
+    key=None,
     filename=None,
 ):
     """
@@ -714,10 +715,13 @@ def _export(
 
     #facts = controller.facts.get_all(start=start, end=end)
     facts = _search(controller,
+                    start = start,
+                    end = end,
                     activity = activity,
                     category = category,
                     tag = tag,
-                    description = description)
+                    description = description,
+                    key = key)
 
     if format == 'csv':
         writer = reports.CSVWriter(filepath)
