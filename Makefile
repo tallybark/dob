@@ -90,7 +90,6 @@ docs:
 isort:
 	isort --recursive setup.py hamster_cli/ tests/
 
-
 servedocs: docs
 	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
 
@@ -105,3 +104,4 @@ dist: clean
 
 install: clean
 	python setup.py install
+

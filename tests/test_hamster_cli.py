@@ -343,7 +343,8 @@ class TestGetConfig(object):
     def test_log_levels_valid(self, log_level, config_instance):
         """Make sure that *string loglevels* translate to their respective integers properly."""
         backend, client = hamster_cli._get_config(
-            config_instance(log_level=log_level))
+            config_instance(log_level=log_level)
+        )
         assert client['log_level'] == 10
 
     @pytest.mark.parametrize('log_level', ['foobar'])
@@ -351,13 +352,15 @@ class TestGetConfig(object):
         """Test that invalid *string loglevels* raise ``ValueError``."""
         with pytest.raises(ValueError):
             backend, client = hamster_cli._get_config(
-                config_instance(log_level=log_level))
+                config_instance(log_level=log_level)
+            )
 
     @pytest.mark.parametrize('day_start', ['05:00:00'])
     def test_daystart_valid(self, config_instance, day_start):
         """Test that ``day_start`` string translate to proper ``datetime.time`` instances."""
         backend, client = hamster_cli._get_config(config_instance(
-            daystart=day_start))
+            daystart=day_start)
+        )
         assert backend['day_start'] == datetime.datetime.strptime(
             '05:00:00', '%H:%M:%S').time()
 
@@ -366,7 +369,8 @@ class TestGetConfig(object):
         """Test that invalid ``day_start`` strings raises ``ValueError``."""
         with pytest.raises(ValueError):
             backend, client = hamster_cli._get_config(
-                config_instance(daystart=day_start))
+                config_instance(daystart=day_start)
+            )
 
     def test_invalid_store(self, config_instance):
         """Make sure that encountering an unsupportet store will raise an exception."""

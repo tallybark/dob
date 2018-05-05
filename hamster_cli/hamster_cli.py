@@ -35,9 +35,10 @@ import hamster_lib
 # under python 2 is practicly non existing and manual encoding is not easily
 # possible.
 from backports.configparser import SafeConfigParser
+from tabulate import tabulate
+
 from hamster_lib import Fact, HamsterControl, reports
 from hamster_lib.helpers import time as time_helpers
-from tabulate import tabulate
 
 from . import help_strings
 
@@ -176,8 +177,16 @@ def search(controller, start, end, activity, category, tag, description, key):
     click.echo(tabulate(table, headers=headers))
 
 
-def _search(controller, start = None, end = None, activity = None, category = None,
-            tag = None, description = None, key = None):
+def _search(
+    controller,
+    start=None,
+    end=None,
+    activity=None,
+    category=None,
+    tag=None,
+    description=None,
+    key=None,
+):
     """
     Search facts machting given timerange and search term. Both are optional.
 
@@ -481,8 +490,12 @@ def _stop(controller):
         #message = '{fact} ({duration} minutes)'.format(fact=str(fact), duration=fact.get_string_delta())
         start = fact.start.strftime("%Y-%m-%d %H:%M")
         end = fact.end.strftime("%Y-%m-%d %H:%M")
-        fact_string = u'{0:s} to {1:s} {2:s}@{3:s}'.format(start, end, fact.activity.name, fact.category.name)
-        message = "Stopped {fact} ({duration} minutes).".format(fact = fact_string,duration = fact.get_string_delta())
+        fact_string = u'{0:s} to {1:s} {2:s}@{3:s}'.format(
+            start, end, fact.activity.name, fact.category.name
+        )
+        message = "Stopped {fact} ({duration} minutes).".format(
+            fact = fact_string, duration = fact.get_string_delta()
+        )
         controller.client_logger.info(_(message))
         click.echo(_(message))
 
@@ -536,7 +549,7 @@ def remove(controller, start, end, activity, category, tag, description, key):
 
 
 @run.command(help=help_strings.EXPORT_HELP)
-@click.argument('tag_name', nargs=1, default = None)
+@click.argument('tag_name', nargs=1, default=None)
 @click.option('-s', '--start', help = 'The start time string (e.g. "2017-01-01 00:00").')
 @click.option('-e', '--end', help = 'The end time string (e.g. "2017-02-01 00:00").')
 @click.option('-a', '--activity', help = "The search string applied to activity names.")
@@ -596,7 +609,6 @@ def edit(controller, key, start, end, activity, category, description):
         controller.facts._update(fact)
 
 
-
 @run.command(help=help_strings.EXPORT_HELP)
 @click.argument('format', nargs=1, default='csv')
 @click.argument('start', nargs=1, default='')
@@ -613,7 +625,17 @@ def export(controller, format, start, end, activity, category, tag, description,
     _export(controller, format, start, end, activity, category, tag, description, key, filename)
 
 
-def _export(controller, format, start, end, activity = None, category = None, tag = None, description = None, filename = None):
+def _export(
+    controller,
+    format,
+    start,
+    end,
+    activity=None,
+    category=None,
+    tag=None,
+    description=None,
+    filename=None,
+):
     """
     Export all facts in the given timeframe in the format specified.
 
@@ -1096,8 +1118,9 @@ def _generate_facts_table(facts):
         'delta': _("Duration")
     }
 
-    columns = ('key', 'start', 'end', 'activity', 'category', 'tags', 'description',
-        'delta')
+    columns = (
+        'key', 'start', 'end', 'activity', 'category', 'tags', 'description', 'delta',
+    )
 
     header = [headers[column] for column in columns]
 
