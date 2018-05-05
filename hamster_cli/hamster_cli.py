@@ -35,6 +35,7 @@ import hamster_lib
 # under python 2 is practicly non existing and manual encoding is not easily
 # possible.
 from backports.configparser import SafeConfigParser
+from six import string_types
 from tabulate import tabulate
 
 from hamster_lib import Fact, HamsterControl, reports
@@ -208,7 +209,7 @@ def _search(
         '''
         '''
         if len(tree) == 1:
-            if isinstance(tree[0], (str, unicode)):
+            if isinstance(tree[0], string_types):
                 l_term = tree[0]
                 if search_sub_attr:
                     search_list = [fact for fact in search_list if l_term.lower() in getattr(getattr(fact, search_attr), search_sub_attr).lower()]
@@ -221,7 +222,7 @@ def _search(
             # This is the NOT operator.
             op = tree[0]
             r_term = tree[1]
-            if isinstance(r_term, (str, unicode)):
+            if isinstance(r_term, string_types):
                 if search_sub_attr:
                     r_search_list = [fact for fact in search_list if r_term.lower() in getattr(getattr(fact, search_attr), search_sub_attr).lower()]
                 else:
@@ -235,7 +236,7 @@ def _search(
             r_term = tree[2]
             op = tree[1]
 
-            if isinstance(l_term, (str, unicode)):
+            if isinstance(l_term, string_types):
                 if search_sub_attr:
                     l_search_list = [fact for fact in search_list if l_term.lower() in getattr(getattr(fact, search_attr), search_sub_attr).lower()]
                 else:
@@ -243,7 +244,7 @@ def _search(
             else:
                 l_search_list = search_facts(l_term, search_list, search_attr, search_sub_attr)
 
-            if isinstance(r_term, (str, unicode)):
+            if isinstance(r_term, string_types):
                 if search_sub_attr:
                     r_search_list = [fact for fact in search_list if r_term.lower() in getattr(getattr(fact, search_attr), search_sub_attr).lower()]
                 else:
@@ -264,7 +265,7 @@ def _search(
         '''
         '''
         if len(tree) == 1:
-            if isinstance(tree[0], (str, unicode)):
+            if isinstance(tree[0], string_types):
                 l_term = tree[0]
                 search_list = [fact for fact in search_list if l_term.lower() in [x.name.lower() for x in fact.tags]]
             else:
@@ -273,7 +274,7 @@ def _search(
             # This is the NOT operator.
             op = tree[0]
             r_term = tree[1]
-            if isinstance(r_term, (str, unicode)):
+            if isinstance(r_term, string_types):
                 r_search_list = [fact for fact in search_list if r_term.lower() in [x.name.lower() for x in fact.tags]]
             else:
                 r_search_list = search_tags(r_term, search_list)
@@ -284,12 +285,12 @@ def _search(
             r_term = tree[2]
             op = tree[1]
 
-            if isinstance(l_term, (str, unicode)):
+            if isinstance(l_term, string_types):
                 l_search_list = [fact for fact in search_list if l_term.lower() in [x.name.lower() for x in fact.tags]]
             else:
                 l_search_list = search_tags(l_term, search_list)
 
-            if isinstance(r_term, (str, unicode)):
+            if isinstance(r_term, string_types):
                 r_search_list = [fact for fact in search_list if r_term.lower() in [x.name.lower() for x in fact.tags]]
             else:
                 r_search_list = search_tags(r_term, search_list)
