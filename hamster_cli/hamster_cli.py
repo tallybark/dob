@@ -160,7 +160,9 @@ def _run(controller):
 
 
 @run.command(help=help_strings.SEARCH_HELP)
-#@click.argument('time_range', default='')
+@click.argument('search_term', nargs=-1, default=None)
+# MAYBE/2018-05-05: (lb): Restore the time_range arg scientificsteve removed:
+#  @click.argument('time_range', default='')
 @click.option('-s', '--start', help = 'The start time string (e.g. "2017-01-01 00:00").')
 @click.option('-e', '--end', help = 'The end time string (e.g. "2017-02-01 00:00").')
 @click.option('-a', '--activity', help = "The search string applied to activity names.")
@@ -169,10 +171,29 @@ def _run(controller):
 @click.option('-d', '--description', help = 'The description search string (e.g. "string1 OR (string2 AND string3).')
 @click.option('-k', '--key', help = 'The database key of the fact.')
 @pass_controller
-def search(controller, start, end, activity, category, tag, description, key):
+def search(controller, start, end, activity, category, tag, description, key, search_term):
     """Fetch facts matching certain criteria."""
     # [FIXME]
     # Check what we actually match against.
+    # NOTE: (lb): Before scientificsteve added all the --options, the
+    #       original command accepted a search_term and a time_range,
+    #       e.g.,
+    #
+    #         @click.argument('search_term', default='')
+    #         @click.argument('time_range', default='')
+    #         def search(controller, search_term, time_range):
+    #           return _search(controller, search_term, time_range)
+    #           # And then the table and click.echo were at the bottom of
+    #           # _search! And I'm not sure why they were moved here....
+    #
+    #       MAYBE: Restore supprt for time_range, i.e., let user specify
+    #       2 positional args in addition to any number of options. And
+    #       figure out why the generate-table and click.echo were moved
+    #       here?
+    if search_term:
+        description = description or ''
+        description += ' AND ' if description else ''
+        description += ' AND '.join(search_term)
     results = _search(controller, start, end, activity, category, tag, description, key)
     table, headers = _generate_facts_table(results)
     click.echo(tabulate(table, headers=headers))
