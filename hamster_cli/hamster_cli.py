@@ -208,13 +208,25 @@ def _search(
     def search_facts(tree, search_list, search_attr, search_sub_attr = None):
         '''
         '''
+        def search_value(fact):
+            if search_attr == 'description':
+                return getattr(fact, search_attr)
+            else:
+                return getattr(fact, search_attr).name
+
         if len(tree) == 1:
             if isinstance(tree[0], string_types):
                 l_term = tree[0]
                 if search_sub_attr:
-                    search_list = [fact for fact in search_list if l_term.lower() in getattr(getattr(fact, search_attr), search_sub_attr).lower()]
+                    search_list = [
+                        fact for fact in search_list if l_term.lower()
+                            in getattr(getattr(fact, search_attr), search_sub_attr).lower()
+                    ]
                 else:
-                    search_list = [fact for fact in search_list if getattr(fact, search_attr) is not None and l_term.lower() in getattr(fact, search_attr).lower()]
+                    search_list = [
+                        fact for fact in search_list if getattr(fact, search_attr)
+                            is not None and l_term.lower() in search_value(fact).lower()
+                    ]
             else:
                 search_list = search_facts(tree[0], search_list, search_attr, search_sub_attr)
 
@@ -224,9 +236,15 @@ def _search(
             r_term = tree[1]
             if isinstance(r_term, string_types):
                 if search_sub_attr:
-                    r_search_list = [fact for fact in search_list if r_term.lower() in getattr(getattr(fact, search_attr), search_sub_attr).lower()]
+                    r_search_list = [
+                        fact for fact in search_list if r_term.lower()
+                            in getattr(search_value(fact), search_sub_attr).lower()
+                    ]
                 else:
-                    r_search_list = [fact for fact in search_list if getattr(fact, search_attr) is not None and r_term.lower() in getattr(fact, search_attr).lower()]
+                    r_search_list = [
+                        fact for fact in search_list if getattr(fact, search_attr)
+                            is not None and r_term.lower() in search_value(fact).lower()
+                    ]
             else:
                 r_search_list = search_facts(r_term, search_list, search_attr, search_sub_attr)
             search_list = [x for x in search_list if x not in r_search_list]
@@ -238,17 +256,29 @@ def _search(
 
             if isinstance(l_term, string_types):
                 if search_sub_attr:
-                    l_search_list = [fact for fact in search_list if l_term.lower() in getattr(getattr(fact, search_attr), search_sub_attr).lower()]
+                    l_search_list = [
+                        fact for fact in search_list if l_term.lower()
+                            in getattr(search_value(fact), search_sub_attr).lower()
+                    ]
                 else:
-                    l_search_list = [fact for fact in search_list if getattr(fact, search_attr) is not None and l_term.lower() in getattr(fact, search_attr).name.lower()]
+                    l_search_list = [
+                        fact for fact in search_list if getattr(fact, search_attr)
+                            is not None and l_term.lower() in search_value(fact).lower()
+                    ]
             else:
                 l_search_list = search_facts(l_term, search_list, search_attr, search_sub_attr)
 
             if isinstance(r_term, string_types):
                 if search_sub_attr:
-                    r_search_list = [fact for fact in search_list if r_term.lower() in getattr(getattr(fact, search_attr), search_sub_attr).lower()]
+                    r_search_list = [
+                        fact for fact in search_list if r_term.lower()
+                            in getattr(search_value(fact), search_sub_attr).lower()
+                    ]
                 else:
-                    r_search_list = [fact for fact in search_list if getattr(fact, search_attr) is not None and r_term.lower() in getattr(fact, search_attr).name.lower()]
+                    r_search_list = [
+                        fact for fact in search_list if getattr(fact, search_attr)
+                            is not None and r_term.lower() in search_value(fact).lower()
+                    ]
             else:
                 r_search_list = search_facts(r_term, search_list, search_attr, search_sub_attr)
 
@@ -267,7 +297,10 @@ def _search(
         if len(tree) == 1:
             if isinstance(tree[0], string_types):
                 l_term = tree[0]
-                search_list = [fact for fact in search_list if l_term.lower() in [x.name.lower() for x in fact.tags]]
+                search_list = [
+                    fact for fact in search_list if l_term.lower()
+                        in [x.name.lower() for x in fact.tags]
+                ]
             else:
                 search_list = search_tags(tree[0], search_list)
         elif len(tree) == 2:
@@ -275,7 +308,10 @@ def _search(
             op = tree[0]
             r_term = tree[1]
             if isinstance(r_term, string_types):
-                r_search_list = [fact for fact in search_list if r_term.lower() in [x.name.lower() for x in fact.tags]]
+                r_search_list = [
+                    fact for fact in search_list if r_term.lower()
+                        in [x.name.lower() for x in fact.tags]
+                ]
             else:
                 r_search_list = search_tags(r_term, search_list)
 
@@ -286,12 +322,18 @@ def _search(
             op = tree[1]
 
             if isinstance(l_term, string_types):
-                l_search_list = [fact for fact in search_list if l_term.lower() in [x.name.lower() for x in fact.tags]]
+                l_search_list = [
+                     fact for fact in search_list if l_term.lower()
+                        in [x.name.lower() for x in fact.tags]
+                ]
             else:
                 l_search_list = search_tags(l_term, search_list)
 
             if isinstance(r_term, string_types):
-                r_search_list = [fact for fact in search_list if r_term.lower() in [x.name.lower() for x in fact.tags]]
+                r_search_list = [
+                    fact for fact in search_list if r_term.lower()
+                        in [x.name.lower() for x in fact.tags]
+                ]
             else:
                 r_search_list = search_tags(r_term, search_list)
 
