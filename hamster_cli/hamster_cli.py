@@ -350,9 +350,9 @@ def _search(
     else:
         # Convert the start and time strings to datetimes.
         if start:
-            start = datetime.datetime.strptime(start, '%Y-%m-%d %H:%M')
+            start = time_helpers.parse_time(start)
         if end:
-            end = datetime.datetime.strptime(end, '%Y-%m-%d %H:%M')
+            end = time_helpers.parse_time(end)
 
         results = controller.facts.get_all(start=start, end=end)
 
@@ -634,11 +634,11 @@ def edit(controller, key, start, end, activity, category, description):
 
     if fact:
         if start:
-            start = datetime.datetime.strptime(start, '%Y-%m-%d %H:%M')
+            start = time_helpers.parse_time(start)
             fact.start = start
 
         if end:
-            end = datetime.datetime.strptime(end, '%Y-%m-%d %H:%M')
+            end = time_helpers.parse_time(end)
             fact.end = end
 
         if activity and category:
