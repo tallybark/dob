@@ -23,9 +23,9 @@ class TestSearch(object):
     @freeze_time('2015-12-12 18:00')
     def test_search(self, controller, mocker, fact, search_parameter_parametrized):
         """Ensure that your search parameters get passed on to the apropiate backend function."""
-        start, end, activity, expectation = search_parameter_parametrized
+        start, end, description, expectation = search_parameter_parametrized
         controller.facts.get_all = mocker.MagicMock(return_value=[fact])
-        hamster_cli._search(controller, start, end, activity)
+        hamster_cli._search(controller, start, end, description=description)
         controller.facts.get_all.assert_called_with(**expectation)
 
 
