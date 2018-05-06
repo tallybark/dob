@@ -150,8 +150,14 @@ class TestExport(object):
 
     def test_csv(self, controller, controller_with_logging, mocker):
         """Make sure that a valid format returns the apropiate writer class."""
-        hamster_lib.reports.TSVWriter = mocker.MagicMock()
+        hamster_lib.reports.CSVWriter = mocker.MagicMock()
         hamster_cli._export(controller, 'csv', None, None)
+        assert hamster_lib.reports.CSVWriter.called
+
+    def test_tsv(self, controller, controller_with_logging, mocker):
+        """Make sure that a valid format returns the apropiate writer class."""
+        hamster_lib.reports.TSVWriter = mocker.MagicMock()
+        hamster_cli._export(controller, 'tsv', None, None)
         assert hamster_lib.reports.TSVWriter.called
 
     def test_ical(self, controller, controller_with_logging, mocker):
@@ -170,11 +176,13 @@ class TestExport(object):
         """Make sure that passing a end date is passed to the fact gathering method."""
         controller.facts.get_all = mocker.MagicMock()
         path = os.path.join(tmpdir.mkdir('report').strpath, 'report.csv')
-        hamster_lib.reports.TSVWriter = mocker.MagicMock(
-            return_value=hamster_lib.reports.TSVWriter(path)
+        hamster_lib.reports.CSVWriter = mocker.MagicMock(
+            return_value=hamster_lib.reports.CSVWriter(path)
         )
         start = fauxfactory.gen_datetime()
-        hamster_cli._export(controller, 'csv', start, None)
+        # Get rid of fractions of a second.
+        start = time_helpers.truncate_to_whole_seconds(start)
+        hamster_cli._export(controller, 'csv', start.strftime('%Y-%m-%d %H:%M'), None)
         args, kwargs = controller.facts.get_all.call_args
         assert kwargs['start'] == start
 
@@ -182,11 +190,12 @@ class TestExport(object):
         """Make sure that passing a end date is passed to the fact gathering method."""
         controller.facts.get_all = mocker.MagicMock()
         path = os.path.join(tmpdir.mkdir('report').strpath, 'report.csv')
-        hamster_lib.reports.TSVWriter = mocker.MagicMock(
-            return_value=hamster_lib.reports.TSVWriter(path)
+        hamster_lib.reports.CSVWriter = mocker.MagicMock(
+            return_value=hamster_lib.reports.CSVWriter(path)
         )
         end = fauxfactory.gen_datetime()
-        hamster_cli._export(controller, 'csv', None, end)
+        end = time_helpers.truncate_to_whole_seconds(end)
+        hamster_cli._export(controller, 'csv', None, end.strftime('%Y-%m-%d %H:%M'))
         args, kwargs = controller.facts.get_all.call_args
         assert kwargs['end'] == end
 
