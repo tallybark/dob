@@ -13,6 +13,7 @@ import pytest
 from backports.configparser import SafeConfigParser
 from click import ClickException
 from freezegun import freeze_time
+from hamster_lib.helpers import time as time_helpers
 
 from hamster_cli import __appname__, __version__, hamster_cli
 
@@ -82,7 +83,29 @@ class TestStop(object):
 
     def test_stop_existing_tmp_fact(self, tmp_fact, controller_with_logging, mocker):
         """Make sure stoping an ongoing fact works as intended."""
-        controller_with_logging.facts.stop_tmp_fact = mocker.MagicMock()
+        # 2018-05-05: (lb): How long have these tests been broken?
+        #
+        #   I forked a zombie project! Works, Not Works!
+        #
+        #   In any case, there a u''.format() in hamster_cli._stop
+        #   that complains if you pass it MagicMock objects instead
+        #   of strings. So here we mock all the methods and members
+        #   the _stop uses. (And I'm not super familiar with py.test
+        #   and mocking, so I can only hope I'm doing this correctly!)
+        #
+        # Here's the original code:
+        #
+        #   controller_with_logging.facts.stop_tmp_fact = mocker.MagicMock()
+        #
+        # And here's what I changed to make this test succeed:
+        mockfact = mocker.MagicMock()
+        mockfact.activity.name = 'foo'
+        mockfact.category.name = 'bar'
+        mocktime = mocker.MagicMock(return_value="%Y-%m-%d %H:%M")
+        mockfact.start.strftime = mocktime
+        mockfact.end.strftime = mocktime
+        controller_with_logging.facts.stop_tmp_fact = mocker.MagicMock(return_value=mockfact)
+
         hamster_cli._stop(controller_with_logging)
         assert controller_with_logging.facts.stop_tmp_fact.called
 
