@@ -51,7 +51,7 @@ class TestStart(object):
                 'end': datetime.datetime(2015, 12, 25, 18, 00, 0),
                 'tags': [],
             }),
-            # 'ongoing fact's
+            # 'ongoing facts
             ('foo@bar', '2015-12-12 13:00', '', {
                 'activity': 'foo',
                 'category': 'bar',
@@ -66,12 +66,65 @@ class TestStart(object):
                 'end': None,
                 'tags': [],
             }),
+            # Tags.
+            ('11:00 foo@bar #precious #hashish, i like ike', '2015-12-12 13:00', '', {
+                'activity': 'foo',
+                'category': 'bar',
+                'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
+                'end': None,
+                'tags': ['precious', 'hashish'],
+                'description': 'i like ike',
+            }),
+            # FIXME: Should quotes work? Containing the "#hash char"?
+            ('11:00 foo@bar #just walk away "#one two three", i like ike', '2015-12-12 13:00', '', {
+                'activity': 'foo',
+                'category': 'bar',
+                'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
+                'end': None,
+                'tags': ['just walk away "#one two three"'],
+                'description': 'i like ike',
+            }),
+            # FIXME: Should quotes work? Inside the #"hash char"?
+            ('11:00 foo@bar #"one two three" #just walk away, i like ike', '2015-12-12 13:00', '', {
+                'activity': 'foo',
+                'category': 'bar',
+                'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
+                'end': None,
+                # FIXME: (lb): Should we really scrub quotes? What it user wants quotes??
+                #'tags': ['just walk away', 'one two three'],
+                'tags': ['just walk away', '"one two three"'],
+                'description': 'i like ike',
+            }),
+            # Test '#' in description, elsewhere, after command, etc.
+            ('11:00 foo@bar", i like ike #punk president, yas! 12:59', '2015-12-12 13:00', '', {
+                'activity': 'foo',
+                'category': 'bar"',
+                'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
+                'end': None,
+                'tags': [],
+                'description': 'i like ike #punk president, yas! 12:59',
+            }),
+            ('11:00 foo@bar #this#is#one#helluva#tag, foo bar', '2015-12-12 13:00', '', {
+                'activity': 'foo',
+                'category': 'bar',
+                'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
+                'end': None,
+                'tags': ['this#is#one#helluva#tag'],
+                'description': 'foo bar',
+            }),
         ],
     )
     def test_start_add_new_fact(self, controller_with_logging, mocker, raw_fact,
             start, end, expectation):
         """
         Test that inpul validation and assignment of start/endtime works is done as expected.
+
+        To test just this function -- and the parametrize, above -- try:
+
+          workon hamster
+          cdproject
+          py.test --pdb -vv -k test_start_add_new_fact tests/
+
         """
         controller = controller_with_logging
         controller.facts.save = mocker.MagicMock()
@@ -83,6 +136,13 @@ class TestStart(object):
         assert fact.end == expectation['end']
         assert fact.activity.name == expectation['activity']
         assert fact.category.name == expectation['category']
+        expecting_tags = ''
+        tagnames = list(expectation['tags'])
+        if tagnames:
+            tagnames.sort()
+            expecting_tags = ['#{}'.format(name) for name in tagnames]
+            expecting_tags = ' {}'.format(' '.join(expecting_tags))
+        assert fact.tagnames() == expecting_tags
 
 
 class TestStop(object):
