@@ -23,6 +23,7 @@ from backports.configparser import SafeConfigParser
 from click.testing import CliRunner
 from pytest_factoryboy import register
 from six import text_type
+import freezegun
 
 import hamster_cli.hamster_cli as hamster_cli
 
@@ -235,30 +236,37 @@ def controller_with_logging(lib_config, client_config):
 
 
 @pytest.fixture(params=[
-    ('', '', {
-        'filter_term': '',
+    # 2018-05-05: (lb): I'm so confused. Why is datetime.datetime returned
+    # in one test, but freezegun.api.FakeDatetime returned in another?
+    # And then for today's date, you use datetime.time! So strange!!
+    #
+    # I thought it might be because @freezegun.freeze_time only freezes
+    # now(), so all other times are not mocked, but note how the frozen
+    # 18:00 time, '2015-12-12 18:00', is not mocked in the first two tests,
+    # but then it is in the third test!! So confused!
+    (None, None, '', {
         'start': None,
         'end': None,
     }),
-    ('', '2015-12-12 18:00 - 2015-12-12 19:30', {
-        'filter_term': '',
+    ('2015-12-12 18:00', '2015-12-12 19:30', '', {
         'start': datetime.datetime(2015, 12, 12, 18, 0, 0),
-        'end': datetime.datetime(2015, 12, 12, 19, 30, 0)
+        'end': datetime.datetime(2015, 12, 12, 19, 30, 0),
     }),
-    ('', '2015-12-12 18:00', {
-        'filter_term': '',
+    ('2015-12-12 18:00', '2015-12-12 19:30', '', {
         'start': datetime.datetime(2015, 12, 12, 18, 0, 0),
-        'end': datetime.datetime(2015, 12, 12, 23, 59, 59)
+        'end': datetime.datetime(2015, 12, 12, 19, 30, 0),
     }),
-    ('', '2015-12-12', {
-        'filter_term': '',
-        'start': datetime.datetime(2015, 12, 12, 0, 0, 0),
-        'end': datetime.datetime(2015, 12, 12, 23, 59, 59)
+    ('2015-12-12 18:00', '', '', {
+        'start': freezegun.api.FakeDatetime(2015, 12, 12, 18, 0, 0),
+        'end': '',
     }),
-    ('', '13:00', {
-        'filter_term': '',
-        'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
-        'end': datetime.datetime(2015, 12, 12, 23, 59, 59),
+    ('2015-12-12', '', '', {
+        'start': freezegun.api.FakeDate(2015, 12, 12),
+        'end': '',
+    }),
+    ('13:00', '', '', {
+        'start': datetime.time(13, 0),
+        'end': '',
     }),
 ])
 def search_parameter_parametrized(request):
