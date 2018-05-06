@@ -266,6 +266,12 @@ class TestExport(object):
         args, kwargs = controller.facts.get_all.call_args
         assert kwargs['end'] == end
 
+    def test_with_filename(self, controller, controller_with_logging, tmpdir, mocker):
+        """Make sure that a valid format returns the apropiate writer class."""
+        path = os.path.join(tmpdir.ensure_dir('export').strpath, 'export.csv')
+        hamster_lib.reports.CSVWriter = mocker.MagicMock()
+        hamster_cli._export(controller, 'csv', None, None, filename=path)
+        assert hamster_lib.reports.CSVWriter.called
 
 class TestCategories(object):
     """Unittest related to category listings."""
