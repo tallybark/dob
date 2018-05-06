@@ -450,7 +450,7 @@ class TestGenerateTable(object):
     def test_header(self):
         """Make sure the tables header matches our expectation."""
         table, header = hamster_cli._generate_facts_table([])
-        assert len(header) == 6
+        assert len(header) == 8
 
 
 class TestWriteConfigFile(object):
