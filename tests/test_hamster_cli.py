@@ -34,33 +34,40 @@ class TestStart(object):
     """Unit test related to starting a new fact."""
 
     @freeze_time('2015-12-25 18:00')
-    @pytest.mark.parametrize(('raw_fact', 'start', 'end', 'expectation'), [
-        ('foo@bar', '2015-12-12 13:00', '2015-12-12 16:30', {
-            'activity': 'foo',
-            'category': 'bar',
-            'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
-            'end': datetime.datetime(2015, 12, 12, 16, 30, 0),
-        }),
-        ('10:00 - 18:00 foo@bar', '2015-12-12 13:00', '', {
-            'activity': 'foo',
-            'category': 'bar',
-            'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
-            'end': datetime.datetime(2015, 12, 25, 18, 00, 0),
-        }),
-        # 'ongoing fact's
-        ('foo@bar', '2015-12-12 13:00', '', {
-            'activity': 'foo',
-            'category': 'bar',
-            'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
-            'end': None,
-        }),
-        ('11:00 foo@bar', '2015-12-12 13:00', '', {
-            'activity': 'foo',
-            'category': 'bar',
-            'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
-            'end': None,
-        }),
-    ])
+    @pytest.mark.parametrize(
+        ('raw_fact', 'start', 'end', 'expectation'),
+        [
+            ('foo@bar', '2015-12-12 13:00', '2015-12-12 16:30', {
+                'activity': 'foo',
+                'category': 'bar',
+                'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
+                'end': datetime.datetime(2015, 12, 12, 16, 30, 0),
+                'tags': [],
+            }),
+            ('10:00 - 18:00 foo@bar', '2015-12-12 13:00', '', {
+                'activity': 'foo',
+                'category': 'bar',
+                'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
+                'end': datetime.datetime(2015, 12, 25, 18, 00, 0),
+                'tags': [],
+            }),
+            # 'ongoing fact's
+            ('foo@bar', '2015-12-12 13:00', '', {
+                'activity': 'foo',
+                'category': 'bar',
+                'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
+                'end': None,
+                'tags': [],
+            }),
+            ('11:00 foo@bar', '2015-12-12 13:00', '', {
+                'activity': 'foo',
+                'category': 'bar',
+                'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
+                'end': None,
+                'tags': [],
+            }),
+        ],
+    )
     def test_start_add_new_fact(self, controller_with_logging, mocker, raw_fact,
             start, end, expectation):
         """
