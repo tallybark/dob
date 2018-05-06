@@ -8,8 +8,15 @@ class TestBasicRun(object):
         assert result.exit_code == 0
 
 
-class TestSearch(object):
-    def test_search(self, runner):
+class TestSearchAll(object):
+    def test_search_all(self, runner):
+        """Make sure that invoking the command passes without exception."""
+        result = runner(['search'])
+        assert result.exit_code == 0
+
+
+class TestSearchTerm(object):
+    def test_search_term(self, runner):
         """Make sure that invoking the command passes without exception."""
         result = runner(['search', 'foobar'])
         assert result.exit_code == 0

@@ -18,7 +18,7 @@ from hamster_lib.helpers import time as time_helpers
 from hamster_cli import __appname__, __version__, hamster_cli
 
 
-class TestSearch(object):
+class TestSearchTerm(object):
     """Unit tests for search command."""
 
     @freeze_time('2015-12-12 18:00')
