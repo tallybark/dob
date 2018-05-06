@@ -827,7 +827,8 @@ def _export(
         writer = reports.ICALWriter(filepath)
         writer.write_report(facts)
         click.echo(_("Facts have been exported to: {path}".format(path=filepath)))
-    elif format == 'xml':
+    else:
+        assert format == 'xml'
         writer = reports.XMLWriter(filepath)
         writer.write_report(facts)
         click.echo(_("Facts have been exported to: {path}".format(path=filepath)))
