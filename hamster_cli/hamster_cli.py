@@ -1131,6 +1131,14 @@ def _get_config(config_instance):
 
         def get_tmpfile_path():
             """Return path to file used to store *ongoing fact*."""
+            # MAYBE: (lb): The /tmp files are not actually cleaned up.
+            #   E.g., look under: /tmp/some_dir/.
+            #   Should we cleanup?
+            # FIXME/2018-05-06: (lb): The current, ongoing fact is stored
+            #   in a temporary file until the user calls hamster-stop.
+            #   1. Why is that?
+            #   2. Can we fix it so hamster_briefs sees it?
+            #      (My hamster tools look for the 1 ongoing fact.)
             return os.path.join(AppDirs.user_data_dir, 'hamster_cli.fact')
 
         def get_db_config():
