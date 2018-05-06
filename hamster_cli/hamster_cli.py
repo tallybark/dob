@@ -1077,6 +1077,11 @@ def _get_config(config_instance):
             """Return path to save exports to. Filenextension will be added by export method."""
             return os.path.join(AppDirs.user_data_dir, 'export')
 
+        # MAYBE/2018-05-05: (lb): Make the config less strict.
+        # If a config value is missing, the app crashes, e.g.,
+        #
+        #   backports.configparser.NoOptionError: No option 'term_color' in section: 'Client'
+
         return {
             'log_level': get_log_level(),
             'log_console': get_log_console(),

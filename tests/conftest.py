@@ -141,6 +141,8 @@ def config_instance(tmpdir, faker):
             config.set('Client', 'log_level', kwargs.get('log_level', 'debug'))
             config.set('Client', 'log_console', kwargs.get('log_console', '0'))
             config.set('Client', 'log_filename', kwargs.get('log_filename', faker.file_name()))
+            config.set('Client', 'term_color', 'True')
+            config.set('Client', 'term_paging', 'False')
             return config
     return generate_config
 
