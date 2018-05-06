@@ -223,9 +223,11 @@ def _search(
     Args:
         search_term: Term that need to be matched by the fact in order to be considered a hit.
         time_range: Only facts within this timerange will be considered.
-        tag:
+        tag: ...
     """
 
+    # FIXME/2018-05-05: (lb): This is from the scientificsteve PR that adds tags:
+    #   DRY: Refactor this code; there is a lot of copy-paste code.
     def search_facts(tree, search_list, search_attr, search_sub_attr = None):
         '''
         '''
@@ -311,7 +313,8 @@ def _search(
 
         return search_list
 
-
+    # FIXME/2018-05-05: (lb): This is from the scientificsteve PR that adds tags:
+    #   DRY: Refactor this code; there is a lot of copy-paste code.
     def search_tags(tree, search_list):
         '''
         '''
@@ -366,6 +369,41 @@ def _search(
 
         return search_list
 
+    # (lb): Hahaha: end of inline defs. Now we start the _search method!
+
+    # NOTE: (lb): ProjectHamster PR #176 by scientificsteve adds search --options
+    #       but remove the two positional parameters.
+    #
+    #       Here's what the fcn. use to look like; I'll delete this comment
+    #       and code once I'm more familiar with the project and am confident
+    #       nothing here is broke (because I already found a few things! and
+    #       I might want to just revert some parts of the PR so I can move on
+    #       with life (but keep parts of the PR I like, like tags support!)).
+    #
+    if False: # removed by scientificsteve
+        def _search(controler, search_term, time_range):
+            # [FIXME]
+            # As far as our backend is concerned search_term as well as time range are
+            # optional. If the same is true for legacy hamster-cli needs to be checked.
+            if not time_range:
+                start, end = (None, None)
+            else:
+                # [FIXME]
+                # This is a rather crude fix. Recent versions of ``hamster-lib`` do not
+                # provide a dedicated helper to parse *just* time(ranges) but expect a
+                # ``raw_fact`` text. In order to work around this we just append
+                # whitespaces to our time range argument which will qualify for the
+                # desired parsing.
+                # Once raw_fact/time parsing has been refactored in hamster-lib, this
+                # should no longer be needed.
+                time_range = time_range + '  '
+                timeinfo = time_helpers.extract_time_info(time_range)[0]
+                start, end = time_helpers.complete_timeframe(timeinfo, controler.config)
+            # (lb): In lieu of filter_term, which justs searches facts,
+            # scientificsteve switched to `hamster-cli search --description foo`.
+            results = controler.facts.get_all(filter_term=search_term, start=start, end=end)
+    # end: disabled code...
+
     if key:
         results = [controller.facts.get(pk = key),]
     else:
@@ -376,6 +414,21 @@ def _search(
             end = time_helpers.parse_time(end)
 
         results = controller.facts.get_all(start=start, end=end)
+
+        # (lb): scientificsteve's PR adds these if's, but they seem wrong,
+        # i.e., if you specify --activity and --category, then only
+        # category matches are returned! But I don't care too much,
+        # because I use hamster_briefs for searching and reports!
+        # Granted, it's coupled to SQLite3, but that's probably easy
+        # to fix, and I don't care; SQLite3 is perfectly fine. I have
+        # no idea why SQLAlchemy was a priority for the redesign.
+        #
+        # Also: It looks like we post-processing database results?
+        # Wouldn't it be better to craft the SQL query to do the
+        # filtering? Another reason I like hamster_briefs so much better!
+
+        # FIXME/2018-05-05: (lb): The next 4 if-blocks are from the scientificsteve PR
+        #   that adds tags: DRY: Refactor this code; there is a lot of copy-paste code.
 
         if activity:
             identifier = pp.Word(pp.alphanums + pp.alphas8bit + '_' + '-')
@@ -593,6 +646,12 @@ def _cancel(controller):
         controller.client_logger.debug(message)
 
 
+# (lb): This is a scientificsteve command: Beware!
+# - It is not tested.
+# - This is wrong, for one:
+#     help=help_strings.EXPORT_HELP
+#   Should be, i.e.,
+#     help=help_strings.REMOVE_HELP
 @run.command(help=help_strings.EXPORT_HELP)
 @click.option('-s', '--start', help = 'The start time string (e.g. "2017-01-01 00:00").')
 @click.option('-e', '--end', help = 'The end time string (e.g. "2017-02-01 00:00").')
@@ -612,6 +671,12 @@ def remove(controller, start, end, activity, category, tag, description, key):
             controller.facts.remove(cur_fact)
 
 
+# (lb): This is a scientificsteve command: Beware!
+# - It is not tested.
+# - This is wrong, for one:
+#     help=help_strings.EXPORT_HELP
+#   Should be, i.e.,
+#     help=help_strings.TAG_HELP
 @run.command(help=help_strings.EXPORT_HELP)
 @click.argument('tag_name', nargs=1, default=None)
 @click.option('-s', '--start', help = 'The start time string (e.g. "2017-01-01 00:00").')
@@ -641,6 +706,12 @@ def tag(controller, tag_name, start, end, activity, category, tag, description, 
                 controller.facts._update(cur_fact)
 
 
+# (lb): This is a scientificsteve command. Take it with a grain of salt.
+# - It is not tested.
+# - This is wrong, for one:
+#     help=help_strings.EXPORT_HELP
+#   Should be, i.e.,
+#     help=help_strings.EDIT_HELP
 @run.command(help=help_strings.EXPORT_HELP)
 @click.argument('key', nargs=1)
 @click.option('-s', '--start', help = 'The new start time string (e.g. "2017-01-01 00:00").')
