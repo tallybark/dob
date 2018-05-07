@@ -404,6 +404,7 @@ def _search(
             # (lb): In lieu of filter_term, which justs searches facts,
             # scientificsteve switched to `hamster-cli search --description foo`.
             results = controler.facts.get_all(filter_term=search_term, start=start, end=end)
+            return results
     # end: disabled code...
 
     if key:
