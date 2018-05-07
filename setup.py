@@ -16,6 +16,8 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'appdirs',
+    'Click',
+    'click-aliases == 0.1',
     # Click color support.
     # http://click.pocoo.org/5/utils/#ansi-colors
     'colorama',
@@ -26,7 +28,10 @@ requirements = [
     # py27 compatibility related
     'six',
     'tabulate',
-    'Click',
+]
+
+requirements_links=[
+    'https://github.com/hotoffthehamster/click-aliases/tarball/master#egg=click-aliases-0.1',
 ]
 
 setup(
@@ -43,6 +48,7 @@ setup(
     package_dir={'hamster_cli':
                  'hamster_cli'},
     install_requires=requirements,
+    dependency_links=requirements_links,
     license="GPL3",
     zip_safe=False,
     keywords='hamster_cli',
