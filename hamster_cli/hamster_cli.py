@@ -992,30 +992,29 @@ def _details(controller):
 # Helper functions
 def _setup_logging(controller):
     """Setup logging for the lib_logger as well as client specific logging."""
-    formatter = logging.Formatter(
-        '[%(levelname)s] %(asctime)s %(name)s %(funcName)s:  %(message)s')
+    controller.client_logger = logging.getLogger('hamster_cli')
+    loggers = [
+        controller.lib_logger,
+        controller.sql_logger,
+        controller.client_logger,
+    ]
+    # Clear any existing (null)Handlers, and set the level.
+    # MAYBE: Allow user to specify different levels for different loggers.
+    log_level = controller.client_config['log_level']
+    for logger in loggers:
+        logger.handlers = []
+        logger.setLevel(log_level)
 
-    lib_logger = controller.lib_logger
-    client_logger = logging.getLogger('hamster_cli')
-    # Clear any existing (null)Handlers
-    lib_logger.handlers = []
-    client_logger.handlers = []
-    client_logger.setLevel(controller.client_config['log_level'])
-    lib_logger.setLevel(controller.client_config['log_level'])
-    controller.client_logger = client_logger
+    formatter = logging_helpers.formatter_basic()
 
     if controller.client_config['log_console']:
         console_handler = logging.StreamHandler()
-        console_handler.setFormatter(formatter)
-        lib_logger.addHandler(console_handler)
-        client_logger.addHandler(console_handler)
+        logging_helpers.setupHandler(console_handler, formatter, *loggers)
 
     if controller.client_config['logfile_path']:
         filename = controller.client_config['logfile_path']
         file_handler = logging.FileHandler(filename, encoding='utf-8')
-        file_handler.setFormatter(formatter)
-        lib_logger.addHandler(file_handler)
-        client_logger.addHandler(file_handler)
+        logging_helpers.setupHandler(file_handler, formatter, *loggers)
 
 
 def _get_config(config_instance):
@@ -1162,11 +1161,15 @@ def _get_config(config_instance):
                 })
             return result
 
+        def get_sql_log_level():
+            return config.get('Backend', 'sql_log_level')
+
         backend_config = {
             'store': get_store(),
             'day_start': get_day_start(),
             'fact_min_delta': get_fact_min_delta(),
             'tmpfile_path': get_tmpfile_path(),
+            'sql_log_level': get_sql_log_level(),
         }
         backend_config.update(get_db_config())
         return backend_config
@@ -1233,6 +1236,7 @@ def _write_config_file(file_path):
     config.set('Backend', 'db_path', get_db_path())
     config.set('Backend', 'db_user', '')
     config.set('Backend', 'db_password', '')
+    config.set('Backend', 'sql_log_level', 'WARNING')
 
     # Client
     config.add_section('Client')

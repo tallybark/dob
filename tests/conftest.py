@@ -95,6 +95,7 @@ def lib_config(tmpdir):
         'db_path': ':memory:',
         'tmpfile_path': os.path.join(tmpdir.mkdir('cache2').strpath, 'test.pickle'),
         'fact_min_delta': 60,
+        'sql_log_level': 'WARNING',
     }
 
 
@@ -134,6 +135,7 @@ def config_instance(tmpdir, faker):
             config.set('Backend', 'db_port', kwargs.get('db_port', ''))
             config.set('Backend', 'db_user', kwargs.get('db_user', '')),
             config.set('Backend', 'db_password', kwargs.get('db_password', ''))
+            config.set('Backend', 'sql_log_level', kwargs.get('sql_log_level', 'WARNING'))
 
             # Client
             config.add_section('Client')
