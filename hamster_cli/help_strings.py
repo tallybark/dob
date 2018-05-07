@@ -19,30 +19,30 @@ RUN_HELP = _(
 
 SEARCH_HELP = _(
     """
-    Search facts machting given timerange and search term.
+    Search facts matching given time range and search term.
 
     'search_term': May be an arbitrary string that will be matched against
     existing facts activity names.
 
     'time_range': Limit returned facts to those starting within the given time
-    window.  This invormation may be specified in the following format:
+    window.  This information may be specified in the following format:
     '%Y-%m-%d %H:%M - %Y-%m-%d %H:%M'.
 
     {time_range_info}
     \b
-    About timerange formats:
+    About time range formats:
     You may omit any date and/or time portion of that format, in which case we
     will complete the missing information as described further down.
-    Alternativly you can just pass start time offset from now in minutes such
+    Alternatively you can just pass start time offset from now in minutes such
     as ' -XX' (where X are 'minutes before now) which will also apply our
     'completion strategy' to the end time related values. Please note that you
-    if you specify a relative starting time you need to wrap it in quoteation
+    if you specify a relative starting time you need to wrap it in quotation
     marks as well as lead with a whitespace in front of the '-' sign.
 
     \b
     How missing date/time information is completed:
         * Missing *start date* will fall back to 'today'.
-        * Misisng *start time* will fall back to your configured 'day_start'
+        * Missing *start time* will fall back to your configured 'day_start'
           setting.
         * Missing *end date* will be the day after today if 'day_start' is not
           '00:00', else it will be today.
@@ -58,7 +58,7 @@ LIST_HELP = _(
 
     Matching facts will be printed in a tabular representation.
 
-    TIME_RANGE: Only fact within this timerange will be considered.
+    TIME_RANGE: Only fact within this time range will be considered.
     """
 )
 
@@ -67,8 +67,8 @@ START_HELP = _(
     """
     Start or add a fact.
 
-    If you add a fact without providing sufficent informaiton about its end a
-    *ongoing fac* will be created to capture you current work. Only one such
+    If you add a fact without providing sufficient information about its end a
+    *ongoing fact* will be created to capture you current work. Only one such
     fact can be present at any given time. Please refer to *stop*, *cancel*
     and *current* commands for further information.
 
@@ -82,9 +82,9 @@ START_HELP = _(
       <timeinfo>
       May have one of the following three formats: 'HH:MM', 'HH:MM-HH:MM' or
       ' -MM'.
-        * 'HH:MM': Starttime in hours an minutes.
-        * 'HH:MM-HH:MM' Start and endtime given in ours and minutes.
-        * ' -MM' Starttime given as 'minutes before *now*. Please be advised:
+        * 'HH:MM': Start time in hours and minutes.
+        * 'HH:MM-HH:MM' Start and end time given in ours and minutes.
+        * ' -MM' Start time given as 'minutes before *now*. Please be advised:
           You need to lead with a whitespace before the '-' sign or put ' -- '
           before the start of your raw_fact. For details refer to
           https://github.com/elbenfreund/hamster_cli/issues/108
@@ -97,7 +97,7 @@ START_HELP = _(
       present.
 
       \b
-      <categoryname>
+      <category>
       You assign activities to categories to group them together. Each
       activity/category combination is allowed only once. If you have to
       activitynames in two distinct categories however, they will be treated
@@ -140,14 +140,14 @@ CANCEL_HELP = _(
 
 EXPORT_HELP = _(
     """
-    Export all facts of within a given timewindow to a file of specified format.
+    Export all facts of within a given time window to a file of specified format.
 
-    FORMAT: Export format. Currently supported options are: 'csv', 'xml' and
-    'ical'. Defaults to ``csv``.
+    FORMAT: Export format. Currently supported options are:
+      'csv', 'tsv', 'xml' and 'ical'. Defaults to ``csv``.
 
-    START: Start of timewindow.
+    START: Start of time window.
 
-    END: End of timewindow.
+    END: End of time window.
     """
 )
 
