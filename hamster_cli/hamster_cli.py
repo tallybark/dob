@@ -169,7 +169,8 @@ def _run(controller):
 @click.option('-a', '--activity', help="The search string applied to activity names.")
 @click.option('-c', '--category', help="The search string applied to category names.")
 @click.option('-t', '--tag', help='The tags search string (e.g. "tag1 AND (tag2 OR tag3)".')
-@click.option('-d', '--description', help='The description search string (e.g. "string1 OR (string2 AND string3).')
+@click.option('-d', '--description',
+              help='The description search string (e.g. "string1 OR (string2 AND string3).')
 @click.option('-k', '--key', help='The database key of the fact.')
 @pass_controller
 def search(controller, start, end, activity, category, tag, description, key, search_term):
@@ -604,7 +605,8 @@ def _stop(controller):
         )
         raise click.ClickException(message)
     else:
-        #message = '{fact} ({duration} minutes)'.format(fact=str(fact), duration=fact.get_string_delta())
+        #message = '{fact} ({duration} minutes)'.format(
+        #            fact=str(fact), duration=fact.get_string_delta())
         start = fact.start.strftime("%Y-%m-%d %H:%M")
         end = fact.end.strftime("%Y-%m-%d %H:%M")
         fact_string = u'{0:s} to {1:s} {2:s}@{3:s}'.format(
@@ -658,7 +660,8 @@ def _cancel(controller):
 @click.option('-a', '--activity', help="The search string applied to activity names.")
 @click.option('-c', '--category', help="The search string applied to category names.")
 @click.option('-t', '--tag', help='The tags search string (e.g. "tag1 AND (tag2 OR tag3)".')
-@click.option('-d', '--description', help='The description search string (e.g. "string1 OR (string2 AND string3).')
+@click.option('-d', '--description',
+              help='The description search string (e.g. "string1 OR (string2 AND string3).')
 @click.option('-k', '--key', help='The database key of the fact.')
 @pass_controller
 def remove(controller, start, end, activity, category, tag, description, key):
@@ -684,9 +687,11 @@ def remove(controller, start, end, activity, category, tag, description, key):
 @click.option('-a', '--activity', help="The search string applied to activity names.")
 @click.option('-c', '--category', help="The search string applied to category names.")
 @click.option('-t', '--tag', help='The tags search string (e.g. "tag1 AND (tag2 OR tag3)".')
-@click.option('-d', '--description', help='The description search string (e.g. "string1 OR (string2 AND string3).')
+@click.option('-d', '--description',
+              help='The description search string (e.g. "string1 OR (string2 AND string3).')
 @click.option('-k', '--key', help='The database key of the fact.')
-@click.option('-r', '--remove', is_flag=True, help='Set this flag to remove the specified tag_name from the selected facts.')
+@click.option('-r', '--remove', is_flag=True,
+              help='Set this flag to remove the specified tag_name from the selected facts.')
 @pass_controller
 def tag(controller, tag_name, start, end, activity, category, tag, description, key, remove):
     """Export all facts of within a given timewindow to a file of specified format."""
@@ -695,12 +700,18 @@ def tag(controller, tag_name, start, end, activity, category, tag, description, 
     click.echo(tabulate(table, headers=headers))
 
     if remove:
-        if click.confirm('Do you really want to REMOVE the tag #%s to the facts listed above?' % tag_name, abort=True):
+        if click.confirm(
+            'Do you really want to REMOVE the tag #%s to the facts listed above?' % (tag_name,),
+            abort=True
+        ):
             for cur_fact in facts:
                 cur_fact.tags = [x for x in cur_fact.tags if x.name != tag_name]
                 controller.facts._update(cur_fact)
     else:
-        if click.confirm('Do you really want to ADD the tag #%s to the facts listed above?' % tag_name, abort=True):
+        if click.confirm(
+            'Do you really want to ADD the tag #%s to the facts listed above?' % (tag_name,),
+            abort=True,
+        ):
             for cur_fact in facts:
                 cur_fact.tags.append(hamster_lib.Tag(name=tag_name))
                 controller.facts._update(cur_fact)
@@ -751,7 +762,8 @@ def edit(controller, key, start, end, activity, category, description):
 @click.option('-a', '--activity', help="The search string applied to activity names.")
 @click.option('-c', '--category', help="The search string applied to category names.")
 @click.option('-t', '--tag', help='The tags search string (e.g. "tag1 AND (tag2 OR tag3)".')
-@click.option('-d', '--description', help='The description search string (e.g. "string1 OR (string2 AND string3).')
+@click.option('-d', '--description',
+              help='The description search string (e.g. "string1 OR (string2 AND string3).')
 @click.option('-k', '--key', help='The database key of the fact.')
 @click.option('-f', '--filename', help="The filename where to store the export file.")
 @pass_controller
@@ -889,7 +901,8 @@ def _current(controller):
 @run.command(help=help_strings.ACTIVITIES_HELP)
 @click.argument('search_term', default='')
 @click.option('-c', '--category', help="The search string applied to category names.")
-@click.option('-C', '--sort-by-category', is_flag=True, help="Sort by category name, then activity name.")
+@click.option('-C', '--sort-by-category', is_flag=True,
+              help="Sort by category name, then activity name.")
 @pass_controller
 def activities(controller, search_term, category, sort_by_category):
     """List all activities. Provide optional filtering by name."""
