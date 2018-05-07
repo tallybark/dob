@@ -76,34 +76,49 @@ class TestStart(object):
                 'description': 'i like ike',
             }),
             # FIXME: Should quotes work? Containing the "#hash char"?
-            ('11:00 foo@bar #just walk away "#one two three", i like ike', '2015-12-12 13:00', '', {
-                'activity': 'foo',
-                'category': 'bar',
-                'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
-                'end': None,
-                'tags': ['just walk away "#one two three"'],
-                'description': 'i like ike',
-            }),
+            (
+                '11:00 foo@bar #just walk away "#one two three", i like ike',
+                '2015-12-12 13:00',
+                '',
+                {
+                    'activity': 'foo',
+                    'category': 'bar',
+                    'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
+                    'end': None,
+                    'tags': ['just walk away "#one two three"'],
+                    'description': 'i like ike',
+                },
+            ),
             # FIXME: Should quotes work? Inside the #"hash char"?
-            ('11:00 foo@bar #"one two three" #just walk away, i like ike', '2015-12-12 13:00', '', {
-                'activity': 'foo',
-                'category': 'bar',
-                'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
-                'end': None,
-                # FIXME: (lb): Should we really scrub quotes? What it user wants quotes??
-                #'tags': ['just walk away', 'one two three'],
-                'tags': ['just walk away', '"one two three"'],
-                'description': 'i like ike',
-            }),
+            (
+                '11:00 foo@bar #"one two three" #just walk away, i like ike',
+                '2015-12-12 13:00',
+                '',
+                {
+                    'activity': 'foo',
+                    'category': 'bar',
+                    'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
+                    'end': None,
+                    # FIXME: (lb): Should we really scrub quotes? What it user wants quotes??
+                    #'tags': ['just walk away', 'one two three'],
+                    'tags': ['just walk away', '"one two three"'],
+                    'description': 'i like ike',
+                },
+            ),
             # Test '#' in description, elsewhere, after command, etc.
-            ('11:00 foo@bar", i like ike #punk president, yas! 12:59', '2015-12-12 13:00', '', {
-                'activity': 'foo',
-                'category': 'bar"',
-                'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
-                'end': None,
-                'tags': [],
-                'description': 'i like ike #punk president, yas! 12:59',
-            }),
+            (
+                '11:00 foo@bar", i like ike #punk president, yas! 12:59',
+                '2015-12-12 13:00',
+                '',
+                {
+                    'activity': 'foo',
+                    'category': 'bar"',
+                    'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
+                    'end': None,
+                    'tags': [],
+                    'description': 'i like ike #punk president, yas! 12:59',
+                },
+            ),
             ('11:00 foo@bar #this#is#one#helluva#tag, foo bar', '2015-12-12 13:00', '', {
                 'activity': 'foo',
                 'category': 'bar',
@@ -272,6 +287,7 @@ class TestExport(object):
         hamster_lib.reports.CSVWriter = mocker.MagicMock()
         hamster_cli._export(controller, 'csv', None, None, filename=path)
         assert hamster_lib.reports.CSVWriter.called
+
 
 class TestCategories(object):
     """Unittest related to category listings."""

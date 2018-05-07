@@ -502,7 +502,7 @@ def start(controller, raw_fact, start, end):
     _start(controller, raw_fact, start, end)
 
 
-def _start(controller, raw_fact, start, end):
+def _start(controller, raw_fact, start='', end=''):
     """
     Start or add a fact.
 

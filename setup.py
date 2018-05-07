@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Packing metadata for setuptools."""
 
+"""Packing metadata for setuptools."""
 
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
-
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -62,3 +61,4 @@ setup(
     hamster=hamster_cli.hamster_cli:run
     '''.strip()
 )
+
