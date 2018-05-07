@@ -569,7 +569,7 @@ def _start(controller, raw_fact, start, end):
         # Quick fix for tmp facts. that way we can use the default helper
         # function which will autocomplete the end info as well.
         # Because of our use of ``complete timeframe our 'ongoing fact' may have
-        # recieved an ``end`` value now. In that case we reset it to ``None``.
+        # received an ``end`` value now. In that case we reset it to ``None``.
         fact.end = None
 
     controller.client_logger.debug(_(
@@ -791,7 +791,7 @@ def _export(
     # Once hamster_lib has a proper 'export' register available we should be able
     # to streamline this.
     if format not in accepted_formats:
-        message = _("Unrecocgnized export format recieved")
+        message = _("Unrecocgnized export format received")
         controller.client_logger.info(message)
         raise click.ClickException(message)
     if not start:
