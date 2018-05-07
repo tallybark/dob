@@ -164,13 +164,13 @@ def _run(controller):
 @click.argument('search_term', nargs=-1, default=None)
 # MAYBE/2018-05-05: (lb): Restore the time_range arg scientificsteve removed:
 #  @click.argument('time_range', default='')
-@click.option('-s', '--start', help = 'The start time string (e.g. "2017-01-01 00:00").')
-@click.option('-e', '--end', help = 'The end time string (e.g. "2017-02-01 00:00").')
-@click.option('-a', '--activity', help = "The search string applied to activity names.")
-@click.option('-c', '--category', help = "The search string applied to category names.")
-@click.option('-t', '--tag', help = 'The tags search string (e.g. "tag1 AND (tag2 OR tag3)".')
-@click.option('-d', '--description', help = 'The description search string (e.g. "string1 OR (string2 AND string3).')
-@click.option('-k', '--key', help = 'The database key of the fact.')
+@click.option('-s', '--start', help='The start time string (e.g. "2017-01-01 00:00").')
+@click.option('-e', '--end', help='The end time string (e.g. "2017-02-01 00:00").')
+@click.option('-a', '--activity', help="The search string applied to activity names.")
+@click.option('-c', '--category', help="The search string applied to category names.")
+@click.option('-t', '--tag', help='The tags search string (e.g. "tag1 AND (tag2 OR tag3)".')
+@click.option('-d', '--description', help='The description search string (e.g. "string1 OR (string2 AND string3).')
+@click.option('-k', '--key', help='The database key of the fact.')
 @pass_controller
 def search(controller, start, end, activity, category, tag, description, key, search_term):
     """Fetch facts matching certain criteria."""
@@ -229,7 +229,7 @@ def _search(
 
     # FIXME/2018-05-05: (lb): This is from the scientificsteve PR that adds tags:
     #   DRY: Refactor this code; there is a lot of copy-paste code.
-    def search_facts(tree, search_list, search_attr, search_sub_attr = None):
+    def search_facts(tree, search_list, search_attr, search_sub_attr=None):
         '''
         '''
         def search_value(fact):
@@ -406,7 +406,7 @@ def _search(
     # end: disabled code...
 
     if key:
-        results = [controller.facts.get(pk = key),]
+        results = [controller.facts.get(pk=key),]
     else:
         # Convert the start and time strings to datetimes.
         if start:
@@ -434,10 +434,10 @@ def _search(
         if activity:
             identifier = pp.Word(pp.alphanums + pp.alphas8bit + '_' + '-')
 
-            expr = pp.operatorPrecedence(baseExpr = identifier,
-                                         opList = [("NOT", 1, pp.opAssoc.RIGHT, ),
-                                                   ("AND", 2, pp.opAssoc.LEFT, ),
-                                                   ("OR", 2, pp.opAssoc.LEFT, ),])
+            expr = pp.operatorPrecedence(baseExpr=identifier,
+                                         opList=[("NOT", 1, pp.opAssoc.RIGHT, ),
+                                                 ("AND", 2, pp.opAssoc.LEFT, ),
+                                                 ("OR", 2, pp.opAssoc.LEFT, ),])
             search_tree = expr.parseString(activity)
 
             results = search_facts(search_tree, results, 'activity', 'name')
@@ -445,9 +445,9 @@ def _search(
         if category:
             identifier = pp.Word(pp.alphanums + pp.alphas8bit + '_' + '-')
 
-            expr = pp.operatorPrecedence(baseExpr = identifier,
-                                         opList = [("AND", 2, pp.opAssoc.LEFT, ),
-                                                   ("OR", 2, pp.opAssoc.LEFT, ),])
+            expr = pp.operatorPrecedence(baseExpr=identifier,
+                                         opList=[("AND", 2, pp.opAssoc.LEFT, ),
+                                                 ("OR", 2, pp.opAssoc.LEFT, ),])
             search_tree = expr.parseString(category)
 
             results = search_facts(search_tree, results, 'category', 'name')
@@ -456,10 +456,10 @@ def _search(
         if tag:
             identifier = pp.Word(pp.alphanums + pp.alphas8bit + '_' + '-')
 
-            expr = pp.operatorPrecedence(baseExpr = identifier,
-                                         opList = [("NOT", 1, pp.opAssoc.RIGHT, ),
-                                                   ("AND", 2, pp.opAssoc.LEFT, ),
-                                                   ("OR", 2, pp.opAssoc.LEFT, )])
+            expr = pp.operatorPrecedence(baseExpr=identifier,
+                                         opList=[("NOT", 1, pp.opAssoc.RIGHT, ),
+                                                 ("AND", 2, pp.opAssoc.LEFT, ),
+                                                 ("OR", 2, pp.opAssoc.LEFT, )])
             search_tree = expr.parseString(tag)
 
             results = search_tags(search_tree, results)
@@ -467,9 +467,9 @@ def _search(
         if description:
             identifier = pp.Word(pp.alphanums + pp.alphas8bit + '_' + '-')
 
-            expr = pp.operatorPrecedence(baseExpr = identifier,
-                                         opList = [("AND", 2, pp.opAssoc.LEFT, ),
-                                                   ("OR", 2, pp.opAssoc.LEFT, ),])
+            expr = pp.operatorPrecedence(baseExpr=identifier,
+                                         opList=[("AND", 2, pp.opAssoc.LEFT, ),
+                                                 ("OR", 2, pp.opAssoc.LEFT, ),])
             search_tree = expr.parseString(description)
 
             results = search_facts(search_tree, results, 'description')
@@ -478,12 +478,12 @@ def _search(
 
 
 @run.command(help=help_strings.LIST_HELP)
-@click.option('-s', '--start', help = 'The start time string (e.g. "2017-01-01 00:00").')
-@click.option('-e', '--end', help = 'The end time string (e.g. "2017-02-01 00:00").')
+@click.option('-s', '--start', help='The start time string (e.g. "2017-01-01 00:00").')
+@click.option('-e', '--end', help='The end time string (e.g. "2017-02-01 00:00").')
 @pass_controller
 def list(controller, start, end):
     """List all facts within a timerange."""
-    results = _search(controller, start = start, end = end)
+    results = _search(controller, start=start, end=end)
     table, headers = _generate_facts_table(results)
     click.echo(tabulate(table, headers=headers))
 
@@ -612,7 +612,7 @@ def _stop(controller):
             start, end, fact.activity.name, fact.category.name
         )
         message = "Stopped {fact} ({duration} minutes).".format(
-            fact = fact_string, duration = fact.get_string_delta()
+            fact=fact_string, duration=fact.get_string_delta()
         )
         controller.client_logger.info(_(message))
         click.echo(_(message))
@@ -654,20 +654,20 @@ def _cancel(controller):
 #   Should be, i.e.,
 #     help=help_strings.REMOVE_HELP
 @run.command(help=help_strings.EXPORT_HELP)
-@click.option('-s', '--start', help = 'The start time string (e.g. "2017-01-01 00:00").')
-@click.option('-e', '--end', help = 'The end time string (e.g. "2017-02-01 00:00").')
-@click.option('-a', '--activity', help = "The search string applied to activity names.")
-@click.option('-c', '--category', help = "The search string applied to category names.")
-@click.option('-t', '--tag', help = 'The tags search string (e.g. "tag1 AND (tag2 OR tag3)".')
-@click.option('-d', '--description', help = 'The description search string (e.g. "string1 OR (string2 AND string3).')
-@click.option('-k', '--key', help = 'The database key of the fact.')
+@click.option('-s', '--start', help='The start time string (e.g. "2017-01-01 00:00").')
+@click.option('-e', '--end', help='The end time string (e.g. "2017-02-01 00:00").')
+@click.option('-a', '--activity', help="The search string applied to activity names.")
+@click.option('-c', '--category', help="The search string applied to category names.")
+@click.option('-t', '--tag', help='The tags search string (e.g. "tag1 AND (tag2 OR tag3)".')
+@click.option('-d', '--description', help='The description search string (e.g. "string1 OR (string2 AND string3).')
+@click.option('-k', '--key', help='The database key of the fact.')
 @pass_controller
 def remove(controller, start, end, activity, category, tag, description, key):
     """Export all facts of within a given timewindow to a file of specified format."""
     facts = _search(controller, start, end, activity, category, tag, description, key)
     table, headers = _generate_facts_table(facts)
     click.echo(tabulate(table, headers=headers))
-    if click.confirm('Do you really want to delete the facts listed above?', abort = True):
+    if click.confirm('Do you really want to delete the facts listed above?', abort=True):
         for cur_fact in facts:
             controller.facts.remove(cur_fact)
 
@@ -680,14 +680,14 @@ def remove(controller, start, end, activity, category, tag, description, key):
 #     help=help_strings.TAG_HELP
 @run.command(help=help_strings.EXPORT_HELP)
 @click.argument('tag_name', nargs=1, default=None)
-@click.option('-s', '--start', help = 'The start time string (e.g. "2017-01-01 00:00").')
-@click.option('-e', '--end', help = 'The end time string (e.g. "2017-02-01 00:00").')
-@click.option('-a', '--activity', help = "The search string applied to activity names.")
-@click.option('-c', '--category', help = "The search string applied to category names.")
-@click.option('-t', '--tag', help = 'The tags search string (e.g. "tag1 AND (tag2 OR tag3)".')
-@click.option('-d', '--description', help = 'The description search string (e.g. "string1 OR (string2 AND string3).')
-@click.option('-k', '--key', help = 'The database key of the fact.')
-@click.option('-r', '--remove', is_flag=True, help = 'Set this flag to remove the specified tag_name from the selected facts.')
+@click.option('-s', '--start', help='The start time string (e.g. "2017-01-01 00:00").')
+@click.option('-e', '--end', help='The end time string (e.g. "2017-02-01 00:00").')
+@click.option('-a', '--activity', help="The search string applied to activity names.")
+@click.option('-c', '--category', help="The search string applied to category names.")
+@click.option('-t', '--tag', help='The tags search string (e.g. "tag1 AND (tag2 OR tag3)".')
+@click.option('-d', '--description', help='The description search string (e.g. "string1 OR (string2 AND string3).')
+@click.option('-k', '--key', help='The database key of the fact.')
+@click.option('-r', '--remove', is_flag=True, help='Set this flag to remove the specified tag_name from the selected facts.')
 @pass_controller
 def tag(controller, tag_name, start, end, activity, category, tag, description, key, remove):
     """Export all facts of within a given timewindow to a file of specified format."""
@@ -696,14 +696,14 @@ def tag(controller, tag_name, start, end, activity, category, tag, description, 
     click.echo(tabulate(table, headers=headers))
 
     if remove:
-        if click.confirm('Do you really want to REMOVE the tag #%s to the facts listed above?' % tag_name, abort = True):
+        if click.confirm('Do you really want to REMOVE the tag #%s to the facts listed above?' % tag_name, abort=True):
             for cur_fact in facts:
                 cur_fact.tags = [x for x in cur_fact.tags if x.name != tag_name]
                 controller.facts._update(cur_fact)
     else:
-        if click.confirm('Do you really want to ADD the tag #%s to the facts listed above?' % tag_name, abort = True):
+        if click.confirm('Do you really want to ADD the tag #%s to the facts listed above?' % tag_name, abort=True):
             for cur_fact in facts:
-                cur_fact.tags.append(hamster_lib.Tag(name = tag_name))
+                cur_fact.tags.append(hamster_lib.Tag(name=tag_name))
                 controller.facts._update(cur_fact)
 
 
@@ -715,15 +715,15 @@ def tag(controller, tag_name, start, end, activity, category, tag, description, 
 #     help=help_strings.EDIT_HELP
 @run.command(help=help_strings.EXPORT_HELP)
 @click.argument('key', nargs=1)
-@click.option('-s', '--start', help = 'The new start time string (e.g. "2017-01-01 00:00").')
-@click.option('-e', '--end', help = 'The new end time string (e.g. "2017-02-01 00:00").')
-@click.option('-a', '--activity', help = "The new activity.")
-@click.option('-c', '--category', help = "The new category.")
-@click.option('-d', '--description', help = 'The new description.')
+@click.option('-s', '--start', help='The new start time string (e.g. "2017-01-01 00:00").')
+@click.option('-e', '--end', help='The new end time string (e.g. "2017-02-01 00:00").')
+@click.option('-a', '--activity', help="The new activity.")
+@click.option('-c', '--category', help="The new category.")
+@click.option('-d', '--description', help='The new description.')
 @pass_controller
 def edit(controller, key, start, end, activity, category, description):
     """Export all facts of within a given timewindow to a file of specified format."""
-    fact = controller.facts.get(pk = key)
+    fact = controller.facts.get(pk=key)
 
     if fact:
         if start:
@@ -735,7 +735,7 @@ def edit(controller, key, start, end, activity, category, description):
             fact.end = end
 
         if activity and category:
-            fact.activity = hamster_lib.Activity(name = activity, category = category)
+            fact.activity = hamster_lib.Activity(name=activity, category=category)
         elif activity or category:
             click.echo('Please specify an activity AND a category.')
 
@@ -749,12 +749,12 @@ def edit(controller, key, start, end, activity, category, description):
 @click.argument('format', nargs=1, default='csv')
 @click.argument('start', nargs=1, default='')
 @click.argument('end', nargs=1, default='')
-@click.option('-a', '--activity', help = "The search string applied to activity names.")
-@click.option('-c', '--category', help = "The search string applied to category names.")
-@click.option('-t', '--tag', help = 'The tags search string (e.g. "tag1 AND (tag2 OR tag3)".')
-@click.option('-d', '--description', help = 'The description search string (e.g. "string1 OR (string2 AND string3).')
-@click.option('-k', '--key', help = 'The database key of the fact.')
-@click.option('-f', '--filename', help = "The filename where to store the export file.")
+@click.option('-a', '--activity', help="The search string applied to activity names.")
+@click.option('-c', '--category', help="The search string applied to category names.")
+@click.option('-t', '--tag', help='The tags search string (e.g. "tag1 AND (tag2 OR tag3)".')
+@click.option('-d', '--description', help='The description search string (e.g. "string1 OR (string2 AND string3).')
+@click.option('-k', '--key', help='The database key of the fact.')
+@click.option('-f', '--filename', help="The filename where to store the export file.")
 @pass_controller
 def export(controller, format, start, end, activity, category, tag, description, key, filename):
     """Export all facts of within a given timewindow to a file of specified format."""
@@ -808,13 +808,13 @@ def _export(
 
     #facts = controller.facts.get_all(start=start, end=end)
     facts = _search(controller,
-                    start = start,
-                    end = end,
-                    activity = activity,
-                    category = category,
-                    tag = tag,
-                    description = description,
-                    key = key)
+                    start=start,
+                    end=end,
+                    activity=activity,
+                    category=category,
+                    tag=tag,
+                    description=description,
+                    key=key)
 
     if format == 'csv':
         writer = reports.CSVWriter(filepath)
@@ -1310,7 +1310,7 @@ def _generate_facts_table(facts):
             tags = ''
 
         table.append(TableRow(
-            key = fact.pk,
+            key=fact.pk,
             activity=fact.activity.name,
             category=category,
             description=fact.description,
