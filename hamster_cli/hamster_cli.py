@@ -40,6 +40,7 @@ from tabulate import tabulate
 
 from hamster_lib import Fact, HamsterControl, reports
 from hamster_lib.helpers import time as time_helpers
+from hamster_lib.helpers import logging as logging_helpers
 
 from . import help_strings
 
@@ -888,13 +889,16 @@ def _current(controller):
 
 @run.command(help=help_strings.ACTIVITIES_HELP)
 @click.argument('search_term', default='')
+@click.option('-c', '--category', help="The search string applied to category names.")
+@click.option('-C', '--sort-by-category', is_flag=True, help="Sort by category name, then activity name.")
 @pass_controller
-def activities(controller, search_term):
+def activities(controller, search_term, category, sort_by_category):
     """List all activities. Provide optional filtering by name."""
-    _activities(controller, search_term)
+    category_name = category if category else ''
+    _activities(controller, search_term, category_name, sort_by_category)
 
 
-def _activities(controller, search_term):
+def _activities(controller, search_term='', category_name='', sort_by_category=False):
     """
     List all activities. Provide optional filtering by name.
 
@@ -904,7 +908,16 @@ def _activities(controller, search_term):
     Returns:
         None: If success.
     """
-    result = controller.activities.get_all(search_term=search_term)
+    category = False
+    if category_name:
+        # FIXME: (lb): This raises KeyError if no exact match found.
+        #        We should at least gracefully exit,
+        #        if not do a fuzzy search.
+        result = controller.categories.get_by_name(category_name)
+        category = result if result else False
+    result = controller.activities.get_all(
+        search_term=search_term, category=category, sort_by_category=sort_by_category,
+    )
     table = []
     headers = (_("Activity"), _("Category"))
     for activity in result:
