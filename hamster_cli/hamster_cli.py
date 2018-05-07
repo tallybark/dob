@@ -452,7 +452,6 @@ def _search(
 
             results = search_facts(search_tree, results, 'category', 'name')
 
-
         if tag:
             identifier = pp.Word(pp.alphanums + pp.alphas8bit + '_' + '-')
 
