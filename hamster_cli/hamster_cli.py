@@ -382,7 +382,7 @@ def _search(
     #       I might want to just revert some parts of the PR so I can move on
     #       with life (but keep parts of the PR I like, like tags support!)).
     #
-    if False: # removed by scientificsteve
+    if False:  # removed by scientificsteve
         def _search(controler, search_term, time_range):
             # [FIXME]
             # As far as our backend is concerned search_term as well as time range are
