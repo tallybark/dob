@@ -407,7 +407,7 @@ def _search(
     # end: disabled code...
 
     if key:
-        results = [controller.facts.get(pk=key),]
+        results = [controller.facts.get(pk=key), ]
     else:
         # Convert the start and time strings to datetimes.
         if start:
@@ -438,7 +438,7 @@ def _search(
             expr = pp.operatorPrecedence(baseExpr=identifier,
                                          opList=[("NOT", 1, pp.opAssoc.RIGHT, ),
                                                  ("AND", 2, pp.opAssoc.LEFT, ),
-                                                 ("OR", 2, pp.opAssoc.LEFT, ),])
+                                                 ("OR", 2, pp.opAssoc.LEFT, )])
             search_tree = expr.parseString(activity)
 
             results = search_facts(search_tree, results, 'activity', 'name')
@@ -448,7 +448,7 @@ def _search(
 
             expr = pp.operatorPrecedence(baseExpr=identifier,
                                          opList=[("AND", 2, pp.opAssoc.LEFT, ),
-                                                 ("OR", 2, pp.opAssoc.LEFT, ),])
+                                                 ("OR", 2, pp.opAssoc.LEFT, )])
             search_tree = expr.parseString(category)
 
             results = search_facts(search_tree, results, 'category', 'name')
@@ -469,7 +469,7 @@ def _search(
 
             expr = pp.operatorPrecedence(baseExpr=identifier,
                                          opList=[("AND", 2, pp.opAssoc.LEFT, ),
-                                                 ("OR", 2, pp.opAssoc.LEFT, ),])
+                                                 ("OR", 2, pp.opAssoc.LEFT, )])
             search_tree = expr.parseString(description)
 
             results = search_facts(search_tree, results, 'description')
