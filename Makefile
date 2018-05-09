@@ -37,6 +37,11 @@ help:
 	@echo "   docs            generate Sphinx HTML documentation, including API docs"
 	@echo "   isort           run isort; sorts and groups imports in every module"
 	@echo "   lint            check style with flake8"
+	@echo "   man-compile     compile manual page"
+	@echo "   man-install     install manual page"
+	@echo "   man-uninstall   uninstall manual page"
+	@echo "   man-link        create man page symlink under ~/.local/man/man1"
+	@echo "   man-unlink      remove man page symlink"
 	@echo "   test            run tests quickly with the default Python"
 	@echo "   test-all        run tests on every Python version with tox"
 
@@ -114,4 +119,43 @@ dist: clean
 
 install: clean
 	python setup.py install
+
+man-compile:
+	@mandb > /dev/null 2>&1
+
+man-install:
+	@find man/ \
+		-iname "*.[0-9]" \
+		-exec /bin/bash -c \
+			"echo {} \
+				| /bin/sed -r 's~(.*)([0-9])$$~install \1\2 $(MANDIR)/man\2/~' \
+				| source /dev/stdin" \;
+
+man-uninstall:
+	@cd $(mkfile_base)/man \
+		&& find . \
+			-iname "*.[0-9]" \
+			-exec /bin/bash -c \
+				"echo {} \
+					| /bin/sed -r 's~(.*)([0-9])$$~[[ -f $(MANDIR)/man\2/\1\2 \&\& ! -h $(MANDIR)/man\2/\1\2 ]] \&\& /bin/rm $(MANDIR)/man\2/\1\2 || true~' \
+					| source /dev/stdin" \;
+
+man-link:
+	@find man/ \
+		-iname "*.[0-9]" \
+		-exec /bin/bash -c \
+			"echo {} \
+				| /bin/sed -r 's~(.*)([0-9])$$~/bin/ln -sf \$$(realpath $(mkfile_base)/\1\2) $(MANDIR)/man\2/~' \
+				| source /dev/stdin" \;
+
+man-unlink:
+	@cd $(mkfile_base)/man \
+		&& find . \
+			-iname "*.[0-9]" \
+			-exec /bin/bash -c \
+				"echo {} \
+					| /bin/sed -r 's~(.*)([0-9])$$~[[ -h $(MANDIR)/man\2/\1\2 ]] \&\& /bin/rm $(MANDIR)/man\2/\1\2 || true~' \
+					| source /dev/stdin" \;
+
+# vim:tw=0:ts=2:sw=2:noet:ft=make:
 

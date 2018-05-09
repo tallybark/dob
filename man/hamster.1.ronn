@@ -1,0 +1,119 @@
+hamster(1) -- Furry Modern Time Tracker
+=======================================
+
+
+**FIXME** All this!
+
+
+SYNOPSIS
+--------
+
+findup [-v|--version] [-h|--help] <exact-name>
+
+findup [-v|--version] [-h|--help] <start-directory> <exact-name>
+
+findup [-v|--version] [-h|--help] <start-directory> <arg-to-\`find\`> <arg-to-\`find\`>...
+
+<exact-name> is the exact file name for which to search.
+
+<start-directory> is the path to the directory from which to start searching.
+If not specified, defaults to the current directory.
+
+<arg-to-\`find\`>... are 2 or more arguments to pass to the `find` command,
+instead of searching for an exact file name to match.
+
+DESCRIPTION
+-----------
+
+`fries-findup` is a simple shell function to walk up a directory
+tree searching for a matching file, or to walk up a directory tree
+and run the \`find\` command on each ancestor.
+
+A common use case is being inside a subdirectory of a project and
+looking for a project stored at the root of the project. E.g., you
+could find the root of a git repo by looking up-path for a ".git"
+directory.
+
+
+OPTIONS
+-------
+
+  * `-h`, `--help`:
+    Display short help message
+
+  * `-v`, `--version`:
+    Display the version number
+
+
+OUTPUT
+------
+
+If an <exact-name> is specified, prints the path name of the first
+matching file of the same exact name, if found.
+
+For example,
+
+    $ tmpdir=$(mktemp -d)
+    $ cd ${tmpdir}
+    $ git init .
+    $ mkdir test
+    $ cd test
+    $ fries-findup .git
+    /tmp/tmp.XXXXXXXXXX/.git
+
+If a <start-directory> and an <exact-name> are specified, searches
+up from the starting directory and prints the path name of the first
+matching file found.
+
+If 2 or more <arg-to-find> are specified, prints whatever the `find` command outputs.
+
+For example, you'll see the same output for some searches,
+
+    $ cd path/to/fries-findup/bin
+
+    $ fries-findup README.rst
+    path/to/fries-findup/README.rst
+
+    $ fries-findup . README.rst
+    path/to/fries-findup/README.rst
+
+    $ fries-findup . -name README.rst
+    path/to/fries-findup/README.rst
+
+but not for others,
+
+    $ cd path/to/fries-findup/bin
+
+    $ fries-findup "*I*N*"
+
+    $ fries-findup . "*I*N*"
+
+    $ fries-findup . -name "*I*N*"
+    path/to/fries-findup/LICENSE
+    path/to/fries-findup/VERSION
+
+EXIT STATUS
+-----------
+
+If searching for an <exact-name> and a matching file is found, returns `0`;
+otherwise returns `1`.
+
+If 2 or more <arg-to-find> are specified and using \`find\`, returns the
+first non-zero \`find\` return value, or `0` if every \`find\` succeeds.
+
+If no arguments are specified, returns `1`.
+
+
+SEE ALSO
+--------
+
+Project page: _https://github.com/hotoffthehamster/hamster-cli_
+
+
+COPYRIGHT
+---------
+
+(c) 2018 HotOffThe Hamster
+
+hamster-cli is released under the terms of an GPLv3 license.
+
