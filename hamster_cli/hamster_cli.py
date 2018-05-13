@@ -27,13 +27,11 @@ import sys
 from gettext import gettext as _
 
 import click
-import hamster_lib
 
 from hamster_cli import __version__ as hamster_cli_version
 from hamster_cli import __appname__ as hamster_cli_appname
 from hamster_lib import __version__ as hamster_lib_version
-from hamster_lib import HamsterControl, reports
-from hamster_lib.helpers import time as time_helpers
+from hamster_lib import HamsterControl
 from hamster_lib.helpers import logging as logging_helpers
 
 from . import help_strings
@@ -46,6 +44,8 @@ from transcode import export_facts
 from helpers.ascii_table import generate_table, warn_if_truncated
 import cmd_options
 import cmds_list
+import cmds_usage
+
 
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
@@ -371,6 +371,77 @@ def search(controller, description, search_term, *args, **kwargs):
     table, headers = cmds_list.fact.generate_facts_table(results)
     click.echo(generate_table(table, headers=headers))
     warn_if_truncated(controller, len(results), len(table))
+
+
+# ***
+# *** [USAGE] Commands.
+# ***
+
+
+@run.group('usage', help=help_strings.USAGE_GROUP_HELP)
+@pass_controller
+@click.pass_context
+def usage_group(ctx, controller):
+    """Base `usage` group command run prior to any of the hamster-usage commands."""
+    pass
+
+
+# *** ACTIVITIES.
+
+@usage_group.command('activities', help=help_strings.USAGE_ACTIVITIES_HELP)
+@click.argument('search_term', default='')
+@click.option('-c', '--category', help="Filter results by category name.")
+@cmd_options_table_bunce
+@cmd_options_limit_offset
+@pass_controller
+def usage_activities(controller, *args, **kwargs):
+    """List all activities. Provide optional filtering by name."""
+
+    # This little dance is so category_name is never None, but '',
+    # because get_all() distinguishes between category=None and =''.
+    category = kwargs['category'] if kwargs['category'] else ''
+    del kwargs['category']
+
+    cmd_options.postprocess_options_table_bunce(kwargs)
+
+    cmds_usage.activity.usage_activities(
+        controller,
+        *args,
+        filter_category=category,
+        **kwargs
+    )
+
+
+# *** CATEGORIES.
+
+@usage_group.command('categories', help=help_strings.USAGE_CATEGORIES_HELP)
+@click.argument('search_term', default='')
+@cmd_options_table_bunce
+@cmd_options_limit_offset
+@pass_controller
+def usage_categories(controller, *args, **kwargs):
+    """List all categories. Provide optional filtering by name."""
+    cmd_options.postprocess_options_table_bunce(kwargs)
+    cmds_usage.category.usage_categories(
+        controller,
+        *args,
+        **kwargs
+    )
+
+
+# *** TAGS.
+
+@usage_group.command('tags', help=help_strings.USAGE_TAGS_HELP)
+@click.argument('search_term', default='')
+@cmd_options_table_bunce
+@cmd_options_limit_offset
+@pass_controller
+def usage_tags(controller, *args, **kwargs):
+    """List all tags' usage counts, with filtering and sorting options."""
+
+    cmd_options.postprocess_options_table_bunce(kwargs)
+
+    cmds_usage.tag.usage_tags(controller, *args, **kwargs)
 
 
 # ***

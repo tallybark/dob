@@ -153,6 +153,39 @@ SEARCH_HELP = _(
 
 
 # ***
+# *** [USAGE] Commands help.
+# ***
+
+
+USAGE_GROUP_HELP = _(
+    """
+    Show activity, category, or tag usage.
+    """
+)
+
+
+USAGE_ACTIVITIES_HELP = _(
+    """
+    List all activities and their usage counts.
+    """
+)
+
+
+USAGE_CATEGORIES_HELP = _(
+    """
+    List all categories and their usage counts.
+    """
+)
+
+
+USAGE_TAGS_HELP = _(
+    """
+    List all tags by usage.
+    """
+)
+
+
+# ***
 # *** [CURRENT-FACT] Commands help.
 # ***
 
