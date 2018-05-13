@@ -271,6 +271,25 @@ CURRENT_HELP = _(
 
 
 # ***
+# *** [EDIT] Command help.
+# ***
+
+
+EDIT_GROUP_HELP = _(
+    """
+    Edit facts, activities, categories, or tags.
+    """
+)
+
+
+EDIT_FACT_HELP = _(
+    """
+    Edit facts using your preferred \$EDITOR.
+    """
+)
+
+
+# ***
 # *** [EXPORT] Command help.
 # ***
 

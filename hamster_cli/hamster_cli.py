@@ -486,6 +486,29 @@ def current(controller):
 
 
 # ***
+# *** [EDIT] Commands.
+# ***
+
+
+@run.group('edit', help=help_strings.EDIT_GROUP_HELP)
+@pass_controller
+@click.pass_context
+def edit_group(ctx, controller):
+    """Base `edit` group command run prior to any of the hamster-edit commands."""
+    pass
+
+
+# *** FACTS.
+
+@edit_group.command('fact', help=help_strings.EDIT_FACT_HELP)
+@click.argument('key', nargs=1)
+@pass_controller
+def edit_fact(controller, *args, **kwargs):
+    """Inline-Edit specified Fact using preferred $EDITOR."""
+    update.edit_fact(controller, *args, **kwargs)
+
+
+# ***
 # *** [EXPORT] Command.
 # ***
 

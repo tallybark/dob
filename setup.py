@@ -26,6 +26,7 @@ requirements = [
     'hamster-lib',
     'humanfriendly',
     'pyparsing',
+    'python-editor',
     # py27 compatibility related
     'six',
     'tabulate',
