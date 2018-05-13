@@ -41,6 +41,7 @@ from hamster_lib.helpers import logging as logging_helpers
 
 from . import help_strings
 from .cmd_config import get_config, get_config_instance, get_config_path
+from create import cancel_fact, start_fact, stop_fact
 from helpers.ascii_table import generate_table
 import cmds_list
 
@@ -493,124 +494,14 @@ def start(controller, raw_fact, start, end):
     # The original semantics do not work anymore. As we make a clear difference
     # between *adding* a (complete) fact and *starting* a (ongoing) fact.
     # This needs to be reflected in this command.
-    _start(controller, raw_fact, start, end)
-
-
-def _start(controller, raw_fact, start='', end=''):
-    """
-    Start or add a fact.
-
-    Args:
-        raw_fact: ``raw_fact`` containing information about the Fact to be started. As an absolute
-            minimum this must be a string representing the 'activityname'.
-        start (optional): When does the fact start?
-        end (optional): When does the fact end?
-
-    Returns:
-        None: If everything went alright.
-
-    Note:
-        * Whilst it is possible to pass timeinformation as part of the ``raw_fact`` as
-            well as dedicated ``start`` and ``end`` arguments only the latter will be represented
-            in the resulting fact in such a case.
-    """
-    fact = Fact.create_from_raw_fact(raw_fact)
-
-    # Explicit trumps implicit!
-    if start:
-        fact.start = time_helpers.parse_time(start)
-    if end:
-        fact.end = time_helpers.parse_time(end)
-
-    if not fact.end:
-        # We seem to want to start a new tmp fact
-        # Neither the raw fact string nor an additional optional end time have
-        # been passed.
-        # Until we decide wether to split this into start/add command we use the
-        # presence of any 'end' information as indication of the users intend.
-        tmp_fact = True
-    else:
-        tmp_fact = False
-
-    # We complete the facts times in both cases as even an new 'ongoing' fact
-    # may be in need of some time-completion for its start information.
-
-    # Complete missing fields with default values.
-    # legacy hamster_cli seems to have a different fallback behaviour than
-    # our regular backend, in particular the way 'day_start' is handled.
-    # For maximum consistency we use the backends unified ``complete_timeframe``
-    # helper instead. If behaviour similar to the legacy hamster-cli is desired,
-    # all that seems needed is to change ``day_start`` to '00:00'.
-
-    # The following is needed becauses start and end may be ``None``.
-    if not fact.start:
-        # No time information has been passed at all.
-        fact.start = datetime.datetime.now()
-
-    else:
-        # We got some time information, which may be incomplete however.
-        if not fact.end:
-            end_date = None
-            end_time = None
-        else:
-            end_date = fact.end.date()
-            end_time = fact.end.time()
-
-        timeframe = time_helpers.TimeFrame(
-            fact.start.date(), fact.start.time(), end_date, end_time, None)
-        fact.start, fact.end = time_helpers.complete_timeframe(timeframe, controller.config)
-
-    if tmp_fact:
-        # Quick fix for tmp facts. that way we can use the default helper
-        # function which will autocomplete the end info as well.
-        # Because of our use of ``complete timeframe our 'ongoing fact' may have
-        # received an ``end`` value now. In that case we reset it to ``None``.
-        fact.end = None
-
-    controller.client_logger.debug(_(
-        "New fact instance created: {fact}".format(fact=fact)
-    ))
-    fact = controller.facts.save(fact)
+    start_fact(controller, raw_fact, start, end)
 
 
 @run.command(help=help_strings.STOP_HELP)
 @pass_controller
 def stop(controller):
     """Stop tracking current fact. Saving the result."""
-    _stop(controller)
-
-
-def _stop(controller):
-    """
-    Stop cucrrent 'ongoing fact' and save it to the backend.
-
-    Returns:
-        None: If successful.
-
-    Raises:
-        ValueError: If no *ongoing fact* can be found.
-    """
-    try:
-        fact = controller.facts.stop_tmp_fact()
-    except ValueError:
-        message = _(
-            "Unable to continue temporary fact. Are you sure there is one?"
-            "Try running *current*."
-        )
-        raise click.ClickException(message)
-    else:
-        #message = '{fact} ({duration} minutes)'.format(
-        #            fact=str(fact), duration=fact.get_string_delta())
-        start = fact.start.strftime("%Y-%m-%d %H:%M")
-        end = fact.end.strftime("%Y-%m-%d %H:%M")
-        fact_string = u'{0:s} to {1:s} {2:s}@{3:s}'.format(
-            start, end, fact.activity.name, fact.category.name
-        )
-        message = "Stopped {fact} ({duration} minutes).".format(
-            fact=fact_string, duration=fact.get_string_delta()
-        )
-        controller.client_logger.info(_(message))
-        click.echo(_(message))
+    stop_fact(controller)
 
 
 # ***
@@ -621,29 +512,7 @@ def _stop(controller):
 @pass_controller
 def cancel(controller):
     """Cancel 'ongoing fact'. E.g stop it without storing in the backend."""
-    _cancel(controller)
-
-
-def _cancel(controller):
-    """
-    Cancel tracking current temporary fact, discaring the result.
-
-    Returns:
-        None: If success.
-
-    Raises:
-        KeyErŕor: No *ongoing fact* can be found.
-    """
-    try:
-        controller.facts.cancel_tmp_fact()
-    except KeyError:
-        message = _("Nothing tracked right now. Not doing anything.")
-        controller.client_logger.info(message)
-        raise click.ClickException(message)
-    else:
-        message = _("Tracking canceled.")
-        click.echo(message)
-        controller.client_logger.debug(message)
+    cancel_fact(controller)
 
 
 # ***
