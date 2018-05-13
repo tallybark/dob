@@ -275,6 +275,11 @@ def get_config(config_instance):
             return result
 
         def get_sql_log_level():
+            # (lb): A wee bit of a hack! Don't log during the hamster-complete
+            #   command, lest yuck!
+            if (len(sys.argv) == 2) and (sys.argv[1] == 'complete'):
+                # Disable for hamster-complete.
+                return logging.CRITICAL + 1
             return config.get('Backend', 'sql_log_level')
 
         backend_config = {

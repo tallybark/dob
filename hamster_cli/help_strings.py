@@ -530,6 +530,15 @@ EXPORT_HELP = _(
 
 
 # ***
+# *** [COMPLETE] Command help.
+# ***
+
+COMPLETE_HELP = _(
+    """Bash tab-completion helper."""
+)
+
+
+# ***
 # *** [MIGRATE] Commands help.
 # ***
 

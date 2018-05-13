@@ -38,6 +38,7 @@ from hamster_lib.helpers import logging as logging_helpers
 from . import help_strings
 from cmd_config import get_config, get_config_instance, get_config_path
 from cmd_options import cmd_options_search, cmd_options_limit_offset, cmd_options_table_bunce, cmd_options_insert
+from complete import tab_complete
 from create import add_fact, cancel_fact, start_fact, stop_fact
 from details import app_details
 from search import search_facts
@@ -196,6 +197,17 @@ def _setup_logging(controller):
         filename = controller.client_config['logfile_path']
         file_handler = logging.FileHandler(filename, encoding='utf-8')
         logging_helpers.setupHandler(file_handler, formatter, *loggers)
+
+
+def _disable_logging(controller):
+    loggers = [
+        controller.lib_logger,
+        controller.sql_logger,
+        controller.client_logger,
+    ]
+    for logger in loggers:
+        logger.handlers = []
+        logger.setLevel(logging.NOTSET)
 
 
 # ***
@@ -568,6 +580,24 @@ def edit_fact(controller, *args, **kwargs):
 def export(controller, format, start, end, activity, category, tag, description, key, filename):
     """Export all facts of within a given timewindow to a file of specified format."""
     export_facts(controller, format, start, end, activity, category, tag, description, key, filename)
+
+
+# ***
+# *** [COMPLETE] Command [Bash tab completion].
+# ***
+
+
+# FIXME: YAS! `hidden` is from a branch at:
+#          sstaszkiewicz-copperleaf:6.x-maintenance
+#        Watch the PR, lest you want to remove this before publishing:
+#          https://github.com/pallets/click/pull/985
+#          https://github.com/pallets/click/pull/500
+@run.command('complete', hidden=True, help=help_strings.COMPLETE_HELP)
+@pass_controller
+def complete(controller):
+    """Bash tab-completion helper."""
+    _disable_logging(controller)
+    tab_complete(controller)
 
 
 # ***
