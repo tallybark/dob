@@ -77,7 +77,23 @@ def generate_facts_table(facts):
     TableRow = namedtuple('TableRow', columns)
 
     table = []
+
+    n_row = 0
+    # FIXME: tabulate is really slow on too many records, so bail for now
+    #        rather than hang "forever", man.
+    # 2018-05-09: (lb): Anecdotal evidence suggests 2500 is barely tolerable.
+    #   Except it overflows my terminal buffer? and hangs it? Can't even
+    #   Ctrl-C back to life?? Maybe less than 2500. 1000 seems fine. Why
+    #   would user want that many results on their command line, anyway?
+    #   And if they want to process more records, they might was well dive
+    #   into the SQL, or run an export command instead.
+    row_limit = 1001
+
     for fact in facts:
+        n_row += 1
+        if n_row > row_limit:
+            break
+
         if fact.category:
             category = fact.category.name
         else:
