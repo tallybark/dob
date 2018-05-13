@@ -17,30 +17,16 @@
 
 from __future__ import absolute_import, unicode_literals
 
-import click
+__all__ = ['hydrate_category']
 
-from helpers.ascii_table import generate_table
-
-__all__ = ['list_categories']
-
-def list_categories(
-    controller,
-    table_type='friendly',
-    truncate=False,
-    **kwargs
-):
-    """
-    List all existing categories, ordered by name.
-
-    Returns:
-        None: If success.
-    """
-    results = controller.categories.get_all(**kwargs)
-
-    headers = (_("Name"),)
-    category_names = []
-    for category in results:
-        category_names.append((category.name,))
-
-    generate_table(category_names, headers, table_type, truncate, trunccol=0)
+def hydrate_category(controller, category_name):
+    """Fetch a category from the backend."""
+    category = False
+    if category_name:
+        # FIXME: (lb): This raises KeyError if no exact match found.
+        #        We should at least gracefully exit,
+        #        if not do a fuzzy search.
+        result = controller.categories.get_by_name(category_name)
+        category = result if result else False
+    return category
 

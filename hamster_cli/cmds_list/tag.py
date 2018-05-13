@@ -19,44 +19,28 @@ from __future__ import absolute_import, unicode_literals
 
 import click
 
-from cmd_common import hydrate_category
 from helpers.ascii_table import generate_table
 
-__all__ = ['list_activities']
+__all__ = ['list_tags']
 
-def list_activities(
+def list_tags(
     controller,
-    filter_category='',
     table_type='friendly',
     truncate=False,
     **kwargs
 ):
     """
-    List all activities. Provide optional filtering by name.
-
-    Args:
-        search_term (str): String to match ``Activity.name`` against.
+    List all tags, with filtering and sorting options.
 
     Returns:
         None: If success.
     """
-    category = hydrate_category(controller, filter_category)
+    results = controller.tags.get_all(**kwargs)
 
-    results = controller.activities.get_all(
-        category=category, **kwargs
-    )
+    headers = (_("Name"),)
+    tag_names = []
+    for tag in results:
+        tag_names.append((tag.name,))
 
-    # This is sorta like `hamster usage activity`, except we use
-    # separate columns for the activity name and category name,
-    # rather than combining as activity@category.
-    headers = (_("Activity"), _("Category"))
-    actegories = []
-    for activity in results:
-        if activity.category:
-            category_name = activity.category.name
-        else:
-            category_name = None
-        actegories.append((activity.name, category_name))
-
-    generate_table(actegories, headers, table_type, truncate, trunccol=0)
+    generate_table(tag_names, headers, table_type, truncate, trunccol=0)
 

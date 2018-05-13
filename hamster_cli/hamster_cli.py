@@ -42,6 +42,7 @@ from cmd_options import cmd_options_search, cmd_options_limit_offset, cmd_option
 from create import cancel_fact, start_fact, stop_fact
 from search import search_facts
 from helpers.ascii_table import generate_table
+import cmd_options
 import cmds_list
 
 # Disable the python_2_unicode_compatible future import warning.
@@ -341,11 +342,25 @@ def list_activities(controller, *args, **kwargs):
 # *** CATEGORIES.
 
 @list_group.command('categories', help=help_strings.LIST_CATEGORIES_HELP)
+@cmd_options_table_bunce
 @cmd_options_limit_offset
 @pass_controller
-def list_categories(controller):
+def list_categories(controller, *args, **kwargs):
     """List all existing categories, ordered by name."""
     cmds_list.category.list_categories(controller)
+
+
+# *** TAGS.
+
+@list_group.command('tags', help=help_strings.LIST_TAGS_HELP)
+@click.argument('search_term', default='')
+@cmd_options_table_bunce
+@cmd_options_limit_offset
+@pass_controller
+def list_tags(controller, *args, **kwargs):
+    """List all tags, with filtering and sorting options."""
+    cmd_options.postprocess_options_table_bunce(kwargs)
+    cmds_list.tag.list_tags(controller, *args, **kwargs)
 
 
 # *** FACTS (w/ time range).

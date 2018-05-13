@@ -105,6 +105,26 @@ def generate_facts_table(facts):
         else:
             tags = ''
 
+        if fact.start:
+            fact_start = fact.start.strftime('%Y-%m-%d %H:%M')
+        else:
+            fact_start = '<genesis>'
+            controller.client_logger.warning(_('Fact missing start: {}').format(fact))
+
+        if fact.end:
+            fact_end = fact.end.strftime('%Y-%m-%d %H:%M')
+        else:
+            # FIXME: This is just the start of supporting open ended Fact in db.
+            fact_end = '<ongoing>'
+            # So that fact.delta() returns something.
+            fact.end = datetime.datetime.now()
+
+        # [TODO]
+        # Use ``Fact.get_string_delta`` instead!
+        fact_delta = (
+            '{minutes} min.'.format(minutes=(int(fact.delta.total_seconds() / 60)))
+        )
+
         table.append(
             TableRow(
                 key=fact.pk,
@@ -112,11 +132,9 @@ def generate_facts_table(facts):
                 category=category,
                 description=fact.description,
                 tags=tags,
-                start=fact.start.strftime('%Y-%m-%d %H:%M'),
-                end=fact.end.strftime('%Y-%m-%d %H:%M'),
-                # [TODO]
-                # Use ``Fact.get_string_delta`` instead!
-                delta='{minutes} min.'.format(minutes=(int(fact.delta.total_seconds() / 60))),
+                start=fact_start,
+                end=fact_end,
+                delta=fact_delta,
             )
         )
 
