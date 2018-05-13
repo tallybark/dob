@@ -308,16 +308,25 @@ def _details(controller):
 # ***
 
 
+# NOTE: Use an alias (don't `def list()`) because of builtin of same name!
+@run.group('list', help=help_strings.LIST_GROUP_HELP)
+@pass_controller
+@click.pass_context
+def list_group(ctx, controller):
+    """Base `list` group command run prior to any of the hamster-list commands."""
+    pass
+
+
 # *** ACTIVITIES.
 
-@run.command(help=help_strings.ACTIVITIES_HELP)
+@list_group.command('activities', help=help_strings.LIST_ACTIVITIES_HELP)
 @click.argument('search_term', default='')
 @click.option('-c', '--category', help="The search string applied to category names.")
 @click.option('-C', '--sort-by-category', is_flag=True,
               help="Sort by category name, then activity name.")
 @cmd_options_limit_offset
 @pass_controller
-def activities(controller, *args, **kwargs):
+def list_activities(controller, *args, **kwargs):
     """List all activities. Provide optional filtering by name."""
     category = kwargs['category'] if kwargs['category'] else ''
     del kwargs['category']
@@ -331,10 +340,10 @@ def activities(controller, *args, **kwargs):
 
 # *** CATEGORIES.
 
-@run.command(help=help_strings.CATEGORIES_HELP)
+@list_group.command('categories', help=help_strings.LIST_CATEGORIES_HELP)
 @cmd_options_limit_offset
 @pass_controller
-def categories(controller):
+def list_categories(controller):
     """List all existing categories, ordered by name."""
     cmds_list.category.list_categories(controller)
 
@@ -342,11 +351,11 @@ def categories(controller):
 # *** FACTS (w/ time range).
 # FIXME/2018-05-12: (lb): Do we really need 2 Facts search commands?
 
-@run.command(help=help_strings.LIST_HELP)
+@list_group.command('facts', help=help_strings.LIST_FACTS_HELP)
 @cmd_options_search
 @cmd_options_limit_offset
 @pass_controller
-def list(controller, *args, **kwargs):
+def list_facts(controller, *args, **kwargs):
     """List all facts within a timerange."""
     results = search_facts(controller, *args, **kwargs)
     table, headers = cmds_list.fact.generate_facts_table(results)
