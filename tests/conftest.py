@@ -231,7 +231,7 @@ def controller_with_logging(lib_config, client_config):
     controller = hamster_lib.HamsterControl(lib_config)
     controller.client_config = client_config
     # [FIXME]
-    # We souldn't shortcut like this!
+    # We shouldn't shortcut like this!
     hamster_cli._setup_logging(controller)
     yield controller
     controller.store.cleanup()

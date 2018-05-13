@@ -48,8 +48,9 @@ click.disable_unicode_literals_warning = True
 
 
 # ***
-# *** HamsterControl Controller.
+# *** [CONTROLLER] HamsterControl Controller.
 # ***
+
 
 class Controller(HamsterControl):
     """A custom controller that adds config handling on top of its regular functionality."""
@@ -84,8 +85,9 @@ pass_controller = click.make_pass_decorator(Controller, ensure=True)
 
 
 # ***
-# *** Version command helper.
+# *** [VERSION] Version command helper.
 # ***
+
 
 def _hamster_version():
     vers = '{} version {}\nhamster-lib version {}'.format(
@@ -97,8 +99,9 @@ def _hamster_version():
 
 
 # ***
-# *** One Group to rule them all.
+# *** [BASE COMMAND GROUP] One Group to rule them all.
 # ***
+
 
 # (lb): Use invoke_without_command so `hamster -v` works, otherwise click's
 # Group (MultiCommand ancestor) does not allow it ('Missing command.').
@@ -113,21 +116,86 @@ def _hamster_version():
 #       we use as a decorator for the top-level commands (see: @run.command).
 def run(ctx, controller, v):
     """General context run right before any of the commands."""
+
+    def _run(ctx, controller, show_version):
+        """Make sure that loggers are setup properly."""
+        _run_handle_paging(controller)
+        _run_handle_banner()
+        _run_handle_version(show_version, ctx)
+        _run_handle_without_command(ctx)
+        _setup_logging(controller)
+
+    def _run_handle_paging(controller):
+        if controller.client_config['term_paging']:
+            # FIXME/2018-04-22: (lb): Well, actually, don't clear, but rely on paging...
+            #   after implementing paging. (Also add --paging option.)
+            click.clear()
+
+    def _run_handle_banner():
+        # FIXME/2018-04-22: (lb): I disabled the _show_greeting code;
+        #                   it's not useful info. And a little boastful.
+        # Instead, we could maybe make a hamster-about command?
+        #   _show_greeting()
+        pass
+
+    def _run_handle_version(show_version, ctx):
+        if show_version:
+            click.echo(_hamster_version())
+            ctx.exit(0)
+
+    def _run_handle_without_command(ctx):
+        if len(sys.argv) == 1:
+            # Because invoke_without_command, we have to check ourselves
+            click.echo(ctx.get_help())
+
+    # Shim to the private run() functions.
+
     _run(ctx, controller, show_version=v)
 
 
-def _run(ctx, controller, show_version):
-    """Make sure that loggers are setup properly."""
-    _run_handle_paging(controller)
-    _run_handle_banner()
-    _run_handle_version(show_version, ctx)
-    _run_handle_without_command(ctx)
-    _setup_logging(controller)
+def _show_greeting():
+    """Display a greeting message providing basic set of information."""
+    # 2018-04-22: (lb): It seems to me there are no i18n/l10n files for gettext/_.
+    click.echo(_("Welcome to 'hamster_cli', your friendly time tracker for the command line."))
+    click.echo("Copyright (C) 2015-2016, Eric Goller <elbenfreund@DenkenInEchtzeit.net>")
+    click.echo(_(
+        "'hamster_cli' is published under the terms of the GPL3, for details please use"
+        " the 'license' command."
+    ))
+    click.echo()
+
+
+def _setup_logging(controller):
+    """Setup logging for the lib_logger as well as client specific logging."""
+    controller.client_logger = logging.getLogger('hamster_cli')
+    loggers = [
+        controller.lib_logger,
+        controller.sql_logger,
+        controller.client_logger,
+    ]
+    # Clear any existing (null)Handlers, and set the level.
+    # MAYBE: Allow user to specify different levels for different loggers.
+    log_level = controller.client_config['log_level']
+    for logger in loggers:
+        logger.handlers = []
+        logger.setLevel(log_level)
+
+    formatter = logging_helpers.formatter_basic()
+
+    if controller.client_config['log_console']:
+        console_handler = logging.StreamHandler()
+        logging_helpers.setupHandler(console_handler, formatter, *loggers)
+
+    if controller.client_config['logfile_path']:
+        filename = controller.client_config['logfile_path']
+        file_handler = logging.FileHandler(filename, encoding='utf-8')
+        logging_helpers.setupHandler(file_handler, formatter, *loggers)
 
 
 # ***
-# *** Ye rote version command.
+# *** [VERSION] Ye rote version command.
 # ***
+
 
 @run.command(help=help_strings.VERSION_HELP)
 def version():
@@ -141,8 +209,143 @@ def _version():
 
 
 # ***
-# *** Command: SEARCH.
+# *** [LICENSE] Command.
 # ***
+
+
+@run.command(help=help_strings.LICENSE_HELP)
+def license():
+    """Show license information."""
+    _license()
+
+
+def _license():
+    """Show license information."""
+    license = """
+        'hamster_cli' is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.
+
+        'hamster_cli' is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+
+        You should have received a copy of the GNU General Public License
+        along with .  If not, see <http://www.gnu.org/licenses/>.
+        """
+    click.echo(license)
+
+
+# ***
+# *** [DETAILS] Command [about paths, config, etc.].
+# ***
+
+
+@run.command(help=help_strings.DETAILS_HELP)
+@pass_controller
+def details(controller):
+    """List details about the runtime environment."""
+    _details(controller)
+
+
+def _details(controller):
+    """List details about the runtime environment."""
+    def get_db_info():
+        result = None
+
+        def get_sqlalchemy_info():
+            engine = controller.config['db_engine']
+            if engine == 'sqlite':
+                sqlalchemy_string = _(
+                    "Using 'sqlite' with database stored under: {}"
+                    .format(controller.config['db_path'])
+                )
+            else:
+                port = controller.config.get('db_port', '')
+                if port:
+                    port = ':{}'.format(port)
+
+                sqlalchemy_string = _(
+                    "Using '{engine}' connecting to database {name} on {host}{port}"
+                    " as user {username}.".format(
+                        engine=engine,
+                        host=controller.config['db_host'],
+                        port=port,
+                        username=controller.config['db_user'],
+                        name=controller.config['db_name'],
+                    )
+                )
+            return sqlalchemy_string
+
+        # For now we do not need to check for various store option as we allow
+        # only one anyway.
+        result = get_sqlalchemy_info()
+        return result
+
+    click.echo(_(
+        "You are running {name} version {version}".format(
+            name=hamster_cli_appname,
+            version=hamster_cli_version,
+        )
+    ))
+    click.echo(
+        "Configuration found under: {}".format(get_config_path())
+    )
+    click.echo(
+        "Logfile stored under: {}".format(controller.client_config['logfile_path'])
+    )
+    click.echo(
+        "Reports exported to: {}".format(controller.client_config['export_path'])
+    )
+    click.echo(get_db_info())
+
+
+# ***
+# *** [LIST] Commands.
+# ***
+
+
+# *** ACTIVITIES.
+
+@run.command(help=help_strings.ACTIVITIES_HELP)
+@click.argument('search_term', default='')
+@click.option('-c', '--category', help="The search string applied to category names.")
+@click.option('-C', '--sort-by-category', is_flag=True,
+              help="Sort by category name, then activity name.")
+@pass_controller
+def activities(controller, search_term, category, sort_by_category):
+    """List all activities. Provide optional filtering by name."""
+    category_name = category if category else ''
+    cmds_list.activity.list_activities(controller, search_term, category_name, sort_by_category)
+
+
+# *** CATEGORIES.
+
+@run.command(help=help_strings.CATEGORIES_HELP)
+@pass_controller
+def categories(controller):
+    """List all existing categories, ordered by name."""
+    cmds_list.category.list_categories(controller)
+
+
+# *** FACTS (w/ time range).
+# FIXME/2018-05-12: (lb): Do we really need 2 Facts search commands?
+
+@run.command(help=help_strings.LIST_HELP)
+@click.option('-s', '--start', help='The start time string (e.g. "2017-01-01 00:00").')
+@click.option('-e', '--end', help='The end time string (e.g. "2017-02-01 00:00").')
+@pass_controller
+def list(controller, start, end):
+    """List all facts within a timerange."""
+    results = search_facts(controller, start=start, end=end)
+    table, headers = cmds_list.fact.generate_facts_table(results)
+    click.echo(generate_table(table, headers=headers))
+
+
+# *** FACTS (w/ search term).
+# FIXME/2018-05-12: (lb): Do we really need 2 Facts search commands?
 
 @run.command(help=help_strings.SEARCH_HELP)
 @click.argument('search_term', nargs=-1, default=None)
@@ -186,23 +389,9 @@ def search(controller, start, end, activity, category, tag, description, key, se
 
 
 # ***
-# *** Command: LIST [facts].
+# *** [CURRENT-FACT] Commands: start/stop/cancel/current.
 # ***
 
-@run.command(help=help_strings.LIST_HELP)
-@click.option('-s', '--start', help='The start time string (e.g. "2017-01-01 00:00").')
-@click.option('-e', '--end', help='The end time string (e.g. "2017-02-01 00:00").')
-@pass_controller
-def list(controller, start, end):
-    """List all facts within a timerange."""
-    results = search_facts(controller, start=start, end=end)
-    table, headers = cmds_list.fact.generate_facts_table(results)
-    click.echo(generate_table(table, headers=headers))
-
-
-# ***
-# *** Command: INSERT [fact].
-# ***
 
 @run.command(help=help_strings.START_HELP)
 @click.argument('raw_fact')
@@ -225,10 +414,6 @@ def stop(controller):
     stop_fact(controller)
 
 
-# ***
-# *** Command: CANCEL [current fact].
-# ***
-
 @run.command(help=help_strings.CANCEL_HELP)
 @pass_controller
 def cancel(controller):
@@ -236,9 +421,17 @@ def cancel(controller):
     cancel_fact(controller)
 
 
+@run.command(help=help_strings.CURRENT_HELP)
+@pass_controller
+def current(controller):
+    """Display current *ongoing fact*."""
+    cmds_list.fact.list_current_fact(controller)
+
+
 # ***
-# *** Command: EXPORT [facts].
+# *** [EXPORT] Command.
 # ***
+
 
 @run.command(help=help_strings.EXPORT_HELP)
 @click.argument('format', nargs=1, default='csv')
@@ -331,210 +524,4 @@ def _export(
         writer = reports.XMLWriter(filepath)
         writer.write_report(facts)
         click.echo(_("Facts have been exported to: {path}".format(path=filepath)))
-
-
-# ***
-# *** [LIST] Command: CATEGORIES.
-# ***
-
-@run.command(help=help_strings.CATEGORIES_HELP)
-@pass_controller
-def categories(controller):
-    """List all existing categories, ordered by name."""
-    cmds_list.category.list_categories(controller)
-
-
-# ***
-# *** Command: CURRENT [fact, show].
-# ***
-
-@run.command(help=help_strings.CURRENT_HELP)
-@pass_controller
-def current(controller):
-    """Display current *ongoing fact*."""
-    cmds_list.fact.list_current_fact(controller)
-
-
-# ***
-# *** [LIST] Command: ACTIVITIES.
-# ***
-
-@run.command(help=help_strings.ACTIVITIES_HELP)
-@click.argument('search_term', default='')
-@click.option('-c', '--category', help="The search string applied to category names.")
-@click.option('-C', '--sort-by-category', is_flag=True,
-              help="Sort by category name, then activity name.")
-@pass_controller
-def activities(controller, search_term, category, sort_by_category):
-    """List all activities. Provide optional filtering by name."""
-    category_name = category if category else ''
-    cmds_list.activity.list_activities(controller, search_term, category_name, sort_by_category)
-
-
-# ***
-# *** Command: LICENSE [list].
-# ***
-
-@run.command(help=help_strings.LICENSE_HELP)
-def license():
-    """Show license information."""
-    _license()
-
-
-def _license():
-    """Show license information."""
-    license = """
-        'hamster_cli' is free software: you can redistribute it and/or modify
-        it under the terms of the GNU General Public License as published by
-        the Free Software Foundation, either version 3 of the License, or
-        (at your option) any later version.
-
-        'hamster_cli' is distributed in the hope that it will be useful,
-        but WITHOUT ANY WARRANTY; without even the implied warranty of
-        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-        GNU General Public License for more details.
-
-        You should have received a copy of the GNU General Public License
-        along with .  If not, see <http://www.gnu.org/licenses/>.
-        """
-    click.echo(license)
-
-
-# ***
-# *** Command: DETAILS [about paths, config, etc.].
-# ***
-
-@run.command(help=help_strings.DETAILS_HELP)
-@pass_controller
-def details(controller):
-    """List details about the runtime environment."""
-    _details(controller)
-
-
-def _details(controller):
-    """List details about the runtime environment."""
-    def get_db_info():
-        result = None
-
-        def get_sqlalchemy_info():
-            engine = controller.config['db_engine']
-            if engine == 'sqlite':
-                sqlalchemy_string = _(
-                    "Using 'sqlite' with database stored under: {}"
-                    .format(controller.config['db_path'])
-                )
-            else:
-                port = controller.config.get('db_port', '')
-                if port:
-                    port = ':{}'.format(port)
-
-                sqlalchemy_string = _(
-                    "Using '{engine}' connecting to database {name} on {host}{port}"
-                    " as user {username}.".format(
-                        engine=engine,
-                        host=controller.config['db_host'],
-                        port=port,
-                        username=controller.config['db_user'],
-                        name=controller.config['db_name'],
-                    )
-                )
-            return sqlalchemy_string
-
-        # For now we do not need to check for various store option as we allow
-        # only one anyway.
-        result = get_sqlalchemy_info()
-        return result
-
-    click.echo(_(
-        "You are running {name} version {version}".format(
-            name=hamster_cli_appname,
-            version=hamster_cli_version,
-        )
-    ))
-    click.echo(
-        "Configuration found under: {}".format(get_config_path())
-    )
-    click.echo(
-        "Logfile stored under: {}".format(controller.client_config['logfile_path'])
-    )
-    click.echo(
-        "Reports exported to: {}".format(controller.client_config['export_path'])
-    )
-    click.echo(get_db_info())
-
-
-# ***
-# *** Helper Functions: _run().
-# ***
-
-# FIXME: (lb): Refactor: Move this code to immediately following: def _run().
-
-def _run_handle_paging(controller):
-    if controller.client_config['term_paging']:
-        # FIXME/2018-04-22: (lb): Well, actually, don't clear, but rely on paging...
-        #   after implementing paging. (Also add --paging option.)
-        click.clear()
-
-
-def _run_handle_banner():
-    # FIXME/2018-04-22: (lb): I disabled the _show_greeting code;
-    #                   it's not useful info. And a little boastful.
-    # Instead, we could maybe make a hamster-about command?
-    #   _show_greeting()
-    pass
-
-
-def _run_handle_version(show_version, ctx):
-    if show_version:
-        click.echo(_hamster_version())
-        ctx.exit(0)
-
-
-def _run_handle_without_command(ctx):
-    if len(sys.argv) == 1:
-        # Because invoke_without_command, we have to check ourselves
-        click.echo(ctx.get_help())
-
-
-def _setup_logging(controller):
-    """Setup logging for the lib_logger as well as client specific logging."""
-    controller.client_logger = logging.getLogger('hamster_cli')
-    loggers = [
-        controller.lib_logger,
-        controller.sql_logger,
-        controller.client_logger,
-    ]
-    # Clear any existing (null)Handlers, and set the level.
-    # MAYBE: Allow user to specify different levels for different loggers.
-    log_level = controller.client_config['log_level']
-    for logger in loggers:
-        logger.handlers = []
-        logger.setLevel(log_level)
-
-    formatter = logging_helpers.formatter_basic()
-
-    if controller.client_config['log_console']:
-        console_handler = logging.StreamHandler()
-        logging_helpers.setupHandler(console_handler, formatter, *loggers)
-
-    if controller.client_config['logfile_path']:
-        filename = controller.client_config['logfile_path']
-        file_handler = logging.FileHandler(filename, encoding='utf-8')
-        logging_helpers.setupHandler(file_handler, formatter, *loggers)
-
-
-# ***
-# *** Helper Functions: GREETING.
-# ***
-
-def _show_greeting():
-    """Display a greeting message providing basic set of information."""
-    # 2018-04-22: (lb): It seems to me there are no i18n/l10n files for gettext/_.
-    click.echo(_("Welcome to 'hamster_cli', your friendly time tracker for the command line."))
-    click.echo("Copyright (C) 2015-2016, Eric Goller <elbenfreund@DenkenInEchtzeit.net>")
-    click.echo(_(
-        "'hamster_cli' is published under the terms of the GPL3, for details please use"
-        " the 'license' command."
-    ))
-    click.echo()
 
