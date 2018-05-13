@@ -24,7 +24,6 @@ import datetime
 import logging
 import os
 import sys
-from collections import namedtuple
 from gettext import gettext as _
 
 import pyparsing as pp
@@ -183,7 +182,7 @@ def search(controller, start, end, activity, category, tag, description, key, se
         description += ' AND ' if description else ''
         description += ' AND '.join(search_term)
     results = _search(controller, start, end, activity, category, tag, description, key)
-    table, headers = _generate_facts_table(results)
+    table, headers = cmds_list.fact.generate_facts_table(results)
     click.echo(generate_table(table, headers=headers))
 
 
@@ -475,7 +474,7 @@ def _search(
 def list(controller, start, end):
     """List all facts within a timerange."""
     results = _search(controller, start=start, end=end)
-    table, headers = _generate_facts_table(results)
+    table, headers = cmds_list.fact.generate_facts_table(results)
     click.echo(generate_table(table, headers=headers))
 
 
@@ -670,7 +669,7 @@ def _cancel(controller):
 def remove(controller, start, end, activity, category, tag, description, key):
     """Export all facts of within a given timewindow to a file of specified format."""
     facts = _search(controller, start, end, activity, category, tag, description, key)
-    table, headers = _generate_facts_table(facts)
+    table, headers = cmds_list.fact.generate_facts_table(facts)
     click.echo(generate_table(table, headers=headers))
     if click.confirm('Do you really want to delete the facts listed above?', abort=True):
         for cur_fact in facts:
@@ -703,7 +702,7 @@ def remove(controller, start, end, activity, category, tag, description, key):
 def tag(controller, tag_name, start, end, activity, category, tag, description, key, remove):
     """Export all facts of within a given timewindow to a file of specified format."""
     facts = _search(controller, start, end, activity, category, tag, description, key)
-    table, headers = _generate_facts_table(facts)
+    table, headers = cmds_list.fact.generate_facts_table(facts)
     click.echo(generate_table(table, headers=headers))
 
     if remove:
@@ -876,31 +875,7 @@ def categories(controller):
 @pass_controller
 def current(controller):
     """Display current *ongoing fact*."""
-    _current(controller)
-
-
-def _current(controller):
-    """
-    Return current *ongoing fact*.
-
-    Returns:
-        None: If everything went alright.
-
-    Raises:
-        click.ClickException: If we fail to fetch any *ongoing fact*.
-    """
-    try:
-        fact = controller.facts.get_tmp_fact()
-    except KeyError:
-        message = _(
-            "There seems no be no activity beeing tracked right now."
-            " maybe you want to *start* tracking one right now?"
-        )
-        raise click.ClickException(message)
-    else:
-        fact.end = datetime.datetime.now()
-        string = '{fact} ({duration} minutes)'.format(fact=fact, duration=fact.get_string_delta())
-        click.echo(string)
+    cmds_list.fact.list_current_fact(controller)
 
 
 # ***
@@ -1069,66 +1044,6 @@ def _setup_logging(controller):
         filename = controller.client_config['logfile_path']
         file_handler = logging.FileHandler(filename, encoding='utf-8')
         logging_helpers.setupHandler(file_handler, formatter, *loggers)
-
-
-# ***
-# *** Helper Functions: TABLE [facts].
-# ***
-
-def _generate_facts_table(facts):
-    """
-    Create a nice looking table representing a set of fact instances.
-
-    Returns a (table, header) tuple. 'table' is a list of ``TableRow``
-    instances representing a single fact.
-    """
-    # If you want to change the order just adjust the dict.
-    headers = {
-        'key': _("Key"),
-        'start': _("Start"),
-        'end': _("End"),
-        'activity': _("Activity"),
-        'category': _("Category"),
-        'tags': _("Tags"),
-        'description': _("Description"),
-        'delta': _("Duration")
-    }
-
-    columns = (
-        'key', 'start', 'end', 'activity', 'category', 'tags', 'description', 'delta',
-    )
-
-    header = [headers[column] for column in columns]
-
-    TableRow = namedtuple('TableRow', columns)
-
-    table = []
-    for fact in facts:
-        if fact.category:
-            category = fact.category.name
-        else:
-            category = ''
-
-        if fact.tags:
-            tags = '#'
-            tags += '#'.join(sorted([x.name + ' ' for x in fact.tags]))
-        else:
-            tags = ''
-
-        table.append(TableRow(
-            key=fact.pk,
-            activity=fact.activity.name,
-            category=category,
-            description=fact.description,
-            tags=tags,
-            start=fact.start.strftime('%Y-%m-%d %H:%M'),
-            end=fact.end.strftime('%Y-%m-%d %H:%M'),
-            # [TODO]
-            # Use ``Fact.get_string_delta`` instead!
-            delta='{minutes} min.'.format(minutes=(int(fact.delta.total_seconds() / 60))),
-        ))
-
-    return (table, header)
 
 
 # ***
