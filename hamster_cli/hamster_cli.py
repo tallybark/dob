@@ -35,19 +35,24 @@ from hamster_lib import __version__ as hamster_lib_version
 from hamster_lib import HamsterControl
 from hamster_lib.helpers import logging as logging_helpers
 
+from . import cmd_options
 from . import help_strings
-from cmd_config import get_config, get_config_instance, get_config_path
-from cmd_options import cmd_options_search, cmd_options_limit_offset, cmd_options_table_bunce, cmd_options_insert
-from complete import tab_complete
-from create import add_fact, cancel_fact, start_fact, stop_fact
-from details import app_details
-from search import search_facts
-from transcode import export_facts
-from helpers.ascii_table import generate_table, warn_if_truncated
-import cmd_options
-import cmds_list
-import cmds_usage
-import migrate
+from . import migrate
+from .cmd_config import get_config, get_config_instance, get_config_path
+from .cmd_options import cmd_options_search, cmd_options_limit_offset, cmd_options_table_bunce, cmd_options_insert
+from .cmds_list import activity as list_activity
+from .cmds_list import category as list_category
+from .cmds_list import tag as list_tag
+from .cmds_list.fact import generate_facts_table, list_current_fact
+from .cmds_usage import activity as usage_activity
+from .cmds_usage import category as usage_category
+from .cmds_usage import tag as usage_tag
+from .complete import tab_complete
+from .create import add_fact, cancel_fact, start_fact, stop_fact
+from .details import app_details
+from .search import search_facts
+from .transcode import export_facts
+from .helpers.ascii_table import generate_table, warn_if_truncated
 
 
 # Disable the python_2_unicode_compatible future import warning.
@@ -295,7 +300,7 @@ def list_activities(controller, *args, **kwargs):
     category = kwargs['category'] if kwargs['category'] else ''
     del kwargs['category']
     cmd_options.postprocess_options_table_bunce(kwargs)
-    cmds_list.activity.list_activities(
+    list_activity.list_activities(
         controller,
         *args,
         filter_category=category,
@@ -311,7 +316,7 @@ def list_activities(controller, *args, **kwargs):
 @pass_controller
 def list_categories(controller, *args, **kwargs):
     """List all existing categories, ordered by name."""
-    cmds_list.category.list_categories(controller)
+    list_category.list_categories(controller)
 
 
 # *** TAGS.
@@ -324,7 +329,7 @@ def list_categories(controller, *args, **kwargs):
 def list_tags(controller, *args, **kwargs):
     """List all tags, with filtering and sorting options."""
     cmd_options.postprocess_options_table_bunce(kwargs)
-    cmds_list.tag.list_tags(controller, *args, **kwargs)
+    list_tag.list_tags(controller, *args, **kwargs)
 
 
 # *** FACTS (w/ time range).
@@ -337,7 +342,7 @@ def list_tags(controller, *args, **kwargs):
 def list_facts(controller, *args, **kwargs):
     """List all facts within a timerange."""
     results = search_facts(controller, *args, **kwargs)
-    table, headers = cmds_list.fact.generate_facts_table(results)
+    table, headers = generate_facts_table(results)
     click.echo(generate_table(table, headers=headers))
     warn_if_truncated(controller, len(results), len(table))
 
@@ -382,7 +387,7 @@ def search(controller, description, search_term, *args, **kwargs):
         description += ' AND ' if description else ''
         description += ' AND '.join(search_term)
     results = search_facts(description, *args, **kwargs)
-    table, headers = cmds_list.fact.generate_facts_table(results)
+    table, headers = generate_facts_table(results)
     click.echo(generate_table(table, headers=headers))
     warn_if_truncated(controller, len(results), len(table))
 
@@ -418,7 +423,7 @@ def usage_activities(controller, *args, **kwargs):
 
     cmd_options.postprocess_options_table_bunce(kwargs)
 
-    cmds_usage.activity.usage_activities(
+    usage_activity.usage_activities(
         controller,
         *args,
         filter_category=category,
@@ -436,7 +441,7 @@ def usage_activities(controller, *args, **kwargs):
 def usage_categories(controller, *args, **kwargs):
     """List all categories. Provide optional filtering by name."""
     cmd_options.postprocess_options_table_bunce(kwargs)
-    cmds_usage.category.usage_categories(
+    usage_category.usage_categories(
         controller,
         *args,
         **kwargs
@@ -455,7 +460,7 @@ def usage_tags(controller, *args, **kwargs):
 
     cmd_options.postprocess_options_table_bunce(kwargs)
 
-    cmds_usage.tag.usage_tags(controller, *args, **kwargs)
+    usage_tag.usage_tags(controller, *args, **kwargs)
 
 
 # ***
@@ -495,7 +500,7 @@ def cancel(controller):
 @pass_controller
 def current(controller):
     """Display current *ongoing fact*."""
-    cmds_list.fact.list_current_fact(controller)
+    list_current_fact(controller)
 
 
 # ***

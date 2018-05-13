@@ -19,7 +19,7 @@ from __future__ import absolute_import, unicode_literals
 
 import click
 
-from helpers.ascii_table import generate_table
+from ..helpers.ascii_table import generate_table
 
 __all__ = ['list_tags']
 

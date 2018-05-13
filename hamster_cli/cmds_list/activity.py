@@ -19,8 +19,8 @@ from __future__ import absolute_import, unicode_literals
 
 import click
 
-from cmd_common import hydrate_category
-from helpers.ascii_table import generate_table
+from ..cmd_common import hydrate_category
+from ..helpers.ascii_table import generate_table
 
 __all__ = ['list_activities']
 
