@@ -26,22 +26,20 @@ import os
 import sys
 from gettext import gettext as _
 
-import pyparsing as pp
-
 import click
 import hamster_lib
-from six import string_types
 
 from hamster_cli import __version__ as hamster_cli_version
 from hamster_cli import __appname__ as hamster_cli_appname
 from hamster_lib import __version__ as hamster_lib_version
-from hamster_lib import Fact, HamsterControl, reports
+from hamster_lib import HamsterControl, reports
 from hamster_lib.helpers import time as time_helpers
 from hamster_lib.helpers import logging as logging_helpers
 
 from . import help_strings
-from .cmd_config import get_config, get_config_instance, get_config_path
+from cmd_config import get_config, get_config_instance, get_config_path
 from create import cancel_fact, start_fact, stop_fact
+from search import search_facts
 from helpers.ascii_table import generate_table
 import cmds_list
 
@@ -170,9 +168,9 @@ def search(controller, start, end, activity, category, tag, description, key, se
     #         @click.argument('search_term', default='')
     #         @click.argument('time_range', default='')
     #         def search(controller, search_term, time_range):
-    #           return _search(controller, search_term, time_range)
+    #           return search_facts(controller, search_term, time_range)
     #           # And then the table and click.echo were at the bottom of
-    #           # _search! And I'm not sure why they were moved here....
+    #           # search_facts! And I'm not sure why they were moved here....
     #
     #       MAYBE: Restore supprt for time_range, i.e., let user specify
     #       2 positional args in addition to any number of options. And
@@ -182,286 +180,9 @@ def search(controller, start, end, activity, category, tag, description, key, se
         description = description or ''
         description += ' AND ' if description else ''
         description += ' AND '.join(search_term)
-    results = _search(controller, start, end, activity, category, tag, description, key)
+    results = search_facts(controller, start, end, activity, category, tag, description, key)
     table, headers = cmds_list.fact.generate_facts_table(results)
     click.echo(generate_table(table, headers=headers))
-
-
-def _search(
-    controller,
-    start=None,
-    end=None,
-    activity=None,
-    category=None,
-    tag=None,
-    description=None,
-    key=None,
-):
-    """
-    Search facts machting given timerange and search term. Both are optional.
-
-    Matching facts will be printed in a tabular representation.
-
-    Make sure that arguments are converted into apropiate types before passing
-    them on to the backend.
-
-    We leave it to the backend to first parse the timeinfo and then complete any
-    missing data based on the passed config settings.
-
-    Args:
-        search_term: Term that need to be matched by the fact in order to be considered a hit.
-        time_range: Only facts within this timerange will be considered.
-        tag: ...
-    """
-
-    # FIXME/2018-05-05: (lb): This is from the scientificsteve PR that adds tags:
-    #   DRY: Refactor this code; there is a lot of copy-paste code.
-    def search_facts(tree, search_list, search_attr, search_sub_attr=None):
-        '''
-        '''
-        def search_value(fact):
-            if search_attr == 'description':
-                return getattr(fact, search_attr)
-            else:
-                return getattr(fact, search_attr).name
-
-        if len(tree) == 1:
-            if isinstance(tree[0], string_types):
-                l_term = tree[0]
-                if search_sub_attr:
-                    search_list = [
-                        fact for fact in search_list if l_term.lower()
-                        in getattr(getattr(fact, search_attr), search_sub_attr).lower()
-                    ]
-                else:
-                    search_list = [
-                        fact for fact in search_list if getattr(fact, search_attr)
-                        is not None and l_term.lower() in search_value(fact).lower()
-                    ]
-            else:
-                search_list = search_facts(tree[0], search_list, search_attr, search_sub_attr)
-
-        if len(tree) == 2:
-            # This is the NOT operator.
-            op = tree[0]
-            r_term = tree[1]
-            if isinstance(r_term, string_types):
-                if search_sub_attr:
-                    r_search_list = [
-                        fact for fact in search_list if r_term.lower()
-                        in getattr(search_value(fact), search_sub_attr).lower()
-                    ]
-                else:
-                    r_search_list = [
-                        fact for fact in search_list if getattr(fact, search_attr)
-                        is not None and r_term.lower() in search_value(fact).lower()
-                    ]
-            else:
-                r_search_list = search_facts(r_term, search_list, search_attr, search_sub_attr)
-            search_list = [x for x in search_list if x not in r_search_list]
-
-        elif len(tree) == 3:
-            l_term = tree[0]
-            r_term = tree[2]
-            op = tree[1]
-
-            if isinstance(l_term, string_types):
-                if search_sub_attr:
-                    l_search_list = [
-                        fact for fact in search_list if l_term.lower()
-                        in getattr(search_value(fact), search_sub_attr).lower()
-                    ]
-                else:
-                    l_search_list = [
-                        fact for fact in search_list if getattr(fact, search_attr)
-                        is not None and l_term.lower() in search_value(fact).lower()
-                    ]
-            else:
-                l_search_list = search_facts(l_term, search_list, search_attr, search_sub_attr)
-
-            if isinstance(r_term, string_types):
-                if search_sub_attr:
-                    r_search_list = [
-                        fact for fact in search_list if r_term.lower()
-                        in getattr(search_value(fact), search_sub_attr).lower()
-                    ]
-                else:
-                    r_search_list = [
-                        fact for fact in search_list if getattr(fact, search_attr)
-                        is not None and r_term.lower() in search_value(fact).lower()
-                    ]
-            else:
-                r_search_list = search_facts(r_term, search_list, search_attr, search_sub_attr)
-
-            if op == 'AND':
-                search_list = [x for x in l_search_list if x in r_search_list]
-            elif op == 'OR':
-                search_list = l_search_list
-                search_list.extend(r_search_list)
-
-        return search_list
-
-    # FIXME/2018-05-05: (lb): This is from the scientificsteve PR that adds tags:
-    #   DRY: Refactor this code; there is a lot of copy-paste code.
-    def search_tags(tree, search_list):
-        '''
-        '''
-        if len(tree) == 1:
-            if isinstance(tree[0], string_types):
-                l_term = tree[0]
-                search_list = [
-                    fact for fact in search_list if l_term.lower()
-                    in [x.name.lower() for x in fact.tags]
-                ]
-            else:
-                search_list = search_tags(tree[0], search_list)
-        elif len(tree) == 2:
-            # This is the NOT operator.
-            op = tree[0]
-            r_term = tree[1]
-            if isinstance(r_term, string_types):
-                r_search_list = [
-                    fact for fact in search_list if r_term.lower()
-                    in [x.name.lower() for x in fact.tags]
-                ]
-            else:
-                r_search_list = search_tags(r_term, search_list)
-
-            search_list = [x for x in search_list if x not in r_search_list]
-        elif len(tree) == 3:
-            l_term = tree[0]
-            r_term = tree[2]
-            op = tree[1]
-
-            if isinstance(l_term, string_types):
-                l_search_list = [
-                    fact for fact in search_list if l_term.lower()
-                    in [x.name.lower() for x in fact.tags]
-                ]
-            else:
-                l_search_list = search_tags(l_term, search_list)
-
-            if isinstance(r_term, string_types):
-                r_search_list = [
-                    fact for fact in search_list if r_term.lower()
-                    in [x.name.lower() for x in fact.tags]
-                ]
-            else:
-                r_search_list = search_tags(r_term, search_list)
-
-            if op == 'AND':
-                search_list = [x for x in l_search_list if x in r_search_list]
-            elif op == 'OR':
-                search_list = l_search_list
-                search_list.extend(r_search_list)
-
-        return search_list
-
-    # (lb): Hahaha: end of inline defs. Now we start the _search method!
-
-    # NOTE: (lb): ProjectHamster PR #176 by scientificsteve adds search --options
-    #       but remove the two positional parameters.
-    #
-    #       Here's what the fcn. use to look like; I'll delete this comment
-    #       and code once I'm more familiar with the project and am confident
-    #       nothing here is broke (because I already found a few things! and
-    #       I might want to just revert some parts of the PR so I can move on
-    #       with life (but keep parts of the PR I like, like tags support!)).
-    #
-    if False:  # removed by scientificsteve
-        def _search(controller, search_term, time_range):
-            # [FIXME]
-            # As far as our backend is concerned search_term as well as time range are
-            # optional. If the same is true for legacy hamster-cli needs to be checked.
-            if not time_range:
-                start, end = (None, None)
-            else:
-                # [FIXME]
-                # This is a rather crude fix. Recent versions of ``hamster-lib`` do not
-                # provide a dedicated helper to parse *just* time(ranges) but expect a
-                # ``raw_fact`` text. In order to work around this we just append
-                # whitespaces to our time range argument which will qualify for the
-                # desired parsing.
-                # Once raw_fact/time parsing has been refactored in hamster-lib, this
-                # should no longer be needed.
-                time_range = time_range + '  '
-                timeinfo = time_helpers.extract_time_info(time_range)[0]
-                start, end = time_helpers.complete_timeframe(timeinfo, controller.config)
-            # (lb): In lieu of filter_term, which justs searches facts,
-            # scientificsteve switched to `hamster-cli search --description foo`.
-            results = controller.facts.get_all(filter_term=search_term, start=start, end=end)
-            return results
-    # end: disabled code...
-
-    if key:
-        results = [controller.facts.get(pk=key), ]
-    else:
-        # Convert the start and time strings to datetimes.
-        if start:
-            start = time_helpers.parse_time(start)
-        if end:
-            end = time_helpers.parse_time(end)
-
-        results = controller.facts.get_all(start=start, end=end)
-
-        # (lb): scientificsteve's PR adds these if's, but they seem wrong,
-        # i.e., if you specify --activity and --category, then only
-        # category matches are returned! But I don't care too much,
-        # because I use hamster_briefs for searching and reports!
-        # Granted, it's coupled to SQLite3, but that's probably easy
-        # to fix, and I don't care; SQLite3 is perfectly fine. I have
-        # no idea why SQLAlchemy was a priority for the redesign.
-        #
-        # Also: It looks like we post-processing database results?
-        # Wouldn't it be better to craft the SQL query to do the
-        # filtering? Another reason I like hamster_briefs so much better!
-
-        # FIXME/2018-05-05: (lb): The next 4 if-blocks are from the scientificsteve PR
-        #   that adds tags: DRY: Refactor this code; there is a lot of copy-paste code.
-
-        if activity:
-            identifier = pp.Word(pp.alphanums + pp.alphas8bit + '_' + '-')
-
-            expr = pp.operatorPrecedence(baseExpr=identifier,
-                                         opList=[("NOT", 1, pp.opAssoc.RIGHT, ),
-                                                 ("AND", 2, pp.opAssoc.LEFT, ),
-                                                 ("OR", 2, pp.opAssoc.LEFT, )])
-            search_tree = expr.parseString(activity)
-
-            results = search_facts(search_tree, results, 'activity', 'name')
-
-        if category:
-            identifier = pp.Word(pp.alphanums + pp.alphas8bit + '_' + '-')
-
-            expr = pp.operatorPrecedence(baseExpr=identifier,
-                                         opList=[("AND", 2, pp.opAssoc.LEFT, ),
-                                                 ("OR", 2, pp.opAssoc.LEFT, )])
-            search_tree = expr.parseString(category)
-
-            results = search_facts(search_tree, results, 'category', 'name')
-
-        if tag:
-            identifier = pp.Word(pp.alphanums + pp.alphas8bit + '_' + '-')
-
-            expr = pp.operatorPrecedence(baseExpr=identifier,
-                                         opList=[("NOT", 1, pp.opAssoc.RIGHT, ),
-                                                 ("AND", 2, pp.opAssoc.LEFT, ),
-                                                 ("OR", 2, pp.opAssoc.LEFT, )])
-            search_tree = expr.parseString(tag)
-
-            results = search_tags(search_tree, results)
-
-        if description:
-            identifier = pp.Word(pp.alphanums + pp.alphas8bit + '_' + '-')
-
-            expr = pp.operatorPrecedence(baseExpr=identifier,
-                                         opList=[("AND", 2, pp.opAssoc.LEFT, ),
-                                                 ("OR", 2, pp.opAssoc.LEFT, )])
-            search_tree = expr.parseString(description)
-
-            results = search_facts(search_tree, results, 'description')
-
-    return results
 
 
 # ***
@@ -474,7 +195,7 @@ def _search(
 @pass_controller
 def list(controller, start, end):
     """List all facts within a timerange."""
-    results = _search(controller, start=start, end=end)
+    results = search_facts(controller, start=start, end=end)
     table, headers = cmds_list.fact.generate_facts_table(results)
     click.echo(generate_table(table, headers=headers))
 
@@ -537,7 +258,7 @@ def cancel(controller):
 @pass_controller
 def remove(controller, start, end, activity, category, tag, description, key):
     """Export all facts of within a given timewindow to a file of specified format."""
-    facts = _search(controller, start, end, activity, category, tag, description, key)
+    facts = search_facts(controller, start, end, activity, category, tag, description, key)
     table, headers = cmds_list.fact.generate_facts_table(facts)
     click.echo(generate_table(table, headers=headers))
     if click.confirm('Do you really want to delete the facts listed above?', abort=True):
@@ -570,7 +291,7 @@ def remove(controller, start, end, activity, category, tag, description, key):
 @pass_controller
 def tag(controller, tag_name, start, end, activity, category, tag, description, key, remove):
     """Export all facts of within a given timewindow to a file of specified format."""
-    facts = _search(controller, start, end, activity, category, tag, description, key)
+    facts = search_facts(controller, start, end, activity, category, tag, description, key)
     table, headers = cmds_list.fact.generate_facts_table(facts)
     click.echo(generate_table(table, headers=headers))
 
@@ -697,14 +418,16 @@ def _export(
         filepath = filepath + '.' + format
 
     #facts = controller.facts.get_all(start=start, end=end)
-    facts = _search(controller,
-                    start=start,
-                    end=end,
-                    activity=activity,
-                    category=category,
-                    tag=tag,
-                    description=description,
-                    key=key)
+    facts = search_facts(
+        controller,
+        start=start,
+        end=end,
+        activity=activity,
+        category=category,
+        tag=tag,
+        description=description,
+        key=key,
+    )
 
     if format == 'csv':
         writer = reports.CSVWriter(filepath)
