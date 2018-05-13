@@ -23,6 +23,7 @@ from __future__ import absolute_import, unicode_literals
 import datetime
 import logging
 import os
+import sys
 from collections import namedtuple
 from gettext import gettext as _
 
@@ -37,6 +38,9 @@ import hamster_lib
 from backports.configparser import SafeConfigParser
 from six import string_types
 
+from hamster_cli import __version__ as hamster_cli_version
+from hamster_cli import __appname__ as hamster_cli_appname
+from hamster_lib import __version__ as hamster_lib_version
 from hamster_lib import Fact, HamsterControl, reports
 from hamster_lib.helpers import time as time_helpers
 from hamster_lib.helpers import logging as logging_helpers
@@ -134,15 +138,34 @@ class Controller(HamsterControl):
     def __init__(self):
         """Instantiate controller instance and adding client_config to it."""
         lib_config, client_config = _get_config(_get_config_instance())
+        self._verify_args(lib_config)
         super(Controller, self).__init__(lib_config)
         self.client_config = client_config
+
+    def _verify_args(self, lib_config):
+        # *cough*hack!*cough*”
+        # Because invoke_without_command, we allow command-less hamster
+        #   invocations. For one such invocation -- murano -v -- tell the
+        #   store not to log.
+        # Also tell the store not to log if user did not specify anything,
+        #   because we'll show the help/usage (which Click would normally
+        #   handle if we hadn't tampered with invoke_without_command).
+        if (
+            (len(sys.argv) == 1) or
+            ((len(sys.argv) == 2) and (sys.argv[1] in ('-v', 'version')))
+        ):
+            lib_config['sql_log_level'] = 'WARNING'
+        elif len(sys.argv) == 1:
+            # Because invoke_without_command, now we handle command-less
+            # deliberately ourselves.
+            pass
 
 
 pass_controller = click.make_pass_decorator(Controller, ensure=True)
 
 
 # ***
-# *** Helper objects and methods.
+# *** Version command helper.
 # ***
 
 LOG_LEVELS = {
@@ -153,27 +176,57 @@ LOG_LEVELS = {
 }
 
 
+def _hamster_version():
+    vers = '{} version {}\nhamster-lib version {}'.format(
+        hamster_cli_appname,
+        hamster_cli_version,
+        hamster_lib_version,
+    )
+    return vers
+
+
 # ***
 # *** One Group to rule them all.
 # ***
 
-@click.group(help=help_strings.RUN_HELP)
+# (lb): Use invoke_without_command so `hamster -v` works, otherwise click's
+# Group (MultiCommand ancestor) does not allow it ('Missing command.').
+@click.group(
+    invoke_without_command=True, help=help_strings.RUN_HELP,
+)
+@click.version_option(message=_hamster_version())
+@click.option('-v', is_flag=True, help=help_strings.VERSION_HELP)
 @pass_controller
-def run(controller):
+@click.pass_context
+# NOTE: @click.group transforms this func. definition into a callback that
+#       we use as a decorator for the top-level commands (see: @run.command).
+def run(ctx, controller, v):
     """General context run right before any of the commands."""
-    if controller.client_config['term_paging']:
-        # FIXME/2018-04-22: (lb): Well, actually, don't clear, but rely on paging...
-        #   after implementing paging. (Also add --paging option.)
-        click.clear()
-    # FIXME/2018-04-22: (lb): I disabled the _show_greeting code; it's not useful info.
-    # Instead, we could make a hamster-about command.
-    #   _show_greeting()
-    _run(controller)
+    _run(ctx, controller, show_version=v)
 
 
-def _run(controller):
+def _run(ctx, controller, show_version):
     """Make sure that loggers are setup properly."""
+    _run_handle_paging(controller)
+    _run_handle_banner()
+    _run_handle_version(show_version, ctx)
+    _run_handle_without_command(ctx)
     _setup_logging(controller)
+
+
+# ***
+# *** Ye rote version command.
+# ***
+
+@run.command(help=help_strings.VERSION_HELP)
+def version():
+    """Show version information."""
+    _version()
+
+
+def _version():
+    """Show version information."""
+    click.echo(_hamster_version())
 
 
 # ***
@@ -1073,10 +1126,10 @@ def _details(controller):
         result = get_sqlalchemy_info()
         return result
 
-    from hamster_cli import __version__, __appname__
     click.echo(_(
         "You are running {name} version {version}".format(
-            name=__appname__, version=__version__,
+            name=hamster_cli_appname,
+            version=hamster_cli_version,
         )
     ))
     click.echo(
@@ -1092,8 +1145,37 @@ def _details(controller):
 
 
 # ***
-# *** Helper Functions: LOGGING.
+# *** Helper Functions: _run().
 # ***
+
+# FIXME: (lb): Refactor: Move this code to immediately following: def _run().
+
+def _run_handle_paging(controller):
+    if controller.client_config['term_paging']:
+        # FIXME/2018-04-22: (lb): Well, actually, don't clear, but rely on paging...
+        #   after implementing paging. (Also add --paging option.)
+        click.clear()
+
+
+def _run_handle_banner():
+    # FIXME/2018-04-22: (lb): I disabled the _show_greeting code;
+    #                   it's not useful info. And a little boastful.
+    # Instead, we could maybe make a hamster-about command?
+    #   _show_greeting()
+    pass
+
+
+def _run_handle_version(show_version, ctx):
+    if show_version:
+        click.echo(_hamster_version())
+        ctx.exit(0)
+
+
+def _run_handle_without_command(ctx):
+    if len(sys.argv) == 1:
+        # Because invoke_without_command, we have to check ourselves
+        click.echo(ctx.get_help())
+
 
 def _setup_logging(controller):
     """Setup logging for the lib_logger as well as client specific logging."""

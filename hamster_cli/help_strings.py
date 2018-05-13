@@ -17,6 +17,11 @@ RUN_HELP = _(
 )
 
 
+VERSION_HELP = _(
+    """Show the version and exit."""
+)
+
+
 SEARCH_HELP = _(
     """
     Search facts matching given time range and search term.
