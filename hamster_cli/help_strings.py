@@ -1,7 +1,30 @@
+# -*- coding: utf-8 -*-
+
+# This file is part of 'hamster_cli'.
+#
+# 'hamster_cli' is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# 'hamster_cli' is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with 'hamster_cli'.  If not, see <http://www.gnu.org/licenses/>.
+
 """Module to provide u18n friendly help text strings for our CLI commands."""
 
 
 from gettext import gettext as _
+
+
+# ***
+# *** [BARE] Command help.
+# ***
+
 
 RUN_HELP = _(
     """
@@ -17,8 +40,80 @@ RUN_HELP = _(
 )
 
 
+# ***
+# *** [VERSION] Command help.
+# ***
+
+
 VERSION_HELP = _(
     """Show the version and exit."""
+)
+
+
+# ***
+# *** [LICENSE] Command help.
+# ***
+
+
+LICENSE_HELP = _(
+    """Show license information."""
+)
+
+
+# ***
+# *** [DETAILS] Command help.
+# ***
+
+
+DETAILS_HELP = _(
+    """List details about the runtime environment."""
+)
+
+
+# ***
+# *** [LIST] Commands help.
+# ***
+
+
+LIST_GROUP_HELP = _(
+    """
+    List facts, activities, categories, or tags.
+    """
+)
+
+
+LIST_ACTIVITIES_HELP = _(
+    """
+    List all activities. Provide optional filtering by name.
+
+    Prints all matching activities one per line.
+
+    SEARCH: String to be matched against activity name.
+    """
+)
+
+
+LIST_CATEGORIES_HELP = _(
+    """List all existing categories, ordered by name."""
+)
+
+
+
+LIST_TAGS_HELP = _(
+    """
+    List all tags.
+    """
+)
+
+
+LIST_FACTS_HELP = _(
+    """
+    List facts within a date range.
+
+    Matching facts will be printed in a tabular representation.
+
+    TIME_RANGE: Only fact within this time range will be considered.
+    """
 )
 
 
@@ -57,15 +152,9 @@ SEARCH_HELP = _(
 )
 
 
-LIST_HELP = _(
-    """
-    List facts within a date range.
-
-    Matching facts will be printed in a tabular representation.
-
-    TIME_RANGE: Only fact within this time range will be considered.
-    """
-)
+# ***
+# *** [CURRENT-FACT] Commands help.
+# ***
 
 
 START_HELP = _(
@@ -143,6 +232,16 @@ CANCEL_HELP = _(
 )
 
 
+CURRENT_HELP = _(
+    """Display current tmp fact."""
+)
+
+
+# ***
+# *** [EXPORT] Command help.
+# ***
+
+
 EXPORT_HELP = _(
     """
     Export all facts of within a given time window to a file of specified format.
@@ -156,33 +255,3 @@ EXPORT_HELP = _(
     """
 )
 
-
-CATEGORIES_HELP = _(
-    """List all existing categories, ordered by name."""
-)
-
-
-CURRENT_HELP = _(
-    """Display current tmp fact."""
-)
-
-
-ACTIVITIES_HELP = _(
-    """
-    List all activities. Provide optional filtering by name.
-
-    Prints all matching activities one per line.
-
-    SEARCH: String to be matched against activity name.
-    """
-)
-
-
-LICENSE_HELP = _(
-    """Show license information."""
-)
-
-
-DETAILS_HELP = _(
-    """List details about the runtime environment."""
-)
