@@ -24,10 +24,12 @@ requirements = [
     'configparser >= 3.5.0b2',
     'future',
     'hamster-lib',
+    'humanfriendly',
     'pyparsing',
     # py27 compatibility related
     'six',
     'tabulate',
+    'texttable',
 ]
 
 requirements_links=[

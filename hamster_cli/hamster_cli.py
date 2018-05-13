@@ -36,13 +36,13 @@ import hamster_lib
 # possible.
 from backports.configparser import SafeConfigParser
 from six import string_types
-from tabulate import tabulate
 
 from hamster_lib import Fact, HamsterControl, reports
 from hamster_lib.helpers import time as time_helpers
 from hamster_lib.helpers import logging as logging_helpers
 
 from . import help_strings
+from helpers.ascii_table import generate_table
 
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
@@ -198,7 +198,7 @@ def search(controller, start, end, activity, category, tag, description, key, se
         description += ' AND '.join(search_term)
     results = _search(controller, start, end, activity, category, tag, description, key)
     table, headers = _generate_facts_table(results)
-    click.echo(tabulate(table, headers=headers))
+    click.echo(generate_table(table, headers=headers))
 
 
 def _search(
@@ -486,7 +486,7 @@ def list(controller, start, end):
     """List all facts within a timerange."""
     results = _search(controller, start=start, end=end)
     table, headers = _generate_facts_table(results)
-    click.echo(tabulate(table, headers=headers))
+    click.echo(generate_table(table, headers=headers))
 
 
 @run.command(help=help_strings.START_HELP)
@@ -669,7 +669,7 @@ def remove(controller, start, end, activity, category, tag, description, key):
     """Export all facts of within a given timewindow to a file of specified format."""
     facts = _search(controller, start, end, activity, category, tag, description, key)
     table, headers = _generate_facts_table(facts)
-    click.echo(tabulate(table, headers=headers))
+    click.echo(generate_table(table, headers=headers))
     if click.confirm('Do you really want to delete the facts listed above?', abort=True):
         for cur_fact in facts:
             controller.facts.remove(cur_fact)
@@ -698,7 +698,7 @@ def tag(controller, tag_name, start, end, activity, category, tag, description, 
     """Export all facts of within a given timewindow to a file of specified format."""
     facts = _search(controller, start, end, activity, category, tag, description, key)
     table, headers = _generate_facts_table(facts)
-    click.echo(tabulate(table, headers=headers))
+    click.echo(generate_table(table, headers=headers))
 
     if remove:
         if click.confirm(
@@ -940,7 +940,7 @@ def _activities(controller, search_term='', category_name='', sort_by_category=F
             category = None
         table.append((activity.name, category))
 
-    click.echo(tabulate(table, headers=headers))
+    click.echo(generate_table(table, headers=headers))
 
 
 @run.command(help=help_strings.LICENSE_HELP)
