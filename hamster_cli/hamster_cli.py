@@ -31,8 +31,8 @@ import pyparsing as pp
 import appdirs
 import click
 import hamster_lib
-# Once we drop py2 support, we can use the builtin again but unicode support
-# under python 2 is practicly non existing and manual encoding is not easily
+# Once we drop Py2 support, we can use the builtin again, but Unicode support
+# under Python 2 is practically non existing and manual encoding is not easily
 # possible.
 from backports.configparser import SafeConfigParser
 from six import string_types
@@ -47,6 +47,10 @@ from helpers.ascii_table import generate_table
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
 
+
+# ***
+# *** Hamster AppDirs.
+# ***
 
 class HamsterAppDirs(appdirs.AppDirs):
     """Custom class that ensure appdirs exist."""
@@ -117,6 +121,13 @@ class HamsterAppDirs(appdirs.AppDirs):
         return directory
 
 
+AppDirs = HamsterAppDirs('hamster_cli')
+
+
+# ***
+# *** HamsterControl Controller.
+# ***
+
 class Controller(HamsterControl):
     """A custom controller that adds config handling on top of its regular functionality."""
 
@@ -127,6 +138,13 @@ class Controller(HamsterControl):
         self.client_config = client_config
 
 
+pass_controller = click.make_pass_decorator(Controller, ensure=True)
+
+
+# ***
+# *** Helper objects and methods.
+# ***
+
 LOG_LEVELS = {
     'info': logging.INFO,
     'debug': logging.DEBUG,
@@ -135,11 +153,9 @@ LOG_LEVELS = {
 }
 
 
-AppDirs = HamsterAppDirs('hamster_cli')
-
-
-pass_controller = click.make_pass_decorator(Controller, ensure=True)
-
+# ***
+# *** One Group to rule them all.
+# ***
 
 @click.group(help=help_strings.RUN_HELP)
 @pass_controller
@@ -159,6 +175,10 @@ def _run(controller):
     """Make sure that loggers are setup properly."""
     _setup_logging(controller)
 
+
+# ***
+# *** Command: SEARCH.
+# ***
 
 @run.command(help=help_strings.SEARCH_HELP)
 @click.argument('search_term', nargs=-1, default=None)
@@ -383,7 +403,7 @@ def _search(
     #       with life (but keep parts of the PR I like, like tags support!)).
     #
     if False:  # removed by scientificsteve
-        def _search(controler, search_term, time_range):
+        def _search(controller, search_term, time_range):
             # [FIXME]
             # As far as our backend is concerned search_term as well as time range are
             # optional. If the same is true for legacy hamster-cli needs to be checked.
@@ -400,10 +420,10 @@ def _search(
                 # should no longer be needed.
                 time_range = time_range + '  '
                 timeinfo = time_helpers.extract_time_info(time_range)[0]
-                start, end = time_helpers.complete_timeframe(timeinfo, controler.config)
+                start, end = time_helpers.complete_timeframe(timeinfo, controller.config)
             # (lb): In lieu of filter_term, which justs searches facts,
             # scientificsteve switched to `hamster-cli search --description foo`.
-            results = controler.facts.get_all(filter_term=search_term, start=start, end=end)
+            results = controller.facts.get_all(filter_term=search_term, start=start, end=end)
             return results
     # end: disabled code...
 
@@ -478,6 +498,10 @@ def _search(
     return results
 
 
+# ***
+# *** Command: LIST [facts].
+# ***
+
 @run.command(help=help_strings.LIST_HELP)
 @click.option('-s', '--start', help='The start time string (e.g. "2017-01-01 00:00").')
 @click.option('-e', '--end', help='The end time string (e.g. "2017-02-01 00:00").')
@@ -488,6 +512,10 @@ def list(controller, start, end):
     table, headers = _generate_facts_table(results)
     click.echo(generate_table(table, headers=headers))
 
+
+# ***
+# *** Command: INSERT [fact].
+# ***
 
 @run.command(help=help_strings.START_HELP)
 @click.argument('raw_fact')
@@ -620,6 +648,10 @@ def _stop(controller):
         click.echo(_(message))
 
 
+# ***
+# *** Command: CANCEL [current fact].
+# ***
+
 @run.command(help=help_strings.CANCEL_HELP)
 @pass_controller
 def cancel(controller):
@@ -649,6 +681,10 @@ def _cancel(controller):
         controller.client_logger.debug(message)
 
 
+# ***
+# *** Command: REMOVE [facts? really??].
+# ***
+
 # (lb): This is a scientificsteve command: Beware!
 # - It is not tested.
 # - This is wrong, for one:
@@ -674,6 +710,10 @@ def remove(controller, start, end, activity, category, tag, description, key):
         for cur_fact in facts:
             controller.facts.remove(cur_fact)
 
+
+# ***
+# *** Command: TAG [list or remove... both in same cmd??].
+# ***
 
 # (lb): This is a scientificsteve command: Beware!
 # - It is not tested.
@@ -755,6 +795,10 @@ def edit(controller, key, start, end, activity, category, description):
 
         controller.facts._update(fact)
 
+
+# ***
+# *** Command: EXPORT [facts].
+# ***
 
 @run.command(help=help_strings.EXPORT_HELP)
 @click.argument('format', nargs=1, default='csv')
@@ -847,6 +891,10 @@ def _export(
         click.echo(_("Facts have been exported to: {path}".format(path=filepath)))
 
 
+# ***
+# *** [LIST] Command: CATEGORIES.
+# ***
+
 @run.command(help=help_strings.CATEGORIES_HELP)
 @pass_controller
 def categories(controller):
@@ -867,6 +915,10 @@ def _categories(controller):
     for category in result:
         click.echo(category.name)
 
+
+# ***
+# *** Command: CURRENT [fact, show].
+# ***
 
 @run.command(help=help_strings.CURRENT_HELP)
 @pass_controller
@@ -898,6 +950,10 @@ def _current(controller):
         string = '{fact} ({duration} minutes)'.format(fact=fact, duration=fact.get_string_delta())
         click.echo(string)
 
+
+# ***
+# *** [LIST] Command: ACTIVITIES.
+# ***
 
 @run.command(help=help_strings.ACTIVITIES_HELP)
 @click.argument('search_term', default='')
@@ -943,6 +999,10 @@ def _activities(controller, search_term='', category_name='', sort_by_category=F
     click.echo(generate_table(table, headers=headers))
 
 
+# ***
+# *** Command: LICENSE [list].
+# ***
+
 @run.command(help=help_strings.LICENSE_HELP)
 def license():
     """Show license information."""
@@ -968,6 +1028,10 @@ def _license():
     click.echo(license)
 
 
+# ***
+# *** Command: DETAILS [about paths, config, etc.].
+# ***
+
 @run.command(help=help_strings.DETAILS_HELP)
 @pass_controller
 def details(controller):
@@ -983,8 +1047,10 @@ def _details(controller):
         def get_sqlalchemy_info():
             engine = controller.config['db_engine']
             if engine == 'sqlite':
-                sqlalchemy_string = _("Using 'sqlite' with database stored under: {}".format(
-                    controller.config['db_path']))
+                sqlalchemy_string = _(
+                    "Using 'sqlite' with database stored under: {}"
+                    .format(controller.config['db_path'])
+                )
             else:
                 port = controller.config.get('db_port', '')
                 if port:
@@ -993,8 +1059,12 @@ def _details(controller):
                 sqlalchemy_string = _(
                     "Using '{engine}' connecting to database {name} on {host}{port}"
                     " as user {username}.".format(
-                        engine=engine, host=controller.config['db_host'], port=port,
-                        username=controller.config['db_user'], name=controller.config['db_name'])
+                        engine=engine,
+                        host=controller.config['db_host'],
+                        port=port,
+                        username=controller.config['db_user'],
+                        name=controller.config['db_name'],
+                    )
                 )
             return sqlalchemy_string
 
@@ -1009,13 +1079,22 @@ def _details(controller):
             name=__appname__, version=__version__,
         )
     ))
-    click.echo("Configuration found under: {}".format(_get_config_path()))
-    click.echo("Logfile stored under: {}".format(controller.client_config['logfile_path']))
-    click.echo("Reports exported to: {}".format(controller.client_config['export_path']))
+    click.echo(
+        "Configuration found under: {}".format(_get_config_path())
+    )
+    click.echo(
+        "Logfile stored under: {}".format(controller.client_config['logfile_path'])
+    )
+    click.echo(
+        "Reports exported to: {}".format(controller.client_config['export_path'])
+    )
     click.echo(get_db_info())
 
 
-# Helper functions
+# ***
+# *** Helper Functions: LOGGING.
+# ***
+
 def _setup_logging(controller):
     """Setup logging for the lib_logger as well as client specific logging."""
     controller.client_logger = logging.getLogger('hamster_cli')
@@ -1042,6 +1121,10 @@ def _setup_logging(controller):
         file_handler = logging.FileHandler(filename, encoding='utf-8')
         logging_helpers.setupHandler(file_handler, formatter, *loggers)
 
+
+# ***
+# *** Helper Functions: CONFIG.
+# ***
 
 def _get_config(config_instance):
     """
@@ -1282,6 +1365,10 @@ def _write_config_file(file_path):
     return config
 
 
+# ***
+# *** Helper Functions: TABLE [facts].
+# ***
+
 def _generate_facts_table(facts):
     """
     Create a nice looking table representing a set of fact instances.
@@ -1337,6 +1424,10 @@ def _generate_facts_table(facts):
 
     return (table, header)
 
+
+# ***
+# *** Helper Functions: GREETING.
+# ***
 
 def _show_greeting():
     """Display a greeting message providing basic set of information."""
