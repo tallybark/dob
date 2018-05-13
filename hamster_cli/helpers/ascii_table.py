@@ -29,6 +29,9 @@ from texttable import Texttable
 from humanfriendly.tables import format_pretty_table
 
 
+__all__ = ['generate_table', 'warn_if_truncated']
+
+
 def generate_table(
     rows,
     headers,
@@ -133,4 +136,11 @@ def _generate_table_display(rows, plain_headers, color_headers, table_type):
         assert table_type == 'friendly'
         # Haha, humanfriendly colors the header text green by default.
         click.echo(format_pretty_table(rows, color_headers))
+
+
+def warn_if_truncated(controller, n_results, n_rows):
+    if n_results > n_rows:
+        controller.client_logger.warning(_(
+            'Too many facts to process quickly! Found: {} / Shown: {}'
+        ).format(format(n_results, ','), format(n_rows, ',')))
 

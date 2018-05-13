@@ -41,7 +41,7 @@ from cmd_config import get_config, get_config_instance, get_config_path
 from cmd_options import cmd_options_search, cmd_options_limit_offset, cmd_options_table_bunce
 from create import cancel_fact, start_fact, stop_fact
 from search import search_facts
-from helpers.ascii_table import generate_table
+from helpers.ascii_table import generate_table, warn_if_truncated
 import cmd_options
 import cmds_list
 
@@ -375,7 +375,7 @@ def list_facts(controller, *args, **kwargs):
     results = search_facts(controller, *args, **kwargs)
     table, headers = cmds_list.fact.generate_facts_table(results)
     click.echo(generate_table(table, headers=headers))
-    _warn_if_truncated(controller, len(results), len(table))
+    warn_if_truncated(controller, len(results), len(table))
 
 
 # *** FACTS (w/ search term).
@@ -420,7 +420,7 @@ def search(controller, description, search_term, *args, **kwargs):
     results = search_facts(description, *args, **kwargs)
     table, headers = cmds_list.fact.generate_facts_table(results)
     click.echo(generate_table(table, headers=headers))
-    _warn_if_truncated(controller, len(results), len(table))
+    warn_if_truncated(controller, len(results), len(table))
 
 
 # ***
@@ -561,12 +561,6 @@ def _export(
         click.echo(_("Facts have been exported to: {path}".format(path=filepath)))
 
 # ***
-# *** Helper Functions: Results Processing.
 # ***
 
-def _warn_if_truncated(controller, n_results, n_rows):
-    if n_results > n_rows:
-        controller.client_logger.warning(_(
-            'Too many facts to process quickly! Found: {} / Shown: {}'
-        ).format(format(n_results, ','), format(n_rows, ',')))
 
