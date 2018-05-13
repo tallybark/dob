@@ -865,21 +865,7 @@ def _export(
 @pass_controller
 def categories(controller):
     """List all existing categories, ordered by name."""
-    _categories(controller)
-
-
-def _categories(controller):
-    """
-    List all existing categories, ordered by name.
-
-    Returns:
-        None: If success.
-    """
-    result = controller.categories.get_all()
-    # [TODO]
-    # Provide nicer looking tabulated output.
-    for category in result:
-        click.echo(category.name)
+    cmds_list.category.list_categories(controller)
 
 
 # ***
