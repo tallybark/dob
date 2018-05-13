@@ -13,10 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with 'hamster_cli'.  If not, see <http://www.gnu.org/licenses/>.
 
-"""``hamster_cli``, a command line time tracker utilizing the power of ``hamsterlib``."""
+"""``hamster``, ``hamster``, ``hamster``!!! a cuddly, furry time tracker."""
 
+__author__ = 'HotOffThe Hamster'
+__email__ = 'hotoffthehamster+dob@gmail.com'
+__version__ = '3.0.0.beta.1'
+__appname__ = 'hamster'
 
-__author__ = 'Eric Goller'
-__email__ = 'Elbenfreund@DenkenInEchtzeit.net'
-__version__ = '0.12.0'
-__appname__ = 'hamster_cli'
