@@ -54,7 +54,7 @@ setup(
         'Programming Language :: Python :: 3.4',
     ],
     entry_points='''
-        [console_scripts]
-    hamster-cli=hamster_cli.hamster_cli:run
-    '''
+    [console_scripts]
+    hamster=hamster_cli.hamster_cli:run
+    '''.strip()
 )
