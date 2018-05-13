@@ -214,7 +214,7 @@ def _version():
 # ***
 
 
-@run.command(help=help_strings.LICENSE_HELP)
+@run.command(hidden=True, help=help_strings.LICENSE_HELP)
 def license():
     """Show license information."""
     _license()
