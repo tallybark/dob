@@ -38,7 +38,7 @@ from hamster_lib.helpers import logging as logging_helpers
 
 from . import help_strings
 from cmd_config import get_config, get_config_instance, get_config_path
-from cmd_options import cmd_options_search, cmd_options_limit_offset
+from cmd_options import cmd_options_search, cmd_options_limit_offset, cmd_options_table_bunce
 from create import cancel_fact, start_fact, stop_fact
 from search import search_facts
 from helpers.ascii_table import generate_table
@@ -322,14 +322,14 @@ def list_group(ctx, controller):
 @list_group.command('activities', help=help_strings.LIST_ACTIVITIES_HELP)
 @click.argument('search_term', default='')
 @click.option('-c', '--category', help="The search string applied to category names.")
-@click.option('-C', '--sort-by-category', is_flag=True,
-              help="Sort by category name, then activity name.")
+@cmd_options_table_bunce
 @cmd_options_limit_offset
 @pass_controller
 def list_activities(controller, *args, **kwargs):
     """List all activities. Provide optional filtering by name."""
     category = kwargs['category'] if kwargs['category'] else ''
     del kwargs['category']
+    cmd_options.postprocess_options_table_bunce(kwargs)
     cmds_list.activity.list_activities(
         controller,
         *args,

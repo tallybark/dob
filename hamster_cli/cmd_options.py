@@ -69,3 +69,51 @@ def cmd_options_limit_offset(func):
         func = option(func)
     return func
 
+
+# ***
+# *** [TABLE FANCY] Options.
+# ***
+
+
+_cmd_options_table_bunce = [
+    click.option('-t', '--truncate', is_flag=True,
+                 help='Truncate long activity@category names.'),
+    click.option('-T', '--table-type', default='friendly', show_default=True,
+                 type=click.Choice(['tabulate', 'texttable', 'friendly']),
+                 help="ASCII table formatter."),
+    click.option('-A', '--asc', is_flag=True,
+                 help='Sort by ascending column value.'),
+    click.option('-D', '--desc', is_flag=True,
+                 help='Sort by descending column value.'),
+    click.option('-o', '--order', default='',
+                 type=click.Choice(['', 'name', 'activity', 'category', 'tag', 'fact', 'start', 'usage']),
+                 help='Order by column (may depend on query).'),
+]
+
+def cmd_options_table_bunce(func):
+    for option in reversed(_cmd_options_table_bunce):
+        func = option(func)
+    return func
+
+
+def postprocess_options_table_bunce(kwargs):
+    _postprocess_options_table_bunce_order_to_sort_col(kwargs)
+    _postprocess_options_table_bunce_asc_desc_to_sort_order(kwargs)
+
+
+def _postprocess_options_table_bunce_order_to_sort_col(kwargs):
+    kwargs['sort_col'] = kwargs['order']
+    del kwargs['order']
+
+
+def _postprocess_options_table_bunce_asc_desc_to_sort_order(kwargs):
+    if kwargs['desc']:
+        sort_order = 'desc'
+    elif kwargs['asc']:
+        sort_order = 'asc'
+    else:
+        sort_order = ''
+    del kwargs['desc']
+    del kwargs['asc']
+    kwargs['sort_order'] = sort_order
+
