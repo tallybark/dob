@@ -25,6 +25,7 @@ requirements = [
     'future',
     'hamster-lib',
     'humanfriendly',
+    'inquirer',
     'pyparsing',
     'python-editor',
     # py27 compatibility related

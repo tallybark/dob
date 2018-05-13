@@ -117,3 +117,24 @@ def _postprocess_options_table_bunce_asc_desc_to_sort_order(kwargs):
     del kwargs['asc']
     kwargs['sort_order'] = sort_order
 
+
+# ***
+# *** [INSERT FACT] Options.
+# ***
+
+
+_cmd_options_insert = [
+    click.argument('factoid', nargs=-1, default=None),
+    click.option('-y', '--yes', is_flag=True,
+                 help=_('Save conflicts automatically, otherwise ask for confirmation')),
+    click.option('-a', '--ask', is_flag=True,
+                 help=_(
+                     'Ask for tags, and activity@category.'
+                     " Useful if tab complete doesn't help because whitespace.")),
+]
+
+def cmd_options_insert(func):
+    for option in reversed(_cmd_options_insert):
+        func = option(func)
+    return func
+

@@ -27,6 +27,7 @@ import sys
 from gettext import gettext as _
 
 import click
+from click_aliases import ClickAliasedGroup
 
 from hamster_cli import __version__ as hamster_cli_version
 from hamster_cli import __appname__ as hamster_cli_appname
@@ -36,8 +37,8 @@ from hamster_lib.helpers import logging as logging_helpers
 
 from . import help_strings
 from cmd_config import get_config, get_config_instance, get_config_path
-from cmd_options import cmd_options_search, cmd_options_limit_offset, cmd_options_table_bunce
-from create import cancel_fact, start_fact, stop_fact
+from cmd_options import cmd_options_search, cmd_options_limit_offset, cmd_options_table_bunce, cmd_options_insert
+from create import add_fact, cancel_fact, start_fact, stop_fact
 from details import app_details
 from search import search_facts
 from transcode import export_facts
@@ -111,7 +112,7 @@ def _hamster_version():
 # (lb): Use invoke_without_command so `hamster -v` works, otherwise click's
 # Group (MultiCommand ancestor) does not allow it ('Missing command.').
 @click.group(
-    invoke_without_command=True, help=help_strings.RUN_HELP,
+    cls=ClickAliasedGroup, invoke_without_command=True, help=help_strings.RUN_HELP,
 )
 @click.version_option(message=_hamster_version())
 @click.option('-v', is_flag=True, help=help_strings.VERSION_HELP)
@@ -483,6 +484,45 @@ def cancel(controller):
 def current(controller):
     """Display current *ongoing fact*."""
     cmds_list.fact.list_current_fact(controller)
+
+
+# ***
+# *** [CREATE-FACT] Commands.
+# ***
+
+
+@run.command(help=help_strings.START_HELP_ON, aliases=['now'])
+@cmd_options_insert
+@pass_controller
+def on(controller, factoid, yes, ask):
+    """Start or add a fact using the `on`/`now` directive."""
+    add_fact(controller, factoid, time_hint='verify-none', yes=yes, ask=ask)
+
+
+@run.command(help=help_strings.START_HELP_AT)
+@cmd_options_insert
+@pass_controller
+def at(controller, factoid, yes, ask):
+    """Start or add a fact using the `at` directive."""
+    add_fact(controller, factoid, time_hint='verify-start', yes=yes, ask=ask)
+
+
+@run.command(help=help_strings.START_HELP_TO, aliases=['until'])
+@cmd_options_insert
+@pass_controller
+def to(controller, factoid, yes, ask):
+    """Start or add a fact using the `to`/`until` directive."""
+    add_fact(controller, factoid, time_hint='verify-end', yes=yes, ask=ask)
+
+
+# (lb): We cannot name the function `from`, which is a Python reserved word,
+# so set the command name via the composable group command() decorator.
+@run.command('from', help=help_strings.START_HELP_BETWEEN)
+@cmd_options_insert
+@pass_controller
+def between(controller, factoid, yes, ask):
+    """Add a fact using the `from ... to` directive."""
+    add_fact(controller, factoid, time_hint='verify-both', yes=yes, ask=ask)
 
 
 # ***

@@ -18,17 +18,206 @@
 from __future__ import absolute_import, unicode_literals
 
 import datetime
+import sys
 from gettext import gettext as _
 
 import click
+from colored import fg, bg, attr
+import inquirer
 
+from hamster_lib import Activity, Category, Fact, Tag
 from hamster_lib.helpers import time as time_helpers
-
-# Disable the python_2_unicode_compatible future import warning.
-click.disable_unicode_literals_warning = True
+from hamster_lib.helpers.parsing import ParserException
 
 
-__all__ = ['cancel_fact', 'start_fact', 'stop_fact']
+__all__ = ['add_fact', 'cancel_fact', 'start_fact', 'stop_fact']
+
+
+def add_fact(controller, factoid, time_hint, yes=False, ask=False):
+    """
+    Start or add a fact.
+
+    Args:
+        factoid: ``factoid`` containing information about the Fact to be started. As an absolute
+            minimum this must be a string representing the 'activityname'.
+        start (optional): When does the fact start?
+        end (optional): When does the fact end?
+
+    Returns:
+        None: If everything went alright.
+
+    Note:
+        * Whilst it is possible to pass timeinformation as part of the ``factoid`` as
+            well as dedicated ``start`` and ``end`` arguments only the latter will be represented
+            in the resulting fact in such a case.
+    """
+
+    # FIXME: (lb): I'm not a big fan on inline methods, but it seems to be
+    #        a common pattern in this codebase. Perhaps we could find a
+    #        more elegant way to do this? (I don't like that the actual
+    #        function code comes much further down, after the inline
+    #        function definitions, because it's obvious it's there.)
+    #        Can we at least do an inline function for the main function,
+    #        and put that up here?
+
+    # NOTE: factoid is an ordered tuple of args.
+
+    def insert_factoid(controller, factoid, time_hint, yes, ask):
+        # Parse the user's input.
+        try:
+            fact = Fact.create_from_raw_fact(
+               factoid, time_hint=time_hint, lenient=ask,
+            )
+        except ParserException as err:
+            msg = _('Failed to add factoid: {}').format(err)
+            controller.client_logger.error(msg)
+            click.echo(msg)
+            sys.exit(1)
+
+        if ask:
+            fact.tags = new_fact_ask_tags(controller)
+            fact.activity = new_fact_ask_act_cat(controller)
+
+        # Fill in the start and, or, end times, maybe.
+        # Possibly correct the times of 2 other Facts!
+        # Or die if too many Facts are abound tonight.
+        conflicts = mend_facts_times(controller, fact, time_hint)
+
+        # Ask user what to do about conflicts/edits.
+        confirm_fact_edits(conflicts, yes)
+
+        # Finally, save the new fact. If we're not dead.
+        # FIXME/2018-05-09: (lb): We should use a transaction!
+        for edited_fact, _original in conflicts:
+            save_fact(controller, edited_fact)
+        save_fact(controller, fact)
+
+    def new_fact_ask_tags(controller):
+        # FIXME: (lb): The inquirer list doesn't work if more lines than
+        #        screen height (it's unusable for me, seems to scroll,
+        #        then jumps back; and I don't see the selection at all).
+        choices = _choices_tags(controller, whitespace_ok=True)
+        questions = [
+            inquirer.Checkbox(
+                'tags',
+                message="What tags would you like to apply?",
+                choices=choices,
+            ),
+        ]
+        cbox = inquirer.prompt(questions)
+        # The prompt returns a dict with one entry, keys with
+        # name we gave it. See these as the tags, removing the
+        # '@' prefix that we added previously for show.
+        tags = [Tag(name=tag[1:]) for tag in cbox['tags']]
+        return tags
+
+    def new_fact_ask_act_cat(controller):
+        magic_ask_me = '<Create new activity>'
+        choices = _choices_activities(controller, whitespace_ok=True)
+        choices.insert(0, magic_ask_me)
+        questions = [
+            inquirer.List(
+                'act_cat',
+                message="What activity@category would you like to use?",
+                choices=choices[:20],
+            ),
+        ]
+        cbox = inquirer.prompt(questions)
+
+        if cbox['act_cat'] != magic_ask_me:
+            act_name, cat_name = cbox['act_cat'].split('@', 1)
+        else:
+            questions = [inquirer.Text('activity', message="Activity")]
+            answers = inquirer.prompt(questions)
+            act_cat_names = answers['activity'].split('@', 1)
+            act_name = act_cat_names[0]
+            if len(act_cat_names) > 1:
+                cat_name = act_cat_names[1]
+            else:
+                questions = [inquirer.Text('category', message="Category")]
+                answers = inquirer.prompt(questions)
+                cat_name = answers['category']
+
+        activity = Activity(act_name.strip())
+        if cat_name.strip():
+            activity.category = Category(cat_name.strip())
+        return activity
+
+    def mend_facts_times(controller, fact, time_hint):
+        now = datetime.datetime.now()
+        leave_open = new_fact_fill_now(fact, time_hint, now)
+        conflicts = controller.facts.insert_forcefully(fact)
+
+        # Note that start/end may be None due to partial completion.
+        # Verify that start > end, if neither are None.
+        time_helpers.validate_start_end_range((fact.start, fact.end))
+
+        if leave_open:
+            fact.end = None
+
+        return conflicts
+
+    def new_fact_fill_now(fact, time_hint, now):
+        # We might temporarily set the end time to look for overlapping
+        # facts, so remember if we need to leave the fact open.
+        leave_open = False
+
+        if (time_hint == 'verify-none'):
+            assert not fact.start
+            assert not fact.end
+            fact.start = now
+        elif (time_hint == 'verify-both'):
+            assert fact.start and fact.end
+        elif (time_hint == 'verify-start'):
+            assert not fact.end
+            leave_open = True
+            if not fact.start:
+                fact.start = now
+        elif (time_hint == 'verify-end'):
+            assert not fact.start
+            if not fact.end:
+                fact.end = now
+
+        return leave_open
+
+    def confirm_fact_edits(conflicts, yes):
+        if not conflicts:
+            return
+        if not yes:
+            # FIXME: (lb): Pluralizer: "conflict(s)" / # FIXME: (lb): Add Inflector
+            #        Inflector.pluralize('conflict', len(conflicts) != 1)
+            click.echo(_(
+                'Found {}{}{} conflict(s). {}Please confirm the following changes:{}'.format(
+                    fg('magenta'), len(conflicts), attr('reset'),
+                    attr('underlined'), attr('reset'),
+                )
+            ))
+        n_conflict = 0
+        for edited_fact, original in conflicts:
+            n_conflict += 1
+            if not yes:
+                click.echo()
+                click.confirm(
+                    text='Conflict #{}\n-----------\n{}\nReally edit fact?'.format(
+                        n_conflict,
+                        #len(conflicts),
+                        original.friendly_diff(edited_fact),
+                    ),
+                    default=False,
+                    abort=True,
+                    #prompt_suffix=': ',
+                    #show_default=True,
+                    #err=False,
+                )
+            else:
+                controller.client_logger.debug(_('Editing fact: {}').format(edited_fact))
+
+    def save_fact(controller, fact):
+        controller.client_logger.debug('{}: {}'.format(_('Save fact'), fact))
+        fact = controller.facts.save(fact)
+
+    # The actual `def add_fact()` function:
+    insert_factoid(controller, factoid, time_hint, yes, ask)
 
 
 def start_fact(controller, raw_fact, start='', end=''):
