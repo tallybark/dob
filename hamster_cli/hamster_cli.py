@@ -41,6 +41,7 @@ from cmd_config import get_config, get_config_instance, get_config_path
 from cmd_options import cmd_options_search, cmd_options_limit_offset, cmd_options_table_bunce
 from create import cancel_fact, start_fact, stop_fact
 from search import search_facts
+from transcode import export_facts
 from helpers.ascii_table import generate_table, warn_if_truncated
 import cmd_options
 import cmds_list
@@ -482,5 +483,5 @@ def current(controller):
 @pass_controller
 def export(controller, format, start, end, activity, category, tag, description, key, filename):
     """Export all facts of within a given timewindow to a file of specified format."""
-    _export(controller, format, start, end, activity, category, tag, description, key, filename)
+    export_facts(controller, format, start, end, activity, category, tag, description, key, filename)
 

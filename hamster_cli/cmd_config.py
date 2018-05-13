@@ -35,7 +35,12 @@ from backports.configparser import SafeConfigParser
 click.disable_unicode_literals_warning = True
 
 
-__all__ = ['get_config', 'get_config_instance', 'get_config_path']
+__all__ = [
+    'get_config',
+    'get_config_instance',
+    'get_config_path',
+    'write_config_file',
+]
 
 
 # ***
@@ -305,7 +310,7 @@ def get_config_instance():
     if not config.read(configfile_path):
         click.echo(_("No valid config file found. Trying to create a new default config"
                      " at: '{}'.".format(configfile_path)))
-        config = _write_config_file(configfile_path)
+        config = write_config_file(configfile_path)
         click.echo(_("A new default config file has been successfully created."))
     return config
 
@@ -325,7 +330,7 @@ def get_config_path():
 # *** Config helper functions.
 # ***
 
-def _write_config_file(file_path):
+def write_config_file(file_path):
     """
     Write a default config file to the specified location.
 
