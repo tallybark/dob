@@ -40,6 +40,7 @@ from . import help_strings
 from cmd_config import get_config, get_config_instance, get_config_path
 from cmd_options import cmd_options_search, cmd_options_limit_offset, cmd_options_table_bunce
 from create import cancel_fact, start_fact, stop_fact
+from details import app_details
 from search import search_facts
 from transcode import export_facts
 from helpers.ascii_table import generate_table, warn_if_truncated
@@ -250,59 +251,7 @@ def _license():
 @pass_controller
 def details(controller):
     """List details about the runtime environment."""
-    _details(controller)
-
-
-def _details(controller):
-    """List details about the runtime environment."""
-    def get_db_info():
-        result = None
-
-        def get_sqlalchemy_info():
-            engine = controller.config['db_engine']
-            if engine == 'sqlite':
-                sqlalchemy_string = _(
-                    "Using 'sqlite' with database stored under: {}"
-                    .format(controller.config['db_path'])
-                )
-            else:
-                port = controller.config.get('db_port', '')
-                if port:
-                    port = ':{}'.format(port)
-
-                sqlalchemy_string = _(
-                    "Using '{engine}' connecting to database {name} on {host}{port}"
-                    " as user {username}.".format(
-                        engine=engine,
-                        host=controller.config['db_host'],
-                        port=port,
-                        username=controller.config['db_user'],
-                        name=controller.config['db_name'],
-                    )
-                )
-            return sqlalchemy_string
-
-        # For now we do not need to check for various store option as we allow
-        # only one anyway.
-        result = get_sqlalchemy_info()
-        return result
-
-    click.echo(_(
-        "You are running {name} version {version}".format(
-            name=hamster_cli_appname,
-            version=hamster_cli_version,
-        )
-    ))
-    click.echo(
-        "Configuration found under: {}".format(get_config_path())
-    )
-    click.echo(
-        "Logfile stored under: {}".format(controller.client_config['logfile_path'])
-    )
-    click.echo(
-        "Reports exported to: {}".format(controller.client_config['export_path'])
-    )
-    click.echo(get_db_info())
+    app_details(controller)
 
 
 # ***
