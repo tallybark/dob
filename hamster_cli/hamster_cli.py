@@ -45,6 +45,7 @@ from helpers.ascii_table import generate_table, warn_if_truncated
 import cmd_options
 import cmds_list
 import cmds_usage
+import migrate
 
 
 # Disable the python_2_unicode_compatible future import warning.
@@ -504,4 +505,38 @@ def current(controller):
 def export(controller, format, start, end, activity, category, tag, description, key, filename):
     """Export all facts of within a given timewindow to a file of specified format."""
     export_facts(controller, format, start, end, activity, category, tag, description, key, filename)
+
+
+# ***
+# *** [MIGRATE] Commands [database transformations].
+# ***
+
+
+@run.group('migrate', help=help_strings.MIGRATE_GROUP_HELP)
+@pass_controller
+@click.pass_context
+def migrate_group(ctx, controller):
+    """Base `migrate` group command run prior to any of the hamster-migrate commands."""
+    pass
+
+
+@migrate_group.command('down', help=help_strings.MIGRATE_DOWN_HELP)
+@pass_controller
+def migrate_downgrade(controller):
+    """Downgrade the database according to its migration version."""
+    migrate.downgrade(controller)
+
+
+@migrate_group.command('up', help=help_strings.MIGRATE_UP_HELP)
+@pass_controller
+def migrate_upgrade(controller):
+    """Upgrade the database according to its migration version."""
+    migrate.upgrade(controller)
+
+
+@migrate_group.command('version', help=help_strings.MIGRATE_VERSION_HELP)
+@pass_controller
+def migrate_version(controller):
+    """Show migration information about the database."""
+    migrate.version(controller)
 

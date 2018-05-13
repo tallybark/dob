@@ -288,3 +288,30 @@ EXPORT_HELP = _(
     """
 )
 
+
+# ***
+# *** [MIGRATE] Commands help.
+# ***
+
+
+MIGRATE_GROUP_HELP = _(
+    """
+    Perform database migrations.
+    """
+)
+
+
+MIGRATE_DOWN_HELP = _(
+    """Downgrade the database version by 1 script."""
+)
+
+
+MIGRATE_UP_HELP = _(
+    """Upgrade the database version by 1 script."""
+)
+
+
+MIGRATE_VERSION_HELP = _(
+    """Show the database migration version."""
+)
+
