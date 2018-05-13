@@ -43,6 +43,7 @@ from hamster_lib.helpers import logging as logging_helpers
 from . import help_strings
 from .cmd_config import get_config, get_config_instance, get_config_path
 from helpers.ascii_table import generate_table
+import cmds_list
 
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
@@ -929,39 +930,7 @@ def _current(controller):
 def activities(controller, search_term, category, sort_by_category):
     """List all activities. Provide optional filtering by name."""
     category_name = category if category else ''
-    _activities(controller, search_term, category_name, sort_by_category)
-
-
-def _activities(controller, search_term='', category_name='', sort_by_category=False):
-    """
-    List all activities. Provide optional filtering by name.
-
-    Args:
-        search_term (str): String to match ``Activity.name`` against.
-
-    Returns:
-        None: If success.
-    """
-    category = False
-    if category_name:
-        # FIXME: (lb): This raises KeyError if no exact match found.
-        #        We should at least gracefully exit,
-        #        if not do a fuzzy search.
-        result = controller.categories.get_by_name(category_name)
-        category = result if result else False
-    result = controller.activities.get_all(
-        search_term=search_term, category=category, sort_by_category=sort_by_category,
-    )
-    table = []
-    headers = (_("Activity"), _("Category"))
-    for activity in result:
-        if activity.category:
-            category = activity.category.name
-        else:
-            category = None
-        table.append((activity.name, category))
-
-    click.echo(generate_table(table, headers=headers))
+    cmds_list.activity.list_activities(controller, search_term, category_name, sort_by_category)
 
 
 # ***
