@@ -40,6 +40,9 @@ def search_facts(
     tag=None,
     description=None,
     key=None,
+    order='desc',
+    limit='',
+    offset='',
 ):
     """
     Search facts machting given timerange and search term. Both are optional.
@@ -238,7 +241,7 @@ def search_facts(
     # end: disabled code...
 
     if key:
-        results = [controller.facts.get(pk=key), ]
+        results = [controller.facts.get(pk=key)]
     else:
         # Convert the start and time strings to datetimes.
         if start:
@@ -246,7 +249,9 @@ def search_facts(
         if end:
             end = time_helpers.parse_time(end)
 
-        results = controller.facts.get_all(start=start, end=end)
+        results = controller.facts.get_all(
+            start=start, end=end, order=order, limit=limit, offset=offset,
+        )
 
         # (lb): scientificsteve's PR adds these if's, but they seem wrong,
         # i.e., if you specify --activity and --category, then only
