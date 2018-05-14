@@ -231,7 +231,7 @@ def get_config(config_instance):
 
         def get_store():
             store = config.get('Backend', 'store')
-            if store not in hamster_lib.lib.REGISTERED_BACKENDS.keys():
+            if store not in hamster_lib.control.REGISTERED_BACKENDS.keys():
                 raise ValueError(_("Unrecognized store option."))
             return store
 
