@@ -707,53 +707,42 @@ def current(controller):
 # *** [CREATE-FACT] Commands.
 # ***
 
-
-@run.command(help=help_strings.START_HELP)
-@click.argument('raw_fact')
-@click.argument('start', default='')
-@click.argument('end', default='')
-@pass_controller
-def start(controller, raw_fact, start, end):
-    """Start or add a fact."""
-    # [FIXME]
-    # The original semantics do not work anymore. As we make a clear difference
-    # between *adding* a (complete) fact and *starting* a (ongoing) fact.
-    # This needs to be reflected in this command.
-    start_fact(controller, raw_fact, start, end)
-
-
-@run.command(help=help_strings.START_HELP_ON, aliases=['now'])
+@run.command(aliases=['now'], help=help_strings.START_HELP_ON)
+@cmd_options_factoid
 @cmd_options_insert
 @pass_controller
-def on(controller, factoid, yes, ask):
-    """Start or add a fact using the `on`/`now` directive."""
-    add_fact(controller, factoid, time_hint='verify-none', yes=yes, ask=ask)
+def on(controller, *args, **kwargs):
+    """Start or add a fact using the `on`/`now`/`start` directive."""
+    add_fact(controller, *args, time_hint='verify_none', **kwargs)
 
 
 @run.command(help=help_strings.START_HELP_AT)
+@cmd_options_factoid
 @cmd_options_insert
 @pass_controller
-def at(controller, factoid, yes, ask):
+def at(controller, *args, **kwargs):
     """Start or add a fact using the `at` directive."""
-    add_fact(controller, factoid, time_hint='verify-start', yes=yes, ask=ask)
+    add_fact(controller, *args, time_hint='verify_start', **kwargs)
 
 
-@run.command(help=help_strings.START_HELP_TO, aliases=['until'])
+@run.command(aliases=['until'], help=help_strings.START_HELP_TO)
+@cmd_options_factoid
 @cmd_options_insert
 @pass_controller
-def to(controller, factoid, yes, ask):
+def to(controller, *args, **kwargs):
     """Start or add a fact using the `to`/`until` directive."""
-    add_fact(controller, factoid, time_hint='verify-end', yes=yes, ask=ask)
+    add_fact(controller, *args, time_hint='verify_end', **kwargs)
 
 
 # (lb): We cannot name the function `from`, which is a Python reserved word,
 # so set the command name via the composable group command() decorator.
 @run.command('from', help=help_strings.START_HELP_BETWEEN)
+@cmd_options_factoid
 @cmd_options_insert
 @pass_controller
-def between(controller, factoid, yes, ask):
+def between(controller, *args, **kwargs):
     """Add a fact using the `from ... to` directive."""
-    add_fact(controller, factoid, time_hint='verify-both', yes=yes, ask=ask)
+    add_fact(controller, *args, time_hint='verify_both', **kwargs)
 
 
 # ***

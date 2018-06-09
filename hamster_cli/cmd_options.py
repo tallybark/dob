@@ -25,7 +25,7 @@ import click
 click.disable_unicode_literals_warning = True
 
 __all__ = [
-    'cmd_options_search',
+    'cmd_options_factoid',
     'cmd_options_insert',
     'cmd_options_limit_offset',
     'cmd_options_list_activitied',
@@ -162,20 +162,36 @@ def _postprocess_options_table_bunce_asc_desc_to_sort_order(kwargs):
 # *** [INSERT FACTOID] Options.
 # ***
 
+_cmd_options_factoid = [
+    click.argument('factoid', nargs=-1, default=None),
+]
+
+
+def cmd_options_factoid(func):
+    for option in reversed(_cmd_options_factoid):
+        func = option(func)
+    return func
+
+
+# ***
+# *** [ADD FACT] Options.
+# ***
 
 _cmd_options_insert = [
-    click.argument('factoid', nargs=-1, default=None),
     click.option(
         '-a', '--ask', is_flag=True,
         help=_(
             'Ask for tags, and activity@category.'
-            ' Useful if tab complete does not help because whitespace.'
+            ' Useful if tab complete unhelpful because whitespace.'
         ),
     ),
     click.option(
         '-y', '--yes', is_flag=True,
         help=_('Save conflicts automatically, otherwise ask for confirmation.'),
     ),
+    # (lb): Not declaring a one-char alias; the full name option,
+    #   --dry, is only three chars, and easy to remember.
+    click.option('--dry', is_flag=True, help=_('Dry run: do not make changes.')),
 ]
 
 
