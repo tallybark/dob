@@ -121,6 +121,29 @@ def barf_on_error(msg, crude=False):
 # ***
 
 
+def echo_block_header(title):
+    click.echo(fact_block_header(title))
+
+
+def fact_block_header(title, sep='━'):
+    header = []
+    highlight_col = 'red_1'
+    header.append('{}{}{}'.format(
+        fg(highlight_col),
+        title,
+        attr('reset'),
+    ))
+    header.append('{}{}{}'.format(
+        fg(highlight_col),
+        sep * len(title),
+        attr('reset'),
+    ))
+    return '\n'.join(header)
+
+
+# ***
+
+
 def hydrate_category(controller, category_name):
     """Fetch a category from the backend."""
     category = False
