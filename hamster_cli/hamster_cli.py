@@ -793,9 +793,68 @@ def transcode_export(
 
 
 # ***
-# *** [COMPLETE] Command [Bash tab completion].
+# *** [IMPORT] Command.
 # ***
 
+@run.command('import', help=help_strings.IMPORT_HELP)
+@click.argument('filename', nargs=-1, type=click.File('r'))
+@click.option('-o', '--output', type=click.File('w', lazy=True),
+              help=_('If specified, write to output file rather than saving'))
+@click.option('-f', '--force', is_flag=True,
+              help=_('If specified, overwrite --output file if is exists'))
+@click.option('-r', '--rule', '--sep', nargs=1, default='',
+              help=_('With --output, split facts with a horizontal rule'))
+@cmd_options_insert
+# FIXME/2018-06-10: (lb) Apply backend_integrity to other/most commands?
+#   Or at least those that touch the db...
+#   NOTE/2018-06-11: This checks there are no endless facts, so rather specific
+#     (i.e., no ongoing). You could split into another decorator for just checking
+#     database is under migration control. But that doesn't matter so much,
+#     does it? Or is the idea we'd rather print a nice, friendly error message?
+#     Otherwise, if code fails later, we'd print a dirty stack trace.
+@backend_integrity
+@pass_controller
+def transcode_import(controller, filename, output, force, *args, **kwargs):
+    """Import from file or STDIN (pipe)."""
+
+    # Because nargs=-1, the user could specify many files! E.g.,
+    #
+    #   hamster import file1 file2
+    #
+    # Also, click supports the magic STDIN identifier, `-`, e.g.,
+    #
+    #   hamster import -
+    #
+    # will read from STDIN.
+    #
+    # (And `hamster import - <file>` will open 2 streams!)
+    if len(filename) > 1:
+        msg = _('Please specify only one input, file or STDIN!')
+        click.echo(msg)
+        sys.exit(1)
+    elif filename:
+        file_in = filename[0]
+    else:
+        file_in = None
+
+    # NOTE: You can get tricky and enter Facts LIVE! E.g.,
+    #
+    #           hamster import -
+    #
+    #       will open pipe from STDIN, and Hamster will wait for
+    #       you to type! (lb): Though I did not verify ^D EOFs.
+
+    if output and not force and os.path.exists(output.name):
+        msg = _('Outfile already exists at: {}'.format(output.name))
+        click.echo(msg)
+        sys.exit(1)
+
+    import_facts(controller, *args, file_in=file_in, file_out=output, **kwargs)
+
+
+# ***
+# *** [COMPLETE] Command [Bash tab completion].
+# ***
 
 # FIXME: YAS! `hidden` is from a branch at:
 #          sstaszkiewicz-copperleaf:6.x-maintenance
