@@ -30,6 +30,7 @@ __all__ = [
     'cmd_options_limit_offset',
     'cmd_options_list_activitied',
     'cmd_options_list_categoried',
+    'cmd_options_list_fact',
     'cmd_options_search',
     'cmd_options_table_bunce',
     'cmd_options_usage',
@@ -182,6 +183,33 @@ def cmd_options_insert(func):
     for option in reversed(_cmd_options_insert):
         func = option(func)
     return func
+
+
+# ***
+# *** [LIST FACT] Options.
+# ***
+
+_cmd_options_list_fact = [
+    click.option(
+        '-w', '--raw', is_flag=True,
+        help='Output Facts in document format, not table.',
+    ),
+    click.option(
+        '-r', '--rule', '--sep', nargs=1, default='',
+        help=_('Separate facts with a horizontal rule'),
+    ),
+    click.option(
+        '-S', '--span/--no-span', default=True, show_default=True,
+        help=_('Show fact elapsed time'),
+    ),
+]
+
+
+def cmd_options_list_fact(func):
+    for option in reversed(_cmd_options_list_fact):
+        func = option(func)
+    return func
+
 
 # ***
 # *** [LIST ACTIVITY|LIST TAG] Options.

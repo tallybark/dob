@@ -531,62 +531,51 @@ def list_tags(controller, *args, usage=False, **kwargs):
     )
 
 
-# *** FACTS (w/ time range).
-# FIXME/2018-05-12: (lb): Do we really need 2 Facts search commands?
+# *** FACTS.
+
+def _list_facts(controller, *args, usage=False, **kwargs):
+    """List matching facts, filtered and sorted."""
+    """Fetch facts matching certain criteria."""
+    activity = cmd_options.postprocess_options_list_activitied(kwargs)
+    category = cmd_options.postprocess_options_list_categoried(kwargs)
+    postprocess_options_table_bunce(kwargs)
+    list_fact.list_facts(
+        controller,
+        *args,
+        include_usage=usage,
+        filter_activity=activity,
+        filter_category=category,
+        **kwargs,
+    )
+
+
+def generate_list_facts_command(func):
+    @cmd_options_search
+    @cmd_options_list_activitied
+    @cmd_options_list_categoried
+    @cmd_options_usage
+    @cmd_options_table_bunce
+    @cmd_options_limit_offset
+    @cmd_options_list_fact
+    @pass_controller
+    def list_facts(controller, *args, **kwargs):
+        _list_facts(controller, *args, **kwargs)
+    return update_wrapper(list_facts, func)
+
 
 @list_group.command('facts', help=help_strings.LIST_FACTS_HELP)
-@cmd_options_search
-@cmd_options_limit_offset
-@pass_controller
+@generate_list_facts_command
 def list_facts(controller, *args, **kwargs):
-    """List all facts within a timerange."""
-    results = search_facts(controller, *args, **kwargs)
-    table, headers = generate_facts_table(results)
-    click.echo(generate_table(table, headers=headers))
-    warn_if_truncated(controller, len(results), len(table))
+    assert(False)  # Not reachable, because generate_list_facts_command.
+    pass
 
 
-
-@run.command(help=help_strings.SEARCH_HELP)
-@click.argument('search_term', nargs=-1, default=None)
-# MAYBE/2018-05-05: (lb): Restore the time_range arg scientificsteve removed:
-#  @click.argument('time_range', default='')
-@cmd_options_search
-@cmd_options_limit_offset
-@click.option('-a', '--activity', help="The search string applied to activity names.")
-@click.option('-c', '--category', help="The search string applied to category names.")
-@click.option('-t', '--tag', help='The tags search string (e.g. "tag1 AND (tag2 OR tag3)".')
-@click.option('-d', '--description',
-              help='The description search string (e.g. "string1 OR (string2 AND string3).')
-@click.option('-k', '--key', help='The database key of the fact.')
-@pass_controller
-def search(controller, description, search_term, *args, **kwargs):
-    """Fetch facts matching certain criteria."""
-    # [FIXME]
-    # Check what we actually match against.
-    # NOTE: (lb): Before scientificsteve added all the --options, the
-    #       original command accepted a search_term and a time_range,
-    #       e.g.,
-    #
-    #         @click.argument('search_term', default='')
-    #         @click.argument('time_range', default='')
-    #         def search(controller, search_term, time_range):
-    #           return search_facts(controller, search_term, time_range)
-    #           # And then the table and click.echo were at the bottom of
-    #           # search_facts! And I'm not sure why they were moved here....
-    #
-    #       MAYBE: Restore supprt for time_range, i.e., let user specify
-    #       2 positional args in addition to any number of options. And
-    #       figure out why the generate-table and click.echo were moved
-    #       here?
-    if search_term:
-        description = description or ''
-        description += ' AND ' if description else ''
-        description += ' AND '.join(search_term)
-    results = search_facts(description, *args, **kwargs)
-    table, headers = generate_facts_table(results)
-    click.echo(generate_table(table, headers=headers))
-    warn_if_truncated(controller, len(results), len(table))
+# MAYBE: Should we alias the command at hamster-search?
+@run.command('search', help=help_strings.SEARCH_HELP)
+@generate_list_facts_command
+def search_facts(controller, *args, **kwargs):
+    assert(False)  # Not reachable, because generate_list_facts_command.
+    pass
 
 
 # ***
@@ -655,6 +644,30 @@ def usage_tags(controller, *args, **kwargs):
     usage_tag.usage_tags(
         controller,
         *args,
+        filter_activity=activity,
+        filter_category=category,
+        **kwargs,
+    )
+
+
+# *** FACTS.
+
+@usage_group.command('facts', help=help_strings.USAGE_FACTS_HELP)
+@cmd_options_search
+@cmd_options_list_activitied
+@cmd_options_list_categoried
+@cmd_options_table_bunce
+@cmd_options_limit_offset
+@pass_controller
+def usage_facts(controller, *args, **kwargs):
+    """List all tags' usage counts, with filtering and sorting options."""
+    activity = cmd_options.postprocess_options_list_activitied(kwargs)
+    category = cmd_options.postprocess_options_list_categoried(kwargs)
+    postprocess_options_table_bunce(kwargs)
+    list_fact.list_facts(
+        controller,
+        *args,
+        include_usage=True,
         filter_activity=activity,
         filter_category=category,
         **kwargs,
