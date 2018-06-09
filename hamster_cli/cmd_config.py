@@ -229,6 +229,10 @@ class ClientDefaults(object):
         return False
 
     @property
+    def separators(self):
+        return ''
+
+    @property
     def show_greeting(self):
         return False
 
@@ -342,6 +346,7 @@ def get_config(config_instance):
             'export_path': get_export_dir(),
             'term_color': get_term_color(),
             'term_paging': get_term_paging(),
+            'separators': get_separators(),
             'show_greeting': get_show_greeting(),
         }
 

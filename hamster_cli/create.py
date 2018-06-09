@@ -17,138 +17,158 @@
 
 from __future__ import absolute_import, unicode_literals
 
-import datetime
-import sys
 from gettext import gettext as _
 
 import click
-import inquirer
+import json
+from pyoiler_inflector import Inflector
 
-from hamster_lib import Activity, Category, Fact, Tag
+from hamster_lib import Fact
 from hamster_lib.helpers import time as time_helpers
 from hamster_lib.helpers.colored import fg, attr
 from hamster_lib.helpers.parsing import ParserException
 
+from . import interrogate
+from .helpers import click_echo_and_exit
 
-__all__ = ['add_fact', 'cancel_fact', 'start_fact', 'stop_fact']
+__all__ = [
+    'add_fact',
+    'stop_fact',
+    'cancel_fact',
+    'mend_facts_confirm_and_save_maybe',
+    'mend_facts_times',
+    'save_facts_maybe',
+    # Private:
+    #   'must_confirm_fact_edits',
+    #   'must_create_fact_from_factoid',
+]
 
 
-def add_fact(controller, factoid, time_hint, yes=False, ask=False):
+def add_fact(
+    controller,
+    factoid,
+    time_hint,
+    ask=False,
+    yes=False,
+    dry=False,
+):
     """
     Start or add a fact.
 
     Args:
-        factoid: ``factoid`` containing information about the Fact to be started. As an absolute
-            minimum this must be a string representing the 'activityname'.
-        start (optional): When does the fact start?
-        end (optional): When does the fact end?
+        factoid (text_type): ``factoid`` detailing Fact to be added.
+            See elsewhere for the factoid format. At a minimum, the
+            string must must specify an Activity name.
+
+        time_hint (text_type, optional): One of:
+            'verify_none': Do not expect to find any time encoded in factoid.
+            'verify_both': Expect to find both start and end times.
+            'verify_start': Expect to find just one time, which is the start.
+            'verify_end': Expect to find just one time, which is the end.
+
+        yes (bool, optional): If True, update other Facts changed by the new
+            fact being added (affects other Facts' start/end/deleted attrs).
+            If False, prompt user (i.e., using fancy interface built with
+            python-prompt-toolkit) for each conflict.
+
+        ask (bool, optional): If True, prompt user for activity and/or
+            category, if not indicated; and prompt user for tags. Shows
+            MRU lists to try to make it easy for user to specify commonly
+            used items.
 
     Returns:
-        None: If everything went alright.
-
-    Note:
-        * Whilst it is possible to pass timeinformation as part of the ``factoid`` as
-            well as dedicated ``start`` and ``end`` arguments only the latter will be represented
-            in the resulting fact in such a case.
+        Nothing: If everything went alright. (Otherwise, will have exited.)
     """
 
-    # FIXME: (lb): I'm not a big fan on inline methods, but it seems to be
-    #        a common pattern in this codebase. Perhaps we could find a
-    #        more elegant way to do this? (I don't like that the actual
-    #        function code comes much further down, after the inline
-    #        function definitions, because it's obvious it's there.)
-    #        Can we at least do an inline function for the main function,
-    #        and put that up here?
+    # NOTE: factoid is an ordered tuple of args; e.g., sys.argv[2:], if
+    #       sys,argv[0] is the executable name, and sys.argv[1] is command.
+    #       Because Hamster CLI is totes legit, it does not insist that the
+    #       user necessary quote anything on the command line, but it does
+    #       not insist not, either, so factoid might have just one element
+    #       (a string) containing all the information; or factoid might be
+    #       a list of strings that need to be parsed and reassembled (though
+    #       not necessarily in that order).
+    #
+    #         tl;dr: factoid is a tuple of 1+ strings that together specify the Fact.
 
-    # NOTE: factoid is an ordered tuple of args.
+    fact = must_create_fact_from_factoid(
+        controller, factoid, time_hint, ask,
+    )
 
-    def insert_factoid(controller, factoid, time_hint, yes, ask):
-        # Parse the user's input.
+    if ask:
+        interrogate.ask_user_for_edits(controller, fact)
+
+    mend_facts_confirm_and_save_maybe(controller, fact, time_hint, yes, dry)
+
+
+def mend_facts_confirm_and_save_maybe(controller, fact, time_hint, yes, dry):
+    # Fill in the start and, or, end times, maybe.
+    # Possibly correct the times of 2 other Facts!
+    # Or die if too many Facts are abound tonight.
+    conflicts = mend_facts_times(controller, fact, time_hint)
+
+    # Ask user what to do about conflicts/edits.
+    must_confirm_fact_edits(controller, conflicts, yes, dry)
+
+    save_facts_maybe(controller, fact, conflicts, dry)
+
+
+# ***
+
+
+def must_create_fact_from_factoid(
+    controller, factoid, time_hint, ask,
+):
+
+    def _must_create_fact_from_factoid(
+        controller, factoid, time_hint, ask,
+    ):
+        separators = must_prepare_factoid_item_separators(controller)
         try:
-            fact = Fact.create_from_raw_fact(
-               factoid, time_hint=time_hint, lenient=ask,
+            fact, err = Fact.create_from_factoid(
+                factoid,
+                time_hint=time_hint,
+                separators=separators,
+                lenient=ask,
             )
+            if err:
+                controller.client_logger.info(str(err))
         except ParserException as err:
-            msg = _('Failed to add factoid: {}').format(err)
+            msg = _('Oops! {}').format(err)
             controller.client_logger.error(msg)
-            click.echo(msg)
-            sys.exit(1)
+            click_echo_and_exit(msg)
+        return fact
 
-        if ask:
-            fact.tags = new_fact_ask_tags(controller)
-            fact.activity = new_fact_ask_act_cat(controller)
+    def must_prepare_factoid_item_separators(controller):
+        try:
+            separators = json.loads(controller.client_config['separators'])
+        except json.decoder.JSONDecodeError as err:
+            msg = _(
+                "The 'separators' config value is not valid JSON: {}"
+            ).format(err)
+            controller.client_logger.error(msg)
+            click_echo_and_exit(msg)
+        return separators
 
-        # Fill in the start and, or, end times, maybe.
-        # Possibly correct the times of 2 other Facts!
-        # Or die if too many Facts are abound tonight.
-        conflicts = mend_facts_times(controller, fact, time_hint)
+    # ***
 
-        # Ask user what to do about conflicts/edits.
-        confirm_fact_edits(conflicts, yes)
+    return _must_create_fact_from_factoid(controller, factoid, time_hint, ask)
 
-        # Finally, save the new fact. If we're not dead.
-        # FIXME/2018-05-09: (lb): We should use a transaction!
-        for edited_fact, _original in conflicts:
-            save_fact(controller, edited_fact)
-        save_fact(controller, fact)
 
-    def new_fact_ask_tags(controller):
-        # FIXME: (lb): The inquirer list doesn't work if more lines than
-        #        screen height (it's unusable for me, seems to scroll,
-        #        then jumps back; and I don't see the selection at all).
-        choices = _choices_tags(controller, whitespace_ok=True)
-        questions = [
-            inquirer.Checkbox(
-                'tags',
-                message="What tags would you like to apply?",
-                choices=choices,
-            ),
-        ]
-        cbox = inquirer.prompt(questions)
-        # The prompt returns a dict with one entry, keys with
-        # name we gave it. See these as the tags, removing the
-        # '@' prefix that we added previously for show.
-        tags = [Tag(name=tag[1:]) for tag in cbox['tags']]
-        return tags
+# ***
 
-    def new_fact_ask_act_cat(controller):
-        magic_ask_me = '<Create new activity>'
-        choices = _choices_activities(controller, whitespace_ok=True)
-        choices.insert(0, magic_ask_me)
-        questions = [
-            inquirer.List(
-                'act_cat',
-                message="What activity@category would you like to use?",
-                choices=choices[:20],
-            ),
-        ]
-        cbox = inquirer.prompt(questions)
 
-        if cbox['act_cat'] != magic_ask_me:
-            act_name, cat_name = cbox['act_cat'].split('@', 1)
-        else:
-            questions = [inquirer.Text('activity', message="Activity")]
-            answers = inquirer.prompt(questions)
-            act_cat_names = answers['activity'].split('@', 1)
-            act_name = act_cat_names[0]
-            if len(act_cat_names) > 1:
-                cat_name = act_cat_names[1]
-            else:
-                questions = [inquirer.Text('category', message="Category")]
-                answers = inquirer.prompt(questions)
-                cat_name = answers['category']
+# MAYBE/2018-06-09: (lb): Need to move any of this to LIB for other packages to use?
+def mend_facts_times(controller, fact, time_hint):
+    """"""
 
-        activity = Activity(act_name.strip())
-        if cat_name.strip():
-            activity.category = Category(cat_name.strip())
-        return activity
-
-    def mend_facts_times(controller, fact, time_hint):
-        now = datetime.datetime.now()
-        leave_open = new_fact_fill_now(fact, time_hint, now)
+    def _mend_facts_times(controller, fact, time_hint):
+        # The fact is considered "temporary", or open, if the user did not
+        # specify an end time, and if there's no Fact following the new Fact.
+        leave_open = new_fact_fill_now(fact, time_hint, controller.now)
         conflicts = controller.facts.insert_forcefully(fact)
 
-        # Note that start/end may be None due to partial completion.
+        # Note that end may be None for ongoing Fact.
         # Verify that start > end, if neither are None.
         time_helpers.validate_start_end_range((fact.start, fact.end))
 
@@ -162,144 +182,149 @@ def add_fact(controller, factoid, time_hint, yes=False, ask=False):
         # facts, so remember if we need to leave the fact open.
         leave_open = False
 
-        if (time_hint == 'verify-none'):
+        if (time_hint == 'verify_none'):
             assert not fact.start
             assert not fact.end
             fact.start = now
-        elif (time_hint == 'verify-both'):
+            leave_open = True
+        elif (time_hint == 'verify_both'):
             assert fact.start and fact.end
-        elif (time_hint == 'verify-start'):
+        elif (time_hint == 'verify_start'):
             assert not fact.end
             leave_open = True
             if not fact.start:
                 fact.start = now
-        elif (time_hint == 'verify-end'):
+        elif (time_hint == 'verify_end'):
             assert not fact.start
             if not fact.end:
                 fact.end = now
 
         return leave_open
 
-    def confirm_fact_edits(conflicts, yes):
+    # ***
+
+    return _mend_facts_times(controller, fact, time_hint)
+
+
+# ***
+
+
+def must_confirm_fact_edits(controller, conflicts, yes, dry):
+    """"""
+
+    def _must_confirm_fact_edits(conflicts, yes, dry):
+        conflicts = cull_stopped_ongoing(conflicts)
         if not conflicts:
             return
+        yes = yes or dry
         if not yes:
-            # FIXME: (lb): Pluralizer: "conflict(s)" / # FIXME: (lb): Add Inflector
-            #        Inflector.pluralize('conflict', len(conflicts) != 1)
-            click.echo(_(
-                'Found {}{}{} conflict(s). {}Please confirm the following changes:{}'.format(
-                    fg('magenta'), len(conflicts), attr('reset'),
-                    attr('underlined'), attr('reset'),
-                )
-            ))
+            echo_confirmation_banner(conflicts)
         n_conflict = 0
         for edited_fact, original in conflicts:
             n_conflict += 1
             if not yes:
-                click.echo()
-                click.confirm(
-                    text='Conflict #{}\n-----------\n{}\nReally edit fact?'.format(
-                        n_conflict,
-                        #len(conflicts),
-                        original.friendly_diff(edited_fact),
-                    ),
-                    default=False,
-                    abort=True,
-                    #prompt_suffix=': ',
-                    #show_default=True,
-                    #err=False,
+                echo_confirmation_edited(
+                    n_conflict, edited_fact, original,
                 )
             else:
-                controller.client_logger.debug(_('Editing fact: {}').format(edited_fact))
+                controller.client_logger.debug(
+                    _('Editing fact: {}').format(edited_fact)
+                )
 
-    def save_fact(controller, fact):
-        controller.client_logger.debug('{}: {}'.format(_('Save fact'), fact))
-        fact = controller.facts.save(fact)
+    def cull_stopped_ongoing(conflicts):
+        return [con for con in conflicts if 'stopped' not in con[0].dirty_reasons]
 
-    # The actual `def add_fact()` function:
-    insert_factoid(controller, factoid, time_hint, yes, ask)
+    def echo_confirmation_banner(conflicts):
+        click.echo()
+        click.echo(_(
+            'Found {}{}{} {}. '
+            '{}Please confirm the following changes:{}'
+            .format(
+                fg('magenta'), len(conflicts), attr('reset'),
+                Inflector.pluralize('conflict', len(conflicts) != 1),
+                attr('underlined'), attr('reset'),
+            )
+        ))
+
+    def echo_confirmation_edited(n_conflict, edited_fact, original):
+        click.echo()
+        click.confirm(
+            text=_('Conflict #{}\n-----------\n{}\nReally edit fact?').format(
+                n_conflict,
+                original.friendly_diff(edited_fact),
+            ),
+            default=False,
+            abort=True,
+            # prompt_suffix=': ',
+            # show_default=True,
+            # err=False,
+        )
+
+    # ***
+
+    _must_confirm_fact_edits(conflicts, yes, dry)
 
 
-def start_fact(controller, raw_fact, start='', end=''):
-    """
-    Start or add a fact.
+# ***
 
-    Args:
-        raw_fact: ``raw_fact`` containing information about the Fact to be started. As an absolute
-            minimum this must be a string representing the 'activityname'.
-        start (optional): When does the fact start?
-        end (optional): When does the fact end?
 
-    Returns:
-        None: If everything went alright.
+def save_facts_maybe(controller, fact, conflicts, dry):
+    """"""
 
-    Note:
-        * Whilst it is possible to pass timeinformation as part of the ``raw_fact`` as
-            well as dedicated ``start`` and ``end`` arguments only the latter will be represented
-            in the resulting fact in such a case.
-    """
-    fact = Fact.create_from_raw_fact(raw_fact)
+    def _save_facts_maybe(controller, fact, conflicts, dry):
+        if conflicts and dry:
+            echo_dry_run()
+        for edited_fact, original in conflicts:
+            if not dry:
+                save_fact(controller, edited_fact, dry)
+                if 'stopped' in edited_fact.dirty_reasons:
+                    echo_ongoing_completed(controller, edited_fact)
+            else:
+                click.echo(original.friendly_diff(edited_fact))
 
-    # Explicit trumps implicit!
-    if start:
-        fact.start = time_helpers.parse_time(start)
-    if end:
-        fact.end = time_helpers.parse_time(end)
+        save_fact(controller, fact, dry)
 
-    if not fact.end:
-        # We seem to want to start a new tmp fact
-        # Neither the raw fact string nor an additional optional end time have
-        # been passed.
-        # Until we decide wether to split this into start/add command we use the
-        # presence of any 'end' information as indication of the users intend.
-        tmp_fact = True
-    else:
-        tmp_fact = False
+    def echo_dry_run():
+        click.echo()
+        click.echo('{}Dry run! These facts will be edited{}:\n '.format(
+            attr('underlined'),
+            attr('reset'),
+        ))
 
-    # We complete the facts times in both cases as even an new 'ongoing' fact
-    # may be in need of some time-completion for its start information.
-
-    # Complete missing fields with default values.
-    # legacy hamster_cli seems to have a different fallback behaviour than
-    # our regular backend, in particular the way 'day_start' is handled.
-    # For maximum consistency we use the backends unified ``complete_timeframe``
-    # helper instead. If behaviour similar to the legacy hamster-cli is desired,
-    # all that seems needed is to change ``day_start`` to '00:00'.
-
-    # The following is needed becauses start and end may be ``None``.
-    if not fact.start:
-        # No time information has been passed at all.
-        fact.start = datetime.datetime.now()
-
-    else:
-        # We got some time information, which may be incomplete however.
-        if not fact.end:
-            end_date = None
-            end_time = None
+    def save_fact(controller, fact, dry):
+        if not dry:
+            controller.client_logger.debug('{}: {}'.format(_('Save fact'), fact))
+            try:
+                fact = controller.facts.save(fact)
+            except Exception as err:
+                click_echo_and_exit(str(err))
         else:
-            end_date = fact.end.date()
-            end_time = fact.end.time()
+            echo_fact(fact)
 
-        timeframe = time_helpers.TimeFrame(
-            fact.start.date(), fact.start.time(), end_date, end_time, None)
-        fact.start, fact.end = time_helpers.complete_timeframe(timeframe, controller.config)
+    # ***
 
-    if tmp_fact:
-        # Quick fix for tmp facts. that way we can use the default helper
-        # function which will autocomplete the end info as well.
-        # Because of our use of ``complete timeframe our 'ongoing fact' may have
-        # received an ``end`` value now. In that case we reset it to ``None``.
-        fact.end = None
+    _save_facts_maybe(controller, fact, conflicts, dry)
 
-    controller.client_logger.debug(_(
-        "New fact instance created: {fact}".format(fact=fact)
+
+def echo_fact(fact):
+    click.echo('{}Dry run! New fact{}:\n '.format(
+        attr('underlined'),
+        attr('reset'),
     ))
-    fact = controller.facts.save(fact)
+    click.echo('{}{}{}{}'.format(
+        fg('steel_blue_1b'),
+        attr('bold'),
+        fact.friendly_str(description_sep='\n\n'),
+        attr('reset'),
+    ))
+
+
+# ***
 
 
 def stop_fact(controller):
     """
-    Stop cucrrent 'ongoing fact' and save it to the backend.
+    Stop current 'ongoing fact' and save it to the backend.
 
     Returns:
         None: If successful.
@@ -319,6 +344,7 @@ def stop_fact(controller):
         echo_ongoing_completed(controller, fact)
 
 
+# ***
 
 
 def cancel_fact(controller, purge=False):
