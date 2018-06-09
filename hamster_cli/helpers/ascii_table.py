@@ -44,7 +44,7 @@ def generate_table(
     plain_headers = headers
     color_headers = _generate_table_color_headers(plain_headers)
     # Determine the max_width of the elastic cell; or use 0, if not truncating.
-    max_width = _generate_table_max_width(rows, table_type, truncate, trunccol)
+    max_width = _generate_table_max_width(rows, headers, table_type, truncate, trunccol)
     # Truncate long values in the trunccol column, if requested.
     trows = _generate_table_truncate_cell_values(rows, trunccol, max_width)
     _generate_table_display(trows, plain_headers, color_headers, table_type)
@@ -59,9 +59,10 @@ def _generate_table_color_headers(plain_headers):
         )
     return color_headers
 
-def _generate_table_max_width(rows, table_type, truncate, trunccol):
+
+def _generate_table_max_width(rows, headers, table_type, truncate, trunccol):
     if not truncate or not rows:
-        return 0
+        return -1
     num_cols = len(rows[0])
     assert trunccol is not None
     column_width_used = _generate_table_width_content(rows, num_cols, trunccol)
@@ -71,7 +72,10 @@ def _generate_table_max_width(rows, table_type, truncate, trunccol):
     term_width, _term_height = click.get_terminal_size()
     ellipsis_width = len('...')
     max_width = term_width - (border_width_used + column_width_used + ellipsis_width)
-    max_width = max(0, max_width)
+    # (lb): We at least have the width of the header string!
+    min_avail = len(headers[trunccol]) - ellipsis_width
+    max_width = max(0, min_avail, max_width)
+
     return max_width
 
 
@@ -113,8 +117,9 @@ def _generate_table_truncate_cell_values(rows, trunccol, max_width):
     for row in rows:
         trow = list(row)
         trows.append(trow)
-        if (max_width > 0) and (len(trow[trunccol]) >= max_width):
-            trow[trunccol] = trow[trunccol][:max_width] + '...'
+        truncval = trow[trunccol] or ''
+        if (max_width >= 0) and (len(truncval) >= max_width):
+            trow[trunccol] = truncval[:max_width] + '...'
     return trows
 
 
