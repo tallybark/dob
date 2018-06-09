@@ -17,7 +17,109 @@
 
 from __future__ import absolute_import, unicode_literals
 
-__all__ = ['hydrate_category']
+from gettext import gettext as _
+
+import click
+import sys
+
+from hamster_lib.helpers.colored import fg, attr, colorize
+
+from . import migrate
+from .helpers import ascii_art
+
+__all__ = [
+    'backend_integrity',
+    'barf_and_exit',
+    'echo_block_header',
+    'fact_block_header',
+    'hydrate_activity',
+    'hydrate_category',
+]
+
+
+def backend_integrity(func):
+    """
+    Verify that data in the database is integrit.
+
+    (lb): I wonder if the backend should enforce this better.
+    In any case, telling the user at the CLI level is better
+    than not telling the user at all, I suppose.
+    """
+
+    def wrapper(controller, *args, **kwargs):
+        version_must_be_latest(controller)
+        time_must_be_gapless(controller)
+        func(controller, *args, **kwargs)
+
+    # ***
+
+    def version_must_be_latest(controller):
+        db_version = migrate.version(
+            controller, silent_check=True, must=True,
+        )
+        latest_version = migrate.latest_version(
+            controller, silent_check=True, must=True,
+        )
+        if db_version != latest_version:
+            assert db_version < latest_version
+            msg = _(
+                'Expected database to be same version as latest migration.'
+                ' {} != {}'
+                '\nTrying running `hamster migrate up`'
+            ).format(db_version, latest_version)
+            barf_and_exit(msg)
+
+    # ***
+
+    def time_must_be_gapless(controller):
+        endless_facts = controller.facts.endless()
+        barf_on_endless_facts(endless_facts)
+
+    def barf_on_endless_facts(endless_facts):
+        if not endless_facts:
+            return
+
+        for fact in endless_facts:
+            # FIXME/2018-05-18: (lb): Make this prettier.
+            echo_block_header(_('Endless Fact Found!'))
+            click.echo()
+            click.echo(fact.friendly_diff(fact))
+            click.echo()
+        msg = _(
+            'Found saved fact(s) without start_time and/or end_time.'
+            '\nSee list of offending Facts above.'
+            # MAYBE/2018-05-23 17:05: (lb): We could offer an easy way out, e.g.,
+            #   '\n\nTry, e.g.,\n\n  hamster edit {} --end now'
+        )
+        barf_and_exit(msg)
+
+    # ***
+
+    return wrapper
+
+
+# ***
+
+
+def barf_and_exit(msg, crude=True):
+    if crude:
+        click.echo()
+        click.echo(ascii_art.lifeless().rstrip())
+        click.echo(ascii_art.infection_notice().rstrip())
+        click.pause(info='')
+    click.echo()
+    click.echo(colorize(msg, 'red'))
+    sys.exit(1)
+
+
+def barf_on_error(msg, crude=False):
+    if not msg:
+        return
+    barf_and_exit(msg, crude=False)
+
+
+# ***
+
 
 def hydrate_category(controller, category_name):
     """Fetch a category from the backend."""
