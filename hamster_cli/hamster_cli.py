@@ -760,7 +760,7 @@ def edit_group(ctx, controller):
 # *** FACTS.
 
 @edit_group.command('fact', help=help_strings.EDIT_FACT_HELP)
-@click.argument('key', nargs=1)
+@click.argument('key', nargs=1, type=int)
 @pass_controller
 def edit_fact(controller, *args, **kwargs):
     """Inline-Edit specified Fact using preferred $EDITOR."""

@@ -17,42 +17,98 @@
 
 from __future__ import absolute_import, unicode_literals
 
-from gettext import gettext as _
-
+import click
 import editor
 import six
+
+from .create import mend_facts_confirm_and_save_maybe
 
 __all__ = ['edit_fact']
 
 
 def edit_fact(controller, key):
-    old_fact = controller.facts.get(pk=key)
+    """"""
+    def _edit_fact():
+        old_fact = fact_from_key(key)
+        edit_old_fact(old_fact)
 
-    contents = six.b(str(old_fact))
-    result = editor.edit(contents=contents)
+    def fact_from_key(key):
+        if not key:
+            return None
 
-    # FIXME/2018-05-10: (lb): Is this py2 compatible?
-    raw_fact = result.decode()
+        if key > 0:
+            old_fact = controller.facts.get(pk=key)
+        else:
+            # FIXME/2018-06-10: (lb): This is crudely implemented, and
+            # won't work in edges cases (e.g., if you add a fact, then
+            # edit another fact, then `edit -1`, you'll edit the fact
+            # you edited, and not the latest fact, as this feature should
+            # work.
+            offset = -1 - key
+            old_fact = controller.facts.get_all(
+                order='desc',
+                limit=1,
+                offset=offset,
+                deleted=False,
+            )
+        return old_fact
 
-    if old_fact.start and old_fact.end:
-        time_hint = 'verify-both'
-    else:
-        assert old_fact.start
-        time_hint = 'verify-start'
+    def edit_old_fact(old_fact):
+        if old_fact is None:
+            return
 
-    new_fact = old_fact.create_from_raw_fact((raw_fact,), time_hint=time_hint)
+        # FIXME/2018-06-11: (lb): Wire --ask option. For now, just open editor.
+        raw_fact = editor_interact(old_fact)
+        time_hint = fact_time_hint(old_fact)
+        new_fact = new_fact_from_factoid(raw_fact, old_fact, time_hint)
+        echo_edited_fact(new_fact, old_fact)
+        confirm_and_save(new_fact, time_hint)
 
-    # (lb): Start with the PK of the old fact. On save/update, the
-    # store will see that the fact already exists, so it'll make a
-    # new copy of the fact (with a new ID), and mark the old fact
-    # 'deleted' (thereby acting like a Wiki -- never delete!).
-    new_fact.pk = old_fact.pk
+    def editor_interact(old_fact):
+        # FIXME/2018-06-11: (lb): Be explicit about str fcn. being called.
+        contents = six.b(str(old_fact))
+        result = editor.edit(contents=contents)
+        # FIXME/2018-05-10: (lb): Is this py2 compatible?
+        raw_fact = result.decode()
+        return raw_fact
 
-    print('An edited fact!: {}'.format(str(new_fact)))
+    def fact_time_hint(old_fact):
+        if old_fact.start and old_fact.end:
+            time_hint = 'verify_both'
+        else:
+            assert old_fact.start
+            time_hint = 'verify_start'
+        return time_hint
 
-    print('\nThe diff!\n')
-    print(old_fact.friendly_diff(new_fact))
+    def new_fact_from_factoid(raw_fact, old_fact, time_hint):
+        # NOTE: Parser expects Iterable of input parts.
+        new_fact, __err = old_fact.create_from_factoid(
+            (raw_fact,), time_hint=time_hint,
+        )
+        # FIXME/2018-06-10: (lb): Do we care about the error?
 
-    # FIXME/2018-05-13: (lb): This is a WIP: The new Fact is not saved yet!
-    #   (I want to wire it so user is prompted regarding conflicts.)
+        # (lb): Start with the PK of the old fact. On save/update, the
+        # store will see that the fact already exists, so it'll make a
+        # new copy of the fact (with a new ID), and mark the old fact
+        # 'deleted' (thereby acting like a Wiki -- never delete!).
+        new_fact.pk = old_fact.pk
+
+        return new_fact
+
+    def echo_edited_fact(new_fact, old_fact):
+        click.echo('An edited fact!: {}'.format(str(new_fact)))
+        click.echo('\nThe diff!\n')
+        click.echo(old_fact.friendly_diff(new_fact))
+
+    def confirm_and_save(new_fact, time_hint):
+        # FIXME/2018-05-13: (lb): I have not tested beyond this point!
+        #   So dying young. I'll get around to this soon, probably the
+        #   next time I run the edit command and see it die horribly here.
+        raise NotImplementedError
+
+        mend_facts_confirm_and_save_maybe(
+            controller, new_fact, time_hint, yes=False, dry=False,
+        )
+
+    _edit_fact()
 
