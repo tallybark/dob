@@ -22,14 +22,13 @@ from __future__ import absolute_import, unicode_literals
 from gettext import gettext as _
 
 import click
-import datetime
 import logging
 import os
 import sys
 from click_aliases import ClickAliasedGroup
+from datetime import datetime
+from functools import update_wrapper
 
-from hamster_cli import __version__ as hamster_cli_version
-from hamster_cli import __appname__ as hamster_cli_appname
 from hamster_lib import __version__ as hamster_lib_version
 from hamster_lib import HamsterControl
 from hamster_lib.helpers import logging as logging_helpers
@@ -38,28 +37,83 @@ from hamster_lib.helpers.colored import disable_colors, enable_colors
 from . import cmd_options
 from . import help_strings
 from . import migrate
-from .cmd_config import get_config, get_config_instance, get_config_path
-from .cmd_options import cmd_options_search, cmd_options_limit_offset, cmd_options_table_bunce, cmd_options_insert
+from . import update
+from . import __author__, __author_email__, __BigName__
+from . import __appname__ as hamster_cli_appname
+from . import __version__ as hamster_cli_version
+from .cmd_common import backend_integrity
+from .cmd_config import get_config, get_config_instance
+from .cmd_options import (
+    cmd_options_factoid,
+    cmd_options_insert,
+    cmd_options_limit_offset,
+    cmd_options_list_activitied,
+    cmd_options_list_categoried,
+    cmd_options_list_fact,
+    cmd_options_search,
+    cmd_options_table_bunce,
+    cmd_options_usage,
+    postprocess_options_table_bunce,
+)
 from .cmds_list import activity as list_activity
 from .cmds_list import category as list_category
+from .cmds_list import fact as list_fact
 from .cmds_list import tag as list_tag
-from .cmds_list.fact import (
-    generate_facts_table,
-    list_current_fact,
-)
+from .cmds_list.fact import list_current_fact
 from .cmds_usage import activity as usage_activity
 from .cmds_usage import category as usage_category
 from .cmds_usage import tag as usage_tag
 from .complete import tab_complete
-from .create import add_fact, cancel_fact, start_fact, stop_fact
-from .details import app_details
-from .search import search_facts
-from .transcode import export_facts
-from .helpers.ascii_table import generate_table, warn_if_truncated
-
+from .create import add_fact, cancel_fact, stop_fact
+from .details import app_details, hamster_time
+from .transcode import export_facts, import_facts
 
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
+
+__all__ = [
+    # 'Controller',
+    # 'pass_controller',
+    # '_hamster_version',
+    # 'run',
+    # '_show_greeting',
+    # '_setup_logging',
+    # '_disable_logging',
+    # 'version',
+    # '_version',
+    # 'license',
+    # '_license',
+    # 'copyright',
+    # 'banner',  # 'dance',
+    # 'details',
+    # 'list_group',
+    # 'list_activities',
+    # 'list_categories',
+    # 'list_tags',
+    # 'list_facts',
+    # 'search',
+    # 'usage_group',
+    # 'usage_activities',
+    # 'usage_categories',
+    # 'usage_tags',
+    # 'stop',
+    # 'cancel',
+    # 'current',
+    # 'on',
+    # 'at',
+    # 'to',
+    # 'between',
+    # 'edit_group',
+    # 'edit_fact',
+    # 'transcode_export',
+    # 'transcode_import',
+    # 'complete',
+    # 'migrate_group',
+    # 'migrate_control',
+    # 'migrate_downgrade',
+    # 'migrate_upgrade',
+    # 'migrate_version',
+]
 
 
 # ***

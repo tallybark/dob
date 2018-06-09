@@ -28,10 +28,12 @@ import sys
 # Once we drop Py2 support, we can use the builtin again, but Unicode support
 # under Python 2 is practically non existing and manual encoding is not easily
 # possible.
-from backports.configparser import SafeConfigParser
+from backports.configparser import NoOptionError, SafeConfigParser
 
 import hamster_lib
 from hamster_lib.helpers.colored import colorize
+
+from .helpers import click_echo_and_exit
 
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
