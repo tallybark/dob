@@ -24,7 +24,6 @@ import click
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
 
-
 __all__ = [
     'cmd_options_search',
     'cmd_options_limit_offset',
@@ -38,13 +37,17 @@ __all__ = [
 # *** [TIME RANGE] Options.
 # ***
 
-
 _cmd_options_search = [
-    click.option('-s', '--start',
-                 help='The start time string (e.g. "2017-01-01 00:00").'),
-    click.option('-e', '--end',
-                 help='The end time string (e.g. "2017-02-01 00:00").'),
+    click.option(
+        '-s', '--start', '--before',
+        help=_('The start time string (e.g. "2017-01-01 00:00").'),
+    ),
+    click.option(
+        '-e', '--end', '-after',
+        help=_('The end time string (e.g. "2017-02-01 00:00").'),
+    ),
 ]
+
 
 def cmd_options_search(func):
     for option in reversed(_cmd_options_search):
@@ -56,13 +59,17 @@ def cmd_options_search(func):
 # *** [LIMIT/OFFSET] Options.
 # ***
 
-
 _cmd_options_limit_offset = [
-    click.option('-L', '--limit', default=0, show_default=False,
-                 help='Limit the number of records to fetch.'),
-    click.option('-O', '--offset', default=0, show_default=False,
-                 help='Record offset to fetch.'),
+    click.option(
+        '-L', '--limit', default=0, show_default=False,
+        help=_('Limit the number of records to fetch.'),
+    ),
+    click.option(
+        '-O', '--offset', default=0, show_default=False,
+        help=_('Record offset to fetch.'),
+    ),
 ]
+
 
 def cmd_options_limit_offset(func):
     for option in reversed(_cmd_options_limit_offset):
@@ -74,21 +81,33 @@ def cmd_options_limit_offset(func):
 # *** [TABLE FANCY] Options.
 # ***
 
-
 _cmd_options_table_bunce = [
-    click.option('-t', '--truncate', is_flag=True,
-                 help='Truncate long activity@category names.'),
-    click.option('-T', '--table-type', default='friendly', show_default=True,
-                 type=click.Choice(['tabulate', 'texttable', 'friendly']),
-                 help="ASCII table formatter."),
-    click.option('-A', '--asc', is_flag=True,
-                 help='Sort by ascending column value.'),
-    click.option('-D', '--desc', is_flag=True,
-                 help='Sort by descending column value.'),
-    click.option('-o', '--order', default='',
-                 type=click.Choice(['', 'name', 'activity', 'category', 'tag', 'fact', 'start', 'usage']),
-                 help='Order by column (may depend on query).'),
+    click.option(
+        '-t', '--truncate', is_flag=True,
+        help=_('Truncate long activity@category names.'),
+    ),
+    click.option(
+        '-T', '--table-type', default='friendly', show_default=True,
+        type=click.Choice(['tabulate', 'texttable', 'friendly']),
+        help=_('ASCII table formatter.'),
+    ),
+    click.option(
+        '-A', '--asc', is_flag=True,
+        help=_('Sort by ascending column value.'),
+    ),
+    click.option(
+        '-D', '--desc', is_flag=True,
+        help=_('Sort by descending column value.'),
+    ),
+    click.option(
+        '-o', '--order', default='',
+        type=click.Choice([
+            '', 'name', 'activity', 'category', 'tag', 'fact', 'start', 'usage',
+        ]),
+        help=_('Order by column (may depend on query).'),
+    ),
 ]
+
 
 def cmd_options_table_bunce(func):
     for option in reversed(_cmd_options_table_bunce):
@@ -119,19 +138,25 @@ def _postprocess_options_table_bunce_asc_desc_to_sort_order(kwargs):
 
 
 # ***
-# *** [INSERT FACT] Options.
+# *** [INSERT FACTOID] Options.
 # ***
 
 
 _cmd_options_insert = [
     click.argument('factoid', nargs=-1, default=None),
-    click.option('-y', '--yes', is_flag=True,
-                 help=_('Save conflicts automatically, otherwise ask for confirmation')),
-    click.option('-a', '--ask', is_flag=True,
-                 help=_(
-                     'Ask for tags, and activity@category.'
-                     " Useful if tab complete doesn't help because whitespace.")),
+    click.option(
+        '-a', '--ask', is_flag=True,
+        help=_(
+            'Ask for tags, and activity@category.'
+            ' Useful if tab complete does not help because whitespace.'
+        ),
+    ),
+    click.option(
+        '-y', '--yes', is_flag=True,
+        help=_('Save conflicts automatically, otherwise ask for confirmation.'),
+    ),
 ]
+
 
 def cmd_options_insert(func):
     for option in reversed(_cmd_options_insert):

@@ -26,7 +26,6 @@ from gettext import gettext as _
 # *** [BARE] Command help.
 # ***
 
-
 RUN_HELP = _(
     """
     'hamster-cli' is a time tracker for the command line.
@@ -35,6 +34,7 @@ RUN_HELP = _(
     collected data into various output formats. Below you find a list of available
     commands. If you call them with the '--help' option you will be shown details
     on how to use the command and its supported arguments and parameters.
+
     In general and as usual: if you want to pass any arguments or options that
     contain whitespace, you will need to wrap them in quotation marks.
     """
@@ -45,7 +45,6 @@ RUN_HELP = _(
 # *** [VERSION] Command help.
 # ***
 
-
 VERSION_HELP = _(
     """Show the version and exit."""
 )
@@ -54,7 +53,6 @@ VERSION_HELP = _(
 # ***
 # *** [LICENSE] Command help.
 # ***
-
 
 LICENSE_HELP = _(
     """Show license information."""
@@ -65,7 +63,6 @@ LICENSE_HELP = _(
 # *** [DETAILS] Command help.
 # ***
 
-
 DETAILS_HELP = _(
     """List details about the runtime environment."""
 )
@@ -74,7 +71,6 @@ DETAILS_HELP = _(
 # ***
 # *** [LIST] Commands help.
 # ***
-
 
 LIST_GROUP_HELP = _(
     """
@@ -97,7 +93,6 @@ LIST_ACTIVITIES_HELP = _(
 LIST_CATEGORIES_HELP = _(
     """List all existing categories, ordered by name."""
 )
-
 
 
 LIST_TAGS_HELP = _(
@@ -157,7 +152,6 @@ SEARCH_HELP = _(
 # *** [USAGE] Commands help.
 # ***
 
-
 USAGE_GROUP_HELP = _(
     """
     Show activity, category, or tag usage.
@@ -189,7 +183,6 @@ USAGE_TAGS_HELP = _(
 # ***
 # *** [CURRENT-FACT] Commands help.
 # ***
-
 
 START_HELP = _(
     """
@@ -275,21 +268,26 @@ CURRENT_HELP = _(
 # *** [CREATE-FACT] Commands help.
 # ***
 
-
 # FIXME: Thoughts on format.
-#        If always an '@' you could know if activity specified, and not start of description.
+#        If always an '@' you could know if activity specified,
+#           and not start of description.
 #        OR: You could require that an Activity be specified!
-#          (And you don't need category if it can be inferred; or if you use a default.)
+#          (And you don't need category if it can be inferred; or if you
+#           use a default.)
 #          (You could say that you could have an Activity default, but I
 #          don't want to encourage not categorizing your Facts, so require
 #          an Activity -- if anything, a lazy user could either make a Bash
-#          alias, or make a catch-all Activity, e.g., `hamster at now null I did something.`
+#          alias, or make a catch-all Activity, e.g.,
+#           `hamster at now null I did something.`
 #
-#        For #tags, you could require that if multiple words, they're wrapped in quotes.
-#        Otherwise, if just single words, then you don't need that silly comma in the factoid!
+#        For #tags, you could require that if multiple words, they're wrapped
+#           in quotes.
+#        Otherwise, if just single words, then you don't need that silly comma
+#           in the factoid!
 #        And also, you could easily mistake, say,
-#          `hamster at now null #hashtag I went to the market, but didn't buy anything`
-#        for the hashtag: "hashtag I went to the market", which is what the code currently does!
+#          `hamster at now null #hashtag I went to market, but didn't buy anything`
+#        for the hashtag: "hashtag I went to the market", which is what
+#           the code currently does!
 #
 #        For timestamp, require hours and minutes; but allow any obvious delimiter.
 
@@ -362,7 +360,7 @@ START_HELP_COMMON = _(
      Each tag is usually delimited by an @ symbol, rather than a #,
      because Bash and other shells interpret an octothorpe as the
      start of a comment. However, you can use a # symbol if you use
-     quotes around it, or if you escape the # symbol.
+     quotes around it, or if you escape the # symbol (e.g., '\#').
 
      E.g., these are all acceptable tags:
 
@@ -458,7 +456,6 @@ START_HELP_COMMON = _(
 #          act@cat act@ @ <== all acceptable
 #          @foo <== always interpreted as tag
 
-
 START_HELP_ON = _(
     """
     """
@@ -496,7 +493,6 @@ START_HELP_BETWEEN = _(
 # *** [EDIT] Command help.
 # ***
 
-
 EDIT_GROUP_HELP = _(
     """
     Edit facts, activities, categories, or tags.
@@ -514,7 +510,6 @@ EDIT_FACT_HELP = _(
 # ***
 # *** [EXPORT] Command help.
 # ***
-
 
 EXPORT_HELP = _(
     """
@@ -542,7 +537,6 @@ COMPLETE_HELP = _(
 # ***
 # *** [MIGRATE] Commands help.
 # ***
-
 
 MIGRATE_GROUP_HELP = _(
     """

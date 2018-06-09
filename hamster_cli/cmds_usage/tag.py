@@ -23,6 +23,7 @@ from ..helpers.ascii_table import generate_table
 
 __all__ = ['usage_tags']
 
+
 def usage_tags(
     controller,
     table_type='friendly',

@@ -19,13 +19,13 @@
 
 from __future__ import absolute_import, unicode_literals
 
+from gettext import gettext as _
+
+import click
 import datetime
 import logging
 import os
 import sys
-from gettext import gettext as _
-
-import click
 from click_aliases import ClickAliasedGroup
 
 from hamster_cli import __version__ as hamster_cli_version
@@ -42,7 +42,10 @@ from .cmd_options import cmd_options_search, cmd_options_limit_offset, cmd_optio
 from .cmds_list import activity as list_activity
 from .cmds_list import category as list_category
 from .cmds_list import tag as list_tag
-from .cmds_list.fact import generate_facts_table, list_current_fact
+from .cmds_list.fact import (
+    generate_facts_table,
+    list_current_fact,
+)
 from .cmds_usage import activity as usage_activity
 from .cmds_usage import category as usage_category
 from .cmds_usage import tag as usage_tag
@@ -64,7 +67,9 @@ click.disable_unicode_literals_warning = True
 
 
 class Controller(HamsterControl):
-    """A custom controller that adds config handling on top of its regular functionality."""
+    """
+    A custom controller that adds config handling on top of its regular functionality.
+    """
 
     def __init__(self):
         """Instantiate controller instance and adding client_config to it."""
@@ -113,11 +118,12 @@ def _hamster_version():
 # *** [BASE COMMAND GROUP] One Group to rule them all.
 # ***
 
-
 # (lb): Use invoke_without_command so `hamster -v` works, otherwise click's
 # Group (MultiCommand ancestor) does not allow it ('Missing command.').
 @click.group(
-    cls=ClickAliasedGroup, invoke_without_command=True, help=help_strings.RUN_HELP,
+    cls=ClickAliasedGroup,
+    invoke_without_command=True,
+    help=help_strings.RUN_HELP,
 )
 @click.version_option(message=_hamster_version())
 @click.option('-v', is_flag=True, help=help_strings.VERSION_HELP)
@@ -218,7 +224,6 @@ def _disable_logging(controller):
 # *** [VERSION] Ye rote version command.
 # ***
 
-
 @run.command(help=help_strings.VERSION_HELP)
 def version():
     """Show version information."""
@@ -234,7 +239,9 @@ def _version():
 # *** [LICENSE] Command.
 # ***
 
-
+# FIXME/MAYBE/2018-05-11 20:57: Rename this hamster-about? Then it's 1st alphabetically.
+#                               And you could add a link to the project page?
+#                               Seems weird to have a license command anyway, though!
 @run.command(hidden=True, help=help_strings.LICENSE_HELP)
 def license():
     """Show license information."""
@@ -243,6 +250,8 @@ def license():
 
 def _license():
     """Show license information."""
+    # FIXME: (lb): Replace appname with $0, or share module var with setup.py.
+    # MAYBE: (lb): Read and print LICENSE file instead of hard coding herein?
     license = """
         'hamster_cli' is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
@@ -276,8 +285,8 @@ def details(controller):
 # *** [LIST] Commands.
 # ***
 
-
-# NOTE: Use an alias (don't `def list()`) because of builtin of same name!
+# Use a command alias to avoid conflict with builtin of same name
+# (i.e., we cannot declare this function, `def list()`).
 @run.group('list', help=help_strings.LIST_GROUP_HELP)
 @pass_controller
 @click.pass_context
@@ -346,8 +355,6 @@ def list_facts(controller, *args, **kwargs):
     warn_if_truncated(controller, len(results), len(table))
 
 
-# *** FACTS (w/ search term).
-# FIXME/2018-05-12: (lb): Do we really need 2 Facts search commands?
 
 @run.command(help=help_strings.SEARCH_HELP)
 @click.argument('search_term', nargs=-1, default=None)
@@ -394,7 +401,6 @@ def search(controller, description, search_term, *args, **kwargs):
 # ***
 # *** [USAGE] Commands.
 # ***
-
 
 @run.group('usage', help=help_strings.USAGE_GROUP_HELP)
 @pass_controller
@@ -542,9 +548,8 @@ def between(controller, factoid, yes, ask):
 
 
 # ***
-# *** [EDIT] Commands.
+# *** [EDIT] Command(s).
 # ***
-
 
 @run.group('edit', help=help_strings.EDIT_GROUP_HELP)
 @pass_controller
@@ -607,7 +612,6 @@ def complete(controller):
 # ***
 # *** [MIGRATE] Commands [database transformations].
 # ***
-
 
 @run.group('migrate', help=help_strings.MIGRATE_GROUP_HELP)
 @pass_controller

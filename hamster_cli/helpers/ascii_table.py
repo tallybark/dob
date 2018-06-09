@@ -49,8 +49,9 @@ def generate_table(
     trows = _generate_table_truncate_cell_values(rows, trunccol, max_width)
     _generate_table_display(trows, plain_headers, color_headers, table_type)
 
+
 def _generate_table_color_headers(plain_headers):
-    # Colorize headers.
+    # Colorful headers.
     color_headers = []
     for header in plain_headers:
         color_headers.append(
@@ -73,6 +74,7 @@ def _generate_table_max_width(rows, table_type, truncate, trunccol):
     max_width = max(0, max_width)
     return max_width
 
+
 def _generate_table_width_content(rows, num_cols, trunccol):
     # Calculate max column widths.
     max_widths = [0] * num_cols
@@ -85,6 +87,7 @@ def _generate_table_width_content(rows, num_cols, trunccol):
             continue
         column_width_used += width
     return column_width_used
+
 
 def _generate_table_width_border(rows, num_cols, table_type):
     n_inner_borders = num_cols - 1
@@ -104,6 +107,7 @@ def _generate_table_width_border(rows, num_cols, table_type):
     border_width_used += 1
     return border_width_used
 
+
 def _generate_table_truncate_cell_values(rows, trunccol, max_width):
     trows = []
     for row in rows:
@@ -113,9 +117,9 @@ def _generate_table_truncate_cell_values(rows, trunccol, max_width):
             trow[trunccol] = trow[trunccol][:max_width] + '...'
     return trows
 
+
 def _generate_table_display(rows, plain_headers, color_headers, table_type):
     if table_type == 'tabulate':
-        #click.echo(tabulate(rows, headers=color_headers))
         click.echo(tabulate(rows, headers=color_headers, tablefmt="fancy_grid"))
     elif table_type == 'texttable':
         # PROS: Texttable wraps long lines by **default**!

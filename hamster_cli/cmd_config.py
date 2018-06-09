@@ -17,23 +17,23 @@
 
 from __future__ import absolute_import, unicode_literals
 
-import datetime
-import logging
-import os
-import sys
 from gettext import gettext as _
 
 import appdirs
 import click
-import hamster_lib
+import datetime
+import logging
+import os
+import sys
 # Once we drop Py2 support, we can use the builtin again, but Unicode support
 # under Python 2 is practically non existing and manual encoding is not easily
 # possible.
 from backports.configparser import SafeConfigParser
 
+import hamster_lib
+
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
-
 
 __all__ = [
     'get_config',
@@ -58,8 +58,12 @@ class HamsterAppDirs(appdirs.AppDirs):
     @property
     def user_data_dir(self):
         """Return ``user_data_dir``."""
-        directory = appdirs.user_data_dir(self.appname, self.appauthor,
-                             version=self.version, roaming=self.roaming)
+        directory = appdirs.user_data_dir(
+            self.appname,
+            self.appauthor,
+            version=self.version,
+            roaming=self.roaming,
+        )
         if self.create:
             self._ensure_directory_exists(directory)
         return directory
@@ -67,8 +71,12 @@ class HamsterAppDirs(appdirs.AppDirs):
     @property
     def site_data_dir(self):
         """Return ``site_data_dir``."""
-        directory = appdirs.site_data_dir(self.appname, self.appauthor,
-                             version=self.version, multipath=self.multipath)
+        directory = appdirs.site_data_dir(
+            self.appname,
+            self.appauthor,
+            version=self.version,
+            multipath=self.multipath,
+        )
         if self.create:
             self._ensure_directory_exists(directory)
         return directory
@@ -76,8 +84,12 @@ class HamsterAppDirs(appdirs.AppDirs):
     @property
     def user_config_dir(self):
         """Return ``user_config_dir``."""
-        directory = appdirs.user_config_dir(self.appname, self.appauthor,
-                               version=self.version, roaming=self.roaming)
+        directory = appdirs.user_config_dir(
+            self.appname,
+            self.appauthor,
+            version=self.version,
+            roaming=self.roaming,
+        )
         if self.create:
             self._ensure_directory_exists(directory)
         return directory
@@ -85,8 +97,12 @@ class HamsterAppDirs(appdirs.AppDirs):
     @property
     def site_config_dir(self):
         """Return ``site_config_dir``."""
-        directory = appdirs.site_config_dir(self.appname, self.appauthor,
-                             version=self.version, multipath=self.multipath)
+        directory = appdirs.site_config_dir(
+            self.appname,
+            self.appauthor,
+            version=self.version,
+            multipath=self.multipath,
+        )
         if self.create:
             self._ensure_directory_exists(directory)
         return directory
@@ -94,8 +110,9 @@ class HamsterAppDirs(appdirs.AppDirs):
     @property
     def user_cache_dir(self):
         """Return ``user_cache_dir``."""
-        directory = appdirs.user_cache_dir(self.appname, self.appauthor,
-                              version=self.version)
+        directory = appdirs.user_cache_dir(
+            self.appname, self.appauthor, version=self.version,
+        )
         if self.create:
             self._ensure_directory_exists(directory)
         return directory
@@ -103,8 +120,9 @@ class HamsterAppDirs(appdirs.AppDirs):
     @property
     def user_log_dir(self):
         """Return ``user_log_dir``."""
-        directory = appdirs.user_log_dir(self.appname, self.appauthor,
-                            version=self.version)
+        directory = appdirs.user_log_dir(
+            self.appname, self.appauthor, version=self.version,
+        )
         if self.create:
             self._ensure_directory_exists(directory)
         return directory
@@ -123,12 +141,14 @@ AppDirs = HamsterAppDirs('hamster_cli')
 # *** Config function: get_config.
 # ***
 
+
 LOG_LEVELS = {
-    'info': logging.INFO,
     'debug': logging.DEBUG,
+    'info': logging.INFO,
     'warning': logging.WARNING,
     'error': logging.ERROR,
 }
+
 
 def get_config(config_instance):
     """
@@ -149,7 +169,7 @@ def get_config(config_instance):
 
     def get_client_config(config):
         """
-        Process client section of provided config and turn it into proper config dictionary.
+        Read and translate config file client section into dictionary.
 
         Make sure config values are of proper type and provide basic
         sanity checks (e.g. make sure we got a filename if we want to log to
@@ -157,14 +177,16 @@ def get_config(config_instance):
 
         Not all key/values returned here need to be user configurable!
 
-        It is worth noting that this is where we turn our user provided config information
-        into the actual dictionaries to be consumed by our backend and client objects.
-        A particular consequence is that the division of "Client/Backend" in the config
-        file is purely cosmetic. Another consequence is that not all user provided config
-        information has to be processed at all. We just take what we need and can safely
-        ignore the rest. That way we can improve the config file layout without having to
-        adjust our code all the time. It also means our main code does not have to deal with
-        turning ``path`` plus ``name`` into a full location and such.
+        It is worth noting that this is where we turn our user provided config
+        information into the actual dictionaries to be consumed by our backend
+        and client objects. A particular consequence is that the division
+        of "Client/Backend" in the config file is purely cosmetic. Another
+        consequence is that not all user provided config information has to be
+        processed at all. We just take what we need and can safely ignore the
+        rest. That way we can improve the config file layout without having to
+        adjust our code all the time. It also means our main code does not have
+        to deal with turning ``path`` plus ``name`` into a full location and
+        such.
         """
         def get_logfile_path():
             log_dir = AppDirs.user_log_dir
@@ -206,14 +228,16 @@ def get_config(config_instance):
 
     def get_backend_config(config):
         """
-        Return properly populated config dictionaries for consumption by our application.
+        Return properly populated config dictionaries for consumption by our
+        application.
 
-        Make sure config values are of proper type and provide basic
-        sanity checks (e.g. make sure we got a filename if we want to log to
-        file and such..).
+        Make sure config values are of proper type and provide basic sanity
+        checks (e.g. make sure we got a filename if we want to log to file and
+        such..).
 
-        Setting of config values that are not actually derived from our config file but by
-        inspecting our runtime environment (e.g. path information) happens here as well.
+        Setting of config values that are not actually derived from our config
+        file but by inspecting our runtime environment (e.g. path information)
+        happens here as well.
 
         Note:
             At least the validation code/sanity checks may be relevant to other
@@ -299,16 +323,16 @@ def get_config(config_instance):
 # *** Config function: get_config_instance.
 # ***
 
+
 def get_config_instance():
     """
     Return a SafeConfigParser instance.
 
-    If we can not find a config file under its expected location, we trigger creation
-    of a new default file and return its instance.
+    If we cannot find an existing config file, create a new one.
 
     Returns:
-        SafeConfigParser: Either the config loaded from file or an instance representing
-            the content of our newly creating default config.
+        SafeConfigParser: Either the config loaded from an existing file, or
+            default config from a new config file that this function creates.
     """
     config = SafeConfigParser()
     configfile_path = get_config_path()
@@ -324,6 +348,7 @@ def get_config_instance():
 # *** Config function: get_config_path.
 # ***
 
+
 def get_config_path():
     """Show general information upon client launch."""
     config_dir = AppDirs.user_config_dir
@@ -334,6 +359,7 @@ def get_config_path():
 # ***
 # *** Config helper functions.
 # ***
+
 
 def write_config_file(file_path):
     """

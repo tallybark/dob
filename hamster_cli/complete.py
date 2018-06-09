@@ -110,6 +110,7 @@ def tab_complete(controller):
     # The shim to the inline main(), above.
     _complete_cmd(controller)
 
+
 def _choices_datetimes(controller, incomplete, time_hint, parser_err):
     """Suggest times."""
     now = datetime.datetime.now()
@@ -131,20 +132,22 @@ def _choices_datetimes(controller, incomplete, time_hint, parser_err):
         'midnight',
     ]
     friendly_from_hints = [
-        #'yesterday at 3 PM',
+        # (lb): The shell splits completes on whitespace, so use underscores.
+        # FIXME: (lb): Update parser to convert underscores back to whitespace
+        #        before passing to human friendly time parser.
         'yesterday_at_3_PM',
-        #'one week ago',
         '1_week_ago',
-        #'three years ago',
         '3_years_ago',
-        #'Monday at 16:44',
         'Monday_at_16:44',
         'at_noon'
-        #'last week at midnight',
         '1_week_ago_at_midnight',
         # Hahaha, futuristic!
+        # (lb): This is an invalid option. But it's funny!
         'tomorrow',
     ]
+
+    # Show one friendly date example, randomly selected.
+    # (lb): Using random.shuffle, rather than random.choice. Can't remember why.
     random.shuffle(friendly_at_hints)
     random.shuffle(friendly_from_hints)
 
@@ -156,13 +159,12 @@ def _choices_datetimes(controller, incomplete, time_hint, parser_err):
         friendly_hint = ['now']
     elif time_hint == 'verify-both':
         if isinstance(parser_err, ParserMissingDatetimeOneException):
-            #friendly_hint = [random.choice(friendly_from_hints)]
             friendly_hint = friendly_from_hints[:2]
         else:
             assert isinstance(parser_err, ParserMissingDatetimeTwoException)
-            #friendly_hint = [random.choice(friendly_at_hints)]
             friendly_hint = friendly_at_hints[:2]
             friendly_hint.append('now')
+
     choices = [
         now.strftime('%Y-%m-%d'),
         now.strftime('%H:%M'),
@@ -178,17 +180,18 @@ def _choices_datetimes(controller, incomplete, time_hint, parser_err):
         choices = [
             ch for ch in choices if not incomplete or ch.startswith(incomplete)
         ]
-    #elif len(args) > 0:
-    #    choices = [ch for ch in choices if ch.startswith(args[-1])]
     return choices
 
 def _choices_tags(controller, incomplete='', whitespace_ok=False):
     """Suggest tags."""
     # Grab the last 20 or so tags used (by Facts, chronologically),
     # and also the most used (top ten) 10 or so tags used by all Facts.
-    # FIXME: Make these limits settable.
-
-
+    #
+    # FIXME: Make these limits settable (via config?).
+    # FIXME: Can we cycle through the various sort options?
+    #        E.g., if user TABs, show list of previous used tags.
+    #          And if user TABs a second time, show list of most
+    #          use tags. TAB again, another sort option, etc.
     tags_counts = controller.tags.get_all_by_usage(sort_col='start', limit=21)
     tags_counts += controller.tags.get_all_by_usage(sort_col='usage', limit=13)
 
@@ -210,12 +213,17 @@ def _choices_activities(controller, incomplete='', whitespace_ok=False):
             act.name, act.category.name if act.category else ''
         ) for act, count in acty
     ]
+
     # (lb): Bash complete doesn't handle spaces well, so ignore
     # those activities@categories with and spaces.
     if not whitespace_ok:
         choices = [atc for atc in choices if ' ' not in atc]
     if incomplete:
         choices = [atc for atc in choices if atc.startswith(incomplete)]
+
+    # FIXME/2018-05-15 23:35: Caller should specify max, or just deal with
+    # all results. E.g., tab-complete only wants so many. E.g., --ask only
+    # wants as many can fit screen (or all, if I implement pagination). (lb)
     max_choices = 50
     if len(choices) > max_choices:
         choices = random.sample(choices, max_choices)

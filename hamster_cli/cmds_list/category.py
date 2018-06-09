@@ -23,6 +23,7 @@ from ..helpers.ascii_table import generate_table
 
 __all__ = ['list_categories']
 
+
 def list_categories(
     controller,
     table_type='friendly',

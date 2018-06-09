@@ -17,7 +17,6 @@
 
 """A time tracker for the command line. Utilizing the power of hamster-lib."""
 
-
 from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
@@ -44,9 +43,10 @@ def export_facts(
     Export all facts in the given timeframe in the format specified.
 
     Args:
-        format (str): Format to export to. Valid options are: ``csv``, ``xml`` and ``ical``.
-        start (datetime.datetime): Consider only facts starting at this time or later.
-        end (datetime.datetime): Consider only facts starting no later than this time.
+        format (str): Format to export to.
+            Valid options are: ``csv``, ``xml`` and ``ical``.
+        start (datetime.datetime): Restrict to facts starting at this time or later.
+        end (datetime.datetime): Restrict to facts ending no later than this time.
 
     Returns:
         None: If everything went alright.

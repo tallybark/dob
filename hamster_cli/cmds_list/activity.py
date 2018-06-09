@@ -24,6 +24,7 @@ from ..helpers.ascii_table import generate_table
 
 __all__ = ['list_activities']
 
+
 def list_activities(
     controller,
     filter_category='',
@@ -32,7 +33,7 @@ def list_activities(
     **kwargs
 ):
     """
-    List all activities. Provide optional filtering by name.
+    List activities. Provide optional filtering by name.
 
     Args:
         search_term (str): String to match ``Activity.name`` against.

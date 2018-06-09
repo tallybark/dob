@@ -24,12 +24,14 @@ import six
 
 __all__ = ['edit_fact']
 
+
 def edit_fact(controller, key):
     old_fact = controller.facts.get(pk=key)
 
     contents = six.b(str(old_fact))
     result = editor.edit(contents=contents)
 
+    # FIXME/2018-05-10: (lb): Is this py2 compatible?
     raw_fact = result.decode()
 
     if old_fact.start and old_fact.end:
@@ -40,6 +42,10 @@ def edit_fact(controller, key):
 
     new_fact = old_fact.create_from_raw_fact((raw_fact,), time_hint=time_hint)
 
+    # (lb): Start with the PK of the old fact. On save/update, the
+    # store will see that the fact already exists, so it'll make a
+    # new copy of the fact (with a new ID), and mark the old fact
+    # 'deleted' (thereby acting like a Wiki -- never delete!).
     new_fact.pk = old_fact.pk
 
     print('An edited fact!: {}'.format(str(new_fact)))

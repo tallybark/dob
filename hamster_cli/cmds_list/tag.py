@@ -23,6 +23,7 @@ from ..helpers.ascii_table import generate_table
 
 __all__ = ['list_tags']
 
+
 def list_tags(
     controller,
     table_type='friendly',
@@ -30,7 +31,7 @@ def list_tags(
     **kwargs
 ):
     """
-    List all tags, with filtering and sorting options.
+    List tags, with filtering and sorting options.
 
     Returns:
         None: If success.

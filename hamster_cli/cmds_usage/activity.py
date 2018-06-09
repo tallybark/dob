@@ -24,6 +24,7 @@ from ..helpers.ascii_table import generate_table
 
 __all__ = ['usage_activities']
 
+
 def usage_activities(
     controller,
     filter_category='',
@@ -41,7 +42,6 @@ def usage_activities(
         None: If success.
     """
     category = hydrate_category(controller, filter_category)
-
     results = controller.activities.get_all_by_usage(
         category=category, **kwargs
     )
