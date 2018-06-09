@@ -129,12 +129,18 @@ def _hamster_version():
 @click.version_option(message=_hamster_version())
 # (lb): Hide -v: version_option adds help for --version, so don't repeat ourselves.
 @click.option('-v', is_flag=True, help=help_strings.VERSION_HELP, hidden=True)
+# (lb): Note that universal --options must com before the sub command.
+# FIXME: Need universal options in cmd_options? Or can I apply to Groups?
+#          These aren't recognized by other fcns...
+#        OH! These have to come *before* the command??
+@click.option('-V', '--verbose', is_flag=True, help=_('Be chatty. (-VV for more.)'))
+@click.option('-VV', '--verboser', is_flag=True, help=_('Be chattier.'), hidden=True)
 @click.option('--color/--no-color', '-C', default=None, help=_('Color, or plain.'))
 @pass_controller
 @click.pass_context
 # NOTE: @click.group transforms this func. definition into a callback that
 #       we use as a decorator for the top-level commands (see: @run.command).
-def run(ctx, controller, v, color):
+def run(ctx, controller, v, verbose, verboser, color):
     """General context run right before any of the commands."""
 
     def _run(ctx, controller, show_version):
@@ -151,7 +157,7 @@ def run(ctx, controller, v, color):
         _run_handle_banner()
         _run_handle_version(show_version, ctx)
         _run_handle_without_command(ctx)
-        _setup_logging(controller)
+        _setup_logging(controller, verbose, verboser)
 
     def _setup_tty_options(controller):
         # If piping output, Disable color and paging.
@@ -211,7 +217,7 @@ def _show_greeting():
     click.echo()
 
 
-def _setup_logging(controller):
+def _setup_logging(controller, verbose=False, verboser=False):
     """Setup logging for the lib_logger as well as client specific logging."""
     controller.client_logger = logging.getLogger('hamster_cli')
     loggers = [
@@ -219,9 +225,15 @@ def _setup_logging(controller):
         controller.sql_logger,
         controller.client_logger,
     ]
-    # Clear any existing (null)Handlers, and set the level.
+    # Clear existing Handlers, and set the level.
     # MAYBE: Allow user to specify different levels for different loggers.
-    log_level = controller.client_config['log_level']
+    client_level = controller.client_config['log_level']
+    log_level, warn_name = logging_helpers.resolve_log_level(client_level)
+    # We can at least allow some simpler optioning from the command args.
+    if verbose:
+        log_level = min(logging.INFO, log_level)
+    if verboser:
+        log_level = min(logging.DEBUG, log_level)
     for logger in loggers:
         logger.handlers = []
         logger.setLevel(log_level)
@@ -237,6 +249,12 @@ def _setup_logging(controller):
         filename = controller.client_config['logfile_path']
         file_handler = logging.FileHandler(filename, encoding='utf-8')
         logging_helpers.setupHandler(file_handler, formatter, *loggers)
+
+    if warn_name:
+        controller.client_logger.warning(
+            _('Unknown Client.log_level specified: {}')
+            .format(client_level)
+        )
 
 
 def _disable_logging(controller):
