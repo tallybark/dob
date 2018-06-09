@@ -17,10 +17,8 @@
 
 from __future__ import absolute_import, unicode_literals
 
-import click
-
+from . import generate_usage_table
 from ..cmd_common import hydrate_category
-from ..helpers.ascii_table import generate_table
 
 __all__ = ['usage_activities']
 
@@ -46,15 +44,18 @@ def usage_activities(
         category=category, **kwargs
     )
 
-    headers = (_("Activity"), _("Uses"))
-    actegory_counts = []
-    for activity, count in results:
+    def name_fmttr(activity):
         if activity.category:
             category_name = activity.category.name
         else:
             category_name = ''
         actegory = '{}@{}'.format(activity.name, category_name)
-        actegory_counts.append((actegory, count))
+        return actegory
 
-    generate_table(actegory_counts, headers, table_type, truncate, trunccol=0)
+    generate_usage_table(
+        results,
+        name_fmttr=name_fmttr,
+        table_type=table_type,
+        truncate=truncate,
+    )
 

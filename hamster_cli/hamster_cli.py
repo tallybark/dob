@@ -460,17 +460,21 @@ def list_group(ctx, controller):
 # *** ACTIVITIES.
 
 @list_group.command('activities', help=help_strings.LIST_ACTIVITIES_HELP)
-@click.argument('search_term', default='')
-@click.option('-c', '--category', help="The search string applied to category names.")
+@cmd_options_search
+@cmd_options_list_categoried
+@cmd_options_usage
 @cmd_options_table_bunce
 @cmd_options_limit_offset
 @pass_controller
-def list_activities(controller, *args, **kwargs):
-    """List all activities. Provide optional filtering by name."""
-    category = kwargs['category'] if kwargs['category'] else ''
-    del kwargs['category']
-    cmd_options.postprocess_options_table_bunce(kwargs)
-    list_activity.list_activities(
+def list_activities(controller, *args, usage=False, **kwargs):
+    """List matching activities, filtered and sorted."""
+    category = cmd_options.postprocess_options_list_categoried(kwargs)
+    postprocess_options_table_bunce(kwargs)
+    if usage:
+        handler = usage_activity.usage_activities
+    else:
+        handler = list_activity.list_activities
+    handler(
         controller,
         *args,
         filter_category=category,
@@ -481,25 +485,44 @@ def list_activities(controller, *args, **kwargs):
 # *** CATEGORIES.
 
 @list_group.command('categories', help=help_strings.LIST_CATEGORIES_HELP)
+@cmd_options_usage
 @cmd_options_table_bunce
 @cmd_options_limit_offset
 @pass_controller
-def list_categories(controller, *args, **kwargs):
-    """List all existing categories, ordered by name."""
-    list_category.list_categories(controller)
+def list_categories(controller, *args, usage=False, **kwargs):
+    """List matching categories, filtered and sorted."""
+    postprocess_options_table_bunce(kwargs)
+    if usage:
+        handler = usage_category.usage_categories
+    else:
+        handler = list_category.list_categories
+    handler(
+        controller,
+        *args,
+        **kwargs,
+    )
 
 
 # *** TAGS.
 
 @list_group.command('tags', help=help_strings.LIST_TAGS_HELP)
-@click.argument('search_term', default='')
+@cmd_options_search
+@cmd_options_usage
 @cmd_options_table_bunce
 @cmd_options_limit_offset
 @pass_controller
-def list_tags(controller, *args, **kwargs):
+def list_tags(controller, *args, usage=False, **kwargs):
     """List all tags, with filtering and sorting options."""
-    cmd_options.postprocess_options_table_bunce(kwargs)
-    list_tag.list_tags(controller, *args, **kwargs)
+    postprocess_options_table_bunce(kwargs)
+    if usage:
+        handler = usage_tag.usage_tags
+    else:
+        handler = list_tag.list_tags
+    handler(
+        controller,
+        *args,
+        **kwargs,
+    )
 
 
 # *** FACTS (w/ time range).
@@ -575,21 +598,15 @@ def usage_group(ctx, controller):
 # *** ACTIVITIES.
 
 @usage_group.command('activities', help=help_strings.USAGE_ACTIVITIES_HELP)
-@click.argument('search_term', default='')
-@click.option('-c', '--category', help="Filter results by category name.")
+@cmd_options_search
+@cmd_options_list_categoried
 @cmd_options_table_bunce
 @cmd_options_limit_offset
 @pass_controller
 def usage_activities(controller, *args, **kwargs):
     """List all activities. Provide optional filtering by name."""
-
-    # This little dance is so category_name is never None, but '',
-    # because get_all() distinguishes between category=None and =''.
-    category = kwargs['category'] if kwargs['category'] else ''
-    del kwargs['category']
-
-    cmd_options.postprocess_options_table_bunce(kwargs)
-
+    category = cmd_options.postprocess_options_list_categoried(kwargs)
+    postprocess_options_table_bunce(kwargs)
     usage_activity.usage_activities(
         controller,
         *args,
@@ -601,13 +618,13 @@ def usage_activities(controller, *args, **kwargs):
 # *** CATEGORIES.
 
 @usage_group.command('categories', help=help_strings.USAGE_CATEGORIES_HELP)
-@click.argument('search_term', default='')
+@cmd_options_search
 @cmd_options_table_bunce
 @cmd_options_limit_offset
 @pass_controller
 def usage_categories(controller, *args, **kwargs):
     """List all categories. Provide optional filtering by name."""
-    cmd_options.postprocess_options_table_bunce(kwargs)
+    postprocess_options_table_bunce(kwargs)
     usage_category.usage_categories(
         controller,
         *args,
@@ -618,16 +635,18 @@ def usage_categories(controller, *args, **kwargs):
 # *** TAGS.
 
 @usage_group.command('tags', help=help_strings.USAGE_TAGS_HELP)
-@click.argument('search_term', default='')
+@cmd_options_search
 @cmd_options_table_bunce
 @cmd_options_limit_offset
 @pass_controller
 def usage_tags(controller, *args, **kwargs):
     """List all tags' usage counts, with filtering and sorting options."""
-
-    cmd_options.postprocess_options_table_bunce(kwargs)
-
-    usage_tag.usage_tags(controller, *args, **kwargs)
+    postprocess_options_table_bunce(kwargs)
+    usage_tag.usage_tags(
+        controller,
+        *args,
+        **kwargs,
+    )
 
 
 # ***

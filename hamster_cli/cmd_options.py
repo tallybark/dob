@@ -26,10 +26,14 @@ click.disable_unicode_literals_warning = True
 
 __all__ = [
     'cmd_options_search',
-    'cmd_options_limit_offset',
-    'cmd_options_table_bunce',
-    'postprocess_options_table_bunce',
     'cmd_options_insert',
+    'cmd_options_limit_offset',
+    'cmd_options_list_categoried',
+    'cmd_options_search',
+    'cmd_options_table_bunce',
+    'cmd_options_usage',
+    'postprocess_options_list_categoried',
+    'postprocess_options_table_bunce',
 ]
 
 
@@ -46,6 +50,16 @@ _cmd_options_search = [
         '-e', '--end', '-after',
         help=_('The end time string (e.g. "2017-02-01 00:00").'),
     ),
+    click.option(
+        '--deleted', is_flag=True, help=_('Show deleted items.'),
+    ),
+    click.option(
+        '--hidden', is_flag=True, help=_('Show hidden items.'),
+    ),
+    click.option(
+        '-k', '--key', help=_('The database key of the item.'),
+    ),
+    click.argument('search_terms', nargs=-1, default=None),
 ]
 
 
@@ -92,17 +106,17 @@ _cmd_options_table_bunce = [
         help=_('ASCII table formatter.'),
     ),
     click.option(
-        '-A', '--asc', is_flag=True,
+        '-A', '--asc', is_flag=True, default=None,
         help=_('Sort by ascending column value.'),
     ),
     click.option(
-        '-D', '--desc', is_flag=True,
+        '-D', '--desc', is_flag=True, default=None,
         help=_('Sort by descending column value.'),
     ),
     click.option(
-        '-o', '--order', default='',
+        '-o', '--order', '--sort', default='',
         type=click.Choice([
-            '', 'name', 'activity', 'category', 'tag', 'fact', 'start', 'usage',
+            '', 'name', 'activity', 'category', 'tag', 'fact', 'start', 'usage', 'time',
         ]),
         help=_('Order by column (may depend on query).'),
     ),
@@ -123,6 +137,8 @@ def postprocess_options_table_bunce(kwargs):
 def _postprocess_options_table_bunce_order_to_sort_col(kwargs):
     kwargs['sort_col'] = kwargs['order']
     del kwargs['order']
+    if not kwargs['sort_col']:
+        del kwargs['sort_col']
 
 
 def _postprocess_options_table_bunce_asc_desc_to_sort_order(kwargs):
@@ -135,6 +151,8 @@ def _postprocess_options_table_bunce_asc_desc_to_sort_order(kwargs):
     del kwargs['desc']
     del kwargs['asc']
     kwargs['sort_order'] = sort_order
+    if not kwargs['sort_order']:
+        del kwargs['sort_order']
 
 
 # ***
@@ -160,6 +178,49 @@ _cmd_options_insert = [
 
 def cmd_options_insert(func):
     for option in reversed(_cmd_options_insert):
+        func = option(func)
+    return func
+
+# ***
+# *** [LIST ACTIVITY|LIST TAG] Options.
+# ***
+
+_cmd_options_list_categoried = [
+    click.option(
+        '-c', '--category',
+        help=_('Restrict results by matching category name'),
+    ),
+]
+
+
+def cmd_options_list_categoried(func):
+    for option in reversed(_cmd_options_list_categoried):
+        func = option(func)
+    return func
+
+
+def postprocess_options_list_categoried(kwargs):
+    # This little dance is so category_name is never None, but '',
+    # because get_all() distinguishes between category=None and =''.
+    category = kwargs['category'] if kwargs['category'] else ''
+    del kwargs['category']
+    return category
+
+
+# ***
+# *** [USAGE] Options.
+# ***
+
+_cmd_options_usage = [
+    click.option(
+        '-u', '--usage', is_flag=True,
+        help=_('Include usage (just like usage command!)'),
+    ),
+]
+
+
+def cmd_options_usage(func):
+    for option in reversed(_cmd_options_usage):
         func = option(func)
     return func
 

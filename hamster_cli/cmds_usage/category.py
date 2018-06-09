@@ -17,9 +17,7 @@
 
 from __future__ import absolute_import, unicode_literals
 
-import click
-
-from ..helpers.ascii_table import generate_table
+from . import generate_usage_table
 
 __all__ = ['usage_categories']
 
@@ -37,11 +35,5 @@ def usage_categories(
         None: If success.
     """
     results = controller.categories.get_all_by_usage(**kwargs)
-
-    headers = (_("Name"), _("Uses"))
-    category_name_counts = []
-    for category, count in results:
-        category_name_counts.append((category.name, count))
-
-    generate_table(category_name_counts, headers, table_type, truncate, trunccol=0)
+    generate_usage_table(results, table_type=table_type, truncate=truncate)
 
