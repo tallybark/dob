@@ -127,7 +127,8 @@ def _hamster_version():
     help=help_strings.RUN_HELP,
 )
 @click.version_option(message=_hamster_version())
-@click.option('-v', is_flag=True, help=help_strings.VERSION_HELP)
+# (lb): Hide -v: version_option adds help for --version, so don't repeat ourselves.
+@click.option('-v', is_flag=True, help=help_strings.VERSION_HELP, hidden=True)
 @click.option('--color/--no-color', '-C', default=None, help=_('Color, or plain.'))
 @pass_controller
 @click.pass_context
