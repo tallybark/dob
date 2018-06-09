@@ -144,6 +144,20 @@ def fact_block_header(title, sep='━'):
 # ***
 
 
+def hydrate_activity(controller, activity_name):
+    """Fetch a activity from the backend."""
+    activity = False
+    if activity_name:
+        # FIXME: (lb): This raises KeyError if no exact match found.
+        #        We should at least gracefully exit,
+        #        if not do a fuzzy search.
+        result = controller.activities.get_by_name(activity_name)
+        activity = result if result else False
+    return activity
+
+# ***
+
+
 def hydrate_category(controller, category_name):
     """Fetch a category from the backend."""
     category = False
