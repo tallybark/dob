@@ -31,6 +31,7 @@ import sys
 from backports.configparser import SafeConfigParser
 
 import hamster_lib
+from hamster_lib.helpers.colored import colorize
 
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True

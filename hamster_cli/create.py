@@ -22,11 +22,11 @@ import sys
 from gettext import gettext as _
 
 import click
-from colored import fg, bg, attr
 import inquirer
 
 from hamster_lib import Activity, Category, Fact, Tag
 from hamster_lib.helpers import time as time_helpers
+from hamster_lib.helpers.colored import fg, attr
 from hamster_lib.helpers.parsing import ParserException
 
 

@@ -33,6 +33,7 @@ from hamster_cli import __appname__ as hamster_cli_appname
 from hamster_lib import __version__ as hamster_lib_version
 from hamster_lib import HamsterControl
 from hamster_lib.helpers import logging as logging_helpers
+from hamster_lib.helpers.colored import disable_colors, enable_colors
 
 from . import cmd_options
 from . import help_strings
@@ -127,26 +128,53 @@ def _hamster_version():
 )
 @click.version_option(message=_hamster_version())
 @click.option('-v', is_flag=True, help=help_strings.VERSION_HELP)
+@click.option('--color/--no-color', '-C', default=None, help=_('Color, or plain.'))
 @pass_controller
 @click.pass_context
 # NOTE: @click.group transforms this func. definition into a callback that
 #       we use as a decorator for the top-level commands (see: @run.command).
-def run(ctx, controller, v):
+def run(ctx, controller, v, color):
     """General context run right before any of the commands."""
 
     def _run(ctx, controller, show_version):
-        """Make sure that loggers are setup properly."""
-        _run_handle_paging(controller)
+        """
+        Do stuff before running the command.
+
+        Setup paging, if paging.
+        Enable/disable color, per config.
+        No longer show a banner.
+        Show version and exit, if user specified -v option.
+        Setup up loggers.
+        """
+        _setup_tty_options(controller)
         _run_handle_banner()
         _run_handle_version(show_version, ctx)
         _run_handle_without_command(ctx)
         _setup_logging(controller)
 
-    def _run_handle_paging(controller):
+    def _setup_tty_options(controller):
+        # If piping output, Disable color and paging.
+        # MAYBE: (lb): What about allowing color for outputting to ANSI file? Meh.
+        if not sys.stdout.isatty():
+            controller.client_config['term_paging'] = False
+            controller.client_config['term_color'] = False
+        _setup_tty_paging(controller)
+        _setup_tty_color(controller)
+
+    def _setup_tty_paging(controller):
         if controller.client_config['term_paging']:
-            # FIXME/2018-04-22: (lb): Well, actually, don't clear, but rely on paging...
-            #   after implementing paging. (Also add --paging option.)
+            # FIXME/2018-04-22: (lb): Implement term_paging? Add --paging option?
+            #   For now, we just clear the screen...
             click.clear()
+
+    def _setup_tty_color(controller):
+        use_color = color
+        if use_color is None:
+            use_color = controller.client_config['term_color']
+        if use_color:
+            enable_colors()
+        else:
+            disable_colors()
 
     def _run_handle_banner():
         # FIXME/2018-04-22: (lb): I disabled the _show_greeting code;
@@ -197,7 +225,8 @@ def _setup_logging(controller):
         logger.handlers = []
         logger.setLevel(log_level)
 
-    formatter = logging_helpers.formatter_basic()
+    color = controller.client_config['term_color']
+    formatter = logging_helpers.formatter_basic(color=color)
 
     if controller.client_config['log_console']:
         console_handler = logging.StreamHandler()

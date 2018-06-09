@@ -20,14 +20,13 @@ from __future__ import absolute_import, unicode_literals
 from gettext import gettext as _
 
 import click
-from colored import fg, bg, attr
-
 # (lb): I know, I know, 3 table libraries! I couldn't find one I liked the
 # best, so now they're all included, and the user can choose their fave.
 from tabulate import tabulate
 from texttable import Texttable
 from humanfriendly.tables import format_pretty_table
 
+from hamster_lib.helpers.colored import attr
 
 __all__ = ['generate_table', 'warn_if_truncated']
 
