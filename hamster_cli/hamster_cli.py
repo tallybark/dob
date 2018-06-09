@@ -184,11 +184,16 @@ def run(ctx, controller, v, verbose, verboser, color):
             disable_colors()
 
     def _run_handle_banner():
-        # FIXME/2018-04-22: (lb): I disabled the _show_greeting code;
-        #                   it's not useful info. And a little boastful.
-        # Instead, we could maybe make a hamster-about command?
-        #   _show_greeting()
-        pass
+        # (lb): I find the greeting annoying, and somewhat boastful.
+        #   It's not that I'm against self-promotion, per se -- and I
+        #   recognize that the GPL instructs open source software to
+        #   always output a license, on every invocation -- but I like
+        #   the clean aesthetics of not showing it. Though I suppose
+        #   it's easy enough just to make a config option for it....
+        if not controller.client_config['show_greeting']:
+            return
+        _show_greeting()
+        click.echo()
 
     def _run_handle_version(show_version, ctx):
         if show_version:
@@ -207,14 +212,35 @@ def run(ctx, controller, v, verbose, verboser, color):
 
 def _show_greeting():
     """Display a greeting message providing basic set of information."""
-    # 2018-04-22: (lb): It seems to me there are no i18n/l10n files for gettext/_.
-    click.echo(_("Welcome to 'hamster_cli', your friendly time tracker for the command line."))
-    click.echo("Copyright (C) 2015-2016, Eric Goller <elbenfreund@DenkenInEchtzeit.net>")
-    click.echo(_(
-        "'hamster_cli' is published under the terms of the GPL3, for details please use"
-        " the 'license' command."
-    ))
-    click.echo()
+    cur_year = str(datetime.now().year)
+    year_range = '2018'
+    if cur_year != year_range:
+        year_range = '2018-{}'.format(year_range)
+    gpl3_notice_2018 = [
+        '{app_name} {version}'.format(
+            app_name=__BigName__,
+            version=hamster_cli_version,
+        ),
+        '',
+        'Copyright (C) {years} {author} <{email}>'.format(
+            years=year_range,
+            author=__author__,
+            email=__author_email__,
+        ),
+        # Be nice and call out the significant copyright holders from the years.
+        # (lb): What about Right to be forgotten?
+        'Copyright (C) 2015-2016 Eric Goller <elbenfreund@DenkenInEchtzeit.net>',
+        'Copyright (C) 2007-2014 Toms Baugis <toms.baugis@gmail.com>',
+        'Copyright (C) 2007-2008 Patryk Zawadzki <patrys at pld-linux.org>',
+        '',
+        _('This program comes with ABSOLUTELY NO WARRANTY.'),
+        _('This is free software, and you are welcome to'),
+        _('redistribute it under certain conditions.'),
+        _('Run `hamster license` for details.'),
+    ]
+    notice = gpl3_notice_2018
+    for line in notice:
+        click.echo(line)
 
 
 def _setup_logging(controller, verbose=False, verboser=False):
@@ -301,20 +327,32 @@ def _license():
     # FIXME: (lb): Replace appname with $0, or share module var with setup.py.
     # MAYBE: (lb): Read and print LICENSE file instead of hard coding herein?
     license = """
-        'hamster_cli' is free software: you can redistribute it and/or modify
-        it under the terms of the GNU General Public License as published by
-        the Free Software Foundation, either version 3 of the License, or
-        (at your option) any later version.
+{app_name} is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-        'hamster_cli' is distributed in the hope that it will be useful,
-        but WITHOUT ANY WARRANTY; without even the implied warranty of
-        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-        GNU General Public License for more details.
+{app_name} is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
 
-        You should have received a copy of the GNU General Public License
-        along with .  If not, see <http://www.gnu.org/licenses/>.
-        """
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+""".strip()
+    license = license.format(app_name=__BigName__)
     click.echo(license)
+
+
+# ***
+# *** [BANNER] Command.
+# ***
+
+@run.command(help=_('View copyright information'))
+@pass_controller
+def copyright(controller):
+    """Display copyright information.."""
+    _show_greeting()
 
 
 # ***

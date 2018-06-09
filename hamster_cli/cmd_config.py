@@ -209,6 +209,9 @@ def get_config(config_instance):
         def get_term_paging():
             return config.getboolean('Client', 'term_paging')
 
+        def get_show_greeting():
+            return config.getboolean('Client', 'show_greeting')
+
         def get_export_dir():
             """Return path to save exports to. Filenextension will be added by export method."""
             return os.path.join(AppDirs.user_data_dir, 'export')
@@ -225,6 +228,7 @@ def get_config(config_instance):
             'export_path': get_export_dir(),
             'term_color': get_term_color(),
             'term_paging': get_term_paging(),
+            'show_greeting': get_show_greeting(),
         }
 
     def get_backend_config(config):
@@ -403,6 +407,7 @@ def write_config_file(file_path):
     config.set('Client', 'log_filename', 'hamster_cli.log')
     config.set('Client', 'term_color', 'True')
     config.set('Client', 'term_paging', 'False')
+    config.set('Client', 'show_greeting', 'False')
 
     configfile_path = os.path.dirname(file_path)
     if not os.path.lexists(configfile_path):
