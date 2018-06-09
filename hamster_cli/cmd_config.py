@@ -204,6 +204,16 @@ class BackendDefaults(object):
     def sql_log_level(self):
         return 'CRITICAL'
 
+    @property
+    def tz_aware(self):
+        # FIXME/2018-06-09: (lb): Implement tzawareness!
+        #   Then maybe this should be default True?
+        return False
+
+    @property
+    def default_tzinfo(self):
+        return ''
+
 
 class ClientDefaults(object):
     """"""
@@ -436,11 +446,19 @@ def get_config(config_instance):
             sql_log_level = backend_config_or_default('sql_log_level')
             return sql_log_level
 
+        def get_tz_aware():
+            return backend_config_or_default('tz_aware')
+
+        def get_default_tzinfo():
+            return backend_config_or_default('default_tzinfo')
+
         backend_config = {
             'store': get_store(),
             'day_start': get_day_start(),
             'fact_min_delta': get_fact_min_delta(),
             'sql_log_level': get_sql_log_level(),
+            'tz_aware': get_tz_aware(),
+            'default_tzinfo': get_default_tzinfo(),
         }
         backend_config.update(get_db_config())
         return backend_config
