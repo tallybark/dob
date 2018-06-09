@@ -21,6 +21,8 @@ from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
+from . import __BigName__
+
 
 # ***
 # *** [BARE] Command help.
@@ -28,7 +30,7 @@ from gettext import gettext as _
 
 RUN_HELP = _(
     """
-    'hamster-cli' is a time tracker for the command line.
+    {big_name} is a time tracker for the command line.
 
     You can use it to track how you spend your time as well as have it export your
     collected data into various output formats. Below you find a list of available
@@ -37,7 +39,17 @@ RUN_HELP = _(
 
     In general and as usual: if you want to pass any arguments or options that
     contain whitespace, you will need to wrap them in quotation marks.
-    """
+
+    Note: Global options (like -V and --color) must come before the command name.
+
+    This program comes with ABSOLUTELY NO WARRANTY.
+    This is free software, and you are welcome to
+    redistribute it under certain conditions.
+    Run `hamster copyright` and `hamster license` for details.
+
+
+
+    """.strip().format(big_name=__BigName__)
 )
 
 
@@ -138,12 +150,14 @@ SEARCH_HELP = _(
     \b
     How missing date/time information is completed:
         * Missing *start date* will fall back to 'today'.
-        * Missing *start time* will fall back to your configured 'day_start'
-          setting.
-        * Missing *end date* will be the day after today if 'day_start' is not
-          '00:00', else it will be today.
-        * Missing *end time* will be one second before your configured
-          'day_start' value.
+#FIXME: (lb): day_start is disabled by default (I never liked this weird legacy behavior)
+# new workflow is to start 'now', eh?
+#        * Missing *start time* will fall back to your configured 'day_start'
+#          setting.
+#        * Missing *end date* will be the day after today if 'day_start' is not
+#          '00:00', else it will be today.
+#        * Missing *end time* will be one second before your configured
+#          'day_start' value.
     """
 )
 
@@ -180,6 +194,13 @@ USAGE_TAGS_HELP = _(
 )
 
 
+USAGE_FACTS_HELP = _(
+    """
+    List all facts by usage.
+    """
+)
+
+
 # ***
 # *** [CURRENT-FACT] Commands help.
 # ***
@@ -201,6 +222,7 @@ START_HELP = _(
 
       \b
       <timeinfo>
+# FIXME/2018-06-09: (lb): Fix this:
       May have one of the following three formats: 'HH:MM', 'HH:MM-HH:MM' or
       ' -MM'.
         * 'HH:MM': Start time in hours and minutes.
@@ -526,6 +548,17 @@ EXPORT_HELP = _(
 
 
 # ***
+# *** [IMPORT] Command help.
+# ***
+
+IMPORT_HELP = _(
+    """
+# FIXME/2018-05-12: (lb): Document hamster-import.
+    """
+)
+
+
+# ***
 # *** [COMPLETE] Command help.
 # ***
 
@@ -542,6 +575,11 @@ MIGRATE_GROUP_HELP = _(
     """
     Perform database migrations.
     """
+)
+
+
+MIGRATE_CONTROL_HELP = _(
+    """Mark a database as under version control."""
 )
 
 

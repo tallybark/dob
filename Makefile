@@ -15,6 +15,20 @@ export BROWSER_PYSCRIPT
 
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 
+# Setup up the man page directories.
+PREFIX ?= /usr/local
+MANDIR := $(abspath $(PREFIX)/man)
+# NOTE: `make` appends MAKEFILE_LIST with paths as it reads makefiles.
+#   https://ftp.gnu.org/old-gnu/Manuals/make/html_node/make_17.html
+# So this is the path to this Makefile from the user's working directory.
+mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
+# This is the path to the directory wherein this Makefile is located,
+#   in case the user is running make from another directory.
+mkfile_base := $(dir $(mkfile_path))
+# USAGE: To wire man pages under the user's local directory, try:
+#   PREFIX=~/.local make man-link
+#   man hamster
+
 help:
 	@echo "Please choose a target for make:"
 	@echo

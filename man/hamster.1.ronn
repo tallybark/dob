@@ -115,5 +115,16 @@ COPYRIGHT
 
 (c) 2018 HotOffThe Hamster
 
+(C) 2015-2016 Eric Goller
+
 hamster-cli is released under the terms of an GPLv3 license.
+
+Run `hamster license` for more.
+
+ACKNOWLEDGEMENTS
+----------------
+
+Legacy Hamster was developed 2007-2014 by
+
+Toms Baugis and Patryk Zawadzki. Thank you!!
 
