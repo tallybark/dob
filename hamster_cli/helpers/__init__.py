@@ -19,3 +19,17 @@
 
 from __future__ import absolute_import, unicode_literals
 
+import click
+import sys
+
+from hamster_lib.helpers.colored import colorize
+
+__all__ = [
+    'click_echo_and_exit',
+]
+
+
+def click_echo_and_exit(msg):
+    click.echo(colorize(msg, 'red_3b'), err=True)
+    sys.exit(1)
+
