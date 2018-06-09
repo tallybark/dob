@@ -308,31 +308,22 @@ def stop_fact(controller):
         ValueError: If no *ongoing fact* can be found.
     """
     try:
-        fact = controller.facts.stop_tmp_fact()
+        fact = controller.facts.stop_current_fact()
     except ValueError:
         message = _(
-            "Unable to continue temporary fact. Are you sure there is one?"
-            "Try running *current*."
+            "Unable to end current fact. Are you sure there is one?"
+            "Try running `hamster current`"
         )
         raise click.ClickException(message)
     else:
-        #message = '{fact} ({duration} minutes)'.format(
-        #            fact=str(fact), duration=fact.get_string_delta())
-        start = fact.start.strftime("%Y-%m-%d %H:%M")
-        end = fact.end.strftime("%Y-%m-%d %H:%M")
-        fact_string = u'{0:s} to {1:s} {2:s}@{3:s}'.format(
-            start, end, fact.activity.name, fact.category.name
-        )
-        message = "Stopped {fact} ({duration} minutes).".format(
-            fact=fact_string, duration=fact.get_string_delta()
-        )
-        controller.client_logger.info(_(message))
-        click.echo(_(message))
+        echo_ongoing_completed(controller, fact)
 
 
-def cancel_fact(controller):
+
+
+def cancel_fact(controller, purge=False):
     """
-    Cancel tracking current temporary fact, discaring the result.
+    Cancel current fact, either marking it deleted, or really removing it.
 
     Returns:
         None: If success.
@@ -341,7 +332,7 @@ def cancel_fact(controller):
         KeyErŕor: No *ongoing fact* can be found.
     """
     try:
-        controller.facts.cancel_tmp_fact()
+        controller.facts.cancel_current_fact(purge=purge)
     except KeyError:
         message = _("Nothing tracked right now. Not doing anything.")
         controller.client_logger.info(message)
@@ -350,4 +341,24 @@ def cancel_fact(controller):
         message = _("Tracking canceled.")
         click.echo(message)
         controller.client_logger.debug(message)
+
+
+# ***
+
+
+def echo_ongoing_completed(controller, fact):
+    colorful = controller.client_config['term_color']
+    click.echo(
+        _('Completed: ') +
+        fact.friendly_str(
+            shellify=False,
+            description_sep=': ',
+
+            # FIXME/2018-06-10: (lb): fact being saved as UTC
+            localize=True,
+
+            colorful=colorful,
+            show_elapsed=True,
+        )
+    )
 

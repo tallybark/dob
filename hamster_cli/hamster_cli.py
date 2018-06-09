@@ -675,7 +675,36 @@ def usage_facts(controller, *args, **kwargs):
 
 
 # ***
-# *** [CURRENT-FACT] Commands: start/stop/cancel/current.
+# *** [CURRENT-FACT] Commands: stop/cancel/current.
+# ***
+
+@run.command('stop', help=help_strings.STOP_HELP)
+@pass_controller
+def stop(controller):
+    """Stop tracking current fact (by setting its 'end')."""
+    stop_fact(controller)
+
+
+@run.command('cancel', help=help_strings.CANCEL_HELP)
+@click.option(
+    '-f', '--force', '--purge',
+    help=_('Completely delete fact, rather than just marking deleted.'),
+)
+@pass_controller
+def cancel(controller, force):
+    """Cancel 'ongoing fact'. Stop it without storing in the backend."""
+    cancel_fact(controller, force)
+
+
+@run.command('current', aliases=['show'], help=help_strings.CURRENT_HELP)
+@pass_controller
+def current(controller):
+    """Display current *ongoing fact*."""
+    list_current_fact(controller)
+
+
+# ***
+# *** [CREATE-FACT] Commands.
 # ***
 
 
@@ -691,32 +720,6 @@ def start(controller, raw_fact, start, end):
     # between *adding* a (complete) fact and *starting* a (ongoing) fact.
     # This needs to be reflected in this command.
     start_fact(controller, raw_fact, start, end)
-
-
-@run.command(help=help_strings.STOP_HELP)
-@pass_controller
-def stop(controller):
-    """Stop tracking current fact. Saving the result."""
-    stop_fact(controller)
-
-
-@run.command(help=help_strings.CANCEL_HELP)
-@pass_controller
-def cancel(controller):
-    """Cancel 'ongoing fact'. E.g stop it without storing in the backend."""
-    cancel_fact(controller)
-
-
-@run.command(help=help_strings.CURRENT_HELP)
-@pass_controller
-def current(controller):
-    """Display current *ongoing fact*."""
-    list_current_fact(controller)
-
-
-# ***
-# *** [CREATE-FACT] Commands.
-# ***
 
 
 @run.command(help=help_strings.START_HELP_ON, aliases=['now'])

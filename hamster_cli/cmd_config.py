@@ -395,18 +395,6 @@ def get_config(config_instance):
         def get_fact_min_delta():
             return backend_config_or_default('fact_min_delta')
 
-        def get_tmpfile_path():
-            """Return path to file used to store *ongoing fact*."""
-            # MAYBE: (lb): The /tmp files are not actually cleaned up.
-            #   E.g., look under: /tmp/pytest-of-some_dir/.
-            #   Should we cleanup?
-            # FIXME/2018-05-06: (lb): The current, ongoing fact is stored
-            #   in a temporary file until the user calls hamster-stop.
-            #   1. Why is that?
-            #   2. Can we fix it so hamster_briefs sees it?
-            #      (My hamster tools look for the 1 ongoing fact.)
-            return os.path.join(AppDirs.user_data_dir, 'hamster_cli.fact')
-
         def get_db_config():
             """
             Provide a dict with db-specifiy key/value to be added to the backend config.
@@ -441,7 +429,6 @@ def get_config(config_instance):
             'store': get_store(),
             'day_start': get_day_start(),
             'fact_min_delta': get_fact_min_delta(),
-            'tmpfile_path': get_tmpfile_path(),
             'sql_log_level': get_sql_log_level(),
         }
         backend_config.update(get_db_config())
