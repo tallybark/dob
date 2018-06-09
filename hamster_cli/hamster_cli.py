@@ -17,7 +17,6 @@
 
 """A time tracker for the command line. Utilizing the power of hamster-lib."""
 
-
 from __future__ import absolute_import, unicode_literals
 
 import datetime

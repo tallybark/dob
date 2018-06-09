@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # This file is part of 'hamster_cli'.
 #
 # 'hamster_cli' is free software: you can redistribute it and/or modify
@@ -14,6 +16,8 @@
 # along with 'hamster_cli'.  If not, see <http://www.gnu.org/licenses/>.
 
 """``hamster``, ``hamster``, ``hamster``!!! a cuddly, furry time tracker."""
+
+from __future__ import absolute_import, unicode_literals
 
 __author__ = 'HotOffThe Hamster'
 __email__ = 'hotoffthehamster+dob@gmail.com'
