@@ -45,6 +45,7 @@ help:
 	@echo "   man-unlink      remove man page symlink"
 	@echo "   test            run tests quickly with the default Python"
 	@echo "   test-all        run tests on every Python version with tox"
+	@echo "   test-one        run tests until the first one fails"
 
 clean: clean-build clean-pyc clean-test
 
@@ -86,6 +87,10 @@ test:
 
 test-all:
 	tox
+
+test-one:
+	# You can also obviously: TEST_ARGS=-x make test
+	py.test $(TEST_ARGS) -x tests/
 
 coverage:
 	coverage run -m pytest $(TEST_ARGS) tests
