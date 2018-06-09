@@ -32,6 +32,7 @@ help:
 	@echo "   clean-docs      remove docs from the build"
 	@echo "   clean-pyc       remove Python file artifacts"
 	@echo "   clean-test      remove test and coverage artifacts"
+	@echo "   cloc            \"count lines of code\""
 	@echo "   coverage        check code coverage quickly with the default Python"
 	@echo "   coverage-html   generate HTML coverage reference for every source file"
 	@echo "   docs            generate Sphinx HTML documentation, including API docs"
@@ -156,6 +157,14 @@ man-unlink:
 				"echo {} \
 					| /bin/sed -r 's~(.*)([0-9])$$~[[ -h $(MANDIR)/man\2/\1\2 ]] \&\& /bin/rm $(MANDIR)/man\2/\1\2 || true~' \
 					| source /dev/stdin" \;
+
+CLOC := $(shell command -v cloc 2> /dev/null)
+
+cloc:
+ifndef CLOC
+	$(error "Please install cloc from: https://github.com/AlDanial/cloc")
+endif
+	@cloc --exclude-dir=.git,_build,hamster_cli.egg-info,.pytest_cache .
 
 # vim:tw=0:ts=2:sw=2:noet:ft=make:
 
