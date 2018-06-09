@@ -141,6 +141,98 @@ AppDirs = HamsterAppDirs('hamster_cli')
 
 
 # ***
+# *** Config defaults.
+# ***
+
+
+class BackendDefaults(object):
+    """"""
+    def __init__(self):
+        pass
+
+    @property
+    def store(self):
+        return 'sqlalchemy'
+
+    @property
+    def daystart(self):
+        return '00:00:00'
+
+    @property
+    def fact_min_delta(self):
+        return '60'
+
+    @property
+    def db_engine(self):
+        return 'sqlite'
+
+    @property
+    def db_host(self):
+        return ''
+
+    @property
+    def db_port(self):
+        return ''
+
+    @property
+    def db_name(self):
+        return ''
+
+    @property
+    def db_path(self):
+        return os.path.join(
+            str(AppDirs.user_data_dir),
+            'hamster_cli.sqlite',
+        )
+
+    @property
+    def db_user(self):
+        return ''
+
+    @property
+    def db_password(self):
+        return ''
+
+    @property
+    def sql_log_level(self):
+        return 'CRITICAL'
+
+
+class ClientDefaults(object):
+    """"""
+    def __init__(self):
+        pass
+
+    @property
+    def log_level(self):
+        return 'CRITICAL'
+
+    @property
+    def log_console(self):
+        return False
+
+    @property
+    def log_filename(self):
+        return 'hamster_cli.log'
+
+    @property
+    def export_path(self):
+        return ''
+
+    @property
+    def term_color(self):
+        return True
+
+    @property
+    def term_paging(self):
+        return False
+
+    @property
+    def show_greeting(self):
+        return False
+
+
+# ***
 # *** Config function: get_config.
 # ***
 
@@ -192,37 +284,55 @@ def get_config(config_instance):
         to deal with turning ``path`` plus ``name`` into a full location and
         such.
         """
-        def get_logfile_path():
-            log_dir = AppDirs.user_log_dir
-            return os.path.join(log_dir, config.get('Client', 'log_filename'))
+        def client_config_or_default(keyname):
+            try:
+                return config.get('Client', keyname)
+            except NoOptionError:
+                return getattr(ClientDefaults(), keyname)
+
+        def client_config_or_default_boolean(keyname):
+            try:
+                return config.getboolean('Client', keyname)
+            except NoOptionError:
+                return getattr(ClientDefaults(), keyname)
 
         def get_log_level():
+            log_level_name = client_config_or_default('log_level')
             try:
-                log_level = LOG_LEVELS[config.get('Client', 'log_level').lower()]
+                log_level = LOG_LEVELS[log_level_name.lower()]
             except KeyError:
-                raise ValueError(_("Unrecognized log level value in config"))
+                msg = _(
+                    "Unrecognized log level value in config: “{}”. Try one of: {}."
+                ).format(log_level_name, ', '.join(LOG_LEVELS))
+                click_echo_and_exit(msg)
             return log_level
 
         def get_log_console():
-            return config.getboolean('Client', 'log_console')
+            return client_config_or_default_boolean('log_console')
 
-        def get_term_color():
-            return config.getboolean('Client', 'term_color')
-
-        def get_term_paging():
-            return config.getboolean('Client', 'term_paging')
-
-        def get_show_greeting():
-            return config.getboolean('Client', 'show_greeting')
+        def get_logfile_path():
+            log_dir = AppDirs.user_log_dir
+            log_filename = client_config_or_default('log_filename')
+            return os.path.join(log_dir, log_filename)
 
         def get_export_dir():
-            """Return path to save exports to. Filenextension will be added by export method."""
+            """
+            Return path to save exports to.
+            File extension will be added by export method.
+            """
             return os.path.join(AppDirs.user_data_dir, 'export')
 
-        # MAYBE/2018-05-05: (lb): Make the config less strict.
-        # If a config value is missing, the app crashes, e.g.,
-        #
-        #   backports.configparser.NoOptionError: No option 'term_color' in section: 'Client'
+        def get_term_color():
+            return client_config_or_default_boolean('term_color')
+
+        def get_term_paging():
+            return client_config_or_default_boolean('term_paging')
+
+        def get_separators():
+            return client_config_or_default('separators')
+
+        def get_show_greeting():
+            return client_config_or_default('show_greeting')
 
         return {
             'log_level': get_log_level(),
@@ -252,26 +362,37 @@ def get_config(config_instance):
             clients as well. So mabe this qualifies for inclusion into
             hammsterlib?
         """
-        def get_day_start():
+        def backend_config_or_default(keyname):
             try:
-                day_start = datetime.datetime.strptime(config.get('Backend',
-                    'daystart'), '%H:%M:%S').time()
-            except ValueError:
-                raise ValueError(_("We encountered an error when parsing configs"
-                            "'day_start' value! Aborting ..."))
+                return config.get('Backend', keyname)
+            except NoOptionError:
+                return getattr(BackendDefaults(), keyname)
+
+        def get_day_start():
+            day_start_text = backend_config_or_default('daystart')
+            if not day_start_text:
+                return ''
+            try:
+                day_start = datetime.datetime.strptime(
+                    day_start_text, '%H:%M:%S',
+                ).time()
+            except ValueError as err:
+                raise ValueError(_(
+                    'Failed to parse "day_start" from config: {}'
+                ).format(day_start_text))
             return day_start
 
         def get_store():
-            store = config.get('Backend', 'store')
+            store = backend_config_or_default('store')
             if store not in hamster_lib.control.REGISTERED_BACKENDS.keys():
                 raise ValueError(_("Unrecognized store option."))
             return store
 
         def get_db_path():
-            return config.get('Backend', 'db_path')
+            return backend_config_or_default('db_path')
 
         def get_fact_min_delta():
-            return config.get('Backend', 'fact_min_delta')
+            return backend_config_or_default('fact_min_delta')
 
         def get_tmpfile_path():
             """Return path to file used to store *ongoing fact*."""
@@ -286,23 +407,23 @@ def get_config(config_instance):
             return os.path.join(AppDirs.user_data_dir, 'hamster_cli.fact')
 
         def get_db_config():
-            """Provide a dict with db-specifiy key/value to be added to the backend config."""
-            result = {}
-            engine = config.get('Backend', 'db_engine')
-            result = {'db_engine': engine}
-            if engine == 'sqlite':
-                result.update({'db_path': config.get('Backend', 'db_path')})
-            else:
-                try:
-                    result.update({'db_port': config.get('Backend', 'db_port')})
-                except KeyError:
-                    pass
-
+            """
+            Provide a dict with db-specifiy key/value to be added to the backend config.
+            """
+            result = {
+                'db_engine': backend_config_or_default('db_engine'),
+            }
+            if result['db_engine'] == 'sqlite':
                 result.update({
-                    'db_host': config.get('Backend', 'db_host'),
-                    'db_name': config.get('Backend', 'db_name'),
-                    'db_user': config.get('Backend', 'db_user'),
-                    'db_password': config.get('Backend', 'db_password'),
+                    'db_path': backend_config_or_default('db_path'),
+                })
+            else:
+                result.update({
+                    'db_host': backend_config_or_default('db_host'),
+                    'db_port': backend_config_or_default('db_port'),
+                    'db_name': backend_config_or_default('db_name'),
+                    'db_user': backend_config_or_default('db_user'),
+                    'db_password': backend_config_or_default('db_password'),
                 })
             return result
 
@@ -312,7 +433,8 @@ def get_config(config_instance):
             if (len(sys.argv) == 2) and (sys.argv[1] == 'complete'):
                 # Disable for hamster-complete.
                 return logging.CRITICAL + 1
-            return config.get('Backend', 'sql_log_level')
+            sql_log_level = backend_config_or_default('sql_log_level')
+            return sql_log_level
 
         backend_config = {
             'store': get_store(),
@@ -345,10 +467,12 @@ def get_config_instance():
     config = SafeConfigParser()
     configfile_path = get_config_path()
     if not config.read(configfile_path):
-        click.echo(_("No valid config file found. Trying to create a new default config"
-                     " at: '{}'.".format(configfile_path)))
+        click.echo('{}: {}'.format(
+            _('Config file not found. Creating a new config file at'),
+            configfile_path,
+        ))
         config = write_config_file(configfile_path)
-        click.echo(_("A new default config file has been successfully created."))
+        click.echo(_('A new default config file was successfully created.'))
     return config
 
 
@@ -379,44 +503,48 @@ def write_config_file(file_path):
     # [FIXME]
     # This may be usefull to turn into a proper command, so users can restore to
     # factory settings easily.
+    def _write_config_file():
+        config = SafeConfigParser()
+        set_defaults_backend(config)
+        set_defaults_client(config)
+        makedirs_and_write(config)
+        return config
 
-    def get_db_path():
-        return os.path.join(str(AppDirs.user_data_dir), 'hamster_cli.sqlite')
+    def makedirs_and_write(config):
+        configfile_path = os.path.dirname(file_path)
+        if not os.path.lexists(configfile_path):
+            os.makedirs(configfile_path)
+        with open(file_path, 'w') as fobj:
+            config.write(fobj)
 
-    def get_tmp_file_path():
-        return os.path.join(str(AppDirs.user_data_dir), 'hamster_cli.fact')
+    def set_defaults_backend(config):
+        backend = BackendDefaults()
+        config.add_section('Backend')
+        config.set('Backend', 'store', backend.store)
+        config.set('Backend', 'daystart', backend.daystart)
+        config.set('Backend', 'fact_min_delta', backend.fact_min_delta)
+        config.set('Backend', 'db_engine', backend.db_engine)
+        config.set('Backend', 'db_host', backend.db_host)
+        config.set('Backend', 'db_port', backend.db_port)
+        config.set('Backend', 'db_name', backend.db_name)
+        config.set('Backend', 'db_path', backend.db_path)
+        config.set('Backend', 'db_user', backend.db_user)
+        config.set('Backend', 'db_password', backend.db_password)
+        config.set('Backend', 'sql_log_level', backend.sql_log_level)
+        config.set('Backend', 'tz_aware', backend.tz_aware)
+        config.set('Backend', 'default_tzinfo', backend.default_tzinfo)
 
-    config = SafeConfigParser()
+    def set_defaults_client(config):
+        client = ClientDefaults()
+        config.add_section('Client')
+        config.set('Client', 'log_level', client.log_level)
+        config.set('Client', 'log_console', client.log_console)
+        config.set('Client', 'log_filename', client.log_filename)
+        config.set('Client', 'export_path', client.export_path)
+        config.set('Client', 'term_color', client.term_color)
+        config.set('Client', 'term_paging', client.term_paging)
+        config.set('Client', 'separators', client.separators)
+        config.set('Client', 'show_greeting', client.show_greeting)
 
-    # Backend
-    config.add_section('Backend')
-    config.set('Backend', 'store', 'sqlalchemy')
-    config.set('Backend', 'daystart', '00:00:00')
-    config.set('Backend', 'fact_min_delta', '60')
-    config.set('Backend', 'db_engine', 'sqlite')
-    config.set('Backend', 'db_host', '')
-    config.set('Backend', 'db_port', '')
-    config.set('Backend', 'db_name', '')
-    config.set('Backend', 'db_path', get_db_path())
-    config.set('Backend', 'db_user', '')
-    config.set('Backend', 'db_password', '')
-    config.set('Backend', 'sql_log_level', 'WARNING')
-
-    # Client
-    config.add_section('Client')
-    config.set('Client', 'unsorted_localized', 'Unsorted')
-    config.set('Client', 'log_level', 'debug')
-    config.set('Client', 'log_console', 'False')
-    config.set('Client', 'log_filename', 'hamster_cli.log')
-    config.set('Client', 'term_color', 'True')
-    config.set('Client', 'term_paging', 'False')
-    config.set('Client', 'show_greeting', 'False')
-
-    configfile_path = os.path.dirname(file_path)
-    if not os.path.lexists(configfile_path):
-        os.makedirs(configfile_path)
-    with open(file_path, 'w') as fobj:
-        config.write(fobj)
-
-    return config
+    return _write_config_file()
 
