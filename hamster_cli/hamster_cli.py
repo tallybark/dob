@@ -414,15 +414,33 @@ def copyright(controller):
 
 
 # ***
+# *** [DANCE] Command [Easter egg].
+# ***
+
+@run.command('dance', hidden=True, help=_('Hamster time!'))
+@click.argument('posits', nargs=-1)
+@pass_controller
+def banner(controller, posits):
+    """ASCII Art helper."""
+    hamster_time(posits)
+
+
+# ***
 # *** [DETAILS] Command [about paths, config, etc.].
 # ***
 
-
-@run.command(help=help_strings.DETAILS_HELP)
+# MAYBE: (lb): Call this hamster-show? hamster-status? hamster-info?
+#   (2018-06-09: Trying aliases for now)
+#   Some ideas: aliases=['show', 'status', 'info', 'config', 'details', 'appinfo'])
+#   Though maybe 'show' should be alias for hamster-current?
+# MAYBE: Calling this 'appinfo' would make this command first in the --help....
+#   @run.command(aliases=['show', 'status', 'info'], help=help_strings.DETAILS_HELP)
+@run.command(aliases=['info'], help=help_strings.DETAILS_HELP)
+@click.option('--tmi', is_flag=True, help=_('Show AppDirs paths, too.'))
 @pass_controller
-def details(controller):
+def details(controller, tmi):
     """List details about the runtime environment."""
-    app_details(controller)
+    app_details(controller, full=tmi)
 
 
 # ***

@@ -21,9 +21,15 @@ from gettext import gettext as _
 
 import click
 
-__all__ = ['app_details']
+from . import __appname__ as hamster_cli_appname
+from . import __version__ as hamster_cli_version
+from .cmd_config import get_config_path, AppDirs
+from .helpers import ascii_art
 
-def app_details(controller):
+__all__ = ['app_details', 'hamster_time']
+
+
+def app_details(controller, full=False):
     """List details about the runtime environment."""
     def get_db_info():
         result = None
@@ -73,4 +79,29 @@ def app_details(controller):
         "Reports exported to: {}".format(controller.client_config['export_path'])
     )
     click.echo(get_db_info())
+
+    if full:
+        for prop in [
+            'user_data_dir',
+            'site_data_dir',
+            'user_config_dir',
+            'site_config_dir',
+            'user_cache_dir',
+            'user_log_dir',
+        ]:
+            try:
+                path = getattr(AppDirs, prop)
+            except Exception as err:
+                path = '<{}>'.format(err)
+            click.echo('AppDirs.{}: {}'.format(prop, path))
+
+
+def hamster_time(posits=[]):
+    if posits:
+        arts = ascii_art.fetch_asciis(posits)
+    else:
+        arts = [ascii_art.randomster()]
+
+    for one_art_please in arts:
+        click.echo(one_art_please)
 
