@@ -621,6 +621,13 @@ def migrate_group(ctx, controller):
     pass
 
 
+@migrate_group.command('control', help=help_strings.MIGRATE_CONTROL_HELP)
+@pass_controller
+def migrate_control(controller):
+    """Mark a database as under version control."""
+    migrate.control(controller)
+
+
 @migrate_group.command('down', help=help_strings.MIGRATE_DOWN_HELP)
 @pass_controller
 def migrate_downgrade(controller):
