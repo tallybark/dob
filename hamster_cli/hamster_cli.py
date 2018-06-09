@@ -151,6 +151,10 @@ class Controller(HamsterControl):
             # deliberately ourselves.
             pass
 
+    @property
+    def now(self):
+        return self.store.now
+
 
 pass_controller = click.make_pass_decorator(Controller, ensure=True)
 
