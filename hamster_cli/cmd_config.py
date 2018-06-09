@@ -157,11 +157,17 @@ class BackendDefaults(object):
 
     @property
     def daystart(self):
-        return '00:00:00'
+        # (lb): Disable this by default; I've never liked this logic!
+        #   In Legacy Hamster: '00:00:00'
+        return ''
 
     @property
     def fact_min_delta(self):
-        return '60'
+        # (lb): Disable this by default; I've never liked this logic!
+        #   In Legacy Hamster: 60, i.e., facts must be 1 minute apart!
+        #   In Modern Hamster, you can make facts every seconds, or every
+        #     millisecond, we don't care, so long as they do not overlap!
+        return '0'
 
     @property
     def db_engine(self):
