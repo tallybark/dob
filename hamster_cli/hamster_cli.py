@@ -771,22 +771,25 @@ def edit_fact(controller, *args, **kwargs):
 # *** [EXPORT] Command.
 # ***
 
-
-@run.command(help=help_strings.EXPORT_HELP)
+@run.command('export', help=help_strings.EXPORT_HELP)
+# (lb): show_default=True is not recognized for click.argument.
 @click.argument('format', nargs=1, default='csv')
 @click.argument('start', nargs=1, default='')
 @click.argument('end', nargs=1, default='')
-@click.option('-a', '--activity', help="The search string applied to activity names.")
-@click.option('-c', '--category', help="The search string applied to category names.")
-@click.option('-t', '--tag', help='The tags search string (e.g. "tag1 AND (tag2 OR tag3)".')
-@click.option('-d', '--description',
-              help='The description search string (e.g. "string1 OR (string2 AND string3).')
-@click.option('-k', '--key', help='The database key of the fact.')
-@click.option('-f', '--filename', help="The filename where to store the export file.")
+@click.option(
+    '-f', '--filename',
+    help=_('The filename where to store the export file.'),
+)
+@cmd_options_search
+@cmd_options_limit_offset
+@cmd_options_list_activitied
+@cmd_options_list_categoried
 @pass_controller
-def export(controller, format, start, end, activity, category, tag, description, key, filename):
+def transcode_export(
+    controller, *args, format, **kwargs
+):
     """Export all facts of within a given timewindow to a file of specified format."""
-    export_facts(controller, format, start, end, activity, category, tag, description, key, filename)
+    export_facts(controller, *args, to_format=format, **kwargs)
 
 
 # ***
