@@ -19,6 +19,7 @@ from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
+from ..cmd_common import hydrate_activity, hydrate_category
 from ..helpers.ascii_table import generate_table
 
 __all__ = ['list_tags']
@@ -26,6 +27,8 @@ __all__ = ['list_tags']
 
 def list_tags(
     controller,
+    filter_activity='',
+    filter_category='',
     table_type='friendly',
     truncate=False,
     **kwargs
@@ -36,7 +39,11 @@ def list_tags(
     Returns:
         None: If success.
     """
-    results = controller.tags.get_all(**kwargs)
+    activity = hydrate_activity(controller, filter_activity)
+    category = hydrate_category(controller, filter_category)
+    results = controller.tags.get_all(
+        activity=activity, category=category, **kwargs
+    )
 
     headers = (_("Name"),)
     tag_names = []

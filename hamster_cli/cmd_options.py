@@ -28,10 +28,12 @@ __all__ = [
     'cmd_options_search',
     'cmd_options_insert',
     'cmd_options_limit_offset',
+    'cmd_options_list_activitied',
     'cmd_options_list_categoried',
     'cmd_options_search',
     'cmd_options_table_bunce',
     'cmd_options_usage',
+    'postprocess_options_list_activitied',
     'postprocess_options_list_categoried',
     'postprocess_options_table_bunce',
 ]
@@ -205,6 +207,30 @@ def postprocess_options_list_categoried(kwargs):
     category = kwargs['category'] if kwargs['category'] else ''
     del kwargs['category']
     return category
+
+
+# ***
+# *** [LIST TAG] Options.
+# ***
+
+_cmd_options_list_activitied = [
+    click.option(
+        '-a', '--activity',
+        help=_('Restrict results by matching activity name'),
+    ),
+]
+
+
+def cmd_options_list_activitied(func):
+    for option in reversed(_cmd_options_list_activitied):
+        func = option(func)
+    return func
+
+
+def postprocess_options_list_activitied(kwargs):
+    activity = kwargs['activity'] if kwargs['activity'] else ''
+    del kwargs['activity']
+    return activity
 
 
 # ***

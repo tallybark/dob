@@ -507,12 +507,16 @@ def list_categories(controller, *args, usage=False, **kwargs):
 
 @list_group.command('tags', help=help_strings.LIST_TAGS_HELP)
 @cmd_options_search
+@cmd_options_list_activitied
+@cmd_options_list_categoried
 @cmd_options_usage
 @cmd_options_table_bunce
 @cmd_options_limit_offset
 @pass_controller
 def list_tags(controller, *args, usage=False, **kwargs):
     """List all tags, with filtering and sorting options."""
+    activity = cmd_options.postprocess_options_list_activitied(kwargs)
+    category = cmd_options.postprocess_options_list_categoried(kwargs)
     postprocess_options_table_bunce(kwargs)
     if usage:
         handler = usage_tag.usage_tags
@@ -521,6 +525,8 @@ def list_tags(controller, *args, usage=False, **kwargs):
     handler(
         controller,
         *args,
+        filter_activity=activity,
+        filter_category=category,
         **kwargs,
     )
 
@@ -636,15 +642,21 @@ def usage_categories(controller, *args, **kwargs):
 
 @usage_group.command('tags', help=help_strings.USAGE_TAGS_HELP)
 @cmd_options_search
+@cmd_options_list_activitied
+@cmd_options_list_categoried
 @cmd_options_table_bunce
 @cmd_options_limit_offset
 @pass_controller
 def usage_tags(controller, *args, **kwargs):
     """List all tags' usage counts, with filtering and sorting options."""
+    activity = cmd_options.postprocess_options_list_activitied(kwargs)
+    category = cmd_options.postprocess_options_list_categoried(kwargs)
     postprocess_options_table_bunce(kwargs)
     usage_tag.usage_tags(
         controller,
         *args,
+        filter_activity=activity,
+        filter_category=category,
         **kwargs,
     )
 

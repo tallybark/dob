@@ -18,12 +18,15 @@
 from __future__ import absolute_import, unicode_literals
 
 from . import generate_usage_table
+from ..cmd_common import hydrate_activity, hydrate_category
 
 __all__ = ['usage_tags']
 
 
 def usage_tags(
     controller,
+    filter_activity='',
+    filter_category='',
     table_type='friendly',
     truncate=False,
     **kwargs
@@ -34,6 +37,10 @@ def usage_tags(
     Returns:
         None: If success.
     """
-    results = controller.tags.get_all_by_usage(**kwargs)
+    activity = hydrate_activity(controller, filter_activity)
+    category = hydrate_category(controller, filter_category)
+    results = controller.tags.get_all_by_usage(
+        activity=activity, category=category, **kwargs
+    )
     generate_usage_table(results, table_type=table_type, truncate=truncate)
 
