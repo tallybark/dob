@@ -18,11 +18,9 @@
 from __future__ import absolute_import, unicode_literals
 
 import datetime
+import fauxfactory
 import logging
 import os
-
-import fauxfactory
-import hamster_lib
 import pytest
 # Once we drop py2 support, we can use the builtin again but unicode support
 # under python 2 is practicly non existing and manual encoding is not easily
@@ -30,25 +28,36 @@ import pytest
 from backports.configparser import SafeConfigParser
 from click import ClickException
 from freezegun import freeze_time
-from hamster_lib.helpers import time as time_helpers
 
+import hamster_lib
+
+# FIXME: All refs to hamster_cli... (2018-06-08: From 5/13. What did I mean??)
 from hamster_cli import __appname__, __version__, hamster_cli
 from hamster_cli import create, details, search, transcode
 from hamster_cli.helpers import ascii_table
-import cmd_config
-import cmds_list
-import cmds_usage
+#import cmd_config
+#import cmds_list
+#import cmds_usage
+from hamster_cli import cmd_config
+from hamster_cli import cmds_list
+from hamster_cli import cmds_usage
 
+from . import truncate_to_whole_seconds
+from .cmds_list.fact import search_facts
 
 class TestSearchTerm(object):
     """Unit tests for search command."""
 
     @freeze_time('2015-12-12 18:00')
     def test_search(self, controller, mocker, fact, search_parameter_parametrized):
-        """Ensure that your search parameters get passed on to the apropiate backend function."""
+        """Ensure that search parameters get passed on to apropiate backend function."""
         start, end, description, expectation = search_parameter_parametrized
         controller.facts.get_all = mocker.MagicMock(return_value=[fact])
-        search.search_facts(controller, start, end, description=description)
+# FIXME: search.search_facts => cmds_list.fact.list_facts
+#        search.search_facts(controller, start, end, description=description)
+# FIXME: , description=description ...
+#           was description part of develop, or scienificsteve?
+        search_facts(controller, start, end)
         controller.facts.get_all.assert_called_with(**expectation)
 
 
@@ -151,8 +160,15 @@ class TestStart(object):
             }),
         ],
     )
-    def test_start_add_new_fact(self, controller_with_logging, mocker, raw_fact,
-            start, end, expectation):
+    def test_start_add_new_fact(
+        self,
+        controller_with_logging,
+        mocker,
+        raw_fact,
+        start,
+        end,
+        expectation,
+    ):
         """
         Test that inpul validation and assignment of start/endtime works is done as expected.
 
@@ -165,7 +181,12 @@ class TestStart(object):
         """
         controller = controller_with_logging
         controller.facts.save = mocker.MagicMock()
-        create.start_fact(controller, raw_fact, start, end)
+
+
+# 2018-06-08 11:56: Urmmmmm... I deprecated start_fact, or kinda did,
+# I used a question mark....
+#        create.start_fact(controller, raw_fact, start, end)
+        create.addfact(controller, raw_fact 'verify_both')
         assert controller.facts.save.called
         args, kwargs = controller.facts.save.call_args
         fact = args[0]
@@ -200,6 +221,7 @@ class TestStop(object):
         #
         # Here's the original code:
         #
+# FIXME: stop_tmp_fact => stop_current_fact
         #   controller_with_logging.facts.stop_tmp_fact = mocker.MagicMock()
         #
         # And here's what I changed to make this test succeed:
@@ -209,9 +231,11 @@ class TestStop(object):
         mocktime = mocker.MagicMock(return_value="%Y-%m-%d %H:%M")
         mockfact.start.strftime = mocktime
         mockfact.end.strftime = mocktime
+# FIXME: stop_tmp_fact => stop_current_fact
         controller_with_logging.facts.stop_tmp_fact = mocker.MagicMock(return_value=mockfact)
 
         create.stop_fact(controller_with_logging)
+# FIXME: stop_tmp_fact => stop_current_fact
         assert controller_with_logging.facts.stop_tmp_fact.called
 
     def test_stop_no_existing_tmp_fact(self, controller_with_logging, capsys):
@@ -230,6 +254,7 @@ class TestCancel(object):
             capsys):
         """Test cancelation in case there is an ongoing fact."""
         controller = controller_with_logging
+# FIXME/2018-06-08: Renamed/Reworked: cancel_tmp_fact => cancel_current_fact
         controller.facts.cancel_tmp_fact = mocker.MagicMock(return_value=None)
         create.cancel_fact(controller)
         out, err = capsys.readouterr()
@@ -239,6 +264,7 @@ class TestCancel(object):
     def test_cancel_no_existing_tmp_fact(self, controller_with_logging, capsys):
         """Test cancelation in case there is no actual ongoing fact."""
         with pytest.raises(ClickException):
+# FIXME/2018-06-08: Renamed/Reworked: cancel_tmp_fact => cancel_current_fact
             create.cancel_fact(controller_with_logging)
             out, err = capsys.readouterr()
             assert 'Nothing tracked right now' in err
@@ -286,7 +312,7 @@ class TestExport(object):
         )
         start = fauxfactory.gen_datetime()
         # Get rid of fractions of a second.
-        start = time_helpers.truncate_to_whole_seconds(start)
+        start = truncate_to_whole_seconds(start)
         transcode.export_facts(controller, 'csv', start.strftime('%Y-%m-%d %H:%M'), None)
         args, kwargs = controller.facts.get_all.call_args
         assert kwargs['start'] == start
@@ -299,7 +325,7 @@ class TestExport(object):
             return_value=hamster_lib.reports.CSVWriter(path)
         )
         end = fauxfactory.gen_datetime()
-        end = time_helpers.truncate_to_whole_seconds(end)
+        end = truncate_to_whole_seconds(end)
         transcode.export_facts(controller, 'csv', None, end.strftime('%Y-%m-%d %H:%M'))
         args, kwargs = controller.facts.get_all.call_args
         assert kwargs['end'] == end
@@ -328,14 +354,15 @@ class TestCategories(object):
 class TestCurrent(object):
     """Unittest for dealing with 'ongoing facts'."""
 
-    def test_tmp_fact(self, controller, tmp_fact, controller_with_logging, capsys, fact, mocker):
-        """Make sure the current fact is displayed if there is one."""
-        controller = controller_with_logging
-        controller.facts.get_tmp_fact = mocker.MagicMock(return_value=fact)
-        cmds_list.fact.list_current_fact(controller)
-        out, err = capsys.readouterr()
-        assert controller.facts.get_tmp_fact
-        assert str(fact) in out
+#    def test_tmp_fact(self, controller, tmp_fact, controller_with_logging, capsys, fact, mocker):
+#        """Make sure the current fact is displayed if there is one."""
+#        controller = controller_with_logging
+## FIXME: (lb): get_tmp_fact is replaced with get_current_fact...
+#        controller.facts.get_tmp_fact = mocker.MagicMock(return_value=fact)
+#        cmds_list.fact.list_current_fact(controller)
+#        out, err = capsys.readouterr()
+#        assert controller.facts.get_tmp_fact
+#        assert str(fact) in out
 
     def test_no_tmp_fact(self, controller_with_logging, capsys):
         """Make sure we display proper feedback if there is no current 'ongoing fact."""
@@ -343,6 +370,7 @@ class TestCurrent(object):
         with pytest.raises(ClickException):
             cmds_list.fact.list_current_fact(controller)
             out, err = capsys.readouterr()
+# FIXME: Use snapshot here.
             assert 'There seems no be no activity beeing tracked right now' in err
 
 
@@ -354,12 +382,16 @@ class TestActivities(object):
         activity.category = None
         controller.activities.get_all = mocker.MagicMock(
             return_value=[activity])
+#        mocker.patch('hamster_cli.hamster_cli.tabulate')
+#        hamster_cli.tabulate = mocker.MagicMock(
+#            return_value='{}, {}'.format(activity.name, None))
         mocker.patch('hamster_cli.ascii_table.tabulate')
         ascii_table.tabulate = mocker.MagicMock(
             return_value='{}, {}'.format(activity.name, None))
         cmds_list.activity.list_activities(controller, table_type='tabulate')
         out, err = capsys.readouterr()
         assert activity.name in out
+#        assert hamster_cli.tabulate.call_args[0] == [(activity.name, None)]
         assert ascii_table.tabulate.call_args[0] == [(activity.name, None)]
 
     def test_activities_with_category(self, controller, activity, mocker,
@@ -446,8 +478,10 @@ class TestLicense(object):
 class TestSetupLogging(object):
     """Make sure that our logging setup is executed as expected."""
 
-    def test_setup_logging(self, controller, client_config, lib_config):
-        """Test that library and client logger have log level set according to config."""
+    def test_setup_logging_and_log_level(self, controller, client_config, lib_config):
+        """
+        Test that library and client logger have log level set according to config.
+        """
         hamster_cli._setup_logging(controller)
         assert controller.lib_logger.level == (
             controller.client_config['log_level'])
@@ -455,7 +489,9 @@ class TestSetupLogging(object):
             controller.client_config['log_level'])
 
     def test_setup_logging_log_console_true(self, controller):
-        """Make sure that if console loggin is on lib and client logger have a streamhandler."""
+        """
+        Make sure that if console loggin is on lib and client logger have a streamhandler.
+        """
         controller.client_config['log_console'] = True
         hamster_cli._setup_logging(controller)
         assert isinstance(controller.client_logger.handlers[0],
@@ -471,8 +507,12 @@ class TestSetupLogging(object):
         assert controller.client_logger.handlers == []
 
     def test_setup_logging_log_file_true(self, controller, appdirs):
-        """Make sure that if we enable a logfile_path, both loggers recieve a ``FileHandler``."""
-        controller.client_config['logfile_path'] = os.path.join(appdirs.user_log_dir, 'foobar.log')
+        """
+        Make sure that if we enable logfile_path, both loggers receive ``FileHandler``.
+        """
+        controller.client_config['logfile_path'] = os.path.join(
+            appdirs.user_log_dir, 'foobar.log',
+        )
         hamster_cli._setup_logging(controller)
         assert isinstance(controller.lib_logger.handlers[0],
             logging.FileHandler)
@@ -485,7 +525,10 @@ class TestGetConfig(object):
 
     @pytest.mark.parametrize('log_level', ['debug'])
     def test_log_levels_valid(self, log_level, config_instance):
-        """Make sure that *string loglevels* translate to their respective integers properly."""
+        """
+        Make sure *string loglevels* translates to their respective integers properly.
+        """
+
         backend, client = cmd_config.get_config(
             config_instance(log_level=log_level)
         )
@@ -499,22 +542,22 @@ class TestGetConfig(object):
                 config_instance(log_level=log_level)
             )
 
-    @pytest.mark.parametrize('day_start', ['05:00:00'])
-    def test_daystart_valid(self, config_instance, day_start):
-        """Test that ``day_start`` string translate to proper ``datetime.time`` instances."""
-        backend, client = cmd_config.get_config(config_instance(
-            daystart=day_start)
-        )
-        assert backend['day_start'] == datetime.datetime.strptime(
-            '05:00:00', '%H:%M:%S').time()
+#    @pytest.mark.parametrize('day_start', ['05:00:00'])
+#    def test_daystart_valid(self, config_instance, day_start):
+#        """Test that ``day_start`` string translate to proper ``datetime.time`` instances."""
+#        backend, client = cmd_config.get_config(config_instance(
+#            daystart=day_start)
+#        )
+#        assert backend['day_start'] == datetime.datetime.strptime(
+#            '05:00:00', '%H:%M:%S').time()
 
-    @pytest.mark.parametrize('day_start', ['foobar'])
-    def test_daystart_invalid(self, config_instance, day_start):
-        """Test that invalid ``day_start`` strings raises ``ValueError``."""
-        with pytest.raises(ValueError):
-            backend, client = cmd_config.get_config(
-                config_instance(daystart=day_start)
-            )
+#    @pytest.mark.parametrize('day_start', ['foobar'])
+#    def test_daystart_invalid(self, config_instance, day_start):
+#        """Test that invalid ``day_start`` strings raises ``ValueError``."""
+#        with pytest.raises(ValueError):
+#            backend, client = cmd_config.get_config(
+#                config_instance(daystart=day_start)
+#            )
 
     def test_invalid_store(self, config_instance):
         """Make sure that encountering an unsupportet store will raise an exception."""
@@ -534,6 +577,7 @@ class TestGetConfig(object):
 
 class TestGetConfigInstance(object):
     def test_no_file_present(self, appdirs, mocker):
+#        mocker.patch('hamster_cli.hamster_cli._write_config_file')
         mocker.patch('hamster_cli.cmd_config.write_config_file')
 
         cmd_config.get_config_instance()
@@ -546,6 +590,7 @@ class TestGetConfigInstance(object):
 
     def test_get_config_path(self, appdirs, mocker):
         """Make sure the config target path is constructed to our expectations."""
+#        mocker.patch('hamster_cli.hamster_cli._write_config_file')
         mocker.patch('hamster_cli.cmd_config.write_config_file')
         cmd_config.get_config_instance()
         expectation = os.path.join(appdirs.user_config_dir, 'hamster_cli.conf')
@@ -553,15 +598,15 @@ class TestGetConfigInstance(object):
 
 
 class TestGenerateTable(object):
-    def test_generate_table(self, fact):
+    def test_generate_table(self, controller, fact):
         """Make sure the table contains all expected fact data."""
-        table, header = cmds_list.fact.generate_facts_table([fact])
+        table, header = cmds_list.fact.generate_facts_table(controller, [fact])
         assert table[0].start == fact.start.strftime('%Y-%m-%d %H:%M')
         assert table[0].activity == fact.activity.name
 
-    def test_header(self):
+    def test_header(self, controller):
         """Make sure the tables header matches our expectation."""
-        table, header = cmds_list.fact.generate_facts_table([])
+        table, header = cmds_list.fact.generate_facts_table(controller, [])
         assert len(header) == 8
 
 
@@ -590,6 +635,8 @@ class TestHamsterAppDirs(object):
     def test_user_data_dir_returns_directoy(self, tmpdir, mocker):
         """Make sure method returns directory."""
         path = tmpdir.strpath
+#        mocker.patch('hamster_cli.hamster_cli.appdirs.user_data_dir', return_value=path)
+#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
         mocker.patch('hamster_cli.cmd_config.appdirs.user_data_dir', return_value=path)
         appdir = cmd_config.HamsterAppDirs('hamster_cli')
         assert appdir.user_data_dir == path
@@ -598,6 +645,8 @@ class TestHamsterAppDirs(object):
     def test_user_data_dir_creates_file(self, tmpdir, mocker, create, faker):
         """Make sure that path creation depends on ``create`` attribute."""
         path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
+#        mocker.patch('hamster_cli.hamster_cli.appdirs.user_data_dir', return_value=path)
+#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
         mocker.patch('hamster_cli.cmd_config.appdirs.user_data_dir', return_value=path)
         appdir = cmd_config.HamsterAppDirs('hamster_cli')
         appdir.create = create
@@ -606,6 +655,8 @@ class TestHamsterAppDirs(object):
     def test_site_data_dir_returns_directoy(self, tmpdir, mocker):
         """Make sure method returns directory."""
         path = tmpdir.strpath
+#        mocker.patch('hamster_cli.hamster_cli.appdirs.site_data_dir', return_value=path)
+#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
         mocker.patch('hamster_cli.cmd_config.appdirs.site_data_dir', return_value=path)
         appdir = cmd_config.HamsterAppDirs('hamster_cli')
         assert appdir.site_data_dir == path
@@ -614,6 +665,8 @@ class TestHamsterAppDirs(object):
     def test_site_data_dir_creates_file(self, tmpdir, mocker, create, faker):
         """Make sure that path creation depends on ``create`` attribute."""
         path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
+#        mocker.patch('hamster_cli.hamster_cli.appdirs.site_data_dir', return_value=path)
+#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
         mocker.patch('hamster_cli.cmd_config.appdirs.site_data_dir', return_value=path)
         appdir = cmd_config.HamsterAppDirs('hamster_cli')
         appdir.create = create
@@ -622,6 +675,8 @@ class TestHamsterAppDirs(object):
     def test_user_config_dir_returns_directoy(self, tmpdir, mocker):
         """Make sure method returns directory."""
         path = tmpdir.strpath
+#        mocker.patch('hamster_cli.hamster_cli.appdirs.user_config_dir', return_value=path)
+#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
         mocker.patch('hamster_cli.cmd_config.appdirs.user_config_dir', return_value=path)
         appdir = cmd_config.HamsterAppDirs('hamster_cli')
         assert appdir.user_config_dir == path
@@ -630,6 +685,8 @@ class TestHamsterAppDirs(object):
     def test_user_config_dir_creates_file(self, tmpdir, mocker, create, faker):
         """Make sure that path creation depends on ``create`` attribute."""
         path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
+#        mocker.patch('hamster_cli.hamster_cli.appdirs.user_config_dir', return_value=path)
+#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
         mocker.patch('hamster_cli.cmd_config.appdirs.user_config_dir', return_value=path)
         appdir = cmd_config.HamsterAppDirs('hamster_cli')
         appdir.create = create
@@ -638,6 +695,8 @@ class TestHamsterAppDirs(object):
     def test_site_config_dir_returns_directoy(self, tmpdir, mocker):
         """Make sure method returns directory."""
         path = tmpdir.strpath
+#        mocker.patch('hamster_cli.hamster_cli.appdirs.site_config_dir', return_value=path)
+#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
         mocker.patch('hamster_cli.cmd_config.appdirs.site_config_dir', return_value=path)
         appdir = cmd_config.HamsterAppDirs('hamster_cli')
         assert appdir.site_config_dir == path
@@ -646,6 +705,8 @@ class TestHamsterAppDirs(object):
     def test_site_config_dir_creates_file(self, tmpdir, mocker, create, faker):
         """Make sure that path creation depends on ``create`` attribute."""
         path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
+#        mocker.patch('hamster_cli.hamster_cli.appdirs.site_config_dir', return_value=path)
+#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
         mocker.patch('hamster_cli.cmd_config.appdirs.site_config_dir', return_value=path)
         appdir = cmd_config.HamsterAppDirs('hamster_cli')
         appdir.create = create
@@ -654,6 +715,8 @@ class TestHamsterAppDirs(object):
     def test_user_cache_dir_returns_directoy(self, tmpdir, mocker):
         """Make sure method returns directory."""
         path = tmpdir.strpath
+#        mocker.patch('hamster_cli.hamster_cli.appdirs.user_cache_dir', return_value=path)
+#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
         mocker.patch('hamster_cli.cmd_config.appdirs.user_cache_dir', return_value=path)
         appdir = cmd_config.HamsterAppDirs('hamster_cli')
         assert appdir.user_cache_dir == path
@@ -662,6 +725,8 @@ class TestHamsterAppDirs(object):
     def test_user_cache_dir_creates_file(self, tmpdir, mocker, create, faker):
         """Make sure that path creation depends on ``create`` attribute."""
         path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
+#        mocker.patch('hamster_cli.hamster_cli.appdirs.user_cache_dir', return_value=path)
+#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
         mocker.patch('hamster_cli.cmd_config.appdirs.user_cache_dir', return_value=path)
         appdir = cmd_config.HamsterAppDirs('hamster_cli')
         appdir.create = create
@@ -670,6 +735,8 @@ class TestHamsterAppDirs(object):
     def test_user_log_dir_returns_directoy(self, tmpdir, mocker):
         """Make sure method returns directory."""
         path = tmpdir.strpath
+#        mocker.patch('hamster_cli.hamster_cli.appdirs.user_log_dir', return_value=path)
+#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
         mocker.patch('hamster_cli.cmd_config.appdirs.user_log_dir', return_value=path)
         appdir = cmd_config.HamsterAppDirs('hamster_cli')
         assert appdir.user_log_dir == path
@@ -678,6 +745,8 @@ class TestHamsterAppDirs(object):
     def test_user_log_dir_creates_file(self, tmpdir, mocker, create, faker):
         """Make sure that path creation depends on ``create`` attribute."""
         path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
+#        mocker.patch('hamster_cli.hamster_cli.appdirs.user_log_dir', return_value=path)
+#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
         mocker.patch('hamster_cli.cmd_config.appdirs.user_log_dir', return_value=path)
         appdir = cmd_config.HamsterAppDirs('hamster_cli')
         appdir.create = create

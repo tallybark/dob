@@ -27,11 +27,9 @@ from __future__ import absolute_import, unicode_literals
 
 import codecs
 import datetime
+import fauxfactory
 import os
 import pickle as pickle
-
-import fauxfactory
-import hamster_lib
 import pytest
 # Once we drop py2 support, we can use the builtin again but unicode support
 # under python 2 is practicly non existing and manual encoding is not easily
@@ -41,6 +39,8 @@ from click.testing import CliRunner
 from pytest_factoryboy import register
 from six import text_type
 import freezegun
+
+import hamster_lib
 
 import hamster_cli.hamster_cli as hamster_cli
 
@@ -108,11 +108,14 @@ def lib_config(tmpdir):
     return {
         'store': 'sqlalchemy',
         'day_start': datetime.time(hour=0, minute=0, second=0),
+        #'day_start': '',
         'db_engine': 'sqlite',
         'db_path': ':memory:',
-        'tmpfile_path': os.path.join(tmpdir.mkdir('cache2').strpath, 'test.pickle'),
-        'fact_min_delta': 60,
         'sql_log_level': 'WARNING',
+        #'fact_min_delta': 0,
+        'fact_min_delta': 60,
+        'tz_aware': False,
+        'default_tzinfo': '',  # 'America/Menominee'
     }
 
 
@@ -125,12 +128,16 @@ def client_config(tmpdir):
     type conversions.
     """
     return {
-        'unsorted_localized': 'Unsorted',
         'log_level': 10,
         'log_console': False,
+        # Note that 'log_filename' is what's in the config; logfile_path is made.
         'logfile_path': False,
+        #'logfile_path': os.path.join(tmpdir.mkdir('log2').strpath, 'hamster_cli.log'),
         'export_path': os.path.join(tmpdir.mkdir('export').strpath, 'export'),
-        'logging_path': os.path.join(tmpdir.mkdir('log2').strpath, 'hamster_cli.log'),
+        'term_color': False,
+        'term_paging': False,
+        'separators': '',  # [,:\n]
+        'show_greeting': False,
     }
 
 
@@ -143,27 +150,37 @@ def config_instance(tmpdir, faker):
             config.add_section('Backend')
             config.set('Backend', 'store', kwargs.get('store', 'sqlalchemy'))
             config.set('Backend', 'daystart', kwargs.get('daystart', '00:00:00'))
+            #config.set('Backend', 'daystart', kwargs.get('daystart', ''))
             config.set('Backend', 'fact_min_delta', kwargs.get('fact_min_delta', '60'))
+            #config.set('Backend', 'fact_min_delta', kwargs.get('fact_min_delta', '0'))
             config.set('Backend', 'db_engine', kwargs.get('db_engine', 'sqlite'))
-            config.set('Backend', 'db_path', kwargs.get('db_path', os.path.join(
-                tmpdir.strpath, 'hamster_db.sqlite')))
+            config.set('Backend', 'db_path', kwargs.get(
+                'db_path', os.path.join(tmpdir.strpath, 'hamster_db.sqlite'))
+            )
             config.set('Backend', 'db_host', kwargs.get('db_host', ''))
             config.set('Backend', 'db_name', kwargs.get('db_name', ''))
             config.set('Backend', 'db_port', kwargs.get('db_port', ''))
             config.set('Backend', 'db_user', kwargs.get('db_user', '')),
             config.set('Backend', 'db_password', kwargs.get('db_password', ''))
             config.set('Backend', 'sql_log_level', kwargs.get('sql_log_level', 'WARNING'))
+            config.set('Backend', 'tz_aware', 'False')
+            config.set('Backend', 'default_tzinfo', '')  # America/Menominee
 
             # Client
             config.add_section('Client')
-            config.set('Client', 'unsorted_localized', kwargs.get(
-                'unsorted_localized', 'Unsorted'))
             config.set('Client', 'log_level', kwargs.get('log_level', 'debug'))
             config.set('Client', 'log_console', kwargs.get('log_console', '0'))
-            config.set('Client', 'log_filename', kwargs.get('log_filename', faker.file_name()))
+            # The log_filename is used to make logfile_path.
+            config.set(
+                'Client', 'log_filename', kwargs.get('log_filename', faker.file_name())
+            )
+            config.set('Client', 'export_path', '')
             config.set('Client', 'term_color', 'True')
             config.set('Client', 'term_paging', 'False')
+            config.set('Client', 'separators', '')  # [,:\n]
+            config.set('Client', 'show_greeting', 'False')
             return config
+
     return generate_config
 
 
@@ -266,26 +283,50 @@ def controller_with_logging(lib_config, client_config):
     (None, None, '', {
         'start': None,
         'end': None,
+# NEED?
+        'limit': '',
+        'offset': '',
+        'order': 'desc',
     }),
     ('2015-12-12 18:00', '2015-12-12 19:30', '', {
         'start': datetime.datetime(2015, 12, 12, 18, 0, 0),
         'end': datetime.datetime(2015, 12, 12, 19, 30, 0),
+# NEED?
+        'limit': '',
+        'offset': '',
+        'order': 'desc',
     }),
     ('2015-12-12 18:00', '2015-12-12 19:30', '', {
         'start': datetime.datetime(2015, 12, 12, 18, 0, 0),
         'end': datetime.datetime(2015, 12, 12, 19, 30, 0),
+# NEED?
+        'limit': '',
+        'offset': '',
+        'order': 'desc',
     }),
     ('2015-12-12 18:00', '', '', {
         'start': freezegun.api.FakeDatetime(2015, 12, 12, 18, 0, 0),
         'end': '',
+# NEED?
+        'limit': '',
+        'offset': '',
+        'order': 'desc',
     }),
     ('2015-12-12', '', '', {
         'start': freezegun.api.FakeDate(2015, 12, 12),
         'end': '',
+# NEED?
+        'limit': '',
+        'offset': '',
+        'order': 'desc',
     }),
     ('13:00', '', '', {
         'start': datetime.time(13, 0),
         'end': '',
+# NEED?
+        'limit': '',
+        'offset': '',
+        'order': 'desc',
     }),
 ])
 def search_parameter_parametrized(request):

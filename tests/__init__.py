@@ -19,3 +19,15 @@
 
 from __future__ import absolute_import, unicode_literals
 
+import datetime
+
+
+__all__ = [
+    'truncate_to_whole_seconds',
+]
+
+
+def truncate_to_whole_seconds(time):
+    time_fmt = '%Y-%m-%d %H:%M'
+    return datetime.datetime.strptime(time.strftime(time_fmt), time_fmt)
+
