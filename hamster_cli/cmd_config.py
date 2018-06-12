@@ -43,6 +43,7 @@ __all__ = [
     'get_config_instance',
     'get_config_path',
     'write_config_file',
+    'get_history_path',
 ]
 
 
@@ -547,4 +548,49 @@ def write_config_file(file_path):
         config.set('Client', 'show_greeting', client.show_greeting)
 
     return _write_config_file()
+
+# ***
+# *** Shim function: get_history_path.
+# ***
+
+
+DEFAULT_HIST_PATH_DIR = 'history'
+
+DEFAULT_HIST_NAME_FMT = '{}'
+
+
+# (lb): This doesn't quite belong in this package, but we need AppDirs.
+def get_history_path(
+    topic,
+    hist_dir=DEFAULT_HIST_PATH_DIR,
+    file_fmt=DEFAULT_HIST_NAME_FMT,
+):
+    """
+    Return the path to the history file for a specific topic.
+
+    Args:
+        topic (text_type): Topic name, to distinguish different histories.
+
+    Returns:
+        str: Fully qualified path to history file for specified topic.
+    """
+    hist_path = AppDirs.user_cache_dir
+    if hist_dir:
+        hist_path = os.path.join(hist_path, hist_dir)
+    # (lb): So disrespectful! Totally accessing "hidden" method.
+    AppDirs._ensure_directory_exists(hist_path)
+    hist_path = os.path.join(hist_path, file_fmt.format(topic))
+    if os.path.exists(hist_path) and not os.path.isfile(hist_path):
+        click.echo(
+            '{} At:\n  {}'.format(
+                colorize(_(
+                    'UNEXPECTED: history cache exists but not a file!',
+                    'red_3b',
+                )),
+                hist_path,
+            ),
+            err=True,
+        )
+        hist_path = None
+    return hist_path
 
