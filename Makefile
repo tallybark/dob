@@ -27,7 +27,7 @@ mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 mkfile_base := $(dir $(mkfile_path))
 # USAGE: To wire man pages under the user's local directory, try:
 #   PREFIX=~/.local make man-link
-#   man hamster
+#   man dob
 
 help:
 	@echo "Please choose a target for make:"
