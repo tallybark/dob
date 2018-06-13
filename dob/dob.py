@@ -409,6 +409,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 @pass_controller
 def copyright(controller):
     """Display copyright information.."""
+# FIXME: Shows twice if greeting enabled in config...
+# FIXME: Default config enable is True, which is wrong.
     _show_greeting()
 
 
