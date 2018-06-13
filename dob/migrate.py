@@ -98,11 +98,13 @@ If this is a legacy database, try running:
 
   {green}migrations/upgrade_legacy_hamster_v2.sh path/to/db{reset}
 
-from the Hamster LIB source repository.
+from the `nark` source repository, which can be found at:
 
-After upgrading a legacy database -- or if you
-are upgrading a pre-fork modern Hamster database
-(circa 2016-2017) -- try registering the database:
+  https://github.com/hotoffthehamster/nark
+
+After upgrading a legacy database -- or if you are upgrading
+a pre-fork modern Hamster database (circa 2016-2017, a/k/a
+hamster-lib and hamster-cli) -- try registering the database:
 
   {green}{prog_name} migrate control{reset}
         '''.strip()
