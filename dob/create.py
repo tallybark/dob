@@ -82,11 +82,11 @@ def add_fact(
 
     # NOTE: factoid is an ordered tuple of args; e.g., sys.argv[2:], if
     #       sys,argv[0] is the executable name, and sys.argv[1] is command.
-    #       Because Hamster CLI is totes legit, it does not insist that the
-    #       user necessary quote anything on the command line, but it does
-    #       not insist not, either, so factoid might have just one element
-    #       (a string) containing all the information; or factoid might be
-    #       a list of strings that need to be parsed and reassembled (though
+    #       Because dob is totes legit, it does not insist that the user
+    #       necessary quote anything on the command line, but it does not
+    #       insist not, either, so factoid might have just one element (a
+    #       string) containing all the information; or factoid might be a
+    #       list of strings that need to be parsed and reassembled (though
     #       not necessarily in that order).
     #
     #         tl;dr: factoid is a tuple of 1+ strings that together specify the Fact.
