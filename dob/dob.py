@@ -41,6 +41,7 @@ from . import update
 from . import __author__, __author_email__, __BigName__
 from . import __appname__ as dob_appname
 from . import __version__ as dob_version
+from . import __libname__ as nark_appname
 from .cmd_common import backend_integrity
 from .cmd_config import get_config, get_config_instance
 from .cmd_options import (
@@ -165,9 +166,10 @@ pass_controller = click.make_pass_decorator(Controller, ensure=True)
 
 
 def _dob_version():
-    vers = '{} version {}\nhamster-lib version {}'.format(
+    vers = '{} version {}\n{} version {}'.format(
         dob_appname,
         dob_version,
+        nark_appname,
         nark_version,
     )
     return vers
@@ -294,7 +296,7 @@ def _show_greeting():
         _('This program comes with ABSOLUTELY NO WARRANTY.'),
         _('This is free software, and you are welcome to'),
         _('redistribute it under certain conditions.'),
-        _('Run `hamster license` for details.'),
+        _('Run `{} license` for details.').format(dob_appname),
     ]
     notice = gpl3_notice_2018
     for line in notice:

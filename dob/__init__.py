@@ -27,7 +27,6 @@ __author_email__ = 'hotoffthehamster+dob@gmail.com'
 __version__ = '3.0.0.a1'
 __appname__ = 'dob'
 __pipname__ = __appname__
-__BigName__ = 'Hamster Dobber'
 __briefly__ = _(
     'journal and time tracker, supercharged for the terminal'
 )
@@ -44,4 +43,6 @@ __keywords__ = ' '.join([
     'hamster',
     'fact',
 ])
+__BigName__ = 'Hamster Dobber'
+__libname__ = 'nark'
 
