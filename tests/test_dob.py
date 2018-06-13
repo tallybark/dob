@@ -31,16 +31,16 @@ from freezegun import freeze_time
 
 import hamster_lib
 
-# FIXME: All refs to hamster_cli... (2018-06-08: From 5/13. What did I mean??)
-from hamster_cli import __appname__, __version__, hamster_cli
-from hamster_cli import create, details, search, transcode
-from hamster_cli.helpers import ascii_table
+# FIXME: All refs to dob... (2018-06-08: From 5/13. What did I mean??)
+from dob import __appname__, __version__, dob
+from dob import create, details, search, transcode
+from dob.helpers import ascii_table
 #import cmd_config
 #import cmds_list
 #import cmds_usage
-from hamster_cli import cmd_config
-from hamster_cli import cmds_list
-from hamster_cli import cmds_usage
+from dob import cmd_config
+from dob import cmds_list
+from dob import cmds_usage
 
 from . import truncate_to_whole_seconds
 from .cmds_list.fact import search_facts
@@ -382,16 +382,16 @@ class TestActivities(object):
         activity.category = None
         controller.activities.get_all = mocker.MagicMock(
             return_value=[activity])
-#        mocker.patch('hamster_cli.hamster_cli.tabulate')
-#        hamster_cli.tabulate = mocker.MagicMock(
+#        mocker.patch('dob.dob.tabulate')
+#        dob.tabulate = mocker.MagicMock(
 #            return_value='{}, {}'.format(activity.name, None))
-        mocker.patch('hamster_cli.ascii_table.tabulate')
+        mocker.patch('dob.ascii_table.tabulate')
         ascii_table.tabulate = mocker.MagicMock(
             return_value='{}, {}'.format(activity.name, None))
         cmds_list.activity.list_activities(controller, table_type='tabulate')
         out, err = capsys.readouterr()
         assert activity.name in out
-#        assert hamster_cli.tabulate.call_args[0] == [(activity.name, None)]
+#        assert dob.tabulate.call_args[0] == [(activity.name, None)]
         assert ascii_table.tabulate.call_args[0] == [(activity.name, None)]
 
     def test_activities_with_category(self, controller, activity, mocker,
@@ -468,7 +468,7 @@ class TestLicense(object):
 
     def test_license_is_shown(self, capsys):
         """Make sure the license text is actually displayed."""
-        hamster_cli._license()
+        dob._license()
         out, err = capsys.readouterr()
         assert "'dob' is free software" in out
         assert "GNU General Public License" in out
@@ -482,7 +482,7 @@ class TestSetupLogging(object):
         """
         Test that library and client logger have log level set according to config.
         """
-        hamster_cli._setup_logging(controller)
+        dob._setup_logging(controller)
         assert controller.lib_logger.level == (
             controller.client_config['log_level'])
         assert controller.client_logger.level == (
@@ -493,7 +493,7 @@ class TestSetupLogging(object):
         Make sure that if console loggin is on lib and client logger have a streamhandler.
         """
         controller.client_config['log_console'] = True
-        hamster_cli._setup_logging(controller)
+        dob._setup_logging(controller)
         assert isinstance(controller.client_logger.handlers[0],
             logging.StreamHandler)
         assert isinstance(controller.lib_logger.handlers[0],
@@ -502,7 +502,7 @@ class TestSetupLogging(object):
 
     def test_setup_logging_no_logging(self, controller):
         """Make sure that if no logging enabled, our loggers don't have any handlers."""
-        hamster_cli._setup_logging(controller)
+        dob._setup_logging(controller)
         assert controller.lib_logger.handlers == []
         assert controller.client_logger.handlers == []
 
@@ -513,7 +513,7 @@ class TestSetupLogging(object):
         controller.client_config['logfile_path'] = os.path.join(
             appdirs.user_log_dir, 'foobar.log',
         )
-        hamster_cli._setup_logging(controller)
+        dob._setup_logging(controller)
         assert isinstance(controller.lib_logger.handlers[0],
             logging.FileHandler)
         assert isinstance(controller.client_logger.handlers[0],
@@ -577,8 +577,8 @@ class TestGetConfig(object):
 
 class TestGetConfigInstance(object):
     def test_no_file_present(self, appdirs, mocker):
-#        mocker.patch('hamster_cli.hamster_cli._write_config_file')
-        mocker.patch('hamster_cli.cmd_config.write_config_file')
+#        mocker.patch('dob.dob._write_config_file')
+        mocker.patch('dob.cmd_config.write_config_file')
 
         cmd_config.get_config_instance()
         assert cmd_config.write_config_file.called
@@ -590,10 +590,10 @@ class TestGetConfigInstance(object):
 
     def test_get_config_path(self, appdirs, mocker):
         """Make sure the config target path is constructed to our expectations."""
-#        mocker.patch('hamster_cli.hamster_cli._write_config_file')
-        mocker.patch('hamster_cli.cmd_config.write_config_file')
+#        mocker.patch('dob.dob._write_config_file')
+        mocker.patch('dob.cmd_config.write_config_file')
         cmd_config.get_config_instance()
-        expectation = os.path.join(appdirs.user_config_dir, 'hamster_cli.conf')
+        expectation = os.path.join(appdirs.user_config_dir, 'dob.conf')
         assert cmd_config.write_config_file.called_with(expectation)
 
 
@@ -635,120 +635,120 @@ class TestHamsterAppDirs(object):
     def test_user_data_dir_returns_directoy(self, tmpdir, mocker):
         """Make sure method returns directory."""
         path = tmpdir.strpath
-#        mocker.patch('hamster_cli.hamster_cli.appdirs.user_data_dir', return_value=path)
-#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
-        mocker.patch('hamster_cli.cmd_config.appdirs.user_data_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('hamster_cli')
+#        mocker.patch('dob.dob.appdirs.user_data_dir', return_value=path)
+#        appdir = dob.HamsterAppDirs('dob')
+        mocker.patch('dob.cmd_config.appdirs.user_data_dir', return_value=path)
+        appdir = cmd_config.HamsterAppDirs('dob')
         assert appdir.user_data_dir == path
 
     @pytest.mark.parametrize('create', [True, False])
     def test_user_data_dir_creates_file(self, tmpdir, mocker, create, faker):
         """Make sure that path creation depends on ``create`` attribute."""
         path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
-#        mocker.patch('hamster_cli.hamster_cli.appdirs.user_data_dir', return_value=path)
-#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
-        mocker.patch('hamster_cli.cmd_config.appdirs.user_data_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('hamster_cli')
+#        mocker.patch('dob.dob.appdirs.user_data_dir', return_value=path)
+#        appdir = dob.HamsterAppDirs('dob')
+        mocker.patch('dob.cmd_config.appdirs.user_data_dir', return_value=path)
+        appdir = cmd_config.HamsterAppDirs('dob')
         appdir.create = create
         assert os.path.exists(appdir.user_data_dir) is create
 
     def test_site_data_dir_returns_directoy(self, tmpdir, mocker):
         """Make sure method returns directory."""
         path = tmpdir.strpath
-#        mocker.patch('hamster_cli.hamster_cli.appdirs.site_data_dir', return_value=path)
-#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
-        mocker.patch('hamster_cli.cmd_config.appdirs.site_data_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('hamster_cli')
+#        mocker.patch('dob.dob.appdirs.site_data_dir', return_value=path)
+#        appdir = dob.HamsterAppDirs('dob')
+        mocker.patch('dob.cmd_config.appdirs.site_data_dir', return_value=path)
+        appdir = cmd_config.HamsterAppDirs('dob')
         assert appdir.site_data_dir == path
 
     @pytest.mark.parametrize('create', [True, False])
     def test_site_data_dir_creates_file(self, tmpdir, mocker, create, faker):
         """Make sure that path creation depends on ``create`` attribute."""
         path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
-#        mocker.patch('hamster_cli.hamster_cli.appdirs.site_data_dir', return_value=path)
-#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
-        mocker.patch('hamster_cli.cmd_config.appdirs.site_data_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('hamster_cli')
+#        mocker.patch('dob.dob.appdirs.site_data_dir', return_value=path)
+#        appdir = dob.HamsterAppDirs('dob')
+        mocker.patch('dob.cmd_config.appdirs.site_data_dir', return_value=path)
+        appdir = cmd_config.HamsterAppDirs('dob')
         appdir.create = create
         assert os.path.exists(appdir.site_data_dir) is create
 
     def test_user_config_dir_returns_directoy(self, tmpdir, mocker):
         """Make sure method returns directory."""
         path = tmpdir.strpath
-#        mocker.patch('hamster_cli.hamster_cli.appdirs.user_config_dir', return_value=path)
-#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
-        mocker.patch('hamster_cli.cmd_config.appdirs.user_config_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('hamster_cli')
+#        mocker.patch('dob.dob.appdirs.user_config_dir', return_value=path)
+#        appdir = dob.HamsterAppDirs('dob')
+        mocker.patch('dob.cmd_config.appdirs.user_config_dir', return_value=path)
+        appdir = cmd_config.HamsterAppDirs('dob')
         assert appdir.user_config_dir == path
 
     @pytest.mark.parametrize('create', [True, False])
     def test_user_config_dir_creates_file(self, tmpdir, mocker, create, faker):
         """Make sure that path creation depends on ``create`` attribute."""
         path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
-#        mocker.patch('hamster_cli.hamster_cli.appdirs.user_config_dir', return_value=path)
-#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
-        mocker.patch('hamster_cli.cmd_config.appdirs.user_config_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('hamster_cli')
+#        mocker.patch('dob.dob.appdirs.user_config_dir', return_value=path)
+#        appdir = dob.HamsterAppDirs('dob')
+        mocker.patch('dob.cmd_config.appdirs.user_config_dir', return_value=path)
+        appdir = cmd_config.HamsterAppDirs('dob')
         appdir.create = create
         assert os.path.exists(appdir.user_config_dir) is create
 
     def test_site_config_dir_returns_directoy(self, tmpdir, mocker):
         """Make sure method returns directory."""
         path = tmpdir.strpath
-#        mocker.patch('hamster_cli.hamster_cli.appdirs.site_config_dir', return_value=path)
-#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
-        mocker.patch('hamster_cli.cmd_config.appdirs.site_config_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('hamster_cli')
+#        mocker.patch('dob.dob.appdirs.site_config_dir', return_value=path)
+#        appdir = dob.HamsterAppDirs('dob')
+        mocker.patch('dob.cmd_config.appdirs.site_config_dir', return_value=path)
+        appdir = cmd_config.HamsterAppDirs('dob')
         assert appdir.site_config_dir == path
 
     @pytest.mark.parametrize('create', [True, False])
     def test_site_config_dir_creates_file(self, tmpdir, mocker, create, faker):
         """Make sure that path creation depends on ``create`` attribute."""
         path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
-#        mocker.patch('hamster_cli.hamster_cli.appdirs.site_config_dir', return_value=path)
-#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
-        mocker.patch('hamster_cli.cmd_config.appdirs.site_config_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('hamster_cli')
+#        mocker.patch('dob.dob.appdirs.site_config_dir', return_value=path)
+#        appdir = dob.HamsterAppDirs('dob')
+        mocker.patch('dob.cmd_config.appdirs.site_config_dir', return_value=path)
+        appdir = cmd_config.HamsterAppDirs('dob')
         appdir.create = create
         assert os.path.exists(appdir.site_config_dir) is create
 
     def test_user_cache_dir_returns_directoy(self, tmpdir, mocker):
         """Make sure method returns directory."""
         path = tmpdir.strpath
-#        mocker.patch('hamster_cli.hamster_cli.appdirs.user_cache_dir', return_value=path)
-#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
-        mocker.patch('hamster_cli.cmd_config.appdirs.user_cache_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('hamster_cli')
+#        mocker.patch('dob.dob.appdirs.user_cache_dir', return_value=path)
+#        appdir = dob.HamsterAppDirs('dob')
+        mocker.patch('dob.cmd_config.appdirs.user_cache_dir', return_value=path)
+        appdir = cmd_config.HamsterAppDirs('dob')
         assert appdir.user_cache_dir == path
 
     @pytest.mark.parametrize('create', [True, False])
     def test_user_cache_dir_creates_file(self, tmpdir, mocker, create, faker):
         """Make sure that path creation depends on ``create`` attribute."""
         path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
-#        mocker.patch('hamster_cli.hamster_cli.appdirs.user_cache_dir', return_value=path)
-#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
-        mocker.patch('hamster_cli.cmd_config.appdirs.user_cache_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('hamster_cli')
+#        mocker.patch('dob.dob.appdirs.user_cache_dir', return_value=path)
+#        appdir = dob.HamsterAppDirs('dob')
+        mocker.patch('dob.cmd_config.appdirs.user_cache_dir', return_value=path)
+        appdir = cmd_config.HamsterAppDirs('dob')
         appdir.create = create
         assert os.path.exists(appdir.user_cache_dir) is create
 
     def test_user_log_dir_returns_directoy(self, tmpdir, mocker):
         """Make sure method returns directory."""
         path = tmpdir.strpath
-#        mocker.patch('hamster_cli.hamster_cli.appdirs.user_log_dir', return_value=path)
-#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
-        mocker.patch('hamster_cli.cmd_config.appdirs.user_log_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('hamster_cli')
+#        mocker.patch('dob.dob.appdirs.user_log_dir', return_value=path)
+#        appdir = dob.HamsterAppDirs('dob')
+        mocker.patch('dob.cmd_config.appdirs.user_log_dir', return_value=path)
+        appdir = cmd_config.HamsterAppDirs('dob')
         assert appdir.user_log_dir == path
 
     @pytest.mark.parametrize('create', [True, False])
     def test_user_log_dir_creates_file(self, tmpdir, mocker, create, faker):
         """Make sure that path creation depends on ``create`` attribute."""
         path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
-#        mocker.patch('hamster_cli.hamster_cli.appdirs.user_log_dir', return_value=path)
-#        appdir = hamster_cli.HamsterAppDirs('hamster_cli')
-        mocker.patch('hamster_cli.cmd_config.appdirs.user_log_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('hamster_cli')
+#        mocker.patch('dob.dob.appdirs.user_log_dir', return_value=path)
+#        appdir = dob.HamsterAppDirs('dob')
+        mocker.patch('dob.cmd_config.appdirs.user_log_dir', return_value=path)
+        appdir = cmd_config.HamsterAppDirs('dob')
         appdir.create = create
         assert os.path.exists(appdir.user_log_dir) is create
 
@@ -758,19 +758,19 @@ class TestShowGreeting(object):
 
     def test_shows_welcome(self, capsys):
         """Make sure we welcome our users properly."""
-        hamster_cli._show_greeting()
+        dob._show_greeting()
         out, err = capsys.readouterr()
-        assert "Welcome to 'hamster_cli'" in out
+        assert "Welcome to 'dob'" in out
 
     def test_shows_copyright(self, capsys):
         """Make sure we show basic copyright information."""
-        hamster_cli._show_greeting()
+        dob._show_greeting()
         out, err = capsys.readouterr()
         assert "Copyright" in out
 
     def test_shows_license(self, capsys):
         """Make sure we display a brief reference to the license."""
-        hamster_cli._show_greeting()
+        dob._show_greeting()
         out, err = capsys.readouterr()
         assert "GPL3" in out
         assert "'license' command" in out

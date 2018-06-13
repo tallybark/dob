@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with 'dob'.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Testsuite for ``hamster_cli``."""
+"""Testsuite for ``dob``."""
 
 from __future__ import absolute_import, unicode_literals
 

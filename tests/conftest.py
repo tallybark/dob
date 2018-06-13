@@ -42,7 +42,7 @@ import freezegun
 
 import hamster_lib
 
-import hamster_cli.hamster_cli as hamster_cli
+import dob.dob as dob
 
 from . import factories
 
@@ -71,23 +71,23 @@ def appdirs(mocker, tmpdir):
             os.makedirs(directory)
         return directory
 
-    hamster_cli.AppDirs = mocker.MagicMock()
-    hamster_cli.AppDirs.user_config_dir = ensure_directory_exists(os.path.join(
-        tmpdir.mkdir('config').strpath, 'hamster_cli/'))
-    hamster_cli.AppDirs.user_data_dir = ensure_directory_exists(os.path.join(
-        tmpdir.mkdir('data').strpath, 'hamster_cli/'))
-    hamster_cli.AppDirs.user_cache_dir = ensure_directory_exists(os.path.join(
-        tmpdir.mkdir('cache').strpath, 'hamster_cli/'))
-    hamster_cli.AppDirs.user_log_dir = ensure_directory_exists(os.path.join(
-        tmpdir.mkdir('log').strpath, 'hamster_cli/'))
-    return hamster_cli.AppDirs
+    dob.AppDirs = mocker.MagicMock()
+    dob.AppDirs.user_config_dir = ensure_directory_exists(os.path.join(
+        tmpdir.mkdir('config').strpath, 'dob/'))
+    dob.AppDirs.user_data_dir = ensure_directory_exists(os.path.join(
+        tmpdir.mkdir('data').strpath, 'dob/'))
+    dob.AppDirs.user_cache_dir = ensure_directory_exists(os.path.join(
+        tmpdir.mkdir('cache').strpath, 'dob/'))
+    dob.AppDirs.user_log_dir = ensure_directory_exists(os.path.join(
+        tmpdir.mkdir('log').strpath, 'dob/'))
+    return dob.AppDirs
 
 
 @pytest.fixture
 def runner(appdirs, get_config_file):
     """Provide a convenient fixture to simulate execution of (sub-) commands."""
     def runner(args=[], **kwargs):
-        return CliRunner().invoke(hamster_cli.run, args, **kwargs)
+        return CliRunner().invoke(dob.run, args, **kwargs)
     return runner
 
 
@@ -132,7 +132,7 @@ def client_config(tmpdir):
         'log_console': False,
         # Note that 'log_filename' is what's in the config; logfile_path is made.
         'logfile_path': False,
-        #'logfile_path': os.path.join(tmpdir.mkdir('log2').strpath, 'hamster_cli.log'),
+        #'logfile_path': os.path.join(tmpdir.mkdir('log2').strpath, 'dob.log'),
         'export_path': os.path.join(tmpdir.mkdir('export').strpath, 'export'),
         'term_color': False,
         'term_paging': False,
@@ -187,7 +187,7 @@ def config_instance(tmpdir, faker):
 @pytest.fixture
 def config_file(config_instance, appdirs):
     """Provide a config file store under our fake config dir."""
-    with codecs.open(os.path.join(appdirs.user_config_dir, 'hamster_cli.conf'),
+    with codecs.open(os.path.join(appdirs.user_config_dir, 'dob.conf'),
             'w', encoding='utf-8') as fobj:
         config_instance().write(fobj)
 
@@ -197,7 +197,7 @@ def get_config_file(config_instance, appdirs):
     """Provide a dynamic config file store under our fake config dir."""
     def generate(**kwargs):
         instance = config_instance(**kwargs)
-        with codecs.open(os.path.join(appdirs.user_config_dir, 'hamster_cli.conf'),
+        with codecs.open(os.path.join(appdirs.user_config_dir, 'dob.conf'),
                 'w', encoding='utf-8') as fobj:
             instance.write(fobj)
         return instance
@@ -266,7 +266,7 @@ def controller_with_logging(lib_config, client_config):
     controller.client_config = client_config
     # [FIXME]
     # We shouldn't shortcut like this!
-    hamster_cli._setup_logging(controller)
+    dob._setup_logging(controller)
     yield controller
     controller.store.cleanup()
 
