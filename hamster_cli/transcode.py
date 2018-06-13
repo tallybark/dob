@@ -760,10 +760,13 @@ def import_facts(
                 attr('reset'),
             ))
             if other:
+                # FIXME/2018-06-12: (lb): Subtract edges; this is too much.
+                cut_width = click.get_terminal_size()[0]
+
                 click.echo('{}: {}{}'.format(
                     _('Compare',),
                     other_pk,
-                    other.friendly_str(truncate=True, colorful=colorful),
+                    other.friendly_str(colorful=colorful, cut_width=cut_width),
                 ))
             click.echo()
         msg = _(
