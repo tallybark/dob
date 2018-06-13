@@ -1,11 +1,9 @@
 RONN := ronn
-PAGES := hamster.1
-# MAYBE: Should this be hamster-cli?
-#PAGES := hamster-cli.1
+PAGES := dob.1
 
 all: $(PAGES)
 
-hamster.1: hamster.1.ronn
+dob.1: dob.1.ronn
 	$(RONN) -r $<
 
 # Note: Because Makefail (ugh) this runs before recipes

@@ -117,9 +117,9 @@ COPYRIGHT
 
 (C) 2015-2016 Eric Goller
 
-hamster-cli is released under the terms of an GPLv3 license.
+dob is released under the terms of an GPLv3 license.
 
-Run `hamster license` for more.
+Run `dob license` for more.
 
 ACKNOWLEDGEMENTS
 ----------------
