@@ -174,7 +174,7 @@ class TestStart(object):
 
         To test just this function -- and the parametrize, above -- try:
 
-          workon hamster
+          workon dob
           cdproject
           py.test --pdb -vv -k test_start_add_new_fact tests/
 
