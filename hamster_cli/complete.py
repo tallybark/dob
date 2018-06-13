@@ -17,7 +17,6 @@
 
 from __future__ import absolute_import, unicode_literals
 
-import datetime
 import os
 import random
 import re
@@ -28,20 +27,15 @@ import click
 from click.parser import split_arg_string
 
 from hamster_lib import Fact
+from hamster_lib.helpers.parsing import TIME_HINT_MAP
 from hamster_lib.helpers.parsing import ParserMissingActivityException
 from hamster_lib.helpers.parsing import ParserMissingDatetimeOneException
 from hamster_lib.helpers.parsing import ParserMissingDatetimeTwoException
 
 __all__ = ['tab_complete']
 
-INSERT_COMMAND_TIME_HINT = {
-    'on': 'verify-none',
-    'now': 'verify-none',
-    'at': 'verify-start',
-    'to': 'verify-end',
-    'until': 'verify-end',
-    'from': 'verify-both',
-}
+
+# FIXME/2018-05-17 18:04: On `hamster import <tab>`, showing commands, not files! why??
 
 def tab_complete(controller):
     def _complete_cmd(controller):
@@ -50,7 +44,7 @@ def tab_complete(controller):
             return
 
         try:
-            time_hint = INSERT_COMMAND_TIME_HINT[args[0]]
+            time_hint = TIME_HINT_MAP[args[0]]
         except KeyError:
             # Not an add_fact command! Fall-back to Click's complete.
             return
@@ -84,7 +78,7 @@ def tab_complete(controller):
     def _get_choices(args, incomplete, time_hint):
         choices = []
         try:
-            fact = Fact.create_from_raw_fact(args, time_hint=time_hint)
+            fact, _err = Fact.create_from_factoid(args, time_hint=time_hint)
         except ParserMissingDatetimeOneException as err:
             choices = _choices_datetimes(controller, incomplete, time_hint, err)
         except ParserMissingDatetimeTwoException as err:
@@ -92,11 +86,11 @@ def tab_complete(controller):
         except ParserMissingActivityException:
             # See if we should suggest tags, activities, or activity-categories.
             if (not incomplete) or (not re.match(r'''^['"]?[#@]''', incomplete)):
-                choices = _choices_activities(
+                choices = choices_activities(
                     controller, incomplete, whitespace_ok=False,
                 )
             else:
-                choices = _choices_tags(
+                choices = choices_tags(
                     controller, incomplete, whitespace_ok=False,
                 )
         else:
@@ -113,11 +107,11 @@ def tab_complete(controller):
 
 def _choices_datetimes(controller, incomplete, time_hint, parser_err):
     """Suggest times."""
-    now = datetime.datetime.now()
+    now = controller.now
     # Show friendly usage reminders.
-    # - For 'verify-start' (hamster-at), show now and very recent times.
-    # - For 'verify-end' (hamster-to-/-until), show now (and very recent).
-    # - For 'verify-both', with show less freshly recent for start,
+    # - For 'verify_start' (hamster-at), show now and very recent times.
+    # - For 'verify_end' (hamster-to-/-until), show now (and very recent).
+    # - For 'verify_both', with show less freshly recent for start,
     #   and show more recent times for second, end time.
     # NOTE: We underscore because Bash complete splits words,
     #       and thankfully the friendly `dateparser` understand this
@@ -150,14 +144,11 @@ def _choices_datetimes(controller, incomplete, time_hint, parser_err):
     # (lb): Using random.shuffle, rather than random.choice. Can't remember why.
     random.shuffle(friendly_at_hints)
     random.shuffle(friendly_from_hints)
-
-    if time_hint == 'verify-start':
-        # What the heck, show just one friendly date example, randomly selected..
-        #friendly_hint = [random.choices(friendly_at_hints)]
+    if time_hint == 'verify_start':
         friendly_hint = friendly_at_hints[:2]
-    elif time_hint == 'verify-end':
+    elif time_hint == 'verify_end':
         friendly_hint = ['now']
-    elif time_hint == 'verify-both':
+    elif time_hint == 'verify_both':
         if isinstance(parser_err, ParserMissingDatetimeOneException):
             friendly_hint = friendly_from_hints[:2]
         else:
@@ -182,7 +173,8 @@ def _choices_datetimes(controller, incomplete, time_hint, parser_err):
         ]
     return choices
 
-def _choices_tags(controller, incomplete='', whitespace_ok=False):
+
+def choices_tags(controller, incomplete='', whitespace_ok=False):
     """Suggest tags."""
     # Grab the last 20 or so tags used (by Facts, chronologically),
     # and also the most used (top ten) 10 or so tags used by all Facts.
@@ -196,7 +188,7 @@ def _choices_tags(controller, incomplete='', whitespace_ok=False):
     tags_counts += controller.tags.get_all_by_usage(sort_col='usage', limit=13)
 
     choices = [
-        '@{}'.format(tag.name) for tag, _uses
+        '@{}'.format(tag.name) for tag, _uses, _span
         in tags_counts if not incomplete or tag.name.startswith(incomplete[1:])
     ]
     # MEH: We cull, even though we set limit above, so total count might be even smaller.
@@ -205,9 +197,22 @@ def _choices_tags(controller, incomplete='', whitespace_ok=False):
         choices = [tag for tag in choices if ' ' not in tag]
     return choices
 
-def _choices_activities(controller, incomplete='', whitespace_ok=False):
+
+def choices_activities(
+    controller,
+    incomplete='',
+    whitespace_ok=False,
+    filter_category=False,
+    filter_activity='',
+):
     """Suggest activities."""
-    acty = controller.activities.get_all_by_usage(sort_col='start')
+
+    acty = controller.activities.get_all_by_usage(
+        sort_col='start',
+        category=filter_category,
+        activity=filter_activity,
+    )
+
     choices = [
         '{}@{}'.format(
             act.name, act.category.name if act.category else ''
@@ -226,6 +231,7 @@ def _choices_activities(controller, incomplete='', whitespace_ok=False):
     # wants as many can fit screen (or all, if I implement pagination). (lb)
     max_choices = 50
     if len(choices) > max_choices:
-        choices = random.sample(choices, max_choices)
+        choices = choices[:50]
+
     return choices
 
