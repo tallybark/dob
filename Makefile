@@ -94,7 +94,7 @@ develop:
 	pip install -U -r requirements/dev.pip
 
 lint:
-	flake8 hamster_cli tests
+	flake8 dob tests
 
 test:
 	py.test $(TEST_ARGS) tests/
@@ -123,7 +123,7 @@ docs:
 	$(BROWSER) docs/_build/html/index.html
 
 isort:
-	isort --recursive setup.py hamster_cli/ tests/
+	isort --recursive setup.py dob/ tests/
 
 servedocs: docs
 	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
@@ -183,7 +183,7 @@ cloc:
 ifndef CLOC
 	$(error "Please install cloc from: https://github.com/AlDanial/cloc")
 endif
-	@cloc --exclude-dir=.git,_build,hamster_cli.egg-info,.pytest_cache .
+	@cloc --exclude-dir=.git,_build,dob.egg-info,.pytest_cache .
 
 # vim:tw=0:ts=2:sw=2:noet:ft=make:
 
