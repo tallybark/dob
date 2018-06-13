@@ -2,6 +2,9 @@
 hamster_cli
 ===============================
 
+.. FIXME/2018-06-13: This whole file!!!
+
+
 .. image:: https://img.shields.io/pypi/v/hamster_cli.svg
         :target: https://pypi.python.org/pypi/hamster_cli
 
