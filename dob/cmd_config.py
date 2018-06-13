@@ -51,12 +51,12 @@ __all__ = [
 # *** `dob` AppDirs.
 # ***
 
-class HamsterAppDirs(appdirs.AppDirs):
+class DobAppDirs(appdirs.AppDirs):
     """Custom class that ensure appdirs exist."""
 
     def __init__(self, *args, **kwargs):
         """Add create flag value to instance."""
-        super(HamsterAppDirs, self).__init__(*args, **kwargs)
+        super(DobAppDirs, self).__init__(*args, **kwargs)
         self.create = True
 
     @property
@@ -138,7 +138,7 @@ class HamsterAppDirs(appdirs.AppDirs):
         return directory
 
 
-AppDirs = HamsterAppDirs('dob')
+AppDirs = DobAppDirs('dob')
 
 
 # ***
