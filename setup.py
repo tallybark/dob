@@ -54,6 +54,8 @@ requirements = [
     # Just Another EDITOR package.
     #  https://github.com/fmoo/python-editor
     'python-editor',
+    # Amazeballs prompt library.
+    'prompt-toolkit >= 2.0.0',
     # Virtuous Six Python 2 and 3 compatibility library.
     #  https://six.readthedocs.io/
     'six',
@@ -121,7 +123,7 @@ def import_business_vars(package_dir):
 
 # Import variables from nark/__init__.py,
 # without triggering that files' imports.
-cfg = import_business_vars('nark')
+cfg = import_business_vars('dob')
 
 # *** Local file content.
 
