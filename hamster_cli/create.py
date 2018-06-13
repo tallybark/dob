@@ -373,18 +373,37 @@ def cancel_fact(controller, purge=False):
 
 
 def echo_ongoing_completed(controller, fact):
-    colorful = controller.client_config['term_color']
-    click.echo(
-        _('Completed: ') +
-        fact.friendly_str(
-            shellify=False,
-            description_sep=': ',
+    """"""
+    def _echo_ongoing_completed():
+        colorful = controller.client_config['term_color']
+        leader = _('Completed: ')
+        cut_width = width_avail(len(leader))
+        echo_fact(leader, colorful, cut_width)
 
-            # FIXME/2018-06-10: (lb): fact being saved as UTC
-            localize=True,
+    def width_avail(leader_len):
+        term_width = click.get_terminal_size()[0]
+        width_avail = term_width - leader_len
+        return width_avail
 
-            colorful=colorful,
-            show_elapsed=True,
+    def echo_fact(leader, colorful, cut_width):
+        click.echo(
+            leader +
+            fact.friendly_str(
+                shellify=False,
+                description_sep=': ',
+
+                # FIXME/2018-06-10: (lb): fact being saved as UTC
+                localize=True,
+
+                colorful=colorful,
+
+                # FIXME/2018-06-12: (lb): Too wide (wraps to next line);
+                # doesn't account for leading fact parts (times, act@gory, tags).
+                cut_width=cut_width,
+
+                show_elapsed=True,
+            )
         )
-    )
+
+    _echo_ongoing_completed()
 
