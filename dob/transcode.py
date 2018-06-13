@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with 'dob'.  If not, see <http://www.gnu.org/licenses/>.
 
-"""A time tracker for the command line. Utilizing the power of hamster-lib."""
+"""A time tracker for the command line. Utilizing the power of nark."""
 
 from __future__ import absolute_import, unicode_literals
 
@@ -189,15 +189,15 @@ def import_facts(
     def must_specify_input(file_in):
         redirecting = False
         # See if the user is piping or redirecting STDIN, e.g.,
-        #   echo "derp" | hamster import
-        #   hamster import < path/to/file
+        #   echo "derp" | nark import
+        #   nark import < path/to/file
         if not sys.stdin.isatty():
             # Bingo!
             redirecting = True
             if file_in:
                 # NOTE: You cannot set a breakpoint here if you do something
-                #       weird like: ``cat import.hamster | hamster import -``
-                #               or: ``hamster import - < import.hamster``
+                #       weird like: ``cat import.nark | nark import -``
+                #               or: ``nark import - < import.nark``
                 # MEH: (lb): This is sorta an optparser layer concern and
                 # maybe should be handled from the caller (CLI) rather than
                 # from the import/export processing routines. But, meh.
@@ -387,7 +387,7 @@ def import_facts(
         # the newline). And we can be strict and require that the date data
         # starts the line.
 
-        # Per hamster-insert commands, parser expects iterable.
+        # Per dob-insert commands, parser expects iterable.
         factoid = (line,)
 
         fact_dict, err = parse_factoid(

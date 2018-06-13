@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with 'dob'.  If not, see <http://www.gnu.org/licenses/>.
 
-"""A time tracker for the command line. Utilizing the power of hamster-lib."""
+"""A time tracker for the command line. Utilizing the power of hamster! [nark]."""
 
 from __future__ import absolute_import, unicode_literals
 
@@ -371,9 +371,6 @@ def _version():
 # *** [LICENSE] Command.
 # ***
 
-# FIXME/MAYBE/2018-05-11 20:57: Rename this hamster-about? Then it's 1st alphabetically.
-#                               And you could add a link to the project page?
-#                               Seems weird to have a license command anyway, though!
 @run.command(hidden=True, help=help_strings.LICENSE_HELP)
 def license():
     """Show license information."""
@@ -417,6 +414,8 @@ def copyright(controller):
 # *** [DANCE] Command [Easter egg].
 # ***
 
+# FIXME: (lb): This used to be `hamster dance`, now it's `dob dance`.
+#          Does the name still make sense??
 @run.command('dance', hidden=True, help=_('Hamster time!'))
 @click.argument('posits', nargs=-1)
 @pass_controller
@@ -429,10 +428,10 @@ def banner(controller, posits):
 # *** [DETAILS] Command [about paths, config, etc.].
 # ***
 
-# MAYBE: (lb): Call this hamster-show? hamster-status? hamster-info?
+# MAYBE: (lb): Call this dob-show? dob-status? dob-info?
 #   (2018-06-09: Trying aliases for now)
 #   Some ideas: aliases=['show', 'status', 'info', 'config', 'details', 'appinfo'])
-#   Though maybe 'show' should be alias for hamster-current?
+#   Though maybe 'show' should be alias for dob-current?
 # MAYBE: Calling this 'appinfo' would make this command first in the --help....
 #   @run.command(aliases=['show', 'status', 'info'], help=help_strings.DETAILS_HELP)
 @run.command(aliases=['info'], help=help_strings.DETAILS_HELP)
@@ -453,7 +452,7 @@ def details(controller, tmi):
 @pass_controller
 @click.pass_context
 def list_group(ctx, controller):
-    """Base `list` group command run prior to any of the hamster-list commands."""
+    """Base `list` group command run prior to any of the dob-list commands."""
     pass
 
 
@@ -570,7 +569,7 @@ def list_facts(controller, *args, **kwargs):
     pass
 
 
-# MAYBE: Should we alias the command at hamster-search?
+# MAYBE: Should we alias the command at dob-search?
 @run.command('search', help=help_strings.SEARCH_HELP)
 @generate_list_facts_command
 def search_facts(controller, *args, **kwargs):
@@ -586,7 +585,7 @@ def search_facts(controller, *args, **kwargs):
 @pass_controller
 @click.pass_context
 def usage_group(ctx, controller):
-    """Base `usage` group command run prior to any of the hamster-usage commands."""
+    """Base `usage` group command run prior to any of the dob-usage commands."""
     pass
 
 
@@ -753,7 +752,7 @@ def between(controller, *args, **kwargs):
 @pass_controller
 @click.pass_context
 def edit_group(ctx, controller):
-    """Base `edit` group command run prior to any of the hamster-edit commands."""
+    """Base `edit` group command run prior to any of the dob-edit commands."""
     pass
 
 
@@ -819,15 +818,15 @@ def transcode_import(controller, filename, output, force, *args, **kwargs):
 
     # Because nargs=-1, the user could specify many files! E.g.,
     #
-    #   hamster import file1 file2
+    #   dob import file1 file2
     #
     # Also, click supports the magic STDIN identifier, `-`, e.g.,
     #
-    #   hamster import -
+    #   dob import -
     #
     # will read from STDIN.
     #
-    # (And `hamster import - <file>` will open 2 streams!)
+    # (And `dob import - <file>` will open 2 streams!)
     if len(filename) > 1:
         msg = _('Please specify only one input, file or STDIN!')
         click.echo(msg)
@@ -839,9 +838,9 @@ def transcode_import(controller, filename, output, force, *args, **kwargs):
 
     # NOTE: You can get tricky and enter Facts LIVE! E.g.,
     #
-    #           hamster import -
+    #           dob import -
     #
-    #       will open pipe from STDIN, and Hamster will wait for
+    #       will open pipe from STDIN, and Dob will wait for
     #       you to type! (lb): Though I did not verify ^D EOFs.
 
     if output and not force and os.path.exists(output.name):
@@ -877,7 +876,7 @@ def complete(controller):
 @pass_controller
 @click.pass_context
 def migrate_group(ctx, controller):
-    """Base `migrate` group command run prior to any of the hamster-migrate commands."""
+    """Base `migrate` group command run prior to any of the dob-migrate commands."""
     pass
 
 

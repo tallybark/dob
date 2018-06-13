@@ -165,8 +165,9 @@ class BackendDefaults(object):
     def fact_min_delta(self):
         # (lb): Disable this by default; I've never liked this logic!
         #   In Legacy Hamster: 60, i.e., facts must be 1 minute apart!
-        #   In Modern Hamster, you can make facts every seconds, or every
-        #     millisecond, we don't care, so long as they do not overlap!
+        #   In Modern Hamster (nark), you can make facts every seconds,
+        #     or every millisecond, we don't care, so long as they do
+        #     not overlap!
         return '0'
 
     @property
@@ -438,10 +439,10 @@ def get_config(config_instance):
             return result
 
         def get_sql_log_level():
-            # (lb): A wee bit of a hack! Don't log during the hamster-complete
+            # (lb): A wee bit of a hack! Don't log during the dob-complete
             #   command, lest yuck!
             if (len(sys.argv) == 2) and (sys.argv[1] == 'complete'):
-                # Disable for hamster-complete.
+                # Disable for dob-complete.
                 return logging.CRITICAL + 1
             sql_log_level = backend_config_or_default('sql_log_level')
             return sql_log_level

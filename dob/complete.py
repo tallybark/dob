@@ -35,7 +35,7 @@ from nark.helpers.parsing import ParserMissingDatetimeTwoException
 __all__ = ['tab_complete']
 
 
-# FIXME/2018-05-17 18:04: On `hamster import <tab>`, showing commands, not files! why??
+# FIXME/2018-05-17 18:04: On `dob import <tab>`, showing commands, not files! why??
 
 def tab_complete(controller):
     def _complete_cmd(controller):
@@ -109,8 +109,8 @@ def _choices_datetimes(controller, incomplete, time_hint, parser_err):
     """Suggest times."""
     now = controller.now
     # Show friendly usage reminders.
-    # - For 'verify_start' (hamster-at), show now and very recent times.
-    # - For 'verify_end' (hamster-to-/-until), show now (and very recent).
+    # - For 'verify_start' (dob-at), show now and very recent times.
+    # - For 'verify_end' (dob-to-/-until), show now (and very recent).
     # - For 'verify_both', with show less freshly recent for start,
     #   and show more recent times for second, end time.
     # NOTE: We underscore because Bash complete splits words,

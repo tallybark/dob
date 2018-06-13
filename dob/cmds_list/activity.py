@@ -47,7 +47,7 @@ def list_activities(
         category=category, **kwargs
     )
 
-    # This is sorta like `hamster usage activity`, except we use
+    # This is sorta like `dob usage activity`, except we use
     # separate columns for the activity name and category name,
     # rather than combining as activity@category.
     headers = (_("Activity"), _("Category"))
