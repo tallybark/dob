@@ -30,8 +30,8 @@ import sys
 # possible.
 from backports.configparser import NoOptionError, SafeConfigParser
 
-import hamster_lib
-from hamster_lib.helpers.colored import colorize
+import nark
+from nark.helpers.colored import colorize
 
 from .helpers import click_echo_and_exit
 
@@ -406,7 +406,7 @@ def get_config(config_instance):
 
         def get_store():
             store = backend_config_or_default('store')
-            if store not in hamster_lib.control.REGISTERED_BACKENDS.keys():
+            if store not in nark.control.REGISTERED_BACKENDS.keys():
                 raise ValueError(_("Unrecognized store option."))
             return store
 

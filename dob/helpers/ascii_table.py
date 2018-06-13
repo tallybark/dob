@@ -26,7 +26,7 @@ from tabulate import tabulate
 from texttable import Texttable
 from humanfriendly.tables import format_pretty_table
 
-from hamster_lib.helpers.colored import attr
+from nark.helpers.colored import attr
 
 __all__ = ['generate_table', 'warn_if_truncated']
 

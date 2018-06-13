@@ -28,15 +28,15 @@ import sys
 from datetime import datetime, timedelta
 from six import text_type
 
-from hamster_lib import Fact, reports
-from hamster_lib.helpers.colored import fg, bg, attr
-from hamster_lib.helpers.dated import (
+from nark import Fact, reports
+from nark.helpers.colored import fg, bg, attr
+from nark.helpers.dated import (
     datetime_from_clock_after,
     datetime_from_clock_prior,
     parse_clock_time,
     parse_relative_minutes,
 )
-from hamster_lib.helpers.parsing import parse_factoid
+from nark.helpers.parsing import parse_factoid
 
 from .cmd_common import barf_and_exit, echo_block_header, fact_block_header
 from .cmds_list.fact import search_facts
@@ -106,7 +106,7 @@ def export_facts(
     def must_verify_format(to_format):
         accepted_formats = ['csv', 'tsv', 'ical', 'xml']
         # [TODO]
-        # Once hamster_lib has a proper 'export' register available we should be able
+        # Once nark has a proper 'export' register available we should be able
         # to streamline this.
         if to_format not in accepted_formats:
             message = _("Unrecocgnized export format received")

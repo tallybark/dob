@@ -29,10 +29,10 @@ from click_aliases import ClickAliasedGroup
 from datetime import datetime
 from functools import update_wrapper
 
-from hamster_lib import __version__ as hamster_lib_version
-from hamster_lib import HamsterControl
-from hamster_lib.helpers import logging as logging_helpers
-from hamster_lib.helpers.colored import disable_colors, enable_colors
+from nark import __version__ as nark_version
+from nark import HamsterControl
+from nark.helpers import logging as logging_helpers
+from nark.helpers.colored import disable_colors, enable_colors
 
 from . import cmd_options
 from . import help_strings
@@ -168,7 +168,7 @@ def _hamster_version():
     vers = '{} version {}\nhamster-lib version {}'.format(
         dob_appname,
         dob_version,
-        hamster_lib_version,
+        nark_version,
     )
     return vers
 

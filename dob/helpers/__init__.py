@@ -22,7 +22,7 @@ from __future__ import absolute_import, unicode_literals
 import click
 import sys
 
-from hamster_lib.helpers.colored import colorize
+from nark.helpers.colored import colorize
 
 __all__ = [
     'click_echo_and_exit',

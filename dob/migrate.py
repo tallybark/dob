@@ -23,7 +23,7 @@ import click
 import os
 import sys
 
-from hamster_lib.helpers.colored import fg, attr
+from nark.helpers.colored import fg, attr
 
 from .cmd_common import barf_on_error
 

@@ -20,7 +20,7 @@ from __future__ import absolute_import, unicode_literals
 import editor
 import six
 
-from hamster_lib import Activity
+from nark import Activity
 
 from .prompters.prompt__awesome import AwesomePrompt
 from .prompters.sophisti_prompt import SophisticatedPrompt

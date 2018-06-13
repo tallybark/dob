@@ -22,7 +22,7 @@ from gettext import gettext as _
 import click
 from collections import namedtuple
 
-from hamster_lib.helpers.colored import colorize
+from nark.helpers.colored import colorize
 
 from ..cmd_common import hydrate_activity, hydrate_category
 from ..helpers import click_echo_and_exit

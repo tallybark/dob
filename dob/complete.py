@@ -26,11 +26,11 @@ from gettext import gettext as _
 import click
 from click.parser import split_arg_string
 
-from hamster_lib import Fact
-from hamster_lib.helpers.parsing import TIME_HINT_MAP
-from hamster_lib.helpers.parsing import ParserMissingActivityException
-from hamster_lib.helpers.parsing import ParserMissingDatetimeOneException
-from hamster_lib.helpers.parsing import ParserMissingDatetimeTwoException
+from nark import Fact
+from nark.helpers.parsing import TIME_HINT_MAP
+from nark.helpers.parsing import ParserMissingActivityException
+from nark.helpers.parsing import ParserMissingDatetimeOneException
+from nark.helpers.parsing import ParserMissingDatetimeTwoException
 
 __all__ = ['tab_complete']
 

@@ -23,10 +23,10 @@ import click
 import json
 from pyoiler_inflector import Inflector
 
-from hamster_lib import Fact
-from hamster_lib.helpers import time as time_helpers
-from hamster_lib.helpers.colored import fg, attr
-from hamster_lib.helpers.parsing import ParserException
+from nark import Fact
+from nark.helpers import time as time_helpers
+from nark.helpers.colored import fg, attr
+from nark.helpers.parsing import ParserException
 
 from . import interrogate
 from .helpers import click_echo_and_exit

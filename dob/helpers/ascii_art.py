@@ -25,7 +25,7 @@ import random
 from pyfiglet import Figlet
 from six import text_type
 
-from hamster_lib.helpers.colored import fg, bg, attr
+from nark.helpers.colored import fg, bg, attr
 
 __all__ = [
     'hamster_artwork',

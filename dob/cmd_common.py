@@ -22,7 +22,7 @@ from gettext import gettext as _
 import click
 import sys
 
-from hamster_lib.helpers.colored import fg, attr, colorize
+from nark.helpers.colored import fg, attr, colorize
 
 from . import migrate
 from .helpers import ascii_art
