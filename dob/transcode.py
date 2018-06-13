@@ -38,6 +38,7 @@ from nark.helpers.dated import (
 )
 from nark.helpers.parsing import parse_factoid
 
+from . import __appname__
 from .cmd_common import barf_and_exit, echo_block_header, fact_block_header
 from .cmds_list.fact import search_facts
 from .create import echo_fact, mend_facts_times, save_facts_maybe
@@ -209,10 +210,10 @@ def import_facts(
             # should be done by caller, and not by library routine.
             msg = (
                 'Please specify a file, or send something on STDIN.\n'
-                'For examples: `cat {file} | hamster import`\n'
-                '          or: `hamster import < {file})\n'
-                '          or: `hamster import {file}'
-            )
+                'For examples: `cat {{file}} | {appname} import`\n'
+                '          or: `{appname} import < {{file}})\n'
+                '          or: `{appname} import {{file}}'
+            ).format(appname=__appname__)
             click.echo(msg)
             sys.exit(1)
         return redirecting

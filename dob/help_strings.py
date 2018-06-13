@@ -21,7 +21,10 @@ from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
-from . import __BigName__
+from . import __appname__, __BigName__
+
+
+# FIXME: Dehardcode: Use .format(appname=__appname__) herein!
 
 
 # ***

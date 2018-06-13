@@ -28,6 +28,7 @@ from nark.helpers import time as time_helpers
 from nark.helpers.colored import fg, attr
 from nark.helpers.parsing import ParserException
 
+from . import __appname__
 from . import interrogate
 from .helpers import click_echo_and_exit
 
@@ -337,8 +338,8 @@ def stop_fact(controller):
     except ValueError:
         message = _(
             "Unable to end current fact. Are you sure there is one?"
-            "Try running `hamster current`"
-        )
+            "Try running `{} current`"
+        ).format(__appname__)
         raise click.ClickException(message)
     else:
         echo_ongoing_completed(controller, fact)
