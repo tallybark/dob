@@ -25,7 +25,7 @@ import click
 import logging
 import os
 import sys
-from click_aliases import ClickAliasedGroup
+from click_alias import ClickAliasedGroup
 from datetime import datetime
 from functools import update_wrapper
 
