@@ -3,7 +3,9 @@
 .pytest_cache/
 .tox/
 docs/_build
-hamster_*.egg-info/
+dob*.egg-info/
 htmlcov/
+man/dob.1
 messages.pot
+.trustme.log
 
