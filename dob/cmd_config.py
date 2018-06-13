@@ -549,20 +549,20 @@ def write_config_file(file_path):
         config.set('Backend', 'db_user', backend.db_user)
         config.set('Backend', 'db_password', backend.db_password)
         config.set('Backend', 'sql_log_level', backend.sql_log_level)
-        config.set('Backend', 'tz_aware', backend.tz_aware)
+        config.set('Backend', 'tz_aware', str(backend.tz_aware))
         config.set('Backend', 'default_tzinfo', backend.default_tzinfo)
 
     def set_defaults_client(config):
         client = ClientDefaults()
         config.add_section('Client')
         config.set('Client', 'log_level', client.log_level)
-        config.set('Client', 'log_console', client.log_console)
+        config.set('Client', 'log_console', str(client.log_console))
         config.set('Client', 'log_filename', client.log_filename)
         config.set('Client', 'export_path', client.export_path)
-        config.set('Client', 'term_color', client.term_color)
-        config.set('Client', 'term_paging', client.term_paging)
+        config.set('Client', 'term_color', str(client.term_color))
+        config.set('Client', 'term_paging', str(client.term_paging))
         config.set('Client', 'separators', client.separators)
-        config.set('Client', 'show_greeting', client.show_greeting)
+        config.set('Client', 'show_greeting', str(client.show_greeting))
 
     return _write_config_file()
 
