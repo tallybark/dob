@@ -74,7 +74,7 @@ click.disable_unicode_literals_warning = True
 __all__ = [
     # 'Controller',
     # 'pass_controller',
-    # '_hamster_version',
+    # '_dob_version',
     # 'run',
     # '_show_greeting',
     # '_setup_logging',
@@ -164,7 +164,7 @@ pass_controller = click.make_pass_decorator(Controller, ensure=True)
 # ***
 
 
-def _hamster_version():
+def _dob_version():
     vers = '{} version {}\nhamster-lib version {}'.format(
         dob_appname,
         dob_version,
@@ -184,7 +184,7 @@ def _hamster_version():
     invoke_without_command=True,
     help=help_strings.RUN_HELP,
 )
-@click.version_option(message=_hamster_version())
+@click.version_option(message=_dob_version())
 # (lb): Hide -v: version_option adds help for --version, so don't repeat ourselves.
 @click.option('-v', is_flag=True, help=help_strings.VERSION_HELP, hidden=True)
 # (lb): Note that universal --options must com before the sub command.
@@ -255,7 +255,7 @@ def run(ctx, controller, v, verbose, verboser, color):
 
     def _run_handle_version(show_version, ctx):
         if show_version:
-            click.echo(_hamster_version())
+            click.echo(_dob_version())
             ctx.exit(0)
 
     def _run_handle_without_command(ctx):
@@ -364,7 +364,7 @@ def version():
 
 def _version():
     """Show version information."""
-    click.echo(_hamster_version())
+    click.echo(_dob_version())
 
 
 # ***
