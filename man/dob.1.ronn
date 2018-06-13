@@ -1,5 +1,5 @@
-hamster(1) -- Furry Modern Time Tracker
-=======================================
+dob(1) -- Furry Modern Time Tracker
+===================================
 
 
 **FIXME** All this!
@@ -115,8 +115,6 @@ COPYRIGHT
 
 (c) 2018 HotOffThe Hamster
 
-(C) 2015-2016 Eric Goller
-
 dob is released under the terms of an GPLv3 license.
 
 Run `dob license` for more.
@@ -124,7 +122,11 @@ Run `dob license` for more.
 ACKNOWLEDGEMENTS
 ----------------
 
-Legacy Hamster was developed 2007-2014 by
+Based on Modern Hamster (``hamster-lib``, ``hamster-cli``, etc.)
+
+(C) 2015-2016 Eric Goller
+
+Which was inspired by Legacy Hamster, developed 2007-2014 by
 
 Toms Baugis and Patryk Zawadzki. Thank you!!
 
