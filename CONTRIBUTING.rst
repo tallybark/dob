@@ -17,7 +17,7 @@ You can contribute in many ways:
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/hotoffthehamster/hamster-cli/issues.
+Report bugs at https://github.com/hotoffthehamster/dob/issues.
 
 If you are reporting a bug, please include:
 
@@ -42,7 +42,7 @@ Anything tagged with "feature" is open to whoever wants to implement it.
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
-Hamster can always use more-better docs, whether as part of the official
+``dob`` can always use more-better docs, whether as part of the official
 user or developer READMEs, in the code as docstrings, or even on the web
 as blog posts, articles, etc.
 
@@ -50,7 +50,7 @@ Submit Feedback
 ~~~~~~~~~~~~~~~
 
 The best way to send feedback is to file an issue at
-https://github.com/hotoffthehamster/hamster-cli/issues.
+https://github.com/hotoffthehamster/dob/issues.
 
 If you are proposing a feature:
 
@@ -66,22 +66,22 @@ Get Started!
 .. |virtualenvwrapper| replace:: ``virtualenvwrapper``
 .. _virtualenvwrapper: https://pypi.org/project/virtualenvwrapper/
 
-Ready to contribute? Here's how to set up ``hamster-cli`` for local development.
+Ready to contribute? Here's how to set up ``dob`` for local development.
 
-1. Fork the ``hamster-cli`` and ``hamster-lib`` repos on GitHub.
+1. Fork the ``dob`` and ``nark`` repos on GitHub.
 
-   * Visit `<https://github.com/hotoffthehamster/hamster-cli>`_ and click *Fork*.
+   * Visit `<https://github.com/hotoffthehamster/dob>`_ and click *Fork*.
 
-   * Visit `<https://github.com/hotoffthehamster/hamster-lib>`_ and click *Fork*.
+   * Visit `<https://github.com/hotoffthehamster/nark>`_ and click *Fork*.
 
 2. Clone your fork locally.
 
    Open a local terminal, change to a directory you'd like to develop from,
    and run the command::
 
-    $ git clone git@github.com:<your_login>/hamster-cli.git
+    $ git clone git@github.com:<your_login>/dob.git
 
-    $ git clone git@github.com:<your_login>/hamster-lib.git
+    $ git clone git@github.com:<your_login>/nark.git
 
 3. Install both projects into a Python virtual instance, or ``virtualenv``.
 
@@ -89,54 +89,55 @@ Ready to contribute? Here's how to set up ``hamster-cli`` for local development.
 
    Next, set up a virtual environment for local development::
 
-    $ cd hamster-cli/
-    $ mkvirtualenv -a $(pwd) hamster
+    $ cd dob/
+    $ mkvirtualenv -a $(pwd) dob
 
    *Note:* We use the ``-a`` option so that ``cdproject`` changes directories
-   to the ``hamster-cli/`` directory when we're in the virtual environment.
+   to the ``dob/`` directory when we're in the virtual environment.
 
    Next, set up your forks for local development::
 
-    (hamster) $ cdproject
-    (hamster) $ make develop
-    (hamster) $ cd ../hamster-lib
-    (hamster) $ make develop
+    (dob) $ cdproject
+    (dob) $ make develop
+    (dob) $ cd ../nark
+    (dob) $ make develop
 
    *Hint:* As usual, run ``workon`` to activate the virtual environment, and
    ``deactivate`` to leave it. E.g.,::
 
     # Load the Python virtual instance.
-    $ workon hamster
-    (hamster) $
+    $ workon dob
+    (dob) $
 
     # Do your work.
-    (hamster) $ ...
+    (dob) $ ...
 
     # Finish up.
-    (hamster) $ deactivate
+    (dob) $ deactivate
+    $
 
 4. Before starting work on a new feature or bugfix, make sure your
    ``develop`` branch is up to date with the official branch::
 
-    (hamster) $ cdproject
-    (hamster) $ git remote add upstream git@github.com:hotoffthehamster/hamster-cli.git
-    (hamster) $ git fetch upstream
-    (hamster) $ git checkout develop
-    (hamster) $ git rebase upstream/develop
-    (hamster) $ git push origin HEAD
-    # And do the same for ../hamster-lib.
+    (dob) $ cdproject
+    (dob) $ git remote add upstream git@github.com:hotoffthehamster/dob.git
+    (dob) $ git fetch upstream
+    (dob) $ git checkout develop
+    (dob) $ git rebase upstream/develop
+    (dob) $ git push origin HEAD
+    # And do the same for ../nark.
 
 5. Create a branch for local development. If you are working on an
    known issue, reference the Issue number in the branch name, e.g.,::
 
-    (hamster) $ git checkout -b feature/ISSUE-123-name-of-your-issue
+    (dob) $ git checkout -b feature/ISSUE-123-name-of-your-issue
 
    Now you can add and edit code in your local working directory.
 
 6. Do your work and make one or more sane, concise commits::
 
-    (hamster) $ git add -p
-    (hamster) $ git commit -m "<Category>: <Short description of changes.>
+    (dob) $ git add -p
+    (dob) $ git commit -m "<Category>: <Short description of changes.>
 
     - <Longer description, if necessary.>"
 
@@ -191,12 +192,12 @@ Ready to contribute? Here's how to set up ``hamster-cli`` for local development.
 7. Throughout development, run tests and the linter -- and definitely before
    you submit a Pull Request.
 
-   Hamster uses |flake8|_ for linting, |pytest|_ for unit testing,
+   ``dob`` uses |flake8|_ for linting, |pytest|_ for unit testing,
    and |tox|_ for verifying against the many versions of Python.
 
    You can run all of these tools with one command::
 
-    (hamster) $ make test-all
+    (dob) $ make test-all
 
    .. FIXME: Verify that `test-all` runs flake8 and tox.
 
@@ -205,6 +206,9 @@ Ready to contribute? Here's how to set up ``hamster-cli`` for local development.
 
    (*Hint:* To get ``flake8`` and ``tox``, just ``pip install`` them into
    your ``virtualenv``.)
+
+    .. FIXME/2018-05-16: (lb):
+    ..    pip install -U -r requirements/test.pip
 
    .. _rebase_and_squash:
 
@@ -225,7 +229,7 @@ Ready to contribute? Here's how to set up ``hamster-cli`` for local development.
 
    For example, pretend that I have the following git history::
 
-    (hamster) $ git log --oneline | head -3
+    (dob) $ git log --oneline | head -3
 
     b1c07a4 Regression: Fix some old bug.
     17d1e38 Feature: Add my new feature.
@@ -236,12 +240,12 @@ Ready to contribute? Here's how to set up ``hamster-cli`` for local development.
 
    First, add the linting fix::
 
-    (hamster) $ git add -A
-    (hamster) $ git ci -m "Squash me!"
+    (dob) $ git add -A
+    (dob) $ git ci -m "Squash me!"
 
    Next, start a rebase::
 
-    (hamster) $ git rebase -i 2e888c3
+    (dob) $ git rebase -i 2e888c3
 
    (*Note:* Use the SHA1 hash of the commit *after* the one you want squash into.)
 
@@ -279,27 +283,27 @@ Ready to contribute? Here's how to set up ``hamster-cli`` for local development.
    bugfix works, and rebasing, and committing your changes, push them to
    the branch on your GitHub account::
 
-    (hamster) $ git push origin feature/ISSUE-123-name-of-your-issue
+    (dob) $ git push origin feature/ISSUE-123-name-of-your-issue
 
    *Note:* If you pushed your work and then rebased, you may have to force-push::
 
-    (hamster) $ git push origin feature/ISSUE-123-name-of-your-issue --force
+    (dob) $ git push origin feature/ISSUE-123-name-of-your-issue --force
 
    .. _rebase_atop_develop:
 
 10. Finally,
-    `submit a pull request <https://github.com/hotoffthehamster/hamster-cli/pulls>`_
+    `submit a pull request <https://github.com/hotoffthehamster/dob/pulls>`_
     through the GitHub website.
 
     *Important:* Please rebase your code against ``develop`` and resolve
     merge conflicts, so that the main project maintainer does not have
     to do so themselves. E.g.,::
 
-     (hamster) $ git checkout feature/ISSUE-123-name-of-your-issue
-     (hamster) $ git fetch upstream
-     (hamster) $ git rebase upstream/develop
+     (dob) $ git checkout feature/ISSUE-123-name-of-your-issue
+     (dob) $ git fetch upstream
+     (dob) $ git rebase upstream/develop
      # Resolve any conflicts, then force-push.
-     (hamster) $ git push origin HEAD --force
+     (dob) $ git push origin HEAD --force
      # And then open the Pull Request.
 
 .. |virtualenvwrapper| replace:: ``virtualenvwrapper``
@@ -354,25 +358,6 @@ Before you submit a pull request, check that it meets these guidelines:
 
    * 'nough said.
 
-.. FIXME: (lb): Determine which versions to support; update tox.ini; setup Travis-CI.
-..
-.. (As a matter of history:
-..
-..  hamster-lib orphan HEAD says:
-..
-..    3. The pull request should work for Python 2.7 and 3.4. Check `Travis
-..       <https://travis-ci.org/projecthamster/hamster-lib/builds/142418469>`.
-..       and make sure that the tests pass for all supported Python versions.
-..
-..  but orphaned hamster-cli says:
-..
-..    3. The pull request should work for Python 2.6, 2.7, 3.3, and 3.4, and
-..       for PyPy. Check https://travis-ci.org/elbenfreund/hamster-lib/pull_requests
-..       and make sure that the tests pass for all supported Python versions.
-..
-..  so we could verify that hamster-cli runs on 2.6, 3.3, and PyPy.
-..  In the least, we should set up our own Travis-CI.)
-
 Debugging Tips
 --------------
 
@@ -389,8 +374,6 @@ If you want to run a particular ``tox`` environment, you can run
 ``tox`` with the ``envlist`` option::
 
     $ tox -e NAME_OR_ENVIRONMENT
-
-.. FIXME: (lb): Provide an example of what NAME_OR_ENVIRONMENT might be.
 
 If you'd like to break into a debugger when a test fails, run ``pytest``
 directly and have it start the interactive Python debugger on errors::

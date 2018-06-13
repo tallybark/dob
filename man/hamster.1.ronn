@@ -107,7 +107,7 @@ If no arguments are specified, returns `1`.
 SEE ALSO
 --------
 
-Project page: _https://github.com/hotoffthehamster/hamster-cli_
+Project page: _https://github.com/hotoffthehamster/dob_
 
 
 COPYRIGHT
