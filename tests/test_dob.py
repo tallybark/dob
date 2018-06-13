@@ -29,7 +29,7 @@ from backports.configparser import SafeConfigParser
 from click import ClickException
 from freezegun import freeze_time
 
-import hamster_lib
+import nark
 
 # FIXME: All refs to dob... (2018-06-08: From 5/13. What did I mean??)
 from dob import __appname__, __version__, dob
@@ -281,34 +281,34 @@ class TestExport(object):
 
     def test_csv(self, controller, controller_with_logging, mocker):
         """Make sure that a valid format returns the apropiate writer class."""
-        hamster_lib.reports.CSVWriter = mocker.MagicMock()
+        nark.reports.CSVWriter = mocker.MagicMock()
         transcode.export_facts(controller, 'csv', None, None)
-        assert hamster_lib.reports.CSVWriter.called
+        assert nark.reports.CSVWriter.called
 
     def test_tsv(self, controller, controller_with_logging, mocker):
         """Make sure that a valid format returns the apropiate writer class."""
-        hamster_lib.reports.TSVWriter = mocker.MagicMock()
+        nark.reports.TSVWriter = mocker.MagicMock()
         transcode.export_facts(controller, 'tsv', None, None)
-        assert hamster_lib.reports.TSVWriter.called
+        assert nark.reports.TSVWriter.called
 
     def test_ical(self, controller, controller_with_logging, mocker):
         """Make sure that a valid format returns the apropiate writer class."""
-        hamster_lib.reports.ICALWriter = mocker.MagicMock()
+        nark.reports.ICALWriter = mocker.MagicMock()
         transcode.export_facts(controller, 'ical', None, None)
-        assert hamster_lib.reports.ICALWriter.called
+        assert nark.reports.ICALWriter.called
 
     def test_xml(self, controller, controller_with_logging, mocker):
         """Make sure that passing 'xml' as format parameter returns the apropiate writer class."""
-        hamster_lib.reports.XMLWriter = mocker.MagicMock()
+        nark.reports.XMLWriter = mocker.MagicMock()
         transcode.export_facts(controller, 'xml', None, None)
-        assert hamster_lib.reports.XMLWriter.called
+        assert nark.reports.XMLWriter.called
 
     def test_with_start(self, controller, controller_with_logging, tmpdir, mocker):
         """Make sure that passing a end date is passed to the fact gathering method."""
         controller.facts.get_all = mocker.MagicMock()
         path = os.path.join(tmpdir.mkdir('report').strpath, 'report.csv')
-        hamster_lib.reports.CSVWriter = mocker.MagicMock(
-            return_value=hamster_lib.reports.CSVWriter(path)
+        nark.reports.CSVWriter = mocker.MagicMock(
+            return_value=nark.reports.CSVWriter(path)
         )
         start = fauxfactory.gen_datetime()
         # Get rid of fractions of a second.
@@ -321,8 +321,8 @@ class TestExport(object):
         """Make sure that passing a end date is passed to the fact gathering method."""
         controller.facts.get_all = mocker.MagicMock()
         path = os.path.join(tmpdir.mkdir('report').strpath, 'report.csv')
-        hamster_lib.reports.CSVWriter = mocker.MagicMock(
-            return_value=hamster_lib.reports.CSVWriter(path)
+        nark.reports.CSVWriter = mocker.MagicMock(
+            return_value=nark.reports.CSVWriter(path)
         )
         end = fauxfactory.gen_datetime()
         end = truncate_to_whole_seconds(end)
@@ -333,9 +333,9 @@ class TestExport(object):
     def test_with_filename(self, controller, controller_with_logging, tmpdir, mocker):
         """Make sure that a valid format returns the apropiate writer class."""
         path = os.path.join(tmpdir.ensure_dir('export').strpath, 'export.csv')
-        hamster_lib.reports.CSVWriter = mocker.MagicMock()
+        nark.reports.CSVWriter = mocker.MagicMock()
         transcode.export_facts(controller, 'csv', None, None, filename=path)
-        assert hamster_lib.reports.CSVWriter.called
+        assert nark.reports.CSVWriter.called
 
 
 class TestCategories(object):

@@ -22,21 +22,21 @@ import datetime
 import factory
 import faker
 
-import hamster_lib
+import nark
 
 
 class CategoryFactory(factory.Factory):
-    """Provide a factory for randomized ``hamster_lib.Category`` instances."""
+    """Provide a factory for randomized ``nark.Category`` instances."""
 
     pk = None
     name = factory.Faker('word')
 
     class Meta:
-        model = hamster_lib.Category
+        model = nark.Category
 
 
 class ActivityFactory(factory.Factory):
-    """Provide a factory for randomized ``hamster_lib.Activity`` instances."""
+    """Provide a factory for randomized ``nark.Activity`` instances."""
 
     pk = None
     name = factory.Faker('word')
@@ -44,11 +44,11 @@ class ActivityFactory(factory.Factory):
     deleted = False
 
     class Meta:
-        model = hamster_lib.Activity
+        model = nark.Activity
 
 
 class FactFactory(factory.Factory):
-    """Provide a factory for randomized ``hamster_lib.Fact`` instances."""
+    """Provide a factory for randomized ``nark.Fact`` instances."""
 
     pk = None
     activity = factory.SubFactory(ActivityFactory)
@@ -57,4 +57,4 @@ class FactFactory(factory.Factory):
     description = factory.Faker('paragraph')
 
     class Meta:
-        model = hamster_lib.Fact
+        model = nark.Fact

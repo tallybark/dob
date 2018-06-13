@@ -40,7 +40,7 @@ from pytest_factoryboy import register
 from six import text_type
 import freezegun
 
-import hamster_lib
+import nark
 
 import dob.dob as dob
 
@@ -253,7 +253,7 @@ def invalid_tmp_fact(tmpdir, client_config):
 @pytest.yield_fixture
 def controller(lib_config, client_config):
     """Provide a pseudo controller instance."""
-    controller = hamster_lib.HamsterControl(lib_config)
+    controller = nark.HamsterControl(lib_config)
     controller.client_config = client_config
     yield controller
     controller.store.cleanup()
@@ -262,7 +262,7 @@ def controller(lib_config, client_config):
 @pytest.yield_fixture
 def controller_with_logging(lib_config, client_config):
     """Provide a pseudo controller instance with logging setup."""
-    controller = hamster_lib.HamsterControl(lib_config)
+    controller = nark.HamsterControl(lib_config)
     controller.client_config = client_config
     # [FIXME]
     # We shouldn't shortcut like this!
