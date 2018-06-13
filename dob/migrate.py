@@ -108,7 +108,7 @@ are upgrading a pre-fork modern Hamster database
         '''.strip()
     )
     msg1 = msg1.format(
-        prog_name=os.path.basename(sys.argv[0]),  # See also: hamster_cli.__appname__
+        prog_name=os.path.basename(sys.argv[0]),  # See also: dob.__appname__
         green=(fg('light_green') + attr('bold')),
         reset=attr('reset'),
     )

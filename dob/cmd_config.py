@@ -138,7 +138,7 @@ class HamsterAppDirs(appdirs.AppDirs):
         return directory
 
 
-AppDirs = HamsterAppDirs('hamster_cli')
+AppDirs = HamsterAppDirs('dob')
 
 
 # ***
@@ -189,7 +189,7 @@ class BackendDefaults(object):
     def db_path(self):
         return os.path.join(
             str(AppDirs.user_data_dir),
-            'hamster_cli.sqlite',
+            'dob.sqlite',
         )
 
     @property
@@ -230,7 +230,7 @@ class ClientDefaults(object):
 
     @property
     def log_filename(self):
-        return 'hamster_cli.log'
+        return 'dob.log'
 
     @property
     def export_path(self):
@@ -501,7 +501,7 @@ def get_config_instance():
 def get_config_path():
     """Show general information upon client launch."""
     config_dir = AppDirs.user_config_dir
-    config_filename = 'hamster_cli.conf'
+    config_filename = 'dob.conf'
     return os.path.join(config_dir, config_filename)
 
 

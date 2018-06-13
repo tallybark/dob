@@ -39,8 +39,8 @@ from . import help_strings
 from . import migrate
 from . import update
 from . import __author__, __author_email__, __BigName__
-from . import __appname__ as hamster_cli_appname
-from . import __version__ as hamster_cli_version
+from . import __appname__ as dob_appname
+from . import __version__ as dob_version
 from .cmd_common import backend_integrity
 from .cmd_config import get_config, get_config_instance
 from .cmd_options import (
@@ -166,8 +166,8 @@ pass_controller = click.make_pass_decorator(Controller, ensure=True)
 
 def _hamster_version():
     vers = '{} version {}\nhamster-lib version {}'.format(
-        hamster_cli_appname,
-        hamster_cli_version,
+        dob_appname,
+        dob_version,
         hamster_lib_version,
     )
     return vers
@@ -177,7 +177,7 @@ def _hamster_version():
 # *** [BASE COMMAND GROUP] One Group to rule them all.
 # ***
 
-# (lb): Use invoke_without_command so `hamster -v` works, otherwise click's
+# (lb): Use invoke_without_command so `dob -v` works, otherwise Click's
 # Group (MultiCommand ancestor) does not allow it ('Missing command.').
 @click.group(
     cls=ClickAliasedGroup,
@@ -277,7 +277,7 @@ def _show_greeting():
     gpl3_notice_2018 = [
         '{app_name} {version}'.format(
             app_name=__BigName__,
-            version=hamster_cli_version,
+            version=dob_version,
         ),
         '',
         'Copyright (C) {years} {author} <{email}>'.format(
@@ -303,7 +303,7 @@ def _show_greeting():
 
 def _setup_logging(controller, verbose=False, verboser=False):
     """Setup logging for the lib_logger as well as client specific logging."""
-    controller.client_logger = logging.getLogger('hamster_cli')
+    controller.client_logger = logging.getLogger('dob')
     loggers = [
         controller.lib_logger,
         controller.sql_logger,

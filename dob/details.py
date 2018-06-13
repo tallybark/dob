@@ -21,8 +21,8 @@ from gettext import gettext as _
 
 import click
 
-from . import __appname__ as hamster_cli_appname
-from . import __version__ as hamster_cli_version
+from . import __appname__ as dob_appname
+from . import __version__ as dob_version
 from .cmd_config import get_config_path, AppDirs
 from .helpers import ascii_art
 
@@ -65,8 +65,8 @@ def app_details(controller, full=False):
 
     click.echo(_(
         "You are running {name} version {version}".format(
-            name=hamster_cli_appname,
-            version=hamster_cli_version,
+            name=dob_appname,
+            version=dob_version,
         )
     ))
     click.echo(
