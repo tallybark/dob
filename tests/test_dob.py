@@ -629,16 +629,16 @@ class TestWriteConfigFile(object):
         assert os.path.lexists(filepath)
 
 
-class TestHamsterAppDirs(object):
+class TestDobAppDirs(object):
     """Make sure that our custom AppDirs works as intended."""
 
     def test_user_data_dir_returns_directoy(self, tmpdir, mocker):
         """Make sure method returns directory."""
         path = tmpdir.strpath
 #        mocker.patch('dob.dob.appdirs.user_data_dir', return_value=path)
-#        appdir = dob.HamsterAppDirs('dob')
+#        appdir = dob.DobAppDirs('dob')
         mocker.patch('dob.cmd_config.appdirs.user_data_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('dob')
+        appdir = cmd_config.DobAppDirs('dob')
         assert appdir.user_data_dir == path
 
     @pytest.mark.parametrize('create', [True, False])
@@ -646,9 +646,9 @@ class TestHamsterAppDirs(object):
         """Make sure that path creation depends on ``create`` attribute."""
         path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
 #        mocker.patch('dob.dob.appdirs.user_data_dir', return_value=path)
-#        appdir = dob.HamsterAppDirs('dob')
+#        appdir = dob.DobAppDirs('dob')
         mocker.patch('dob.cmd_config.appdirs.user_data_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('dob')
+        appdir = cmd_config.DobAppDirs('dob')
         appdir.create = create
         assert os.path.exists(appdir.user_data_dir) is create
 
@@ -656,9 +656,9 @@ class TestHamsterAppDirs(object):
         """Make sure method returns directory."""
         path = tmpdir.strpath
 #        mocker.patch('dob.dob.appdirs.site_data_dir', return_value=path)
-#        appdir = dob.HamsterAppDirs('dob')
+#        appdir = dob.DobAppDirs('dob')
         mocker.patch('dob.cmd_config.appdirs.site_data_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('dob')
+        appdir = cmd_config.DobAppDirs('dob')
         assert appdir.site_data_dir == path
 
     @pytest.mark.parametrize('create', [True, False])
@@ -666,9 +666,9 @@ class TestHamsterAppDirs(object):
         """Make sure that path creation depends on ``create`` attribute."""
         path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
 #        mocker.patch('dob.dob.appdirs.site_data_dir', return_value=path)
-#        appdir = dob.HamsterAppDirs('dob')
+#        appdir = dob.DobAppDirs('dob')
         mocker.patch('dob.cmd_config.appdirs.site_data_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('dob')
+        appdir = cmd_config.DobAppDirs('dob')
         appdir.create = create
         assert os.path.exists(appdir.site_data_dir) is create
 
@@ -676,9 +676,9 @@ class TestHamsterAppDirs(object):
         """Make sure method returns directory."""
         path = tmpdir.strpath
 #        mocker.patch('dob.dob.appdirs.user_config_dir', return_value=path)
-#        appdir = dob.HamsterAppDirs('dob')
+#        appdir = dob.DobAppDirs('dob')
         mocker.patch('dob.cmd_config.appdirs.user_config_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('dob')
+        appdir = cmd_config.DobAppDirs('dob')
         assert appdir.user_config_dir == path
 
     @pytest.mark.parametrize('create', [True, False])
@@ -686,9 +686,9 @@ class TestHamsterAppDirs(object):
         """Make sure that path creation depends on ``create`` attribute."""
         path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
 #        mocker.patch('dob.dob.appdirs.user_config_dir', return_value=path)
-#        appdir = dob.HamsterAppDirs('dob')
+#        appdir = dob.DobAppDirs('dob')
         mocker.patch('dob.cmd_config.appdirs.user_config_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('dob')
+        appdir = cmd_config.DobAppDirs('dob')
         appdir.create = create
         assert os.path.exists(appdir.user_config_dir) is create
 
@@ -696,9 +696,9 @@ class TestHamsterAppDirs(object):
         """Make sure method returns directory."""
         path = tmpdir.strpath
 #        mocker.patch('dob.dob.appdirs.site_config_dir', return_value=path)
-#        appdir = dob.HamsterAppDirs('dob')
+#        appdir = dob.DobAppDirs('dob')
         mocker.patch('dob.cmd_config.appdirs.site_config_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('dob')
+        appdir = cmd_config.DobAppDirs('dob')
         assert appdir.site_config_dir == path
 
     @pytest.mark.parametrize('create', [True, False])
@@ -706,9 +706,9 @@ class TestHamsterAppDirs(object):
         """Make sure that path creation depends on ``create`` attribute."""
         path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
 #        mocker.patch('dob.dob.appdirs.site_config_dir', return_value=path)
-#        appdir = dob.HamsterAppDirs('dob')
+#        appdir = dob.DobAppDirs('dob')
         mocker.patch('dob.cmd_config.appdirs.site_config_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('dob')
+        appdir = cmd_config.DobAppDirs('dob')
         appdir.create = create
         assert os.path.exists(appdir.site_config_dir) is create
 
@@ -716,9 +716,9 @@ class TestHamsterAppDirs(object):
         """Make sure method returns directory."""
         path = tmpdir.strpath
 #        mocker.patch('dob.dob.appdirs.user_cache_dir', return_value=path)
-#        appdir = dob.HamsterAppDirs('dob')
+#        appdir = dob.DobAppDirs('dob')
         mocker.patch('dob.cmd_config.appdirs.user_cache_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('dob')
+        appdir = cmd_config.DobAppDirs('dob')
         assert appdir.user_cache_dir == path
 
     @pytest.mark.parametrize('create', [True, False])
@@ -726,9 +726,9 @@ class TestHamsterAppDirs(object):
         """Make sure that path creation depends on ``create`` attribute."""
         path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
 #        mocker.patch('dob.dob.appdirs.user_cache_dir', return_value=path)
-#        appdir = dob.HamsterAppDirs('dob')
+#        appdir = dob.DobAppDirs('dob')
         mocker.patch('dob.cmd_config.appdirs.user_cache_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('dob')
+        appdir = cmd_config.DobAppDirs('dob')
         appdir.create = create
         assert os.path.exists(appdir.user_cache_dir) is create
 
@@ -736,9 +736,9 @@ class TestHamsterAppDirs(object):
         """Make sure method returns directory."""
         path = tmpdir.strpath
 #        mocker.patch('dob.dob.appdirs.user_log_dir', return_value=path)
-#        appdir = dob.HamsterAppDirs('dob')
+#        appdir = dob.DobAppDirs('dob')
         mocker.patch('dob.cmd_config.appdirs.user_log_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('dob')
+        appdir = cmd_config.DobAppDirs('dob')
         assert appdir.user_log_dir == path
 
     @pytest.mark.parametrize('create', [True, False])
@@ -746,9 +746,9 @@ class TestHamsterAppDirs(object):
         """Make sure that path creation depends on ``create`` attribute."""
         path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
 #        mocker.patch('dob.dob.appdirs.user_log_dir', return_value=path)
-#        appdir = dob.HamsterAppDirs('dob')
+#        appdir = dob.DobAppDirs('dob')
         mocker.patch('dob.cmd_config.appdirs.user_log_dir', return_value=path)
-        appdir = cmd_config.HamsterAppDirs('dob')
+        appdir = cmd_config.DobAppDirs('dob')
         appdir.create = create
         assert os.path.exists(appdir.user_log_dir) is create
 
