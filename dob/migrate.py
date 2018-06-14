@@ -23,6 +23,7 @@ import click
 import os
 import sys
 
+import nark
 from nark.helpers.colored import fg, attr
 
 from .cmd_common import barf_on_error
@@ -73,7 +74,7 @@ def version(controller, silent_check=False, must=True):
             click.echo(db_version)
         return db_version
     elif must:
-        barf_legacy_database()
+        barf_legacy_database(controller)
     return None
 
 
@@ -84,34 +85,57 @@ def latest_version(controller, silent_check=False, must=True):
             click.echo(latest_ver)
         return latest_ver
     elif must:
-        barf_legacy_database()
+        barf_legacy_database(controller)
     return None
 
 
 # ***
 
 
-def barf_legacy_database():
+def barf_legacy_database(controller):
+    nark_path = os.path.dirname(os.path.dirname(nark.__file__))
+    up_legacy_rel = os.path.join('migrations', 'upgrade_hamster-applet_db.sh')
+    up_legacy_path = os.path.join(nark_path, up_legacy_rel)
+    up_hamlib_rel = os.path.join('migrations', 'upgrade_hamster-lib_db.sh')
+    up_hamlib_path = os.path.join(nark_path, up_hamlib_rel)
+    db_path = controller.config['db_path']
     msg1 = _(
         '''
-If this is a legacy database, try running:
+If this is a legacy database, upgrade and register the database.
 
-  {green}migrations/upgrade_legacy_hamster_v2.sh path/to/db{reset}
+If your database was created long ago by the original hamster,
+`hamster-applet`, run the legacy database upgrade script, e.g.,
 
-from the `nark` source repository, which can be found at:
+  {mintgreen}{up_legacy_path} \\
+    {db_path}{reset}
+
+Be sure to make a backup first, in case something goes wrong!
+
+If your database was created more recently by the new `hamster-lib`
+rewrite (2016-2017), run the hamster-lib upgrade script, e.g.,
+
+  {mintgreen}{up_hamlib_path} \\
+    {db_path}{reset}
+
+See the project page for more information:
 
   https://github.com/hotoffthehamster/nark
 
-After upgrading a legacy database -- or if you are upgrading
-a pre-fork modern Hamster database (circa 2016-2017, a/k/a
-hamster-lib and hamster-cli) -- try registering the database:
+After you upgrade the database, register it. E.g.,
 
-  {green}{prog_name} migrate control{reset}
-        '''.strip()
+  {mintgreen}{prog_name} migrate control{reset}
+
+        '''.rstrip()
     )
     msg1 = msg1.format(
         prog_name=os.path.basename(sys.argv[0]),  # See also: dob.__appname__
-        green=(fg('light_green') + attr('bold')),
+        db_path=db_path,
+        nark_path=nark_path,
+        up_legacy_path=up_legacy_path,
+        up_hamlib_path=up_hamlib_path,
+        # green=(fg('light_green') + attr('bold')),
+        mintgreen=(fg('spring_green_2a') + attr('bold')),
+        # magenta_2a=(fg('magenta_2a') + attr('bold')),
         reset=attr('reset'),
     )
     msg2 = _('The database is not versioned!')
