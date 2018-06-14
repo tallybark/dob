@@ -52,7 +52,7 @@ RUN_HELP = _(
 
 
 
-    """.strip().format(big_name=__BigName__)
+    """.strip().format(appname=__appname__, big_name=__BigName__)
 )
 
 
