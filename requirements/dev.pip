@@ -13,6 +13,7 @@ flake8
 #   Also: I tried ipython==6.4.0, but that still requires PPT v1.
 # Probably not needed:
 #   ipython==4.2.0
+twine
 watchdog==0.8.3
 wheel==0.29.0
 
