@@ -179,12 +179,15 @@ def _dob_version():
 # *** [BASE COMMAND GROUP] One Group to rule them all.
 # ***
 
+CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
+
 # (lb): Use invoke_without_command so `dob -v` works, otherwise Click's
 # Group (MultiCommand ancestor) does not allow it ('Missing command.').
 @click.group(
     cls=ClickAliasedGroup,
     invoke_without_command=True,
     help=help_strings.RUN_HELP,
+    context_settings=CONTEXT_SETTINGS,
 )
 @click.version_option(message=_dob_version())
 # (lb): Hide -v: version_option adds help for --version, so don't repeat ourselves.
