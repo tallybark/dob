@@ -28,7 +28,11 @@ import sys
 # Once we drop Py2 support, we can use the builtin again, but Unicode support
 # under Python 2 is practically non existing and manual encoding is not easily
 # possible.
-from backports.configparser import NoOptionError, SafeConfigParser
+from backports.configparser import (
+    DuplicateOptionError,
+    NoOptionError,
+    SafeConfigParser
+)
 
 import nark
 from nark.helpers.colored import colorize
@@ -482,16 +486,30 @@ def get_config_instance():
         SafeConfigParser: Either the config loaded from an existing file, or
             default config from a new config file that this function creates.
     """
-    config = SafeConfigParser()
-    configfile_path = get_config_path()
-    if not config.read(configfile_path):
-        click.echo('{}: {}'.format(
-            _('Config file not found. Creating a new config file at'),
-            configfile_path,
-        ))
-        config = write_config_file(configfile_path)
-        click.echo(_('A new default config file was successfully created.'))
-    return config
+    def _get_config_instance():
+        try:
+            return read_config(duplicates_ok=False)
+        except DuplicateOptionError as err:
+            msg = _(
+                'BEWARE: Your config file has duplictes key-values: {}'
+            ).format(str(err))
+            click.echo(colorize(msg, 'red_3b'), err=True)
+            return read_config(duplicates_ok=True)
+
+    def read_config(duplicates_ok):
+        config = SafeConfigParser(strict=not duplicates_ok)
+        configfile_path = get_config_path()
+
+        if not config.read(configfile_path):
+            click.echo('{}: {}'.format(
+                _('Config file not found. Creating a new config file at'),
+                configfile_path,
+            ))
+            config = write_config_file(configfile_path)
+            click.echo(_('A new default config file was successfully created.'))
+        return config
+
+    return _get_config_instance()
 
 
 # ***
