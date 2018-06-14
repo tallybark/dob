@@ -46,7 +46,7 @@ requirements = [
     #  https://github.com/xolox/python-humanfriendly
     'humanfriendly',
     # Human Friendly timedelta formatter, e.g., "1 day, 4 hours, 4 mins."
-    'human-timedelta',
+    'human-friendly_pedantic-timedelta',
     # Pyfiglet FIGlet port, for making large letters out of ordinary text.
     #  https://github.com/pwaller/pyfiglet
     # Good work, Frank, Ian, and Glenn! Great LETters!

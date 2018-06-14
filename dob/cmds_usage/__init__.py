@@ -20,7 +20,7 @@
 from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
-from pyoiler_timedelta import timedelta_wrap
+from pedantic_timedelta import PedanticTimedelta
 
 from ..helpers.ascii_table import generate_table
 
@@ -41,7 +41,7 @@ def generate_usage_table(
     for activity, count, duration in results:
         (
             tm_fmttd, tm_scale, tm_units,
-        ) = timedelta_wrap(days=duration).time_format_scaled()
+        ) = PedanticTimedelta(days=duration).time_format_scaled()
         value, units = tm_fmttd.split(' ')
         max_width_tm_value = max(max_width_tm_value, len(value))
         max_width_tm_units = max(max_width_tm_units, len(units))
