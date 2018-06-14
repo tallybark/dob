@@ -7,6 +7,7 @@ Packaging instruction for setup tools.
   https://setuptools.readthedocs.io/
 """
 
+import io
 import os
 import re
 from gettext import gettext as _  # Because exec(init_py): noqa: EXXX
@@ -127,11 +128,12 @@ cfg = import_business_vars('dob')
 
 # *** Local file content.
 
-long_description = open(
+long_description = io.open(
     os.path.join(
         os.path.dirname(__file__),
         'README.rst'
-    )
+    ),
+    encoding='utf-8',
 ).read()
 
 # *** Package definition.
