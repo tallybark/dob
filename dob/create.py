@@ -21,7 +21,7 @@ from gettext import gettext as _
 
 import click
 import json
-from pyoiler_inflector import Inflector
+from inflector import Inflector, English
 
 from nark import Fact
 from nark.helpers import time as time_helpers
@@ -242,7 +242,7 @@ def must_confirm_fact_edits(controller, conflicts, yes, dry):
             '{}Please confirm the following changes:{}'
             .format(
                 fg('magenta'), len(conflicts), attr('reset'),
-                Inflector.pluralize('conflict', len(conflicts) != 1),
+                Inflector(English).conditional_plural(len(conflicts), 'conflict'),
                 attr('underlined'), attr('reset'),
             )
         ))
