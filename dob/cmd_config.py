@@ -358,7 +358,7 @@ def get_config(config_instance):
             return client_config_or_default('separators')
 
         def get_show_greeting():
-            return client_config_or_default('show_greeting')
+            return client_config_or_default_boolean('show_greeting')
 
         return {
             'log_level': get_log_level(),
