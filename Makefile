@@ -86,10 +86,6 @@ clean-test:
 
 develop:
 	pip install -U pip setuptools wheel
-	# 2018-05-08: Because of click-aliases, use deprecated[*] ``dependency_links``::
-	#pip install -U -e .
-	# *: Probably not deprecated for a while per
-	#    https://github.com/pypa/pip/issues/3939
 	pip install --process-dependency-links -U -e .
 	pip install -U -r requirements/dev.pip
 
