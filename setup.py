@@ -57,6 +57,9 @@ requirements = [
     'humanfriendly',
     # Human Friendly timedelta formatter, e.g., "1 day, 4 hours, 4 mins."
     'human-friendly_pedantic-timedelta',
+    # MAYBE: (lb): Skip pyfiglet? Er, only use if available, but do not require?
+    #   It takes 6.7 MB. Really not a concern for a desktop app, but also seems
+    #   silly to include a library for a feature probably no one will discover...
     # Pyfiglet FIGlet port, for making large letters out of ordinary text.
     #  https://github.com/pwaller/pyfiglet
     # Good work, Frank, Ian, and Glenn! Great LETters!
