@@ -48,7 +48,7 @@ __all__ = [
 
 
 # ***
-# *** Hamster AppDirs.
+# *** `dob` AppDirs.
 # ***
 
 class HamsterAppDirs(appdirs.AppDirs):
