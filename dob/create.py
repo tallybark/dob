@@ -141,8 +141,11 @@ def must_create_fact_from_factoid(
         return fact
 
     def must_prepare_factoid_item_separators(controller):
+        sep_string = controller.client_config['separators']
+        if not sep_string:
+            return None
         try:
-            separators = json.loads(controller.client_config['separators'])
+            separators = json.loads(sep_string)
         except json.decoder.JSONDecodeError as err:
             msg = _(
                 "The 'separators' config value is not valid JSON: {}"
