@@ -21,10 +21,15 @@ from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
+__all__ = [
+    '__version__',
+]
+
+
 # SYNC_UP: nark/__init__.py <=> dob/__init__.py
 __author__ = 'HotOffThe Hamster'
 __author_email__ = 'hotoffthehamster+dob@gmail.com'
-__version__ = '3.0.0.a1'
+__version__ = '3.0.0a1'
 __appname__ = 'dob'
 __pipname__ = __appname__
 __briefly__ = _(
