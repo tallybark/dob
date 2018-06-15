@@ -1,7 +1,7 @@
-hamster_cli
-===========
+dob
+===
 
 .. toctree::
    :maxdepth: 4
 
-   hamster_cli
+   dob

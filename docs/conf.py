@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# hamster_cli documentation build configuration file, created by
+# dob documentation build configuration file, created by
 # sphinx-quickstart on Tue Jul  9 22:26:36 2013.
 #
 # This file is execfile()d with the current directory set to its
@@ -36,7 +36,7 @@ project_root = os.path.dirname(cwd)
 # version is used.
 sys.path.insert(0, project_root)
 
-import hamster_cli
+import dob
 
 # -- General configuration ---------------------------------------------
 
@@ -66,7 +66,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'hamster_cli'
+project = u'dob'
 copyright = '2015, Eric Goller'
 author = 'Eric Goller'
 
@@ -142,10 +142,10 @@ html_theme_options = {
     'github_banner': False,
     'travis_button': False,
     'extra_nav_links': {
-        '<img alt="Build Status" src="https://img.shields.io/travis/elbenfreund/hamster_cli/master.svg">': 'https://travis-ci.org/elbenfreund/hamster_cli',
-        '<img alt="Coverage Status" src="https://img.shields.io/codecov/c/github/elbenfreund/hamster_cli/master.svg">': 'https://codecov.io/github/elbenfreund/hamsster_cli?branch=master',
-        '<img alt="Requirements Status" src="https://requires.io/github/elbenfreund/hamster_cli/requirements.svg?branch=master">': 'https://requires.io/github/elbenfreund/hamster_cli/requirements/?branch=master',
-        '<img alt="Project Management" src="https://badge.waffle.io/elbenfreund/hamster_cli.svg?label=ready&title=Ready">': 'https://waffle.io/elbenfreund/hamster_cli',
+        '<img alt="Build Status" src="https://img.shields.io/travis/elbenfreund/dob/master.svg">': 'https://travis-ci.org/elbenfreund/dob',
+        '<img alt="Coverage Status" src="https://img.shields.io/codecov/c/github/elbenfreund/dob/master.svg">': 'https://codecov.io/github/elbenfreund/hamsster_cli?branch=master',
+        '<img alt="Requirements Status" src="https://requires.io/github/elbenfreund/dob/requirements.svg?branch=master">': 'https://requires.io/github/elbenfreund/dob/requirements/?branch=master',
+        '<img alt="Project Management" src="https://badge.waffle.io/elbenfreund/dob.svg?label=ready&title=Ready">': 'https://waffle.io/elbenfreund/dob',
     },
     'analytics_id': '',
     'show_related': False,
@@ -250,8 +250,8 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass
 # [howto/manual]).
 latex_documents = [
-    ('index', 'hamster_cli.tex',
-     u'hamster_cli Documentation',
+    ('index', 'dob.tex',
+     u'dob Documentation',
      u'Eric Goller', 'manual'),
 ]
 
@@ -281,8 +281,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'hamster_cli',
-     u'hamster_cli Documentation',
+    ('index', 'dob',
+     u'dob Documentation',
      [u'Eric Goller'], 1)
 ]
 
@@ -296,10 +296,10 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'hamster_cli',
-     u'hamster_cli Documentation',
-     u'Eric Goller',
-     'hamster_cli',
+    ('index', 'dob',
+     u'dob Documentation',
+     u'HotOOffThe Hamster',
+     'dob',
      'One line description of project.',
      'Miscellaneous'),
 ]

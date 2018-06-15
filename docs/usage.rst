@@ -1,13 +1,18 @@
-========
+#####
 Usage
-========
+#####
 
-To use hamster_cli simply imvoke it::
+To starting dobbing, simply invoke it::
 
-    hamster-cli
+    dob
 
-Incompabilities
----------------
+Caveats
+=======
+
+*Legacy* Hamster
+----------------
+
+...
 
 We tries hard to stay compatible with *legacy hamster-cli* but there are some
 aspects where we could not do so without make to huge tradeoffs to what we feel

@@ -113,7 +113,7 @@ coverage-html: coverage
 docs:
 	rm -f docs/hamster_cli.rst
 	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ hamster_cli
+	sphinx-apidoc -o docs/ dob
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	$(BROWSER) docs/_build/html/index.html
