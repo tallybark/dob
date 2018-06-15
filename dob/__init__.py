@@ -21,8 +21,21 @@ from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
+import os
+import sys
+
 __all__ = [
+    '__author__',
+    '__author_email__',
     '__version__',
+    '__appname__',
+    '__pipname__',
+    '__briefly__',
+    '__projurl__',
+    '__keywords__',
+    '__BigName__',
+    '__libname__',
+    '__arg0name__',
 ]
 
 
@@ -50,4 +63,5 @@ __keywords__ = ' '.join([
 ])
 __BigName__ = 'Hamster Dobber'
 __libname__ = 'nark'
+__arg0name__ = os.path.basename(sys.argv[0])
 

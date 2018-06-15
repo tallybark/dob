@@ -24,7 +24,7 @@ from collections import namedtuple
 
 from nark.helpers.colored import colorize
 
-from .. import __appname__
+from .. import __arg0name__
 from ..cmd_common import hydrate_activity, hydrate_category
 from ..helpers import dob_in_user_exit
 from ..helpers.ascii_table import generate_table, warn_if_truncated
@@ -50,11 +50,12 @@ def list_current_fact(controller):
     try:
         fact = controller.facts.get_current_fact()
     except KeyError:
-        msg1 = colorize(_('No active fact.'), 'red_3b')
-        msg2 = _(
-            'Try starting a fact first. For help, run `{} now --help`'
-        ).format(__appname__)
-        dob_in_user_exit(msg1 + ' ' + msg2)
+        msg = '{} {} {}'.format(
+            _('No active fact.'),
+            _('Try starting a fact first.'),
+            _('For help, run `{} now --help`').format(__arg0name__),
+        )
+        dob_in_user_exit(msg)
     except Exception as err:
         # (lb): Unexpected! This could mean more than one ongoing Fact found!
         dob_in_user_exit(str(err))
