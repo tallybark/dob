@@ -818,8 +818,8 @@ def transcode_export(
 #     database is under migration control. But that doesn't matter so much,
 #     does it? Or is the idea we'd rather print a nice, friendly error message?
 #     Otherwise, if code fails later, we'd print a dirty stack trace.
-@backend_integrity
 @pass_controller
+@backend_integrity
 def transcode_import(controller, filename, output, force, *args, **kwargs):
     """Import from file or STDIN (pipe)."""
 
