@@ -26,7 +26,7 @@ from nark.helpers.colored import colorize
 
 from .. import __appname__
 from ..cmd_common import hydrate_activity, hydrate_category
-from ..helpers import click_echo_and_exit
+from ..helpers import dob_in_user_exit
 from ..helpers.ascii_table import generate_table, warn_if_truncated
 
 __all__ = [
@@ -54,10 +54,10 @@ def list_current_fact(controller):
         msg2 = _(
             'Try starting a fact first. For help, run `{} now --help`'
         ).format(__appname__)
-        click_echo_and_exit(msg1 + ' ' + msg2)
+        dob_in_user_exit(msg1 + ' ' + msg2)
     except Exception as err:
         # (lb): Unexpected! This could mean more than one ongoing Fact found!
-        click_echo_and_exit(str(err))
+        dob_in_user_exit(str(err))
     else:
         colorful = controller.client_config['term_color']
         click.echo(

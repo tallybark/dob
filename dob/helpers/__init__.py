@@ -25,11 +25,16 @@ import sys
 from nark.helpers.colored import colorize
 
 __all__ = [
-    'click_echo_and_exit',
+    'dob_in_user_exit',
+    'dob_in_user_warning',
 ]
 
 
-def click_echo_and_exit(msg):
-    click.echo(colorize(msg, 'red_3b'), err=True)
+def dob_in_user_exit(msg):
+    dob_in_user_warning(msg)
     sys.exit(1)
+
+
+def dob_in_user_warning(msg):
+    click.echo(colorize(msg, 'red_3b'), err=True)
 

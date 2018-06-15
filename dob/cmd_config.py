@@ -37,7 +37,7 @@ from backports.configparser import (
 import nark
 from nark.helpers.colored import colorize
 
-from .helpers import click_echo_and_exit
+from .helpers import dob_in_user_exit, dob_in_user_warning
 
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
@@ -330,7 +330,7 @@ def get_config(config_instance):
                 msg = _(
                     "Unrecognized log level value in config: “{}”. Try one of: {}."
                 ).format(log_level_name, ', '.join(LOG_LEVELS))
-                click_echo_and_exit(msg)
+                dob_in_user_exit(msg)
             return log_level
 
         def get_log_console():
@@ -493,7 +493,7 @@ def get_config_instance():
             msg = _(
                 'BEWARE: Your config file has duplictes key-values: {}'
             ).format(str(err))
-            click.echo(colorize(msg, 'red_3b'), err=True)
+            dob_in_user_warning(msg)
             return read_config(duplicates_ok=True)
 
     def read_config(duplicates_ok):
@@ -616,16 +616,11 @@ def get_history_path(
     AppDirs._ensure_directory_exists(hist_path)
     hist_path = os.path.join(hist_path, file_fmt.format(topic))
     if os.path.exists(hist_path) and not os.path.isfile(hist_path):
-        click.echo(
-            '{} At:\n  {}'.format(
-                colorize(_(
-                    'UNEXPECTED: history cache exists but not a file!',
-                    'red_3b',
-                )),
-                hist_path,
-            ),
-            err=True,
+        msg = '{} At:\n  {}'.format(
+            'UNEXPECTED: history cache exists but not a file!',
+            hist_path,
         )
+        dob_in_user_warning(msg)
         hist_path = None
     return hist_path
 

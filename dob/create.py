@@ -30,7 +30,7 @@ from nark.helpers.parsing import ParserException
 
 from . import __appname__
 from . import interrogate
-from .helpers import click_echo_and_exit
+from .helpers import dob_in_user_exit
 
 __all__ = [
     'add_fact',
@@ -137,7 +137,7 @@ def must_create_fact_from_factoid(
         except ParserException as err:
             msg = _('Oops! {}').format(err)
             controller.client_logger.error(msg)
-            click_echo_and_exit(msg)
+            dob_in_user_exit(msg)
         return fact
 
     def must_prepare_factoid_item_separators(controller):
@@ -151,7 +151,7 @@ def must_create_fact_from_factoid(
                 "The 'separators' config value is not valid JSON: {}"
             ).format(err)
             controller.client_logger.error(msg)
-            click_echo_and_exit(msg)
+            dob_in_user_exit(msg)
         return separators
 
     # ***
@@ -301,7 +301,7 @@ def save_facts_maybe(controller, fact, conflicts, dry):
             try:
                 fact = controller.facts.save(fact)
             except Exception as err:
-                click_echo_and_exit(str(err))
+                dob_in_user_exit(str(err))
         else:
             echo_fact(fact)
 
