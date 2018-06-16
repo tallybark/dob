@@ -22,6 +22,7 @@ from __future__ import absolute_import, unicode_literals
 from gettext import gettext as _
 
 import click
+import os
 from datetime import datetime
 
 from . import __author__, __author_email__, __BigName__
@@ -60,9 +61,9 @@ def echo_copyright():
         'Copyright (C) 2007-2014 Toms Baugis <toms.baugis@gmail.com>',
         'Copyright (C) 2007-2008 Patryk Zawadzki <patrys at pld-linux.org>',
         '',
-        _('This program comes with ABSOLUTELY NO WARRANTY.'),
-        _('This is free software, and you are welcome to'),
-        _('redistribute it under certain conditions.'),
+        _('This program comes with ABSOLUTELY NO WARRANTY. This is free software,'),
+        _('and you are welcome to redistribute it under certain conditions.'),
+        _(''),
         _('Run `{} license` for details.').format(dob_appname),
     ]
     notice = gpl3_notice_2018
@@ -71,8 +72,6 @@ def echo_copyright():
 
 
 def echo_license():
-    # FIXME: (lb): Replace appname with $0, or share module var with setup.py.
-    # MAYBE: (lb): Read and print LICENSE file instead of hard coding herein?
     license = """
 {app_name} is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -87,6 +86,17 @@ General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """.strip()
-    license = license.format(app_name=__BigName__)
-    click.echo(license)
+    license_txt = license.format(app_name=__BigName__)
+    # MAYBE: (lb): Prefer the LICENSE file?
+    # FIXME: LICENSE is probably not copied via pip-install.
+    #        This will be good learning on installing non-package files.
+    license_path = os.path.join(
+        os.path.dirname(__file__),
+        '..',
+        'LICENSE',
+    )
+    if os.path.exists(license_path):
+        with open(license_path, 'rb') as f:
+            license_txt = f.read().decode('utf-8').strip()
+    click.echo(license_txt)
 
