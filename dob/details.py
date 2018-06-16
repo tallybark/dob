@@ -24,7 +24,7 @@ import click
 from . import __appname__ as dob_appname
 from . import __version__ as dob_version
 from .cmd_config import get_config_path, AppDirs
-from .helpers import ascii_art
+from .helpers import ascii_art, highlight_value
 
 __all__ = ['app_details', 'hamster_time']
 
@@ -38,8 +38,11 @@ def app_details(controller, full=False):
             engine = controller.config['db_engine']
             if engine == 'sqlite':
                 sqlalchemy_string = _(
-                    "Using 'sqlite' with database stored under: {}"
-                    .format(controller.config['db_path'])
+                    "Using {engine} on database: {db_path}"
+                    .format(
+                        engine=highlight_value('sqlite'),
+                        db_path=highlight_value(controller.config['db_path']),
+                    )
                 )
             else:
                 port = controller.config.get('db_port', '')
@@ -47,13 +50,13 @@ def app_details(controller, full=False):
                     port = ':{}'.format(port)
 
                 sqlalchemy_string = _(
-                    "Using '{engine}' connecting to database {name} on {host}{port}"
-                    " as user {username}.".format(
-                        engine=engine,
-                        host=controller.config['db_host'],
-                        port=port,
-                        username=controller.config['db_user'],
-                        name=controller.config['db_name'],
+                    "Using {engine} on database {db_name} at:"
+                    " {username}@{host}{port}".format(
+                        engine=highlight_value(engine),
+                        db_name=highlight_value(controller.config['db_name']),
+                        username=highlight_value(controller.config['db_user']),
+                        host=highlight_value(controller.config['db_host']),
+                        port=highlight_value(port),
                     )
                 )
             return sqlalchemy_string
@@ -65,18 +68,24 @@ def app_details(controller, full=False):
 
     click.echo(_(
         "You are running {name} version {version}".format(
-            name=dob_appname,
-            version=dob_version,
+            name=highlight_value(dob_appname),
+            version=highlight_value(dob_version),
         )
     ))
     click.echo(
-        "Configuration found under: {}".format(get_config_path())
+        "Configuration file at: {}".format(
+            highlight_value(get_config_path()),
+        )
     )
     click.echo(
-        "Logfile stored under: {}".format(controller.client_config['logfile_path'])
+        "Logfile stored at: {}".format(
+            highlight_value(controller.client_config['logfile_path']),
+        )
     )
     click.echo(
-        "Reports exported to: {}".format(controller.client_config['export_path'])
+        "Reports exported to: {}".format(
+            highlight_value(controller.client_config['export_path']),
+        )
     )
     click.echo(get_db_info())
 
@@ -92,8 +101,14 @@ def app_details(controller, full=False):
             try:
                 path = getattr(AppDirs, prop)
             except Exception as err:
+                # (lb): Seems to happen when path does not exist, e.g.,
+                #  AppDirs.site_data_dir: /usr/share/mate/dob
+                #  AppDirs.site_config_dir: /etc/xdg/xdg-mate
+                path = None
+            except PermissionError as err:
                 path = '<{}>'.format(err)
-            click.echo('AppDirs.{}: {}'.format(prop, path))
+            if path is not None:
+                click.echo('AppDirs.{}: {}'.format(prop, highlight_value(path)))
 
 
 def hamster_time(posits=[]):

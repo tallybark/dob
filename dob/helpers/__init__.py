@@ -22,11 +22,12 @@ from __future__ import absolute_import, unicode_literals
 import click
 import sys
 
-from nark.helpers.colored import colorize
+from nark.helpers.colored import colorize, fg, attr
 
 __all__ = [
     'dob_in_user_exit',
     'dob_in_user_warning',
+    'highlight_value',
 ]
 
 
@@ -37,4 +38,9 @@ def dob_in_user_exit(msg):
 
 def dob_in_user_warning(msg):
     click.echo(colorize(msg, 'red_3b'), err=True)
+
+
+def highlight_value(msg):
+    highlight_color = 'medium_spring_green'
+    return '{}{}{}'.format(fg(highlight_color), msg, attr('reset'))
 

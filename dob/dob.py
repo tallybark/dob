@@ -348,7 +348,7 @@ def banner(controller, posits):
 # MAYBE: Calling this 'appinfo' would make this command first in the --help....
 #   @run.command(aliases=['show', 'status', 'info'], help=help_strings.DETAILS_HELP)
 @run.command(aliases=['info'], help=help_strings.DETAILS_HELP)
-@click.option('--tmi', is_flag=True, help=_('Show AppDirs paths, too.'))
+@click.option('--tmi', '--full', is_flag=True, help=_('Show AppDirs paths, too.'))
 @pass_controller
 def details(controller, tmi):
     """List details about the runtime environment."""

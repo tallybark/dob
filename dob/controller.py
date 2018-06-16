@@ -31,7 +31,7 @@ from . import __arg0name__
 from . import help_strings
 from .copyright import echo_copyright
 from .cmd_config import get_config_path, furnish_config, replenish_config
-from .helpers import dob_in_user_exit
+from .helpers import dob_in_user_exit, highlight_value
 from .migrate import upgrade_legacy_database_instructions
 
 # Disable the python_2_unicode_compatible future import warning.
@@ -141,7 +141,9 @@ class Controller(HamsterControl):
         self.config = nark_config
         self.client_config = dob_config
         click.echo(
-            _('Initialized default Dob configuration at {}').format(file_path)
+            _('Initialized default Dob configuration at {}').format(
+                highlight_value(file_path),
+            )
         )
 
     def create_data_store(self, force):
@@ -170,7 +172,9 @@ class Controller(HamsterControl):
                 self.create_config(force=False)
             else:
                 click.echo(
-                    _('Configuration already exists at {}').format(cfg_path)
+                    _('Configuration already exists at {}').format(
+                        highlight_value(cfg_path),
+                    )
                 )
 
         def create_store_maybe():
@@ -223,7 +227,7 @@ class Controller(HamsterControl):
             db_path = self.config['db_path']
             os.unlink(db_path)
             click.echo(
-                _('Recreated data store at {}').format(db_path)
+                _('Recreated data store at {}').format(highlight_value(db_path))
             )
 
     def _standup_and_version_store(self):
@@ -234,7 +238,7 @@ class Controller(HamsterControl):
             verb = _('already ready')
         click.echo(
             _('Dob database {verb} at {url}').format(
-                verb=verb, url=self.store.get_db_url(),
+                verb=verb, url=highlight_value(self.store.get_db_url()),
             )
         )
 
