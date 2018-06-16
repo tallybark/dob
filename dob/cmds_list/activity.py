@@ -19,7 +19,7 @@ from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
-from ..cmd_common import hydrate_category
+from ..cmd_common import error_exit_no_results, hydrate_category
 from ..helpers.ascii_table import generate_table
 
 __all__ = ['list_activities']
@@ -42,10 +42,12 @@ def list_activities(
         None: If success.
     """
     category = hydrate_category(controller, filter_category)
-
     results = controller.activities.get_all(
         category=category, **kwargs
     )
+
+    if not results:
+        error_exit_no_results(_('activities'))
 
     # This is sorta like `dob usage activity`, except we use
     # separate columns for the activity name and category name,

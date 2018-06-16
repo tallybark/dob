@@ -19,6 +19,7 @@ from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
+from ..cmd_common import error_exit_no_results
 from ..helpers.ascii_table import generate_table
 
 __all__ = ['list_categories']
@@ -37,6 +38,9 @@ def list_categories(
         None: If success.
     """
     results = controller.categories.get_all(**kwargs)
+
+    if not results:
+        error_exit_no_results(_('categories'))
 
     headers = (_("Name"),)
     category_names = []

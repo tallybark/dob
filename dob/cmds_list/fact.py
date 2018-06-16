@@ -25,7 +25,7 @@ from collections import namedtuple
 from nark.helpers.colored import colorize
 
 from .. import __arg0name__
-from ..cmd_common import hydrate_activity, hydrate_category
+from ..cmd_common import error_exit_no_results, hydrate_activity, hydrate_category
 from ..helpers import dob_in_user_exit
 from ..helpers.ascii_table import generate_table, warn_if_truncated
 
@@ -107,6 +107,8 @@ def list_facts(
             sort_col=sort_col(),
             **kwargs
         )
+        if not results:
+            error_exit_no_results(_('facts'))
         if raw:
             output_block(results)
         else:

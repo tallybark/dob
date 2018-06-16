@@ -19,7 +19,7 @@ from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
-from ..cmd_common import hydrate_activity, hydrate_category
+from ..cmd_common import error_exit_no_results, hydrate_activity, hydrate_category
 from ..helpers.ascii_table import generate_table
 
 __all__ = ['list_tags']
@@ -44,6 +44,9 @@ def list_tags(
     results = controller.tags.get_all(
         activity=activity, category=category, **kwargs
     )
+
+    if not results:
+        error_exit_no_results(_('tags'))
 
     headers = (_("Name"),)
     tag_names = []

@@ -17,8 +17,10 @@
 
 from __future__ import absolute_import, unicode_literals
 
+from gettext import gettext as _
+
 from . import generate_usage_table
-from ..cmd_common import hydrate_category
+from ..cmd_common import error_exit_no_results, hydrate_category
 
 __all__ = ['usage_activities']
 
@@ -43,6 +45,9 @@ def usage_activities(
     results = controller.activities.get_all_by_usage(
         category=category, **kwargs
     )
+
+    if not results:
+        error_exit_no_results(_('activities'))
 
     def name_fmttr(activity):
         if activity.category:
