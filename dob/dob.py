@@ -416,6 +416,7 @@ def list_group(ctx, controller):
 @cmd_options_table_bunce
 @cmd_options_limit_offset
 @pass_controller
+@induct_newbies
 def list_activities(controller, *args, usage=False, **kwargs):
     """List matching activities, filtered and sorted."""
     category = cmd_options.postprocess_options_list_categoried(kwargs)
@@ -439,6 +440,7 @@ def list_activities(controller, *args, usage=False, **kwargs):
 @cmd_options_table_bunce
 @cmd_options_limit_offset
 @pass_controller
+@induct_newbies
 def list_categories(controller, *args, usage=False, **kwargs):
     """List matching categories, filtered and sorted."""
     postprocess_options_table_bunce(kwargs)
@@ -463,6 +465,7 @@ def list_categories(controller, *args, usage=False, **kwargs):
 @cmd_options_table_bunce
 @cmd_options_limit_offset
 @pass_controller
+@induct_newbies
 def list_tags(controller, *args, usage=False, **kwargs):
     """List all tags, with filtering and sorting options."""
     activity = cmd_options.postprocess_options_list_activitied(kwargs)
@@ -508,6 +511,7 @@ def generate_list_facts_command(func):
     @cmd_options_limit_offset
     @cmd_options_list_fact
     @pass_controller
+    @induct_newbies
     def list_facts(controller, *args, **kwargs):
         _list_facts(controller, *args, **kwargs)
     return update_wrapper(list_facts, func)
@@ -548,6 +552,7 @@ def usage_group(ctx, controller):
 @cmd_options_table_bunce
 @cmd_options_limit_offset
 @pass_controller
+@induct_newbies
 def usage_activities(controller, *args, **kwargs):
     """List all activities. Provide optional filtering by name."""
     category = cmd_options.postprocess_options_list_categoried(kwargs)
@@ -567,6 +572,7 @@ def usage_activities(controller, *args, **kwargs):
 @cmd_options_table_bunce
 @cmd_options_limit_offset
 @pass_controller
+@induct_newbies
 def usage_categories(controller, *args, **kwargs):
     """List all categories. Provide optional filtering by name."""
     postprocess_options_table_bunce(kwargs)
@@ -586,6 +592,7 @@ def usage_categories(controller, *args, **kwargs):
 @cmd_options_table_bunce
 @cmd_options_limit_offset
 @pass_controller
+@induct_newbies
 def usage_tags(controller, *args, **kwargs):
     """List all tags' usage counts, with filtering and sorting options."""
     activity = cmd_options.postprocess_options_list_activitied(kwargs)
@@ -609,6 +616,7 @@ def usage_tags(controller, *args, **kwargs):
 @cmd_options_table_bunce
 @cmd_options_limit_offset
 @pass_controller
+@induct_newbies
 def usage_facts(controller, *args, **kwargs):
     """List all tags' usage counts, with filtering and sorting options."""
     activity = cmd_options.postprocess_options_list_activitied(kwargs)
@@ -630,6 +638,7 @@ def usage_facts(controller, *args, **kwargs):
 
 @run.command('stop', help=help_strings.STOP_HELP)
 @pass_controller
+@induct_newbies
 def stop(controller):
     """Stop tracking current fact (by setting its 'end')."""
     stop_fact(controller)
@@ -641,6 +650,7 @@ def stop(controller):
     help=_('Completely delete fact, rather than just marking deleted.'),
 )
 @pass_controller
+@induct_newbies
 def cancel(controller, force):
     """Cancel 'ongoing fact'. Stop it without storing in the backend."""
     cancel_fact(controller, force)
@@ -648,6 +658,7 @@ def cancel(controller, force):
 
 @run.command('current', aliases=['show'], help=help_strings.CURRENT_HELP)
 @pass_controller
+@induct_newbies
 def current(controller):
     """Display current *ongoing fact*."""
     list_current_fact(controller)
@@ -661,6 +672,7 @@ def current(controller):
 @cmd_options_factoid
 @cmd_options_insert
 @pass_controller
+@induct_newbies
 def on(controller, *args, **kwargs):
     """Start or add a fact using the `on`/`now`/`start` directive."""
     add_fact(controller, *args, time_hint='verify_none', **kwargs)
@@ -670,6 +682,7 @@ def on(controller, *args, **kwargs):
 @cmd_options_factoid
 @cmd_options_insert
 @pass_controller
+@induct_newbies
 def at(controller, *args, **kwargs):
     """Start or add a fact using the `at` directive."""
     add_fact(controller, *args, time_hint='verify_start', **kwargs)
@@ -679,6 +692,7 @@ def at(controller, *args, **kwargs):
 @cmd_options_factoid
 @cmd_options_insert
 @pass_controller
+@induct_newbies
 def to(controller, *args, **kwargs):
     """Start or add a fact using the `to`/`until` directive."""
     add_fact(controller, *args, time_hint='verify_end', **kwargs)
@@ -690,6 +704,7 @@ def to(controller, *args, **kwargs):
 @cmd_options_factoid
 @cmd_options_insert
 @pass_controller
+@induct_newbies
 def between(controller, *args, **kwargs):
     """Add a fact using the `from ... to` directive."""
     add_fact(controller, *args, time_hint='verify_both', **kwargs)
@@ -712,6 +727,7 @@ def edit_group(ctx, controller):
 @edit_group.command('fact', help=help_strings.EDIT_FACT_HELP)
 @click.argument('key', nargs=1, type=int)
 @pass_controller
+@induct_newbies
 def edit_fact(controller, *args, **kwargs):
     """Inline-Edit specified Fact using preferred $EDITOR."""
     update.edit_fact(controller, *args, **kwargs)
@@ -735,6 +751,7 @@ def edit_fact(controller, *args, **kwargs):
 @cmd_options_list_activitied
 @cmd_options_list_categoried
 @pass_controller
+@induct_newbies
 def transcode_export(
     controller, *args, format, **kwargs
 ):
@@ -755,15 +772,8 @@ def transcode_export(
 @click.option('-r', '--rule', '--sep', nargs=1, default='',
               help=_('With --output, split facts with a horizontal rule'))
 @cmd_options_insert
-# FIXME/2018-06-10: (lb) Apply backend_integrity to other/most commands?
-#   Or at least those that touch the db...
-#   NOTE/2018-06-11: This checks there are no endless facts, so rather specific
-#     (i.e., no ongoing). You could split into another decorator for just checking
-#     database is under migration control. But that doesn't matter so much,
-#     does it? Or is the idea we'd rather print a nice, friendly error message?
-#     Otherwise, if code fails later, we'd print a dirty stack trace.
 @pass_controller
-@backend_integrity
+@induct_newbies
 def transcode_import(controller, filename, output, force, *args, **kwargs):
     """Import from file or STDIN (pipe)."""
     file_in = must_no_more_than_one_file(filename)
@@ -794,6 +804,7 @@ def transcode_import(controller, filename, output, force, *args, **kwargs):
 #          https://github.com/pallets/click/pull/500
 @run.command('complete', hidden=True, help=help_strings.COMPLETE_HELP)
 @pass_controller
+@induct_newbies
 def complete(controller):
     """Bash tab-completion helper."""
     _disable_logging(controller)
@@ -815,6 +826,7 @@ def migrate_group(ctx, controller):
 
 @migrate_group.command('control', help=help_strings.MIGRATE_CONTROL_HELP)
 @pass_controller
+@induct_newbies
 def migrate_control(controller):
     """Mark a database as under version control."""
     migrate.control(controller)
@@ -822,6 +834,7 @@ def migrate_control(controller):
 
 @migrate_group.command('down', help=help_strings.MIGRATE_DOWN_HELP)
 @pass_controller
+@induct_newbies
 def migrate_downgrade(controller):
     """Downgrade the database according to its migration version."""
     migrate.downgrade(controller)
@@ -829,6 +842,7 @@ def migrate_downgrade(controller):
 
 @migrate_group.command('up', help=help_strings.MIGRATE_UP_HELP)
 @pass_controller
+@induct_newbies
 def migrate_upgrade(controller):
     """Upgrade the database according to its migration version."""
     migrate.upgrade(controller)

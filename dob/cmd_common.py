@@ -26,16 +26,19 @@ from nark.helpers.colored import fg, attr, colorize
 
 from . import __appname__
 from . import migrate
-from .helpers import ascii_art
+from .helpers import ascii_art, dob_in_user_exit
 
 __all__ = [
-    'backend_integrity',
     'barf_and_exit',
     'echo_block_header',
     'fact_block_header',
     'hydrate_activity',
     'hydrate_category',
+    'induct_newbies',
     'must_no_more_than_one_file',
+    # Private:
+    # 'backend_integrity',
+    # 'insist_germinated',
 ]
 
 
@@ -100,8 +103,29 @@ def backend_integrity(func):
     return wrapper
 
 
-# ***
+def insist_germinated(func):
+    """
+    """
 
+    def wrapper(controller, *args, **kwargs):
+        controller.insist_germinated()
+        func(controller, *args, **kwargs)
+
+    return wrapper
+
+
+def induct_newbies(func):
+    """
+    """
+    @insist_germinated
+    @backend_integrity
+    def wrapper(*args, **kwargs):
+        func(*args, **kwargs)
+
+    return wrapper
+
+
+# ***
 
 def barf_and_exit(msg, crude=True):
     if crude:
@@ -118,6 +142,7 @@ def barf_on_error(msg, crude=False):
     if not msg:
         return
     barf_and_exit(msg, crude=False)
+
 
 # ***
 
@@ -140,6 +165,7 @@ def fact_block_header(title, sep='━'):
     ))
     return '\n'.join(header)
 
+
 # ***
 
 def hydrate_activity(controller, activity_name):
@@ -153,6 +179,7 @@ def hydrate_activity(controller, activity_name):
         activity = result if result else False
     return activity
 
+
 # ***
 
 def hydrate_category(controller, category_name):
@@ -165,6 +192,7 @@ def hydrate_category(controller, category_name):
         result = controller.categories.get_by_name(category_name)
         category = result if result else False
     return category
+
 
 # ***
 

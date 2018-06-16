@@ -93,6 +93,48 @@ class Controller(HamsterControl):
         nark_config['sql_log_level'] = 'WARNING'
 
     @property
+    def is_germinated(self):
+        if self.cfgfile_exists and self.store_exists:
+            return True
+        return False
+
+    def insist_germinated(self):
+        """Assist user if config or database not present."""
+        store_exists = self.store_exists
+        if self.cfgfile_exists and store_exists:
+            self.standup_store()
+            return
+        if not self.cfgfile_exists and not store_exists:
+            self.welcome_newbie()
+        else:
+            self.berate_user_files_unwell(store_exists)
+        echo_copyright()
+        sys.exit(1)
+
+    def welcome_newbie(self):
+        self.help_newbie_onboard()
+
+    def berate_user_files_unwell(self, store_exists):
+        if not self.cfgfile_exists:
+            self.oblige_user_create_config()
+        if not store_exists:
+            self.oblige_user_create_store()
+
+    def help_newbie_onboard(self):
+        click.echo(
+            help_strings.NEWBIE_HELP_ONBOARDING.format(
+                legacy_help=upgrade_legacy_database_instructions(self),
+            ),
+            err=True,
+        )
+
+    def oblige_user_create_config(self):
+        click.echo(help_strings.NEWBIE_HELP_CREATE_CONFIG, err=True)
+
+    def oblige_user_create_store(self):
+        click.echo(help_strings.NEWBIE_HELP_CREATE_STORE, err=True)
+
+    @property
     def now(self):
         return self.store.now
 
