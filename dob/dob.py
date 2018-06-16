@@ -36,7 +36,6 @@ from . import cmd_options
 from . import help_strings
 from . import migrate
 from . import update
-from . import __BigName__
 from . import __appname__ as dob_appname
 from . import __version__ as dob_version
 from . import __libname__ as nark_appname
@@ -63,7 +62,7 @@ from .cmds_usage import category as usage_category
 from .cmds_usage import tag as usage_tag
 from .complete import tab_complete
 from .controller import Controller
-from .copyright import echo_copyright
+from .copyright import echo_copyright, echo_license
 from .create import add_fact, cancel_fact, stop_fact
 from .details import app_details, hamster_time
 from .migrate import upgrade_legacy_database_file
@@ -310,24 +309,7 @@ def license():
 
 def _license():
     """Show license information."""
-    # FIXME: (lb): Replace appname with $0, or share module var with setup.py.
-    # MAYBE: (lb): Read and print LICENSE file instead of hard coding herein?
-    license = """
-{app_name} is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-{app_name} is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <http://www.gnu.org/licenses/>.
-""".strip()
-    license = license.format(app_name=__BigName__)
-    click.echo(license)
+    echo_license()
 
 
 # ***
