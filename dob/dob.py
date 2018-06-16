@@ -361,7 +361,7 @@ def details(controller, tmi):
 
 @run.command('init', help=help_strings.INIT_HELP)
 @pass_controller
-def init(controller):
+def init_config_and_store(controller):
     """"""
     controller.create_config_and_store()
 
@@ -381,7 +381,7 @@ def config_group(controller):
 @click.option('-f', '--force', is_flag=True,
               help=_('If specified, overwrite config file if is exists'))
 @pass_controller
-def create(controller, force):
+def config_create(controller, force):
     """"""
     controller.create_config(force)
 
