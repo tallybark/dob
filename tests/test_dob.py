@@ -577,11 +577,13 @@ class TestGetConfig(object):
 
 class TestGetConfigInstance(object):
     def test_no_file_present(self, appdirs, mocker):
-#        mocker.patch('dob.dob._write_config_file')
-        mocker.patch('dob.cmd_config.write_config_file')
+##        mocker.patch('dob.dob._write_config_file')
+#        mocker.patch('dob.cmd_config.write_config_file')
+        mocker.patch('dob.cmd_config.fresh_config')
 
         cmd_config.get_config_instance()
-        assert cmd_config.write_config_file.called
+#        assert cmd_config.write_config_file.called
+        assert cmd_config.fresh_config.called
 
     def test_file_present(self, config_instance, config_file, mocker):
         """Make sure we try parsing a found config file."""
@@ -590,11 +592,13 @@ class TestGetConfigInstance(object):
 
     def test_get_config_path(self, appdirs, mocker):
         """Make sure the config target path is constructed to our expectations."""
-#        mocker.patch('dob.dob._write_config_file')
-        mocker.patch('dob.cmd_config.write_config_file')
+##        mocker.patch('dob.dob._write_config_file')
+#        mocker.patch('dob.cmd_config.write_config_file')
+        mocker.patch('dob.cmd_config.fresh_config')
         cmd_config.get_config_instance()
         expectation = os.path.join(appdirs.user_config_dir, 'dob.conf')
-        assert cmd_config.write_config_file.called_with(expectation)
+#        assert cmd_config.write_config_file.called_with(expectation)
+        assert cmd_config.fresh_config.called_with(expectation)
 
 
 class TestGenerateTable(object):
@@ -613,19 +617,22 @@ class TestGenerateTable(object):
 class TestWriteConfigFile(object):
     def test_file_is_written(self, filepath):
         """Make sure the file is written. Content is not checked, this is ConfigParsers job."""
-        cmd_config.write_config_file(filepath)
+#        cmd_config.write_config_file(filepath)
+        cmd_config.fresh_config(filepath)
         assert os.path.lexists(filepath)
 
     def test_return_config_instance(self, filepath):
         """Make sure we return a ``SafeConfigParser`` instance."""
-        result = cmd_config.write_config_file(filepath)
+#        result = cmd_config.write_config_file(filepath)
+        result = cmd_config.fresh_config(filepath)
         assert isinstance(result, SafeConfigParser)
 
     def test_non_existing_path(self, tmpdir, filename):
         """Make sure that the path-parents are created ifnot present."""
         filepath = os.path.join(tmpdir.strpath, 'foobar')
         assert os.path.lexists(filepath) is False
-        cmd_config.write_config_file(filepath)
+#        cmd_config.write_config_file(filepath)
+        cmd_config.fresh_config(filepath)
         assert os.path.lexists(filepath)
 
 
