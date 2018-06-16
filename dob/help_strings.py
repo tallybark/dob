@@ -21,10 +21,12 @@ from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
-from . import __appname__, __BigName__
+from nark.helpers.colored import fg, attr
+
+from . import __arg0name__, __BigName__
 
 
-# FIXME: Dehardcode: Use .format(appname=__appname__) herein!
+# FIXME: Dehardcode: Use .format(appname=__arg0name__) herein!
 
 
 # ***
@@ -52,7 +54,7 @@ RUN_HELP = _(
 
 
 
-    """.strip().format(appname=__appname__, big_name=__BigName__)
+    """.strip().format(appname=__arg0name__, big_name=__BigName__)
 )
 
 
@@ -80,6 +82,124 @@ LICENSE_HELP = _(
 
 DETAILS_HELP = _(
     """List details about the runtime environment."""
+)
+
+
+# ***
+# *** [INDUCTEE] help.
+# ***
+
+NEWBIE_HELP_WELCOME = _(
+    """
+{color}Welcome to dob!{reset}
+{color}==============={reset}
+    """
+).strip().format(
+    color=(fg('spring_green_2a') + attr('bold')),
+    # color=(fg('turquoise_4') + attr('bold')),
+    # color=(fg('magenta_2a') + attr('bold')),
+    # color=(fg('dark_orange_3b') + attr('bold')),
+    reset=attr('reset'),
+)
+
+
+def section_heading(title):
+    return """{color}{title}
+{line_color}{sep:{sep}<{len_title}}{reset}""".format(
+        title=title,
+        sep='-',
+        len_title=len(title),
+        # color=fg('spring_green_2a'),
+        # color=fg('dark_orange'),
+        # color=fg('turquoise_4'),
+        # line_color=fg('grey_78'),
+        # line_color=fg('light_blue'),
+        line_color='',
+        color='',
+        reset=attr('reset'),
+    )
+
+
+NEWBIE_HELP_ONBOARDING = _(
+    # If you have an existing Hamster database,
+    # we've got you covered!
+    """
+{banner}
+
+Let's get you setup!
+
+{upgrade_title}
+{paragraph_color}
+To learn how to upgrade, run:{reset}
+
+  {cmd_color}{appname} upgrade{reset}
+
+{init_title}
+{paragraph_color}
+To create a fresh, empty database, run:{reset}
+
+  {cmd_color}{appname} init{reset}
+"""
+).format(
+    appname=__arg0name__,
+    banner=NEWBIE_HELP_WELCOME,
+    upgrade_title=section_heading(_('Import existing facts')),
+    init_title=section_heading(_('Start from scratch')),
+    # cmd_color=(fg('dodger_blue_1')),
+    cmd_color=fg('spring_green_2a'),
+    # paragraph_color=fg('grey_78'),
+    paragraph_color='',
+    reset=attr('reset'),
+)
+
+
+NEWBIE_HELP_CREATE_CONFIG = _(
+    """
+{banner}
+
+Where's you config file??
+
+FIXME: Provide example commands.
+
+    """
+).format(
+    # appname=__arg0name__,
+    banner=NEWBIE_HELP_WELCOME,
+    # cmd_color=(fg('spring_green_2a') + attr('bold')),
+    # reset=attr('reset'),
+)
+
+
+NEWBIE_HELP_CREATE_STORE = _(
+    """
+{banner}
+
+Where's you database??
+
+FIXME: Provide example commands.
+
+    """
+).format(
+    # appname=__arg0name__,
+    banner=NEWBIE_HELP_WELCOME,
+    # mintgreen=(fg('spring_green_2a') + attr('bold')),
+    # reset=attr('reset'),
+)
+
+
+# ***
+# *** [CONFIG] Commands help.
+# ***
+
+CONFIG_GROUP_HELP = _(
+    """
+    """
+)
+
+
+CONFIG_CREATE_HELP = _(
+    """
+    """
 )
 
 
@@ -598,5 +718,10 @@ MIGRATE_UP_HELP = _(
 
 MIGRATE_VERSION_HELP = _(
     """Show the database migration version."""
+)
+
+
+MIGRATE_LEGACY_HELP = _(
+    """Migrate a legacy "Hamster" database."""
 )
 
