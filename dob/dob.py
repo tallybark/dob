@@ -804,12 +804,13 @@ def complete(controller):
 # *** [MIGRATE] Commands [database transformations].
 # ***
 
-@run.group('migrate', help=help_strings.MIGRATE_GROUP_HELP)
+@run.group('migrate', help=help_strings.MIGRATE_GROUP_HELP, invoke_without_command=True)
 @pass_controller
 @click.pass_context
 def migrate_group(ctx, controller):
     """Base `migrate` group command run prior to any of the dob-migrate commands."""
-    pass
+    if not ctx.invoked_subcommand:
+        click.echo(ctx.get_help())
 
 
 @migrate_group.command('control', help=help_strings.MIGRATE_CONTROL_HELP)
