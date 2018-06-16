@@ -128,23 +128,30 @@ NEWBIE_HELP_ONBOARDING = _(
 
 Let's get you setup!
 
+{init_title}
+{paragraph_color}
+To create a fresh, empty database, run:{reset}
+
+  {cmd_color}{appname} init{reset}
+
 {upgrade_title}
 {paragraph_color}
 To learn how to upgrade, run:{reset}
 
   {cmd_color}{appname} upgrade{reset}
 
-{init_title}
+{demo_title}
 {paragraph_color}
-To create a fresh, empty database, run:{reset}
+If you'd like to demo the application first with some example data, run:{reset}
 
-  {cmd_color}{appname} init{reset}
+  {cmd_color}{appname} demo{reset}
 """
 ).format(
     appname=__arg0name__,
     banner=NEWBIE_HELP_WELCOME,
     upgrade_title=section_heading(_('Import existing facts')),
     init_title=section_heading(_('Start from scratch')),
+    demo_title=section_heading(_('Demo Dob')),
     # cmd_color=(fg('dodger_blue_1')),
     cmd_color=fg('spring_green_2a'),
     # paragraph_color=fg('grey_78'),
@@ -184,6 +191,16 @@ FIXME: Provide example commands.
     banner=NEWBIE_HELP_WELCOME,
     # mintgreen=(fg('spring_green_2a') + attr('bold')),
     # reset=attr('reset'),
+)
+
+
+# ***
+# *** [DEMO] Command help.
+# ***
+
+DEMO_HELP = _(
+    """
+    """
 )
 
 

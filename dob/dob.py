@@ -356,6 +356,17 @@ def details(controller, tmi):
 
 
 # ***
+# *** [DEMO] Command.
+# ***
+
+@run.command('demo', help=help_strings.DEMO_HELP)
+@pass_controller
+def demo_dob_and_nark(controller):
+    """"""
+    raise NotImplementedError(_('FIXME: Implement `dob demo`'))
+
+
+# ***
 # *** [INIT] Command.
 # ***
 
