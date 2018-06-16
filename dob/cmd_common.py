@@ -72,7 +72,7 @@ def backend_integrity(func):
                 ' {} != {}'
                 '\nTrying running `{} migrate up`'
             ).format(db_version, latest_version, __appname__)
-            barf_and_exit(msg)
+            dob_in_user_exit(msg)
 
     # ***
 
@@ -96,7 +96,7 @@ def backend_integrity(func):
             # MAYBE/2018-05-23 17:05: (lb): We could offer an easy way out, e.g.,
             #   '\n\nTry, e.g.,\n\n  {} edit {} --end now'.format(__appname__, ...)
         )
-        barf_and_exit(msg)
+        dob_in_user_exit(msg)
 
     # ***
 
@@ -136,12 +136,6 @@ def barf_and_exit(msg, crude=True):
     click.echo()
     click.echo(colorize(msg, 'red'))
     sys.exit(1)
-
-
-def barf_on_error(msg, crude=False):
-    if not msg:
-        return
-    barf_and_exit(msg, crude=False)
 
 
 # ***

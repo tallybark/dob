@@ -27,7 +27,7 @@ import nark
 from nark.helpers.colored import fg, attr
 
 from . import help_strings
-from .cmd_common import barf_on_error
+from .helpers import dob_in_user_exit
 
 __all__ = [
     'control',
@@ -38,6 +38,7 @@ __all__ = [
     'upgrade_legacy_database_file',
     'upgrade_legacy_database_instructions',
     # Private:
+    #  '_barf_legacy_database',
     #  '_instruct_upgrade',
     #  '_upgrade_legacy_database_file',
 ]
@@ -54,7 +55,8 @@ def control(controller):
             err_msg = _('Something went wrong! Sorry!!')
     if not success and not err_msg:
         err_msg = _('The database is already versioned!')
-    barf_on_error(err_msg)
+    if err_msg:
+        dob_in_user_exit(err_msg)
 
 
 def downgrade(controller):
@@ -62,7 +64,7 @@ def downgrade(controller):
     response = controller.store.migrations.downgrade()
     assert response is not None
     if not response:
-        barf_on_error(_('The database is already at the earliest version'))
+        dob_in_user_exit(_('The database is already at the earliest version'))
 
 
 def upgrade(controller):
@@ -70,7 +72,7 @@ def upgrade(controller):
     response = controller.store.migrations.upgrade()
     assert response is not None
     if not response:
-        barf_on_error(_('The database is already at the latest version'))
+        dob_in_user_exit(_('The database is already at the latest version'))
 
 
 def version(controller, silent_check=False, must=True):
@@ -80,7 +82,7 @@ def version(controller, silent_check=False, must=True):
             click.echo(db_version)
         return db_version
     elif must:
-        barf_legacy_database(controller)
+        _barf_legacy_database(controller)
     return None
 
 
@@ -91,7 +93,7 @@ def latest_version(controller, silent_check=False, must=True):
             click.echo(latest_ver)
         return latest_ver
     elif must:
-        barf_legacy_database(controller)
+        _barf_legacy_database(controller)
     return None
 
 
@@ -142,14 +144,14 @@ def upgrade_legacy_database_instructions(controller):
     return instructions
 
 
-def barf_legacy_database(controller):
+def _barf_legacy_database(controller):
     """"""
     prefix = '''
 If this is a legacy database, upgrade and register the database.
 '''.strip()
     msg1 = prefix + upgrade_legacy_database_instructions(controller)
     msg2 = _('The database is not versioned!')
-    msg2 = '{}{}{}'.format(fg('red'), msg2, attr('reset'))
+    msg2 = '{}{}{}'.format(fg('red_3b'), msg2, attr('reset'))
     msg = '{}\n{}'.format(msg2, msg1)
     click.echo(msg)
     sys.exit(1)
