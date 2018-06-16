@@ -181,7 +181,7 @@ def import_facts(
         raw_facts = copy.deepcopy(new_facts)
         must_complete_times(new_facts)
         must_not_conflict_existing(new_facts)
-        confirm_all_facts(new_facts, raw_facts, file_out, rule, yes, dry)
+        confirm_all_facts(new_facts, raw_facts, file_out, rule, ask, yes, dry)
         persist_facts(new_facts, file_out, dry)
         celebrate(new_facts)
 
@@ -840,20 +840,22 @@ def import_facts(
 
     # ***
 
-    def confirm_all_facts(new_facts, raw_facts, file_out, rule, yes, dry):
+    def confirm_all_facts(new_facts, raw_facts, file_out, rule, ask, yes, dry):
         if not dry:
             pass
 
         # Remember prompter state between inquisitions.
         prompt_agent = None
 
-        if not dry and not yes:
+        if not yes and not dry:
             click.echo('You may now edit facts being imported...')
             click.echo()
         for idx, raw_fact in enumerate(raw_facts):
             new_fact = new_facts[idx]
-            if not dry and not yes:
-                prompt_agent = confirm_fact(idx, raw_fact, new_fact, prompt_agent)
+            if not yes and not dry:
+                prompt_agent = confirm_fact(
+                    idx, raw_fact, new_fact, prompt_agent, ask,
+                )
             else:
                 echo_block_header(_('Such Fact!'))
                 click.echo()
@@ -861,9 +863,28 @@ def import_facts(
                 click.echo()
             persist_fact_file(new_fact, file_out, rule, dry, idx)
 
-    def confirm_fact(idx, raw_fact, new_fact, prompt_agent):
-        confirmed = False
-        while not confirmed:
+    def confirm_fact(idx, raw_fact, new_fact, prompt_agent, ask):
+        """"""
+        def _confirm_fact():
+            used_prompt_agent = prompt_agent
+            ask_at_least_once = ask
+            confirmed = False
+            while not confirmed:
+                confirmed = ask_at_least_once
+                ask_at_least_once = False
+                confirmed = interact_confirm(confirmed)
+                if not confirmed:
+                    used_prompt_agent = interactive_cleanup(new_fact)
+                else:
+                    click.echo()
+            return used_prompt_agent
+
+        def interact_confirm(confirmed):
+            if confirmed:
+                return confirmed
+            return confirm_with_user()
+
+        def confirm_with_user():
             header = fact_block_header(_('New fact #{}').format(idx + 1))
             # MAYBE/2018-05-21: (lb): Option to skip fact?
             confirmed = click.confirm(
@@ -876,11 +897,9 @@ def import_facts(
                 # show_default=True,
                 # err=False,
             )
-            if not confirmed:
-                prompt_agent = interactive_cleanup(new_fact)
-            else:
-                click.echo()
-        return prompt_agent
+            return confirmed
+
+        return _confirm_fact()
 
     # ***
 
