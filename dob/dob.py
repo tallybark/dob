@@ -65,6 +65,7 @@ from .cmds_usage import activity as usage_activity
 from .cmds_usage import category as usage_category
 from .cmds_usage import tag as usage_tag
 from .complete import tab_complete
+from .controller import Controller
 from .create import add_fact, cancel_fact, stop_fact
 from .details import app_details, hamster_time
 from .transcode import export_facts, import_facts
@@ -73,7 +74,6 @@ from .transcode import export_facts, import_facts
 click.disable_unicode_literals_warning = True
 
 __all__ = [
-    # 'Controller',
     # 'pass_controller',
     # '_dob_version',
     # 'run',
@@ -120,41 +120,6 @@ __all__ = [
 # ***
 # *** [CONTROLLER] HamsterControl Controller.
 # ***
-
-
-class Controller(HamsterControl):
-    """
-    A custom controller that adds config handling on top of its regular functionality.
-    """
-
-    def __init__(self):
-        """Instantiate controller instance and adding client_config to it."""
-        lib_config, client_config = get_config(get_config_instance())
-        self._verify_args(lib_config)
-        super(Controller, self).__init__(lib_config)
-        self.client_config = client_config
-
-    def _verify_args(self, lib_config):
-        # *cough*hack!*cough*”
-        # Because invoke_without_command, we allow command-less hamster
-        #   invocations. For one such invocation -- murano -v -- tell the
-        #   store not to log.
-        # Also tell the store not to log if user did not specify anything,
-        #   because we'll show the help/usage (which Click would normally
-        #   handle if we hadn't tampered with invoke_without_command).
-        if (
-            (len(sys.argv) == 1) or
-            ((len(sys.argv) == 2) and (sys.argv[1] in ('-v', 'version')))
-        ):
-            lib_config['sql_log_level'] = 'WARNING'
-        elif len(sys.argv) == 1:
-            # Because invoke_without_command, now we handle command-less
-            # deliberately ourselves.
-            pass
-
-    @property
-    def now(self):
-        return self.store.now
 
 
 pass_controller = click.make_pass_decorator(Controller, ensure=True)
