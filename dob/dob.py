@@ -66,6 +66,7 @@ from .cmds_usage import category as usage_category
 from .cmds_usage import tag as usage_tag
 from .complete import tab_complete
 from .controller import Controller
+from .copyright import echo_copyright
 from .create import add_fact, cancel_fact, stop_fact
 from .details import app_details, hamster_time
 from .transcode import export_facts, import_facts
@@ -77,7 +78,6 @@ __all__ = [
     # 'pass_controller',
     # '_dob_version',
     # 'run',
-    # '_show_greeting',
     # '_setup_logging',
     # '_disable_logging',
     # 'version',
@@ -220,7 +220,7 @@ def run(ctx, controller, v, verbose, verboser, color):
         #   it's easy enough just to make a config option for it....
         if not controller.client_config['show_greeting']:
             return
-        _show_greeting()
+        echo_copyright()
         click.echo()
 
     def _run_handle_version(show_version, ctx):
@@ -236,39 +236,6 @@ def run(ctx, controller, v, verbose, verboser, color):
     # Shim to the private run() functions.
 
     _run(ctx, controller, show_version=v)
-
-
-def _show_greeting():
-    """Display a greeting message providing basic set of information."""
-    cur_year = str(datetime.now().year)
-    year_range = '2018'
-    if cur_year != year_range:
-        year_range = '2018-{}'.format(year_range)
-    gpl3_notice_2018 = [
-        '{app_name} {version}'.format(
-            app_name=__BigName__,
-            version=dob_version,
-        ),
-        '',
-        'Copyright (C) {years} {author} <{email}>'.format(
-            years=year_range,
-            author=__author__,
-            email=__author_email__,
-        ),
-        # Be nice and call out the significant copyright holders from the years.
-        # (lb): What about Right to be forgotten?
-        'Copyright (C) 2015-2016 Eric Goller <elbenfreund@DenkenInEchtzeit.net>',
-        'Copyright (C) 2007-2014 Toms Baugis <toms.baugis@gmail.com>',
-        'Copyright (C) 2007-2008 Patryk Zawadzki <patrys at pld-linux.org>',
-        '',
-        _('This program comes with ABSOLUTELY NO WARRANTY.'),
-        _('This is free software, and you are welcome to'),
-        _('redistribute it under certain conditions.'),
-        _('Run `{} license` for details.').format(dob_appname),
-    ]
-    notice = gpl3_notice_2018
-    for line in notice:
-        click.echo(line)
 
 
 def _setup_logging(controller, verbose=False, verboser=False):
@@ -373,13 +340,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 # *** [BANNER] Command.
 # ***
 
-@run.command(help=_('View copyright information'))
+@run.command(aliases=['about'], help=_('View copyright information'))
 @pass_controller
 def copyright(controller):
     """Display copyright information.."""
-# FIXME: Shows twice if greeting enabled in config...
-# FIXME: Default config enable is True, which is wrong.
-    _show_greeting()
+    echo_copyright()
 
 
 # ***
