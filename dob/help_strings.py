@@ -214,6 +214,34 @@ CONFIG_CREATE_HELP = _(
 
 
 # ***
+# *** [STORE] Commands help.
+# ***
+
+STORE_GROUP_HELP = _(
+    """
+    """
+)
+
+
+STORE_CREATE_HELP = _(
+    """
+    """
+)
+
+
+STORE_PATH_HELP = _(
+    """
+    """
+)
+
+
+STORE_URL_HELP = _(
+    """
+    """
+)
+
+
+# ***
 # *** [LIST] Commands help.
 # ***
 
