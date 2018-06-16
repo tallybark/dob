@@ -58,17 +58,15 @@ class Controller(HamsterControl):
         self.client_config = dob_config
         self.cfgfile_exists = preexists
 
-    def create_config(self, force):
-        exists = os.path.exists(get_config_path())
-        if exists and not force:
-            dob_in_user_exit('Config file exists')
-        nark_config, dob_config, file_path = replenish_config()
-        self._adjust_log_level(nark_config)
-        self.config = nark_config
-        self.client_config = dob_config
-        click.echo(
-            _('Initialized default Dob configuration at {}').format(file_path)
-        )
+    @property
+    def now(self):
+        return self.store.now
+
+    @property
+    def is_germinated(self):
+        if self.cfgfile_exists and self.store_exists:
+            return True
+        return False
 
     @property
     def store_exists(self):
@@ -91,12 +89,6 @@ class Controller(HamsterControl):
         ):
             return
         nark_config['sql_log_level'] = 'WARNING'
-
-    @property
-    def is_germinated(self):
-        if self.cfgfile_exists and self.store_exists:
-            return True
-        return False
 
     def insist_germinated(self):
         """Assist user if config or database not present."""
@@ -134,7 +126,15 @@ class Controller(HamsterControl):
     def oblige_user_create_store(self):
         click.echo(help_strings.NEWBIE_HELP_CREATE_STORE, err=True)
 
-    @property
-    def now(self):
-        return self.store.now
+    def create_config(self, force):
+        exists = os.path.exists(get_config_path())
+        if exists and not force:
+            dob_in_user_exit('Config file exists')
+        nark_config, dob_config, file_path = replenish_config()
+        self._adjust_log_level(nark_config)
+        self.config = nark_config
+        self.client_config = dob_config
+        click.echo(
+            _('Initialized default Dob configuration at {}').format(file_path)
+        )
 
