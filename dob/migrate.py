@@ -26,6 +26,7 @@ import sys
 import nark
 from nark.helpers.colored import fg, attr
 
+from . import help_strings
 from .cmd_common import barf_on_error
 
 __all__ = [
@@ -34,6 +35,11 @@ __all__ = [
     'upgrade',
     'version',
     'latest_version',
+    'upgrade_legacy_database_file',
+    'upgrade_legacy_database_instructions',
+    # Private:
+    #  '_instruct_upgrade',
+    #  '_upgrade_legacy_database_file',
 ]
 
 
@@ -92,17 +98,8 @@ def latest_version(controller, silent_check=False, must=True):
 # ***
 
 
-def barf_legacy_database(controller):
-    nark_path = os.path.dirname(os.path.dirname(nark.__file__))
-    up_legacy_rel = os.path.join('migrations', 'upgrade_hamster-applet_db.sh')
-    up_legacy_path = os.path.join(nark_path, up_legacy_rel)
-    up_hamlib_rel = os.path.join('migrations', 'upgrade_hamster-lib_db.sh')
-    up_hamlib_path = os.path.join(nark_path, up_hamlib_rel)
-    db_path = controller.config['db_path']
-    msg1 = _(
-        '''
-If this is a legacy database, upgrade and register the database.
-
+UPGRADE_INSTRUCTIONS = _(
+    """
 If your database was created long ago by the original hamster,
 `hamster-applet`, run the legacy database upgrade script, e.g.,
 
@@ -112,10 +109,8 @@ If your database was created long ago by the original hamster,
 Be sure to make a backup first, in case something goes wrong!
 
 If your database was created more recently by the new `hamster-lib`
-rewrite (2016-2017), run the hamster-lib upgrade script, e.g.,
-
-  {mintgreen}{up_hamlib_path} \\
-    {db_path}{reset}
+rewrite (2016-2017), you can register the database (see below), and
+then run the `migrate up` command.
 
 See the project page for more information:
 
@@ -124,23 +119,64 @@ See the project page for more information:
 After you upgrade the database, register it. E.g.,
 
   {mintgreen}{prog_name} migrate control{reset}
+"""
+)
 
-        '''.rstrip()
-    )
-    msg1 = msg1.format(
+
+def upgrade_legacy_database_instructions(controller):
+    """"""
+    nark_path = os.path.dirname(os.path.dirname(nark.__file__))
+    up_legacy_rel = os.path.join('migrations', 'upgrade_hamster-applet_db.sh')
+    up_legacy_path = os.path.join(nark_path, up_legacy_rel)
+    db_path = controller.config['db_path']
+    instructions = UPGRADE_INSTRUCTIONS.format(
         prog_name=os.path.basename(sys.argv[0]),  # See also: dob.__appname__
         db_path=db_path,
         nark_path=nark_path,
         up_legacy_path=up_legacy_path,
-        up_hamlib_path=up_hamlib_path,
         # green=(fg('light_green') + attr('bold')),
         mintgreen=(fg('spring_green_2a') + attr('bold')),
         # magenta_2a=(fg('magenta_2a') + attr('bold')),
         reset=attr('reset'),
     )
+    return instructions
+
+
+def barf_legacy_database(controller):
+    """"""
+    prefix = '''
+If this is a legacy database, upgrade and register the database.
+'''.strip()
+    msg1 = prefix + upgrade_legacy_database_instructions(controller)
     msg2 = _('The database is not versioned!')
     msg2 = '{}{}{}'.format(fg('red'), msg2, attr('reset'))
     msg = '{}\n{}'.format(msg2, msg1)
     click.echo(msg)
     sys.exit(1)
+
+
+# ***
+
+def upgrade_legacy_database_file(ctx, controller, file_in):
+    if file_in is None:
+        if controller.is_germinated:
+            click.echo(ctx.get_help())
+        else:
+            _instruct_upgrade(controller)
+    else:
+        _upgrade_legacy_database_file(file_in)
+
+
+def _instruct_upgrade(controller):
+    click.echo(
+        '\n{}\n{}'.format(
+            help_strings.NEWBIE_HELP_WELCOME,
+            upgrade_legacy_database_instructions(controller),
+        )
+    )
+
+
+def _upgrade_legacy_database_file(file_in):
+    # FIXME: (lb): Yeah.......
+    raise NotImplementedError
 

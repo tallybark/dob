@@ -836,7 +836,18 @@ def migrate_upgrade(controller):
 
 @migrate_group.command('version', help=help_strings.MIGRATE_VERSION_HELP)
 @pass_controller
+@induct_newbies
 def migrate_version(controller):
     """Show migration information about the database."""
     migrate.version(controller)
+
+
+@migrate_group.command(help=help_strings.MIGRATE_LEGACY_HELP)
+@click.argument('filename', nargs=-1, type=click.File('r'))
+@pass_controller
+@click.pass_context
+def legacy(ctx, controller, filename):
+    """Migrate a legacy "Hamster" database."""
+    file_in = must_no_more_than_one_file(filename)
+    upgrade_legacy_database_file(ctx, controller, file_in)
 
