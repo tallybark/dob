@@ -64,6 +64,25 @@ class Controller(HamsterControl):
         return self.store.now
 
     @property
+    def data_store_exists_at(self):
+        return _('Data store already exists at {}').format(self.config['db_path'])
+
+    @property
+    def data_store_url(self):
+        return self.store.get_db_url()
+
+    @property
+    def sqlite_db_path(self):
+        if self.config['db_engine'] == 'sqlite':
+            return self.config['db_path']
+        else:
+            # (lb): I don't super-like this. It's a weird side effect.
+            #   And it's knowledgeable about the CLI command API. Meh.
+            dob_in_user_exit(_(
+                'Not a SQLite database. Try `{} store url`'
+            ).format(__arg0name__))
+
+    @property
     def is_germinated(self):
         if self.cfgfile_exists and self.store_exists:
             return True
@@ -125,6 +144,15 @@ class Controller(HamsterControl):
             _('Initialized default Dob configuration at {}').format(file_path)
         )
 
+    def create_data_store(self, force):
+        skip_standup = self._check_sqlite_store_ready()
+        if skip_standup:
+            if force:
+                self._reset_data_store()
+            else:
+                dob_in_user_exit(self.data_store_exists_at)
+        self._standup_and_version_store()
+
     def create_config_and_store(self):
         def _create_config_and_store():
             if not self.is_germinated:
@@ -151,11 +179,10 @@ class Controller(HamsterControl):
             # already, because the storage class, SQLAlchemyStore, blindly calls
             # create_all (in create_storage_tables) without checking if db exists.
             skip_standup = self._check_sqlite_store_ready()
-            if not skip_standup:
-                self.standup_store()
-                click.echo(
-                    _('Dob database is ready at {}').format(self.store.get_db_url())
-                )
+            if skip_standup:
+                click.echo(self.data_store_exists_at)
+            else:
+                self._standup_and_version_store()
 
         def exit_already_germinated():
             dob_in_user_exit(_(
@@ -184,8 +211,30 @@ class Controller(HamsterControl):
         db_path = self.config['db_path']
         if not os.path.isfile(db_path):
             return False
-        click.echo(
-            _('Data store already exists at {}').format(db_path)
-        )
         return True
+
+    def _reset_data_store(self):
+        if self.config['db_engine'] != 'sqlite':
+            # raise NotImplementedError
+            dob_in_user_exit(_(
+                'FIXME: Reset non-SQLite data store not supported (yet).'
+            ))
+        else:
+            db_path = self.config['db_path']
+            os.unlink(db_path)
+            click.echo(
+                _('Recreated data store at {}').format(db_path)
+            )
+
+    def _standup_and_version_store(self):
+        created_fresh = self.standup_store()
+        if created_fresh:
+            verb = _('created')
+        else:
+            verb = _('already ready')
+        click.echo(
+            _('Dob database {verb} at {url}').format(
+                verb=verb, url=self.store.get_db_url(),
+            )
+        )
 

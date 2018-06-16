@@ -387,6 +387,42 @@ def config_create(controller, force):
 
 
 # ***
+# *** [STORE] Commands.
+# ***
+
+# See also: 'migrate' commands. The store commands are mostly for initial setup.
+
+@run.group('store', cls=ClickAliasedGroup, help=help_strings.STORE_GROUP_HELP)
+@click.pass_context
+def store_group(controller):
+    """Base `store` group command run prior to dob-store commands."""
+    pass
+
+
+@store_group.command('create', aliases=['new'], help=help_strings.STORE_CREATE_HELP)
+@click.option('-f', '--force', is_flag=True,
+              help=_('If specified, recreate data store if is exists'))
+@pass_controller
+def store_create(controller, force):
+    """"""
+    controller.create_data_store(force)
+
+
+@store_group.command('path', help=help_strings.STORE_PATH_HELP)
+@pass_controller
+def store_path(controller):
+    """"""
+    click.echo(controller.sqlite_db_path)
+
+
+@store_group.command('url', help=help_strings.STORE_URL_HELP)
+@pass_controller
+def store_url(controller):
+    """"""
+    click.echo(controller.data_store_url)
+
+
+# ***
 # *** [LIST] Commands.
 # ***
 
