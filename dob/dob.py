@@ -26,11 +26,9 @@ import logging
 import os
 import sys
 from click_alias import ClickAliasedGroup
-from datetime import datetime
 from functools import update_wrapper
 
 from nark import __version__ as nark_version
-from nark import HamsterControl
 from nark.helpers import logging as logging_helpers
 from nark.helpers.colored import disable_colors, enable_colors
 
@@ -38,12 +36,11 @@ from . import cmd_options
 from . import help_strings
 from . import migrate
 from . import update
-from . import __author__, __author_email__, __BigName__
+from . import __BigName__
 from . import __appname__ as dob_appname
 from . import __version__ as dob_version
 from . import __libname__ as nark_appname
-from .cmd_common import backend_integrity
-from .cmd_config import get_config, get_config_instance
+from .cmd_common import induct_newbies, must_no_more_than_one_file
 from .cmd_options import (
     cmd_options_factoid,
     cmd_options_insert,
@@ -69,6 +66,7 @@ from .controller import Controller
 from .copyright import echo_copyright
 from .create import add_fact, cancel_fact, stop_fact
 from .details import app_details, hamster_time
+from .migrate import upgrade_legacy_database_file
 from .transcode import export_facts, import_facts
 
 # Disable the python_2_unicode_compatible future import warning.
@@ -117,11 +115,6 @@ __all__ = [
 ]
 
 
-# ***
-# *** [CONTROLLER] HamsterControl Controller.
-# ***
-
-
 pass_controller = click.make_pass_decorator(Controller, ensure=True)
 
 
@@ -145,6 +138,7 @@ def _dob_version():
 # ***
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
+
 
 # (lb): Use invoke_without_command so `dob -v` works, otherwise Click's
 # Group (MultiCommand ancestor) does not allow it ('Missing command.').
