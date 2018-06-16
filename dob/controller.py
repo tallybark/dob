@@ -80,21 +80,17 @@ class Controller(HamsterControl):
 
     def _adjust_log_level(self, nark_config):
         # *cough*hack!*cough*”
-        # Because invoke_without_command, we allow command-less hamster
-        #   invocations. For one such invocation -- murano -v -- tell the
-        #   store not to log.
+        # Because invoke_without_command, we allow command-less invocations.
+        #   For one such invocation -- dob -v -- tell the store not to log.
         # Also tell the store not to log if user did not specify anything,
         #   because we'll show the help/usage (which Click would normally
-        #   handle if we hadn't tampered with invoke_without_command).
+        #   handle if we had not tampered with invoke_without_command).
         if (
-            (len(sys.argv) == 1) or
-            ((len(sys.argv) == 2) and (sys.argv[1] in ('-v', 'version')))
+            (len(sys.argv) > 2) or
+            ((len(sys.argv) == 2) and (sys.argv[1] not in ('-v', 'version')))
         ):
-            lib_config['sql_log_level'] = 'WARNING'
-        elif len(sys.argv) == 1:
-            # Because invoke_without_command, now we handle command-less
-            # deliberately ourselves.
-            pass
+            return
+        nark_config['sql_log_level'] = 'WARNING'
 
     @property
     def now(self):
