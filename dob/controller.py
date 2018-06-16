@@ -19,13 +19,30 @@
 
 from __future__ import absolute_import, unicode_literals
 
+from gettext import gettext as _
+
+import click
+import os
 import sys
 
 from nark import HamsterControl
 
+from . import help_strings
+from .copyright import echo_copyright
+from .cmd_config import get_config_path, furnish_config, replenish_config
+from .helpers import dob_in_user_exit
+from .migrate import upgrade_legacy_database_instructions
+
+# Disable the python_2_unicode_compatible future import warning.
+click.disable_unicode_literals_warning = True
+
 __all__ = [
     'Controller',
 ]
+
+# ***
+# *** [CONTROLLER] HamsterControl Controller.
+# ***
 
 
 class Controller(HamsterControl):
@@ -34,13 +51,34 @@ class Controller(HamsterControl):
     """
 
     def __init__(self):
-        """Instantiate controller instance and adding client_config to it."""
-        lib_config, client_config = get_config(get_config_instance())
-        self._verify_args(lib_config)
-        super(Controller, self).__init__(lib_config)
-        self.client_config = client_config
+        """Load backend and client configs, and instantiate controller."""
+        nark_config, dob_config, preexists = furnish_config()
+        self._adjust_log_level(nark_config)
+        super(Controller, self).__init__(nark_config)
+        self.client_config = dob_config
+        self.cfgfile_exists = preexists
 
-    def _verify_args(self, lib_config):
+    def create_config(self, force):
+        exists = os.path.exists(get_config_path())
+        if exists and not force:
+            dob_in_user_exit('Config file exists')
+        nark_config, dob_config, file_path = replenish_config()
+        self._adjust_log_level(nark_config)
+        self.config = nark_config
+        self.client_config = dob_config
+        click.echo(
+            _('Initialized default Dob configuration at {}').format(file_path)
+        )
+
+    @property
+    def store_exists(self):
+        # Check either db_path is set, or all of db_host/_port/_name/_user.
+        if self.config['db_engine'] == 'sqlite':
+            return os.path.isfile(self.config['db_path'])
+        else:
+            return bool(self.store.get_db_url())
+
+    def _adjust_log_level(self, nark_config):
         # *cough*hack!*cough*”
         # Because invoke_without_command, we allow command-less hamster
         #   invocations. For one such invocation -- murano -v -- tell the

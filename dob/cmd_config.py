@@ -35,7 +35,6 @@ from backports.configparser import (
 )
 
 import nark
-from nark.helpers.colored import colorize
 
 from .helpers import dob_in_user_exit, dob_in_user_warning
 
@@ -43,11 +42,15 @@ from .helpers import dob_in_user_exit, dob_in_user_warning
 click.disable_unicode_literals_warning = True
 
 __all__ = [
-    'get_config',
-    'get_config_instance',
+    'furnish_config',
     'get_config_path',
-    'write_config_file',
     'get_history_path',
+    'replenish_config',
+    # Private:
+    #  'fresh_config',
+    #  'get_config_instance',
+    #  'get_separate_configs',
+    #  'store_config',
 ]
 
 
@@ -148,7 +151,6 @@ AppDirs = DobAppDirs('dob')
 # ***
 # *** Config defaults.
 # ***
-
 
 class BackendDefaults(object):
     """"""
@@ -259,9 +261,8 @@ class ClientDefaults(object):
 
 
 # ***
-# *** Config function: get_config.
+# *** Config function: furnish_config.
 # ***
-
 
 LOG_LEVELS = {
     'debug': logging.DEBUG,
@@ -272,7 +273,26 @@ LOG_LEVELS = {
 }
 
 
-def get_config(config_instance):
+def furnish_config():
+    config, preexists = get_config_instance()
+    configs = get_separate_configs(config)
+    return (*configs), preexists
+
+
+def replenish_config():
+    new_config = fresh_config()
+    file_path = get_config_path()
+    store_config(new_config, file_path)
+    configs = get_separate_configs(new_config)
+    return (*configs), file_path
+
+
+# ***
+# *** Config helper: get_separate_configs.
+# ***
+
+
+def get_separate_configs(config):
     """
     Rertrieve config dictionaries for backend and client setup.
 
@@ -285,9 +305,11 @@ def get_config(config_instance):
         tuple: ``backend_config, client_config)`` tuple, where each element is a
             dictionary storing relevant config data.
     """
-    # [TODO]
-    # We propably can make better use of configparsers default config optionn,
-    # but for now this will do.
+    def _get_separate_configs(config):
+        return (
+            get_backend_config(config),
+            get_client_config(config),
+        )
 
     def get_client_config(config):
         """
@@ -468,13 +490,12 @@ def get_config(config_instance):
         backend_config.update(get_db_config())
         return backend_config
 
-    return (get_backend_config(config_instance), get_client_config(config_instance))
+    return _get_separate_configs(config)
 
 
 # ***
-# *** Config function: get_config_instance.
+# *** Config helper: get_config_instance.
 # ***
-
 
 def get_config_instance():
     """
@@ -488,29 +509,32 @@ def get_config_instance():
     """
     def _get_config_instance():
         try:
-            return read_config(duplicates_ok=False)
+            return unpack_config()
         except DuplicateOptionError as err:
-            msg = _(
-                'BEWARE: Your config file has duplictes key-values: {}'
-            ).format(str(err))
-            dob_in_user_warning(msg)
-            return read_config(duplicates_ok=True)
+            return suffer_config(err)
 
-    def read_config(duplicates_ok):
+    def unpack_config():
+        return prepare_config(duplicates_ok=False)
+
+    def suffer_config(err):
+        warn_duplicates(err)
+        return prepare_config(duplicates_ok=True)
+
+    def prepare_config(duplicates_ok):
         config = SafeConfigParser(strict=not duplicates_ok)
         configfile_path = get_config_path()
+        if config.read(configfile_path):
+            return config, True
+        new_config = fresh_config()
+        return new_config, False
 
-        if not config.read(configfile_path):
-            click.echo('{}: {}'.format(
-                _('Config file not found. Creating a new config file at'),
-                configfile_path,
-            ))
-            config = write_config_file(configfile_path)
-            click.echo(_('A new default config file was successfully created.'))
-        return config
+    def warn_duplicates(err):
+        msg = _(
+            'BEWARE: Your config file has duplicate key-values: {}'
+        ).format(str(err))
+        dob_in_user_warning(msg)
 
     return _get_config_instance()
-
 
 # ***
 # *** Config function: get_config_path.
@@ -525,33 +549,26 @@ def get_config_path():
 
 
 # ***
-# *** Config helper functions.
+# *** Config helper: fresh_config.
 # ***
 
 
-def write_config_file(file_path):
+def fresh_config():
     """
-    Write a default config file to the specified location.
+    Create a default config. Caller is responsible for saving config file.
 
     Returns:
-        SafeConfigParser: Instace written to file.
+        SafeConfigParser: Fresh config configured with default,
+            not yet written to file.
     """
     # [FIXME]
     # This may be usefull to turn into a proper command, so users can restore to
     # factory settings easily.
-    def _write_config_file():
+    def _fresh_config():
         config = SafeConfigParser()
         set_defaults_backend(config)
         set_defaults_client(config)
-        makedirs_and_write(config)
         return config
-
-    def makedirs_and_write(config):
-        configfile_path = os.path.dirname(file_path)
-        if not os.path.lexists(configfile_path):
-            os.makedirs(configfile_path)
-        with open(file_path, 'w') as fobj:
-            config.write(fobj)
 
     def set_defaults_backend(config):
         backend = BackendDefaults()
@@ -582,7 +599,20 @@ def write_config_file(file_path):
         config.set('Client', 'separators', client.separators)
         config.set('Client', 'show_greeting', str(client.show_greeting))
 
-    return _write_config_file()
+    return _fresh_config()
+
+
+# ***
+# *** Config function: store_config.
+# ***
+
+
+def store_config(config, file_path):
+    configfile_path = os.path.dirname(file_path)
+    if not os.path.lexists(configfile_path):
+        os.makedirs(configfile_path)
+    with open(file_path, 'w') as fobj:
+        config.write(fobj)
 
 # ***
 # *** Shim function: get_history_path.

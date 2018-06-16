@@ -374,6 +374,26 @@ def details(controller, tmi):
 
 
 # ***
+# *** [CONFIG] Commands.
+# ***
+
+@run.group('config', cls=ClickAliasedGroup, help=help_strings.CONFIG_GROUP_HELP)
+@click.pass_context
+def config_group(controller):
+    """Base `config` group command run prior to any of the dob-config commands."""
+    pass
+
+
+@config_group.command('create', aliases=['new'], help=help_strings.CONFIG_CREATE_HELP)
+@click.option('-f', '--force', is_flag=True,
+              help=_('If specified, overwrite config file if is exists'))
+@pass_controller
+def create(controller, force):
+    """"""
+    controller.create_config(force)
+
+
+# ***
 # *** [LIST] Commands.
 # ***
 
