@@ -752,26 +752,7 @@ def transcode_export(
 @backend_integrity
 def transcode_import(controller, filename, output, force, *args, **kwargs):
     """Import from file or STDIN (pipe)."""
-
-    # Because nargs=-1, the user could specify many files! E.g.,
-    #
-    #   dob import file1 file2
-    #
-    # Also, click supports the magic STDIN identifier, `-`, e.g.,
-    #
-    #   dob import -
-    #
-    # will read from STDIN.
-    #
-    # (And `dob import - <file>` will open 2 streams!)
-    if len(filename) > 1:
-        msg = _('Please specify only one input, file or STDIN!')
-        click.echo(msg)
-        sys.exit(1)
-    elif filename:
-        file_in = filename[0]
-    else:
-        file_in = None
+    file_in = must_no_more_than_one_file(filename)
 
     # NOTE: You can get tricky and enter Facts LIVE! E.g.,
     #

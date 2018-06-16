@@ -35,6 +35,7 @@ __all__ = [
     'fact_block_header',
     'hydrate_activity',
     'hydrate_category',
+    'must_no_more_than_one_file',
 ]
 
 
@@ -118,9 +119,7 @@ def barf_on_error(msg, crude=False):
         return
     barf_and_exit(msg, crude=False)
 
-
 # ***
-
 
 def echo_block_header(title):
     click.echo(fact_block_header(title))
@@ -141,9 +140,7 @@ def fact_block_header(title, sep='━'):
     ))
     return '\n'.join(header)
 
-
 # ***
-
 
 def hydrate_activity(controller, activity_name):
     """Fetch a activity from the backend."""
@@ -158,7 +155,6 @@ def hydrate_activity(controller, activity_name):
 
 # ***
 
-
 def hydrate_category(controller, category_name):
     """Fetch a category from the backend."""
     category = False
@@ -169,4 +165,26 @@ def hydrate_category(controller, category_name):
         result = controller.categories.get_by_name(category_name)
         category = result if result else False
     return category
+
+# ***
+
+def must_no_more_than_one_file(filename):
+    # Because nargs=-1, the user could specify many files! E.g.,
+    #
+    #   dob import file1 file2
+    #
+    # Also, click supports the magic STDIN identifier, `-`, e.g.,
+    #
+    #   dob import -
+    #
+    # will read from STDIN.
+    #
+    # (And `dob import - <file>` will open 2 streams!)
+    if len(filename) > 1:
+        msg = _('Please specify only one input, file or STDIN!')
+        dob_in_user_exit(msg)
+    elif filename:
+        return filename[0]
+    else:
+        return None
 
