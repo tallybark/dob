@@ -25,8 +25,7 @@ import click
 import os
 from datetime import datetime
 
-from . import __author__, __author_email__, __BigName__
-from . import __appname__ as dob_appname
+from . import __arg0name__, __author__, __author_email__, __BigName__
 from . import __version__ as dob_version
 
 # Disable the python_2_unicode_compatible future import warning.
@@ -64,7 +63,7 @@ def echo_copyright():
         _('This program comes with ABSOLUTELY NO WARRANTY. This is free software,'),
         _('and you are welcome to redistribute it under certain conditions.'),
         _(''),
-        _('Run `{} license` for details.').format(dob_appname),
+        _('Run `{} license` for details.').format(__arg0name__),
     ]
     notice = gpl3_notice_2018
     for line in notice:
