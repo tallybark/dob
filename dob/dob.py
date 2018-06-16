@@ -39,7 +39,7 @@ from . import update
 from . import __appname__ as dob_appname
 from . import __version__ as dob_version
 from . import __libname__ as nark_appname
-from .cmd_common import induct_newbies, must_no_more_than_one_file
+from .cmd_common import induct_newbies, insist_germinated, must_no_more_than_one_file
 from .cmd_options import (
     cmd_options_factoid,
     cmd_options_insert,
@@ -356,6 +356,17 @@ def details(controller, tmi):
 
 
 # ***
+# *** [INIT] Command.
+# ***
+
+@run.command('init', help=help_strings.INIT_HELP)
+@pass_controller
+def init(controller):
+    """"""
+    controller.create_config_and_store()
+
+
+# ***
 # *** [CONFIG] Commands.
 # ***
 
@@ -373,17 +384,6 @@ def config_group(controller):
 def create(controller, force):
     """"""
     controller.create_config(force)
-
-
-# ***
-# *** [INIT] Command.
-# ***
-
-@run.command('init', help=help_strings.INIT_HELP)
-@pass_controller
-def init(controller):
-    """"""
-    controller.create_config_and_store()
 
 
 # ***
@@ -819,7 +819,7 @@ def migrate_group(ctx, controller):
 
 @migrate_group.command('control', help=help_strings.MIGRATE_CONTROL_HELP)
 @pass_controller
-@induct_newbies
+@insist_germinated
 def migrate_control(controller):
     """Mark a database as under version control."""
     migrate.control(controller)
@@ -827,7 +827,7 @@ def migrate_control(controller):
 
 @migrate_group.command('down', help=help_strings.MIGRATE_DOWN_HELP)
 @pass_controller
-@induct_newbies
+@insist_germinated
 def migrate_downgrade(controller):
     """Downgrade the database according to its migration version."""
     migrate.downgrade(controller)
@@ -835,7 +835,7 @@ def migrate_downgrade(controller):
 
 @migrate_group.command('up', help=help_strings.MIGRATE_UP_HELP)
 @pass_controller
-@induct_newbies
+@insist_germinated
 def migrate_upgrade(controller):
     """Upgrade the database according to its migration version."""
     migrate.upgrade(controller)
@@ -843,7 +843,7 @@ def migrate_upgrade(controller):
 
 @migrate_group.command('version', help=help_strings.MIGRATE_VERSION_HELP)
 @pass_controller
-@induct_newbies
+@insist_germinated
 def migrate_version(controller):
     """Show migration information about the database."""
     migrate.version(controller)

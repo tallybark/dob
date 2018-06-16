@@ -188,6 +188,16 @@ FIXME: Provide example commands.
 
 
 # ***
+# *** [INIT] Command help.
+# ***
+
+INIT_HELP = _(
+    """
+    """
+)
+
+
+# ***
 # *** [CONFIG] Commands help.
 # ***
 
@@ -198,16 +208,6 @@ CONFIG_GROUP_HELP = _(
 
 
 CONFIG_CREATE_HELP = _(
-    """
-    """
-)
-
-
-# ***
-# *** [INIT] Command help.
-# ***
-
-INIT_HELP = _(
     """
     """
 )
