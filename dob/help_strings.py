@@ -204,6 +204,16 @@ CONFIG_CREATE_HELP = _(
 
 
 # ***
+# *** [INIT] Command help.
+# ***
+
+INIT_HELP = _(
+    """
+    """
+)
+
+
+# ***
 # *** [LIST] Commands help.
 # ***
 

@@ -27,6 +27,7 @@ import sys
 
 from nark import HamsterControl
 
+from . import __arg0name__
 from . import help_strings
 from .copyright import echo_copyright
 from .cmd_config import get_config_path, furnish_config, replenish_config
@@ -137,4 +138,54 @@ class Controller(HamsterControl):
         click.echo(
             _('Initialized default Dob configuration at {}').format(file_path)
         )
+
+    def create_config_and_store(self):
+        def _create_config_and_store():
+            if not self.is_germinated:
+                germinate_config_and_store()
+            else:
+                exit_already_germinated()
+
+        def germinate_config_and_store():
+            create_config_maybe()
+            create_store_maybe()
+
+        def create_config_maybe():
+            cfg_path = get_config_path()
+            if not os.path.exists(cfg_path):
+                self.create_config(force=False)
+            else:
+                click.echo(
+                    _('Configuration already exists at {}').format(cfg_path)
+                )
+
+        def create_store_maybe():
+            # MEH: (lb): If the engine is not SQLite, this function cannot behave
+            # like create_config_maybe, which tells the user if the things exists
+            # already, because the storage class, SQLAlchemyStore, blindly calls
+            # create_all (in create_storage_tables) without checking if db exists.
+            skip_standup = check_sqlite_store_ready()
+            if not skip_standup:
+                self.standup_store()
+                click.echo(
+                    _('Dob database is ready at {}').format(self.store.get_db_url())
+                )
+
+        def check_sqlite_store_ready():
+            if self.config['db_engine'] != 'sqlite':
+                return False
+            db_path = self.config['db_path']
+            if not os.path.isfile(db_path):
+                return False
+            click.echo(
+                _('Data store already exists at {}').format(db_path)
+            )
+            return True
+
+        def exit_already_germinated():
+            dob_in_user_exit(_(
+                'Dob is already setup. Run `{} details` for info.'
+            ).format(__arg0name__))
+
+        _create_config_and_store()
 

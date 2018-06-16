@@ -376,6 +376,17 @@ def create(controller, force):
 
 
 # ***
+# *** [INIT] Command.
+# ***
+
+@run.command('init', help=help_strings.INIT_HELP)
+@pass_controller
+def init(controller):
+    """"""
+    controller.create_config_and_store()
+
+
+# ***
 # *** [LIST] Commands.
 # ***
 
