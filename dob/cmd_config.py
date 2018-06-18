@@ -43,8 +43,8 @@ click.disable_unicode_literals_warning = True
 
 __all__ = [
     'furnish_config',
+    'get_appdirs_subdir_file_path',
     'get_config_path',
-    'get_history_path',
     'replenish_config',
     # Private:
     #  'fresh_config',
@@ -614,43 +614,33 @@ def store_config(config, file_path):
     with open(file_path, 'w') as fobj:
         config.write(fobj)
 
+
 # ***
-# *** Shim function: get_history_path.
+# *** Shim function: get_appdirs_subdir_file_path.
 # ***
 
-
-DEFAULT_HIST_PATH_DIR = 'history'
-
-DEFAULT_HIST_NAME_FMT = '{}'
+DEFAULT_APPDIRS_FILE_BASENAME_FMT = '{}'
 
 
-# (lb): This doesn't quite belong in this package, but we need AppDirs.
-def get_history_path(
-    topic,
-    hist_dir=DEFAULT_HIST_PATH_DIR,
-    file_fmt=DEFAULT_HIST_NAME_FMT,
+def get_appdirs_subdir_file_path(
+    file_basename,
+    dir_dirname,
+    appdirs_dir=AppDirs.user_cache_dir,
+    basename_fmt=DEFAULT_APPDIRS_FILE_BASENAME_FMT,
 ):
     """
-    Return the path to the history file for a specific topic.
-
-    Args:
-        topic (text_type): Topic name, to distinguish different histories.
-
-    Returns:
-        str: Fully qualified path to history file for specified topic.
+    Return the path to a file stored in a subdirectory of an AppDirs directory.
     """
-    hist_path = AppDirs.user_cache_dir
-    if hist_dir:
-        hist_path = os.path.join(hist_path, hist_dir)
+    subdir_path = os.path.join(appdirs_dir, dir_dirname)
     # (lb): So disrespectful! Totally accessing "hidden" method.
-    AppDirs._ensure_directory_exists(hist_path)
-    hist_path = os.path.join(hist_path, file_fmt.format(topic))
-    if os.path.exists(hist_path) and not os.path.isfile(hist_path):
+    AppDirs._ensure_directory_exists(subdir_path)
+    full_path = os.path.join(subdir_path, basename_fmt.format(file_basename))
+    if os.path.exists(full_path) and not os.path.isfile(full_path):
         msg = '{} At:\n  {}'.format(
-            'UNEXPECTED: history cache exists but not a file!',
-            hist_path,
+            'UNEXPECTED: target path exists but not a file!',
+            full_path,
         )
         dob_in_user_warning(msg)
-        hist_path = None
-    return hist_path
+        full_path = None
+    return full_path
 
