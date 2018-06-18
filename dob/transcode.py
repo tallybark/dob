@@ -39,10 +39,10 @@ from nark.helpers.dated import (
 from nark.helpers.parsing import parse_factoid
 
 from . import __appname__
-from .cmd_common import barf_and_exit, echo_block_header, fact_block_header
+from .cmd_common import barf_and_exit, echo_block_header
 from .cmds_list.fact import search_facts
 from .create import echo_fact, mend_facts_times, save_facts_maybe
-from .interrogate import ask_user_for_edits
+from .traverser.facts_carousel import FactsCarousel
 
 __all__ = ['export_facts', 'import_facts']
 
@@ -181,9 +181,8 @@ def import_facts(
         raw_facts = copy.deepcopy(new_facts)
         must_complete_times(new_facts)
         must_not_conflict_existing(new_facts)
-        confirm_all_facts(new_facts, raw_facts, file_out, rule, ask, yes, dry)
-        persist_facts(new_facts, file_out, dry)
-        celebrate(new_facts)
+        okay = confirm_all(new_facts, raw_facts, file_out, rule, ask, yes, dry)
+        persist_facts(okay, new_facts, file_out, dry)
 
     # ***
 
@@ -820,90 +819,28 @@ def import_facts(
 
     # ***
 
-    def interactive_cleanup(fact):
-        # FIXME/2018-06-10: Do we need to specify prompt_agent?
-        #   I need to test importing multiple facts from a file
-        #   to see what interaction is like. It might not matter
-        #   to keep the same prompter around. In which case,
-        #   remove prompt_agent param from ask_user_for_edits.
-        # (lb): Set always_ask=True, so even if act@cat is set,
-        #   user is still prompted.
-        #   MAYBE/2018-06-10: We do this so user can correct
-        #     spelling errors/incomplete names, etc. We could
-        #     add a feature that only asks if the act@cat would
-        #     create a new act and/or cat. I.e., if the act@cat
-        #     is already in the existing, don't bug the user.
-        #     (But the win would be small; I don't have any
-        #     act@cat's exactly memorized, so every fact from
-        #     an import on mine would always need act@cat editing.)
-        return ask_user_for_edits(controller, fact, always_ask=True)
+    def confirm_all(new_facts, raw_facts, file_out, rule, ask, yes, dry):
+        if yes:
+            return True
+
+        backup_callback = persist_fact_file(file_out, rule, dry)
+        facts_carousel = FactsCarousel(
+            controller, new_facts, raw_facts, backup_callback, dry,
+        )
+
+        confirmed_all = facts_carousel.gallop()
+
+        return confirmed_all
 
     # ***
 
-    def confirm_all_facts(new_facts, raw_facts, file_out, rule, ask, yes, dry):
-        if not dry:
-            pass
+    def persist_facts(confirmed_all, new_facts, file_out=None, dry=False):
+        if not confirmed_all:
+            return
+        record_new_facts(new_facts, file_out, dry)
+        celebrate(new_facts)
 
-        # Remember prompter state between inquisitions.
-        prompt_agent = None
-
-        if not yes and not dry:
-            click.echo('You may now edit facts being imported...')
-            click.echo()
-        for idx, raw_fact in enumerate(raw_facts):
-            new_fact = new_facts[idx]
-            if not yes and not dry:
-                prompt_agent = confirm_fact(
-                    idx, raw_fact, new_fact, prompt_agent, ask,
-                )
-            else:
-                echo_block_header(_('Such Fact!'))
-                click.echo()
-                click.echo(raw_fact.friendly_diff(new_fact))
-                click.echo()
-            persist_fact_file(new_fact, file_out, rule, dry, idx)
-
-    def confirm_fact(idx, raw_fact, new_fact, prompt_agent, ask):
-        """"""
-        def _confirm_fact():
-            used_prompt_agent = prompt_agent
-            ask_at_least_once = ask
-            confirmed = False
-            while not confirmed:
-                confirmed = ask_at_least_once
-                ask_at_least_once = False
-                confirmed = interact_confirm(confirmed)
-                if not confirmed:
-                    used_prompt_agent = interactive_cleanup(new_fact)
-                else:
-                    click.echo()
-            return used_prompt_agent
-
-        def interact_confirm(confirmed):
-            if confirmed:
-                return confirmed
-            return confirm_with_user()
-
-        def confirm_with_user():
-            header = fact_block_header(_('New fact #{}').format(idx + 1))
-            # MAYBE/2018-05-21: (lb): Option to skip fact?
-            confirmed = click.confirm(
-                text=_('{}\n\n{}\n\nLook good?').format(
-                    header, raw_fact.friendly_diff(new_fact, truncate=True),
-                ),
-                default=True,
-                abort=False,
-                # prompt_suffix=': ',
-                # show_default=True,
-                # err=False,
-            )
-            return confirmed
-
-        return _confirm_fact()
-
-    # ***
-
-    def persist_facts(new_facts, file_out=None, dry=False):
+    def record_new_facts(new_facts, file_out=None, dry=False):
         for fact in new_facts:
             persist_fact(fact, file_out, dry)
         # (lb): Click will close the file, but we can also cleanup.
@@ -921,18 +858,20 @@ def import_facts(
             echo_fact(fact)
             click.echo()
 
-    def persist_fact_file(fact, file_out, rule, dry, idx):
-        if dry:
-            return
-        write_fact_separator(file_out, rule, idx)
-        file_out.write(
-            fact.friendly_str(
-                description_sep='\n\n',
-                shellify=False,
-                colorful=False,
+    def persist_fact_file(file_out, rule, dry):
+        def wrapper(fact, idx):
+            if dry:
+                return
+            write_fact_separator(file_out, rule, idx)
+            file_out.write(
+                fact.friendly_str(
+                    description_sep='\n\n',
+                    shellify=False,
+                    colorful=False,
+                )
             )
-        )
-        file_out.flush()
+            file_out.flush()
+        return wrapper
 
     RULE_WIDTH = 76  # How wide to print the between-facts separator.
 
