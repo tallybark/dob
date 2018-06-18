@@ -129,6 +129,7 @@ def induct_newbies(func):
 # ***
 
 def barf_and_exit(msg, crude=True):
+    # (lb): I made two similar error-and-exit funcs. See also: dob_in_user_exit.
     if crude:
         click.echo()
         click.echo(ascii_art.lifeless().rstrip())

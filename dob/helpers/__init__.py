@@ -32,6 +32,7 @@ __all__ = [
 
 
 def dob_in_user_exit(msg):
+    # (lb): I made two similar error-and-exit funcs. See also: barf_and_exit.
     dob_in_user_warning(msg)
     sys.exit(1)
 
