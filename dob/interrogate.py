@@ -22,8 +22,8 @@ import six
 
 from nark import Activity
 
+from .prompters import PrompterCommon
 from .prompters.prompt__awesome import AwesomePrompt
-from .prompters.sophisti_prompt import SophisticatedPrompt
 
 __all__ = [
     'ask_user_for_edits',
@@ -68,7 +68,7 @@ def ask_user_for_edits(
         if prompt_agent is None:
             return AwesomePrompt(controller)
         else:
-            assert isinstance(prompt_agent, SophisticatedPrompt)
+            assert isinstance(prompt_agent, PrompterCommon)
             return prompt_agent
 
     # ***
@@ -100,7 +100,7 @@ def ask_user_for_edits(
 
     # ***
 
-    def fact_ask_description(fact, prompter, always_ask=False):
+    def fact_ask_description(fact, always_ask=False):
         # Skip if already set.
         if fact.description and not always_ask:
             return fact.description
