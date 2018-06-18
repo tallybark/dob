@@ -7,10 +7,11 @@ Packaging instruction for setup tools.
   https://setuptools.readthedocs.io/
 """
 
-import io
 import os
 import re
+import sys  # Not used herein, but by dob/__init__.py, which we exec.
 from gettext import gettext as _  # Because exec(init_py): noqa: EXXX
+from io import open
 
 try:
     # from setuptools import setup, find_packages
@@ -140,7 +141,7 @@ cfg = import_business_vars('dob')
 
 # *** Local file content.
 
-long_description = io.open(
+long_description = open(
     os.path.join(
         os.path.dirname(__file__),
         'README.rst'
