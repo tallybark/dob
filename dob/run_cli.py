@@ -35,15 +35,16 @@ from . import __libname__ as nark_appname
 from . import help_strings
 from .controller import Controller
 from .copyright import echo_copyright
+from .plugins import ClickAliasablePluginGroup
 
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
 
 __all__ = [
     'pass_controller',
-    '_dob_version',
+    'dob_versions',
     'run',
-    '_disable_logging',
+    'disable_logging',
     # Private:
     #  'CONTEXT_SETTINGS',
     #  '_setup_logging',
@@ -57,7 +58,7 @@ pass_controller = click.make_pass_decorator(Controller, ensure=True)
 # *** [VERSION] Version command helper.
 # ***
 
-def _dob_version():
+def dob_versions():
     vers = '{} version {}\n{} version {}'.format(
         dob_appname,
         dob_version,
@@ -77,12 +78,16 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 # (lb): Use invoke_without_command so `dob -v` works, otherwise Click's
 # Group (MultiCommand ancestor) does not allow it ('Missing command.').
 @click.group(
-    cls=ClickAliasedGroup,
+    # (lb): Use our Plugin group class , which dynamically loads pluggable
+    # commands from user's, e.g., ~/.config/dob/plugins directory. That class
+    # derives from an Aliasable group class, which empowers us to assign command
+    # name aliases. That class, in turn, derives from Click's base Group class.
+    cls=ClickAliasablePluginGroup,
     invoke_without_command=True,
     help=help_strings.RUN_HELP,
     context_settings=CONTEXT_SETTINGS,
 )
-@click.version_option(message=_dob_version())
+@click.version_option(message=dob_versions())
 # (lb): Hide -v: version_option adds help for --version, so don't repeat ourselves.
 @click.option('-v', is_flag=True, help=help_strings.VERSION_HELP, hidden=True)
 # (lb): Note that universal --options must com before the sub command.
@@ -153,7 +158,7 @@ def run(ctx, controller, v, verbose, verboser, color):
 
     def _run_handle_version(show_version, ctx):
         if show_version:
-            click.echo(_dob_version())
+            click.echo(dob_versions())
             ctx.exit(0)
 
     def _run_handle_without_command(ctx):
@@ -206,7 +211,7 @@ def _setup_logging(controller, verbose=False, verboser=False):
         )
 
 
-def _disable_logging(controller):
+def disable_logging(controller):
     loggers = [
         controller.lib_logger,
         controller.sql_logger,

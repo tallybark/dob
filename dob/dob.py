@@ -22,23 +22,15 @@ from __future__ import absolute_import, unicode_literals
 from gettext import gettext as _
 
 import click
-import logging
 import os
 import sys
 from click_alias import ClickAliasedGroup
 from functools import update_wrapper
 
-from nark import __version__ as nark_version
-from nark.helpers import logging as logging_helpers
-from nark.helpers.colored import disable_colors, enable_colors
-
 from . import cmd_options
 from . import help_strings
 from . import migrate
 from . import update
-from . import __appname__ as dob_appname
-from . import __version__ as dob_version
-from . import __libname__ as nark_appname
 from .cmd_common import induct_newbies, insist_germinated, must_no_more_than_one_file
 from .cmd_options import (
     cmd_options_factoid,
@@ -61,11 +53,11 @@ from .cmds_usage import activity as usage_activity
 from .cmds_usage import category as usage_category
 from .cmds_usage import tag as usage_tag
 from .complete import tab_complete
-from .controller import Controller
 from .copyright import echo_copyright, echo_license
 from .create import add_fact, cancel_fact, stop_fact
-from .details import app_details, hamster_time
+from .details import app_details
 from .migrate import upgrade_legacy_database_file
+from .run_cli import disable_logging, dob_versions, pass_controller, run
 from .transcode import export_facts, import_facts
 
 # Disable the python_2_unicode_compatible future import warning.
@@ -121,7 +113,7 @@ def version():
 
 def _version():
     """Show version information."""
-    click.echo(_dob_version())
+    click.echo(dob_versions())
 
 
 # ***
@@ -148,20 +140,6 @@ def _license():
 def copyright(controller):
     """Display copyright information.."""
     echo_copyright()
-
-
-# ***
-# *** [DANCE] Command [Easter egg].
-# ***
-
-# FIXME: (lb): This used to be `hamster dance`, now it's `dob dance`.
-#          Does the name still make sense??
-@run.command('dance', hidden=True, help=_('Hamster time!'))
-@click.argument('posits', nargs=-1)
-@pass_controller
-def banner(controller, posits):
-    """ASCII Art helper."""
-    hamster_time(posits)
 
 
 # ***
@@ -676,7 +654,7 @@ def transcode_import(controller, filename, output, force, *args, **kwargs):
 @induct_newbies
 def complete(controller):
     """Bash tab-completion helper."""
-    _disable_logging(controller)
+    disable_logging(controller)
     tab_complete(controller)
 
 
