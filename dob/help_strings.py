@@ -59,6 +59,15 @@ RUN_HELP = _(
 
 
 # ***
+# *** [HELP] Command help.
+# ***
+
+HELP_HELP = _(
+    """Show the help and exit."""
+)
+
+
+# ***
 # *** [VERSION] Command help.
 # ***
 

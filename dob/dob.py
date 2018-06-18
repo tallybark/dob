@@ -102,6 +102,17 @@ __all__ = [
 
 
 # ***
+# *** [HELP] Just a simple `help` alias.
+# ***
+
+@run.command(hidden=True, help=help_strings.HELP_HELP)
+@click.pass_context
+def help(ctx):
+    """Show help."""
+    click.echo(run.get_help(ctx))
+
+
+# ***
 # *** [VERSION] Ye rote version command.
 # ***
 
