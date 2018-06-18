@@ -43,7 +43,7 @@ from nark.helpers.parsing import parse_factoid
 
 from . import __appname__
 from .cmd_common import barf_and_exit, echo_block_header
-from .cmd_config import AppDirs
+from .cmd_config import get_appdirs_subdir_file_path, AppDirs
 from .cmds_list.fact import search_facts
 from .create import echo_fact, mend_facts_times, save_facts_maybe
 from .helpers import dob_in_user_exit
@@ -850,14 +850,15 @@ def import_facts(
     IMPORT_BACKUP_DIR = 'importer'
 
     def get_import_ephemeral_backup_path():
-        cache_dir = AppDirs.user_cache_dir
-        backup_base = os.path.join(cache_dir, IMPORT_BACKUP_DIR)
-        # (lb): Abuse that _private()!
-        AppDirs._ensure_directory_exists(backup_base)
         backup_prefix = 'dob.import-'
         backup_tstamp = controller.now.strftime('%Y%m%d%H%M%S')
-        backup_path = os.path.join(backup_base, backup_prefix + backup_tstamp)
-        return backup_path
+        backup_basename = backup_prefix + backup_tstamp
+        backup_fullpath = get_appdirs_subdir_file_path(
+            file_basename=backup_basename,
+            dir_dirname=IMPORT_BACKUP_DIR,
+            appdirs_dir=AppDirs.user_cache_dir,
+        )
+        return backup_fullpath
 
     def cleanup_files(backup_f, file_out, delete_backup):
         if backup_f:
