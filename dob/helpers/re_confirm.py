@@ -34,29 +34,53 @@ __all__ = [
 # (lb): This is ripped from PPT's shortcuts/prompt.py
 
 
-def create_confirm_session(message, suffix=' (y/n) ',  **kwargs):
+def create_confirm_session(message, suffix=' (y/n) ', **kwargs):
     """
     Create a `PromptSession` object for the 'confirm' function.
     """
     assert isinstance(message, text_type)
     bindings = KeyBindings()
 
+    count = {'cc': 0, }
+
     @bindings.add('y')
     @bindings.add('Y')
     def yes(event):
+        count['cc'] = 0
         session.default_buffer.text = 'y'
         event.app.exit(result=True)
 
     @bindings.add('n')
     @bindings.add('N')
-    @bindings.add('c-c')
+    # (lb): PPT's confirm behavior is to assume Ctrl-c means No,
+    #   in which case you end up with the following flow in dob:
+    #       Ctrl-c => Break out of Application and Bring up confirmation;
+    #       Ctrl-c => Confirmation returns No, so re-run Application.
+    #   2018-06-17: I'm not sold on any particular work-flow, but I think
+    #   I'd like Ctrl-c -- if you mash it enough -- to finally break out.
+    #   Or, at least. I think Ctrl-c followed by Ctrl-c should not act as
+    #   a toggle; the second (and subsequent) Ctrl-c's should be ignored,
+    #   if nothing else.
+    # @bindings.add('c-c')
     def no(event):
+        count['cc'] = 0
         session.default_buffer.text = 'n'
         event.app.exit(result=False)
 
+    # (lb): 2018-06-17: Here's the workflow I'm think.
+    #   First Ctrl-c: Break out of Application, and bring up quit-okay? prompt.
+    #   Second Ctrl-c: Ignored (increment count from 0 to 1).
+    #   Third Ctrl-c: Bingo! Really exit.
+    # MAYBE: Keep temp file of edits and tell user where/how they can recover.
+    @bindings.add('c-c')
+    def mash(event):
+        count['cc'] += 1
+        if count['cc'] > 1:
+            event.app.exit(result=True)
+
     @bindings.add(Keys.Any)
     def _(event):
-        " Disallow inserting other text. "
+        """Disallow inserting other text."""
         pass
 
     complete_message = merge_formatted_text([message, suffix])
@@ -64,10 +88,10 @@ def create_confirm_session(message, suffix=' (y/n) ',  **kwargs):
     return session
 
 
-def confirm(message='Confirm?', suffix=' (y/n) ',  **kwargs):
+def confirm(message='Confirm?', suffix=' (y/n) ', **kwargs):
     """
     Display a confirmation prompt that returns True/False.
     """
-    session = create_confirm_session(message, suffix,  **kwargs)
+    session = create_confirm_session(message, suffix, **kwargs)
     return session.prompt()
 
