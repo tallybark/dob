@@ -23,9 +23,12 @@ from gettext import gettext as _
 
 import click
 import copy
+import os
 import re
 import sys
+import traceback
 from datetime import datetime, timedelta
+from io import open
 from six import text_type
 
 from nark import Fact, reports
@@ -40,8 +43,10 @@ from nark.helpers.parsing import parse_factoid
 
 from . import __appname__
 from .cmd_common import barf_and_exit, echo_block_header
+from .cmd_config import AppDirs
 from .cmds_list.fact import search_facts
 from .create import echo_fact, mend_facts_times, save_facts_maybe
+from .helpers import dob_in_user_exit
 from .traverser.facts_carousel import FactsCarousel
 
 __all__ = ['export_facts', 'import_facts']
@@ -160,6 +165,7 @@ def import_facts(
     file_in=None,
     file_out=None,
     rule='',
+    backup=True,
     ask=False,
     yes=False,
     dry=False,
@@ -181,8 +187,7 @@ def import_facts(
         raw_facts = copy.deepcopy(new_facts)
         must_complete_times(new_facts)
         must_not_conflict_existing(new_facts)
-        okay = confirm_all(new_facts, raw_facts, file_out, rule, ask, yes, dry)
-        persist_facts(okay, new_facts, file_out, dry)
+        prompt_and_save(new_facts, raw_facts, backup, file_out, rule, ask, yes, dry)
 
     # ***
 
@@ -223,17 +228,6 @@ def import_facts(
         if redirecting:
             f_in = sys.stdin
         else:
-            # Nice! click handles file opening for us, and complains if it cannot!
-            #   try:
-            #       f_in = open(filename, 'r')
-            #   except Exception as err:
-            #       # I.e., FileNotFoundError, PermissionError, etc.
-            #       msg = (
-            #           'Failed to open file at "{}": {}'
-            #           .format(filename, err)
-            #       )
-            #       click.echo(msg)
-            #       sys.exit(1)
             f_in = file_in
         return f_in
 
@@ -776,10 +770,6 @@ def import_facts(
         )
         barf_and_exit(msg)
 
-    '''
-[c.brief for c in conflicts]
-    '''
-
     # ***
 
     def must_not_conflict_existing(new_facts):
@@ -819,11 +809,81 @@ def import_facts(
 
     # ***
 
-    def confirm_all(new_facts, raw_facts, file_out, rule, ask, yes, dry):
+    def prompt_and_save(new_facts, raw_facts, backup, file_out, rule, ask, yes, dry):
+        backup_f = prepare_backup_file(backup)
+        delete_backup = False
+        try:
+            prompt_persist(new_facts, raw_facts, backup_f, rule, ask, yes, dry)
+            delete_backup = True
+        except BaseException as err:
+            # NOTE: Using BaseException, not just Exception, so that we
+            #       always catch (KeyboardInterrupt, SystemExit), etc.
+            # Don't cleanup backup file.
+            traceback.print_exc()
+            msg = _('Something horrible happened! err: "{}"').format(str(err))
+            if backup_f:
+                msg += (
+                    _("\nBut don't worry, a backup of edits so far was saved at: {}")
+                    .format(backup_f.name)
+                )
+            dob_in_user_exit(msg)
+        finally:
+            cleanup_files(backup_f, file_out, delete_backup)
+
+    # ***
+
+    def prepare_backup_file(backup):
+        if not backup:
+            return None
+        backup_path = get_import_ephemeral_backup_path()
+        backup_f = None
+        try:
+            backup_f = open(backup_path, 'w')
+        except Exception as err:
+            msg = (
+                'Failed to open temporary backup file at "{}": {}'
+                .format(backup_path, str(err))
+            )
+            dob_in_user_exit(msg)
+        return backup_f
+
+    IMPORT_BACKUP_DIR = 'importer'
+
+    def get_import_ephemeral_backup_path():
+        cache_dir = AppDirs.user_cache_dir
+        backup_base = os.path.join(cache_dir, IMPORT_BACKUP_DIR)
+        # (lb): Abuse that _private()!
+        AppDirs._ensure_directory_exists(backup_base)
+        backup_prefix = 'dob.import-'
+        backup_tstamp = controller.now.strftime('%Y%m%d%H%M%S')
+        backup_path = os.path.join(backup_base, backup_prefix + backup_tstamp)
+        return backup_path
+
+    def cleanup_files(backup_f, file_out, delete_backup):
+        if backup_f:
+            backup_f.close()
+            if delete_backup:
+                os.unlink(backup_f.name)
+        # (lb): Click will close the file, but we can also cleanup first.
+        if file_out and not dry:
+            file_out.close()
+
+    # ***
+
+    def prompt_persist(new_facts, raw_facts, backup_f, rule, ask, yes, dry):
+        okay = prompt_all(new_facts, raw_facts, backup_f, rule, ask, yes, dry)
+        persist_facts(okay, new_facts, file_out, dry)
+
+    # ***
+
+    def prompt_all(new_facts, raw_facts, backup_f, rule, ask, yes, dry):
         if yes:
             return True
 
-        backup_callback = persist_fact_file(file_out, rule, dry)
+        backup_callback = write_facts_file(new_facts, backup_f, rule, dry)
+        # Create the tmp file.
+        backup_callback()
+
         facts_carousel = FactsCarousel(
             controller, new_facts, raw_facts, backup_callback, dry,
         )
@@ -834,53 +894,61 @@ def import_facts(
 
     # ***
 
-    def persist_facts(confirmed_all, new_facts, file_out=None, dry=False):
+    def persist_facts(confirmed_all, new_facts, file_out, dry):
         if not confirmed_all:
             return
         record_new_facts(new_facts, file_out, dry)
         celebrate(new_facts)
 
-    def record_new_facts(new_facts, file_out=None, dry=False):
-        for fact in new_facts:
-            persist_fact(fact, file_out, dry)
-        # (lb): Click will close the file, but we can also cleanup.
-        if file_out and not dry:
-            file_out.close()
+    def record_new_facts(new_facts, file_out, dry):
+        for idx, fact in enumerate(new_facts):
+            persist_fact(fact, idx, file_out, dry)
 
-    def persist_fact(fact, file_out, dry):
+    def persist_fact(fact, idx, file_out, dry):
         if not dry:
+            # If user did not specify an output file, save to database
+            # (otherwise, we may have been maintaining a temporary file).
             if not file_out:
                 persist_fact_save(fact, dry)
-            # else, we called persist_fact_file earlier.
+            else:
+                write_fact_block_format(file_out, fact, rule, idx)
         else:
             echo_block_header(_('Fresh Fact!'))
             click.echo()
             echo_fact(fact)
             click.echo()
 
-    def persist_fact_file(file_out, rule, dry):
-        def wrapper(fact, idx):
-            if dry:
+    # ***
+
+    def write_facts_file(new_facts, fact_f, rule, dry):
+        def wrapper():
+            if dry or not fact_f:
                 return
-            write_fact_separator(file_out, rule, idx)
-            file_out.write(
-                fact.friendly_str(
-                    description_sep='\n\n',
-                    shellify=False,
-                    colorful=False,
-                )
-            )
-            file_out.flush()
+            fact_f.seek(0)
+            for idx, fact in enumerate(new_facts):
+                write_fact_block_format(fact_f, fact, rule, idx)
+            fact_f.flush()
+
         return wrapper
+
+    def write_fact_block_format(fact_f, fact, rule, idx):
+        write_fact_separator(fact_f, rule, idx)
+        fact_f.write(
+            fact.friendly_str(
+                description_sep='\n\n',
+                shellify=False,
+                colorful=False,
+            )
+        )
 
     RULE_WIDTH = 76  # How wide to print the between-facts separator.
 
-    def write_fact_separator(file_out, rule, idx):
+    def write_fact_separator(fact_f, rule, idx):
         if idx == 0:
             return
-        file_out.write('\n\n')
+        fact_f.write('\n\n')
         if rule:
-            file_out.write('{}\n\n'.format(rule * RULE_WIDTH))
+            fact_f.write('{}\n\n'.format(rule * RULE_WIDTH))
 
     def persist_fact_save(fact, dry):
         raise NotImplementedError  # FIXME: Needs testing!

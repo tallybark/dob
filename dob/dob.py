@@ -811,6 +811,8 @@ def transcode_export(
               help=_('If specified, overwrite --output file if is exists'))
 @click.option('-r', '--rule', '--sep', nargs=1, default='',
               help=_('With --output, split facts with a horizontal rule'))
+@click.option('--backup/--no-backup', '-B', default=True, show_default=True,
+              help=_('Keep plaintext backup of edited facts until committed.'))
 @cmd_options_insert
 @pass_controller
 @induct_newbies
