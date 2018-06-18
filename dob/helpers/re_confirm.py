@@ -34,7 +34,7 @@ __all__ = [
 # (lb): This is ripped from PPT's shortcuts/prompt.py
 
 
-create_confirm_session(message, suffix=' (y/n) '):
+def create_confirm_session(message, suffix=' (y/n) ',  **kwargs):
     """
     Create a `PromptSession` object for the 'confirm' function.
     """
@@ -60,14 +60,14 @@ create_confirm_session(message, suffix=' (y/n) '):
         pass
 
     complete_message = merge_formatted_text([message, suffix])
-    session = PromptSession(complete_message, key_bindings=bindings)
+    session = PromptSession(complete_message, key_bindings=bindings, **kwargs)
     return session
 
 
-def confirm(message='Confirm?', suffix=' (y/n) '):
+def confirm(message='Confirm?', suffix=' (y/n) ',  **kwargs):
     """
     Display a confirmation prompt that returns True/False.
     """
-    session = create_confirm_session(message, suffix)
+    session = create_confirm_session(message, suffix,  **kwargs)
     return session.prompt()
 
