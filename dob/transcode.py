@@ -61,7 +61,7 @@ def export_facts(
     deleted=False,
     hidden=False,
     key=None,
-    # search_term='',
+    search_term='',
     activity=None,
     category=None,
     sort_order='desc',
@@ -96,11 +96,11 @@ def export_facts(
             key=key,
             start=start,
             end=end,
-            # deleted
-            # search_term
+            # deleted=deleted,
+            search_term=search_term,
             activity=activity,
             category=category,
-            # sort_col
+            # sort_col=sort_col,
             sort_order=sort_order,
             limit=limit,
             offset=offset,

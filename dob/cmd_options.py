@@ -66,7 +66,7 @@ _cmd_options_search = [
     click.option(
         '-k', '--key', help=_('The database key of the item.'),
     ),
-    click.argument('search_terms', nargs=-1, default=None),
+    click.argument('search_term', nargs=-1, default=None),
 ]
 
 
