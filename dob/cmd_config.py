@@ -209,7 +209,7 @@ class BackendDefaults(object):
 
     @property
     def sql_log_level(self):
-        return 'CRITICAL'
+        return 'WARNING'
 
     @property
     def tz_aware(self):
@@ -229,11 +229,11 @@ class ClientDefaults(object):
 
     @property
     def log_level(self):
-        return 'CRITICAL'
+        return 'WARNING'
 
     @property
     def log_console(self):
-        return False
+        return True
 
     @property
     def log_filename(self):
