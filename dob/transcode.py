@@ -911,6 +911,7 @@ def import_facts(
 
     def record_new_facts(new_facts, file_out, dry):
         for idx, fact in enumerate(new_facts):
+            fact.pk = None  # So FactManager._add is called, not FactManager._update.
             persist_fact(fact, idx, file_out, dry)
 
     def persist_fact(fact, idx, file_out, dry):
