@@ -166,6 +166,7 @@ def import_facts(
     file_out=None,
     rule='',
     backup=True,
+    leave_backup=False,
     ask=False,
     yes=False,
     dry=False,
@@ -872,7 +873,13 @@ def import_facts(
         if backup_f:
             backup_f.close()
             if delete_backup:
-                os.unlink(backup_f.name)
+                if not leave_backup:
+                    os.unlink(backup_f.name)
+                else:
+                    click.echo(
+                        _('Abandoned working backup at: {}')
+                        .format(highlight_value(backup_f.name))
+                    )
         # (lb): Click will close the file, but we can also cleanup first.
         if file_out and not dry:
             file_out.close()
