@@ -134,7 +134,7 @@ def barf_and_exit(msg, crude=True):
         click.echo()
         click.echo(ascii_art.lifeless().rstrip())
         click.echo(ascii_art.infection_notice().rstrip())
-        click.pause(info='')
+        # click.pause(info='')
     click.echo()
     click.echo(colorize(msg, 'red'))
     sys.exit(1)

@@ -309,6 +309,10 @@ def import_facts(
             controller.client_logger.debug(_('- Part of desc.:\n') + line.strip())
             accumulated_fact.append(line)
             processed = True
+        elif re.match(r'^\s', line):
+            controller.client_logger.debug(_('- Leading whitesp.:\n') + line.strip())
+            accumulated_fact.append(line)
+            processed = True
         # else, any content that follows blank line(s) is either:
         # (1) more content; (2) a new Fact; or (3) Fact separator.
         return (blank_line_count, processed)
@@ -431,23 +435,29 @@ def import_facts(
             prepare_log_msg(display_dict, fact_warnings)
         )
 
-    def prepare_log_msg(fact_dict, msg_content):
+    def prepare_log_msg(fact_or_dict, msg_content):
+        try:
+            line_num = fact_or_dict['line_num']
+            raw_meta = fact_or_dict['raw_meta']
+        except TypeError:
+            line_num = fact_or_dict.ephemeral['line_num']
+            raw_meta = fact_or_dict.ephemeral['raw_meta']
         # NOTE: Using colors overrides logger's coloring, which is great!
         return _(
             '{}At line: {}{} / {}\n  {}“{}”{}\n  {}{}{}'
             .format(
                 attr('bold'),
-                fact_dict['line_num'],
+                line_num,
                 attr('reset'),
 
                 msg_content,
 
                 fg('hot_pink_2'),
-                fact_dict['raw_meta'].strip(),
+                raw_meta.strip(),
                 attr('reset'),
 
                 fg('grey_78'),
-                fact_dict,
+                fact_or_dict,
                 attr('reset'),
             )
         )
@@ -493,8 +503,14 @@ def import_facts(
     def create_from_parsed_fact(fact_dict):
         new_fact = None
         err_msg = None
+        ephemeral = {
+            'line_num': fact_dict['line_num'],
+            'raw_meta': fact_dict['raw_meta'],
+        }
         try:
-            new_fact = Fact.create_from_parsed_fact(fact_dict, lenient=True)
+            new_fact = Fact.create_from_parsed_fact(
+                fact_dict, lenient=True, ephemeral=ephemeral,
+            )
         except Exception as err:
             err_msg = prepare_log_msg(fact_dict, str(err))
         # (lb): Returning a tuple that smells like Golang: (fact, err, ).
@@ -631,32 +647,49 @@ def import_facts(
         if isinstance(dt_oppo, datetime):
             # Prefer relative to fact's other time.
             if which == 'start':
-                dt_suss = datetime_from_clock_prior(dt_oppo, clock_time)
+                dt_suss, err = infer_from_clock_prior(fact, dt_oppo, clock_time)
             else:
-                dt_suss = datetime_from_clock_after(dt_oppo, clock_time)
+                dt_suss, err = infer_from_clock_after(fact, dt_oppo, clock_time)
         elif prev_time is not None:
             # If fact's other time not set, prefer earlier clock time.
-            dt_suss = datetime_from_clock_after(prev_time, clock_time)
+            dt_suss, err = infer_from_clock_after(fact, prev_time, clock_time)
         else:
             # Last resort: go hunting for the next actual, factual real datetime.
             # FIXME/2018-05-21 12:17: (lb): Will this ever happen?
             #   Probably only if antecedent_fact not found??
             next_time, _next_fact = find_next_datetime(later_facts)
             if next_time is not None:
-                dt_suss = datetime_from_clock_prior(next_time, clock_time)
+                dt_suss, err = infer_from_clock_prior(fact, next_time, clock_time)
 
         if dt_suss is not None:
+            assert err is None
             setattr(fact, which, dt_suss)
             prev_time = dt_suss
         else:
-            conflicts.append((
-                fact,
-                None,
-                _(
-                    'Cannot infer date of {} time specified with clock time'
-                ).format(which),
-            ))
+            msg_content = _(
+                'Could not decipher clock time from {} for {}'
+            ).format(clock_time, which)
+            conflict_msg = prepare_log_msg(fact, msg_content)
+            conflicts.append((fact, None, conflict_msg, ))
         return prev_time
+
+    def infer_from_clock_prior(fact, dt_oppo, clock_time):
+        dt_suss = None
+        err_msg = None
+        try:
+            dt_suss = datetime_from_clock_prior(dt_oppo, clock_time)
+        except Exception as err:
+            err_msg = str(err)
+        return dt_suss, err_msg
+
+    def infer_from_clock_after(fact, dt_oppo, clock_time):
+        dt_suss = None
+        err_msg = None
+        try:
+            dt_suss = datetime_from_clock_after(dt_oppo, clock_time)
+        except Exception as err:
+            err_msg = str(err)
+        return dt_suss, err_msg
 
     # ...
 
@@ -710,12 +743,11 @@ def import_facts(
             setattr(fact, which, dt_suss)
             prev_time = dt_suss
         else:
-            conflicts.append((
-                fact,
-                None,
-                _('Cannot infer date of {} time specified with delta time'
-                    .format(which)),
-            ))
+            msg_content = _(
+                'Could not infer delta time “{}” for {}'
+            ).format(delta_mins, which)
+            conflict_msg = prepare_log_msg(fact, msg_content)
+            conflicts.append((fact, None, conflict_msg, ))
         return prev_time
 
     # ...
@@ -735,9 +767,14 @@ def import_facts(
 
     def fix_blank_time_relative(fact, which, prev_time, later_facts, conflicts):
         dt_fact = getattr(fact, which)
-        if dt_fact is not None:
-            assert isinstance(dt_fact, datetime)
+        if isinstance(dt_fact, datetime):
             prev_time = dt_fact
+        elif dt_fact:
+            msg_content = _(
+                'Could not translate relative date “{}” for {}'
+            ).format(dt_fact, which)
+            conflict_msg = prepare_log_msg(fact, msg_content)
+            conflicts.append((fact, None, conflict_msg, ))
         else:
             dt_suss = None
 
@@ -752,12 +789,11 @@ def import_facts(
                 setattr(fact, which, dt_suss)
                 prev_time = dt_suss
             else:
-                conflicts.append((
-                    fact,
-                    None,
-                    _('Cannot infer date of {} time left blank'
-                        .format(which)),
-                ))
+                msg_content = _(
+                    'Could not infer date left blank for {}'
+                ).format(which)
+                conflict_msg = prepare_log_msg(fact, msg_content)
+                conflicts.append((fact, None, conflict_msg, ))
 
         return prev_time
 
@@ -769,6 +805,7 @@ def import_facts(
         for fact in new_facts:
             assert fact is later_facts[0]
             later_facts.pop(0)
+            n_datetimes = 0
 
             if not fact.start:
                 # Rather than adding it again, e.g.,
@@ -776,33 +813,31 @@ def import_facts(
                 #     fact, None, _('Could not determine start of new fact')))
                 # just verify we already caught it.
                 verify_datetimes_missing_already_caught(fact, conflicts)
-            else:
+            elif isinstance(fact.start, datetime):
                 if prev_time and fact.start < prev_time:
-                    conflicts.append((
-                        fact,
-                        prev_fact,
-                        _('New fact starts before previous fact ends'),
-                    ))
+                    msg_content = _('New fact starts before previous fact ends')
+                    conflict_msg = prepare_log_msg(fact, msg_content)
+                    conflicts.append((fact, prev_fact, conflict_msg, ))
                 prev_time = fact.start
+                n_datetimes += 1
+            # else, a string that was unparsed; and conflict already added.
 
             if not fact.end:
                 verify_datetimes_missing_already_caught(fact, conflicts)
-            else:
+            elif isinstance(fact.end, datetime):
                 next_time, next_fact = find_next_datetime(later_facts)
                 if next_time and fact.end > next_time:
-                    conflicts.append((
-                        fact,
-                        next_fact,
-                        _('New fact ends after next fact starts'),
-                    ))
+                    msg_content = _('New fact ends after next fact starts')
+                    conflict_msg = prepare_log_msg(fact, msg_content)
+                    conflicts.append((fact, next_fact, conflict_msg, ))
                 prev_time = fact.end
+                n_datetimes += 1
+            # else, a string that was unparsed; and conflict already added.
 
-            if fact.start and fact.end and fact.start > fact.end:
-                conflicts.append((
-                    fact,
-                    None,
-                    _('New fact starts after it ends/ends before it starts'),
-                ))
+            if n_datetimes == 2 and fact.start > fact.end:
+                msg_content = _('New fact starts after it ends/ends before it starts')
+                conflict_msg = prepare_log_msg(fact, msg_content)
+                conflicts.append((fact, None, conflict_msg, ))
 
             prev_fact = fact
 
