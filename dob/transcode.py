@@ -46,7 +46,7 @@ from .cmd_common import barf_and_exit, echo_block_header
 from .cmd_config import get_appdirs_subdir_file_path, AppDirs
 from .cmds_list.fact import search_facts
 from .create import echo_fact, mend_facts_times, save_facts_maybe
-from .helpers import dob_in_user_exit
+from .helpers import dob_in_user_exit, highlight_value
 from .traverser.facts_carousel import FactsCarousel
 
 __all__ = ['export_facts', 'import_facts']
@@ -952,15 +952,20 @@ def import_facts(
             fact_f.write('{}\n\n'.format(rule * RULE_WIDTH))
 
     def persist_fact_save(fact, dry):
-        raise NotImplementedError  # FIXME: Needs testing!
         conflicts = []
         save_facts_maybe(controller, fact, conflicts, dry)
+        if conflicts:
+            print(conflicts)
+            assert False  # ????
 
     # ***
 
-    def celebrate(fact):
-        click.echo('{}{}{}'.format(
-            attr('underlined'), _('Voilà!'), attr('reset'),
+    def celebrate(new_facts):
+        click.echo('{}{}{}! {}'.format(
+            attr('underlined'),
+            _('Voilà'),
+            attr('reset'),
+            _('Saved {} facts.').format(highlight_value(len(new_facts))),
         ))
 
     # *** [export_facts] entry.

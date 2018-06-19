@@ -724,8 +724,9 @@ EXPORT_HELP = _(
     """
     Export all facts of within a given time window to a file of specified format.
 
-    FORMAT: Export format. Currently supported options are:
-      'csv', 'tsv', 'xml' and 'ical'. Defaults to ``csv``.
+    \b
+    FORMAT: Export format. [Default: ``csv``]
+            Choices: 'csv', 'tsv', 'xml' and 'ical'
 
     START: Start of time window.
 

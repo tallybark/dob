@@ -143,6 +143,7 @@ def barf_and_exit(msg, crude=True):
 # ***
 
 def echo_block_header(title):
+    click.echo()
     click.echo(fact_block_header(title))
 
 
