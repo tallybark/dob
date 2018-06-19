@@ -184,7 +184,8 @@ def import_facts(
         redirecting = must_specify_input(file_in)
         input_f = must_open_file(redirecting, file_in)
         unprocessed_facts = parse_facts_from_stream(input_f, ask, yes, dry)
-        new_facts = hydrate_facts(unprocessed_facts)
+        new_facts, hydrate_errs = hydrate_facts(unprocessed_facts)
+        must_hydrated_all_facts(hydrate_errs)
         raw_facts = copy.deepcopy(new_facts)
         must_complete_times(new_facts)
         must_not_conflict_existing(new_facts)
@@ -207,7 +208,7 @@ def import_facts(
                 # MEH: (lb): This is sorta an optparser layer concern and
                 # maybe should be handled from the caller (CLI) rather than
                 # from the import/export processing routines. But, meh.
-                msg = 'Weirdo, why are you redirecting STDIN and specifying a file?'
+                msg = 'Weirdo, why are you redirecting STDIN *and* specifying a file?'
                 click.echo(msg)
                 sys.exit(1)
         elif not file_in:
@@ -239,23 +240,27 @@ def import_facts(
         # starts a new Fact. Keep at -1 until we've seen the first fact.
         bl_count = -1
 
+        line_num = 0
+
         # Coalesce each Fact, line by line.
         current_fact_dict = None
         accumulated_fact = []
         unprocessed_facts = []
 
         for line in input_f:
+            line_num += 1
             (
                 bl_count, processed,
             ) = gobble_blank_or_continued(line, accumulated_fact, bl_count)
             if processed:
                 continue
-
             fact_dict = gobble_if_not_new_fact(line, accumulated_fact, bl_count)
             if fact_dict is None:
                 bl_count = 0
                 continue
-            elif not accumulated_fact:
+            fact_dict['line_num'] = line_num
+            fact_dict['raw_meta'] = line
+            if not accumulated_fact:
                 # First Fact.
                 assert current_fact_dict is None
                 assert not accumulated_fact
@@ -339,7 +344,8 @@ def import_facts(
             '(?P<verify_start>at)|'  # noqa: E131
             '(?P<verify_end>to|until)|'
             '(?P<verify_both>from|between)'
-        ' )'
+        ' )',
+        re.IGNORECASE,
     )
 
     def dissect_meta_line(line):
@@ -403,15 +409,48 @@ def import_facts(
 
     def hydrate_facts(unprocessed_facts):
         new_facts = []
+        hydrate_errs = []
         temp_id = -1
         for fact_dict, accumulated_fact in unprocessed_facts:
+            log_warnings_and_context(fact_dict)
             hydrate_description(fact_dict, accumulated_fact)
-            new_fact = Fact.create_from_parsed_fact(fact_dict, lenient=True)
-            new_fact.pk = temp_id
-            new_facts.append(new_fact)
-            temp_id -= 1
-        new_facts = sorted(new_facts, key=lambda fact: fact.start or fact.end)
-        return new_facts
+            new_fact, err = create_from_parsed_fact(fact_dict)
+            if new_fact:
+                temp_id = add_new_fact(new_fact, temp_id, new_facts)
+            else:
+                hydrate_errs.append(err)
+        return new_facts, hydrate_errs
+
+    def log_warnings_and_context(fact_dict):
+        if not fact_dict['warnings']:
+            return
+        fact_warnings = '\n  '.join(fact_dict['warnings'])
+        display_dict = copy.copy(fact_dict)
+        del display_dict['warnings']
+        controller.client_logger.warning(
+            prepare_log_msg(display_dict, fact_warnings)
+        )
+
+    def prepare_log_msg(fact_dict, msg_content):
+        # NOTE: Using colors overrides logger's coloring, which is great!
+        return _(
+            '{}At line: {}{} / {}\n  {}“{}”{}\n  {}{}{}'
+            .format(
+                attr('bold'),
+                fact_dict['line_num'],
+                attr('reset'),
+
+                msg_content,
+
+                fg('hot_pink_2'),
+                fact_dict['raw_meta'].strip(),
+                attr('reset'),
+
+                fg('grey_78'),
+                fact_dict,
+                attr('reset'),
+            )
+        )
 
     # Horizontal rule separator matches same character repeated at least thrice.
     # FIXME/2018-05-18: (lb): Document: HR is any repeated one of -, =, #, |.
@@ -423,8 +462,17 @@ def import_facts(
         # However, the user is allowed to start the description
         # on the meta line.
         if fact_dict['description']:
-            desc_lines.insert(0, fact_dict['description'])
+            # Don't forget the newline -- it got culled (strip()ped) on parse.
+            desc_lines.insert(0, fact_dict['description'] + "\n")
 
+        cull_factless_fact_separator(desc_lines)
+
+        # desc_lines are already newlined.
+        desc = ''.join(desc_lines).strip()
+
+        fact_dict['description'] = desc
+
+    def cull_factless_fact_separator(desc_lines):
         # To make import file more readable, user can add
         # separator line between facts. Cull it if found.
         # MAYBE/2018-05-18: (lb): Make this operation optional?
@@ -436,12 +484,40 @@ def import_facts(
             and not desc_lines[-2].strip()
             and FACT_SEP_HR.match(desc_lines[-1])
         ):
+            # Remove optional horizontal rule, which user
+            # can use to visual separate lines in import file.
             desc_lines.pop()
 
-        # desc_lines are already newlined.
-        desc = ''.join(desc_lines).strip()
+        return desc_lines
 
-        fact_dict['description'] = desc
+    def create_from_parsed_fact(fact_dict):
+        new_fact = None
+        err_msg = None
+        try:
+            new_fact = Fact.create_from_parsed_fact(fact_dict, lenient=True)
+        except Exception as err:
+            err_msg = prepare_log_msg(fact_dict, str(err))
+        # (lb): Returning a tuple that smells like Golang: (fact, err, ).
+        return new_fact, err_msg
+
+    def add_new_fact(new_fact, temp_id, new_facts):
+        if new_fact is None:
+            return temp_id
+        new_fact.pk = temp_id
+        new_facts.append(new_fact)
+        temp_id -= 1
+        return temp_id
+
+    def must_hydrated_all_facts(hydrate_errs):
+        if not hydrate_errs:
+            return
+        for err_msg in hydrate_errs:
+            controller.client_logger.error(err_msg)
+        msg = (_(
+            'Please fix your import data and try again.'
+            ' See log output for details.'
+        ))
+        barf_and_exit(msg)
 
     # ***
 
@@ -703,7 +779,9 @@ def import_facts(
             else:
                 if prev_time and fact.start < prev_time:
                     conflicts.append((
-                        fact, prev_fact, _('New fact starts before previous fact ends'),
+                        fact,
+                        prev_fact,
+                        _('New fact starts before previous fact ends'),
                     ))
                 prev_time = fact.start
 
@@ -713,13 +791,17 @@ def import_facts(
                 next_time, next_fact = find_next_datetime(later_facts)
                 if next_time and fact.end > next_time:
                     conflicts.append((
-                        fact, next_fact, _('New fact ends after next fact starts'),
+                        fact,
+                        next_fact,
+                        _('New fact ends after next fact starts'),
                     ))
                 prev_time = fact.end
 
             if fact.start and fact.end and fact.start > fact.end:
                 conflicts.append((
-                    fact, None, _('New fact starts after it ends/ends before it starts'),
+                    fact,
+                    None,
+                    _('New fact starts after it ends/ends before it starts'),
                 ))
 
             prev_fact = fact
@@ -818,7 +900,8 @@ def import_facts(
             prompt_persist(new_facts, raw_facts, backup_f, rule, ask, yes, dry)
             delete_backup = True
         except SystemExit as err:
-            # Explicit sys.exit() from our code. The str(err) is just the exit code #.
+            # Explicit sys.exit() from our code. The str(err)
+            # is just the exit code #.
             raise
         except BaseException as err:
             # NOTE: Using BaseException, not just Exception, so that we
@@ -833,7 +916,7 @@ def import_facts(
                     msg += _(' err: "{}"').format(inner_error)
                 if backup_f:
                     msg += (
-                        _("\nBut don't worry, a backup of edits so far was saved at: {}")
+                        _("\nBut don't worry. A backup of edits was saved at: {}")
                         .format(backup_f.name)
                     )
                 dob_in_user_exit(msg)
