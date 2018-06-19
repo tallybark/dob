@@ -861,7 +861,10 @@ def import_facts(
             else:
                 prefix = 'New'
                 other_pk = ''
-            echo_block_header(_('{} Fact Datetime Conflict!'.format(prefix)))
+            echo_block_header(
+                _('{} Fact Datetime Conflict!'.format(prefix)),
+                full_width=True,
+            )
             click.echo()
             click.echo(fact.friendly_diff(fact, truncate=True))
             click.echo()

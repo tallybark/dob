@@ -142,25 +142,36 @@ def barf_and_exit(msg, crude=True):
 
 # ***
 
-def echo_block_header(title):
+def echo_block_header(title, **kwargs):
     click.echo()
-    click.echo(fact_block_header(title))
+    click.echo(fact_block_header(title, **kwargs))
 
 
-def fact_block_header(title, sep='━'):
-    header = []
-    highlight_col = 'red_1'
-    header.append('{}{}{}'.format(
-        fg(highlight_col),
-        title,
-        attr('reset'),
-    ))
-    header.append('{}{}{}'.format(
-        fg(highlight_col),
-        sep * len(title),
-        attr('reset'),
-    ))
-    return '\n'.join(header)
+def fact_block_header(title, sep='━', full_width=False):
+    """"""
+    def _fact_block_header():
+        header = []
+        append_highlighted(header, title)
+        append_highlighted(header, hr_rule())
+        return '\n'.join(header)
+
+    def append_highlighted(header, text):
+        highlight_col = 'red_1'
+        header.append('{}{}{}'.format(
+            fg(highlight_col),
+            text,
+            attr('reset'),
+        ))
+
+    def hr_rule():
+        if not full_width:
+            horiz_rule = sep * len(title)
+        else:
+            term_width = click.get_terminal_size()[0]
+            horiz_rule = '─' * term_width
+        return horiz_rule
+
+    return _fact_block_header()
 
 
 # ***
