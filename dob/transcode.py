@@ -812,22 +812,30 @@ def import_facts(
     def prompt_and_save(new_facts, raw_facts, backup, file_out, rule, ask, yes, dry):
         backup_f = prepare_backup_file(backup)
         delete_backup = False
+        inner_error = None
         try:
             prompt_persist(new_facts, raw_facts, backup_f, rule, ask, yes, dry)
             delete_backup = True
+        except SystemExit as err:
+            # Explicit sys.exit() from our code. The str(err) is just the exit code #.
+            raise
         except BaseException as err:
             # NOTE: Using BaseException, not just Exception, so that we
             #       always catch (KeyboardInterrupt, SystemExit), etc.
             # Don't cleanup backup file.
             traceback.print_exc()
-            msg = _('Something horrible happened! err: "{}"').format(str(err))
-            if backup_f:
-                msg += (
-                    _("\nBut don't worry, a backup of edits so far was saved at: {}")
-                    .format(backup_f.name)
-                )
-            dob_in_user_exit(msg)
+            inner_error = str(err)
         finally:
+            if not delete_backup:
+                msg = 'Something horrible happened!'
+                if inner_error is not None:
+                    msg += _(' err: "{}"').format(inner_error)
+                if backup_f:
+                    msg += (
+                        _("\nBut don't worry, a backup of edits so far was saved at: {}")
+                        .format(backup_f.name)
+                    )
+                dob_in_user_exit(msg)
             cleanup_files(backup_f, file_out, delete_backup)
 
     # ***
