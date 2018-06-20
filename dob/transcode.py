@@ -46,7 +46,7 @@ from .cmd_common import barf_and_exit, echo_block_header
 from .cmd_config import get_appdirs_subdir_file_path, AppDirs
 from .cmds_list.fact import search_facts
 from .create import echo_fact, mend_facts_times, save_facts_maybe
-from .helpers import dob_in_user_exit, highlight_value
+from .helpers import click_echo, dob_in_user_exit, highlight_value
 from .traverser.facts_carousel import FactsCarousel
 
 __all__ = ['export_facts', 'import_facts']
@@ -138,20 +138,20 @@ def export_facts(
         if to_format == 'csv':
             writer = reports.CSVWriter(filepath)
             writer.write_report(facts)
-            click.echo(_("Facts have been exported to: {path}".format(path=filepath)))
+            click_echo(_("Facts have been exported to: {path}".format(path=filepath)))
         elif to_format == 'tsv':
             writer = reports.TSVWriter(filepath)
             writer.write_report(facts)
-            click.echo(_("Facts have been exported to: {path}".format(path=filepath)))
+            click_echo(_("Facts have been exported to: {path}".format(path=filepath)))
         elif to_format == 'ical':
             writer = reports.ICALWriter(filepath)
             writer.write_report(facts)
-            click.echo(_("Facts have been exported to: {path}".format(path=filepath)))
+            click_echo(_("Facts have been exported to: {path}".format(path=filepath)))
         else:
             assert to_format == 'xml'
             writer = reports.XMLWriter(filepath)
             writer.write_report(facts)
-            click.echo(_("Facts have been exported to: {path}".format(path=filepath)))
+            click_echo(_("Facts have been exported to: {path}".format(path=filepath)))
 
     # ***
 
@@ -209,7 +209,7 @@ def import_facts(
                 # maybe should be handled from the caller (CLI) rather than
                 # from the import/export processing routines. But, meh.
                 msg = 'Weirdo, why are you redirecting STDIN *and* specifying a file?'
-                click.echo(msg)
+                click_echo(msg)
                 sys.exit(1)
         elif not file_in:
             # MEH: (lb): Same idea as earlier comment: Maybe echo() and exit()
@@ -220,7 +220,7 @@ def import_facts(
                 '          or: `{appname} import < {{file}})\n'
                 '          or: `{appname} import {{file}}'
             ).format(appname=__appname__)
-            click.echo(msg)
+            click_echo(msg)
             sys.exit(1)
         return redirecting
 
@@ -865,10 +865,10 @@ def import_facts(
                 _('{} Fact Datetime Conflict!'.format(prefix)),
                 full_width=True,
             )
-            click.echo()
-            click.echo(fact.friendly_diff(fact, truncate=True))
-            click.echo()
-            click.echo('{}: {}{}{}'.format(
+            click_echo()
+            click_echo(fact.friendly_diff(fact, truncate=True))
+            click_echo()
+            click_echo('{}: {}{}{}'.format(
                 _('Problem'),
                 fg('dodger_blue_1'),
                 reason,
@@ -878,12 +878,12 @@ def import_facts(
                 # FIXME/2018-06-12: (lb): Subtract edges; this is too much.
                 cut_width = click.get_terminal_size()[0]
 
-                click.echo('{}: {}{}'.format(
+                click_echo('{}: {}{}'.format(
                     _('Compare',),
                     other_pk,
                     other.friendly_str(colorful=colorful, cut_width=cut_width),
                 ))
-            click.echo()
+            click_echo()
         msg = _(
             'Could not determine, or did not validate, start and/or stop'
             ' for one or more new Facts.'
@@ -918,15 +918,15 @@ def import_facts(
 
     def echo_saved_fact_conflict(fact, edited_fact, original):
         echo_block_header(_('Saved Fact Datetime Conflict!'))
-        click.echo()
-        click.echo(_('  Fact being imported:'))
-        click.echo(_('  ───────────────────'))
-        click.echo(fact.friendly_diff(fact, truncate=True))
-        click.echo()
-        click.echo(_('  Impact on saved Fact:'))
-        click.echo(_('  ────────────────────'))
-        click.echo(original.friendly_diff(edited_fact))
-        click.echo()
+        click_echo()
+        click_echo(_('  Fact being imported:'))
+        click_echo(_('  ───────────────────'))
+        click_echo(fact.friendly_diff(fact, truncate=True))
+        click_echo()
+        click_echo(_('  Impact on saved Fact:'))
+        click_echo(_('  ────────────────────'))
+        click_echo(original.friendly_diff(edited_fact))
+        click_echo()
 
     # ***
 
@@ -997,7 +997,7 @@ def import_facts(
                 if not leave_backup:
                     os.unlink(backup_f.name)
                 else:
-                    click.echo(
+                    click_echo(
                         _('Abandoned working backup at: {}')
                         .format(highlight_value(backup_f.name))
                     )
@@ -1052,9 +1052,9 @@ def import_facts(
                 write_fact_block_format(file_out, fact, rule, idx)
         else:
             echo_block_header(_('Fresh Fact!'))
-            click.echo()
+            click_echo()
             echo_fact(fact)
-            click.echo()
+            click_echo()
 
     # ***
 
@@ -1098,7 +1098,7 @@ def import_facts(
     # ***
 
     def celebrate(new_facts):
-        click.echo('{}{}{}! {}'.format(
+        click_echo('{}{}{}! {}'.format(
             attr('underlined'),
             _('Voilà'),
             attr('reset'),
