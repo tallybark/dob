@@ -26,7 +26,7 @@ from nark.helpers.colored import fg, attr, colorize
 
 from . import __appname__
 from . import migrate
-from .helpers import ascii_art, dob_in_user_exit
+from .helpers import ascii_art, click_echo, dob_in_user_exit
 
 __all__ = [
     'barf_and_exit',
@@ -88,9 +88,9 @@ def backend_integrity(func):
         for fact in endless_facts:
             # FIXME/2018-05-18: (lb): Make this prettier.
             echo_block_header(_('Endless Fact Found!'))
-            click.echo()
-            click.echo(fact.friendly_diff(fact))
-            click.echo()
+            click_echo()
+            click_echo(fact.friendly_diff(fact))
+            click_echo()
         msg = _(
             'Found saved fact(s) without start_time and/or end_time.'
             '\nSee list of offending Facts above.'
@@ -131,20 +131,20 @@ def induct_newbies(func):
 def barf_and_exit(msg, crude=True):
     # (lb): I made two similar error-and-exit funcs. See also: dob_in_user_exit.
     if crude:
-        click.echo()
-        click.echo(ascii_art.lifeless().rstrip())
-        click.echo(ascii_art.infection_notice().rstrip())
+        click_echo()
+        click_echo(ascii_art.lifeless().rstrip())
+        click_echo(ascii_art.infection_notice().rstrip())
         # click.pause(info='')
-    click.echo()
-    click.echo(colorize(msg, 'red'))
+    click_echo()
+    click_echo(colorize(msg, 'red'))
     sys.exit(1)
 
 
 # ***
 
 def echo_block_header(title, **kwargs):
-    click.echo()
-    click.echo(fact_block_header(title, **kwargs))
+    click_echo()
+    click_echo(fact_block_header(title, **kwargs))
 
 
 def fact_block_header(title, sep='━', full_width=False):
@@ -167,6 +167,7 @@ def fact_block_header(title, sep='━', full_width=False):
         if not full_width:
             horiz_rule = sep * len(title)
         else:
+            # NOTE: When piping (i.e., no tty), width defaults to 80.
             term_width = click.get_terminal_size()[0]
             horiz_rule = '─' * term_width
         return horiz_rule
