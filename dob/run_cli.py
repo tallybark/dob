@@ -35,6 +35,7 @@ from . import __libname__ as nark_appname
 from . import help_strings
 from .controller import Controller
 from .copyright import echo_copyright
+from .helpers import click_echo
 from .plugins import ClickAliasablePluginGroup
 
 # Disable the python_2_unicode_compatible future import warning.
@@ -154,17 +155,17 @@ def run(ctx, controller, v, verbose, verboser, color):
         if not controller.client_config['show_greeting']:
             return
         echo_copyright()
-        click.echo()
+        click_echo()
 
     def _run_handle_version(show_version, ctx):
         if show_version:
-            click.echo(dob_versions())
+            click_echo(dob_versions())
             ctx.exit(0)
 
     def _run_handle_without_command(ctx):
         if len(sys.argv) == 1:
             # Because invoke_without_command, we have to check ourselves
-            click.echo(ctx.get_help())
+            click_echo(ctx.get_help())
 
     # Shim to the private run() functions.
 
