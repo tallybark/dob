@@ -35,6 +35,7 @@ from backports.configparser import (
 )
 
 import nark
+from nark.helpers.config_helpers import NarkAppDirs
 
 from .helpers import dob_in_user_exit, dob_in_user_warning
 
@@ -58,91 +59,11 @@ __all__ = [
 # *** `dob` AppDirs.
 # ***
 
-class DobAppDirs(appdirs.AppDirs):
+class DobAppDirs(NarkAppDirs):
     """Custom class that ensure appdirs exist."""
-
     def __init__(self, *args, **kwargs):
         """Add create flag value to instance."""
         super(DobAppDirs, self).__init__(*args, **kwargs)
-        self.create = True
-
-    @property
-    def user_data_dir(self):
-        """Return ``user_data_dir``."""
-        directory = appdirs.user_data_dir(
-            self.appname,
-            self.appauthor,
-            version=self.version,
-            roaming=self.roaming,
-        )
-        if self.create:
-            self._ensure_directory_exists(directory)
-        return directory
-
-    @property
-    def site_data_dir(self):
-        """Return ``site_data_dir``."""
-        directory = appdirs.site_data_dir(
-            self.appname,
-            self.appauthor,
-            version=self.version,
-            multipath=self.multipath,
-        )
-        if self.create:
-            self._ensure_directory_exists(directory)
-        return directory
-
-    @property
-    def user_config_dir(self):
-        """Return ``user_config_dir``."""
-        directory = appdirs.user_config_dir(
-            self.appname,
-            self.appauthor,
-            version=self.version,
-            roaming=self.roaming,
-        )
-        if self.create:
-            self._ensure_directory_exists(directory)
-        return directory
-
-    @property
-    def site_config_dir(self):
-        """Return ``site_config_dir``."""
-        directory = appdirs.site_config_dir(
-            self.appname,
-            self.appauthor,
-            version=self.version,
-            multipath=self.multipath,
-        )
-        if self.create:
-            self._ensure_directory_exists(directory)
-        return directory
-
-    @property
-    def user_cache_dir(self):
-        """Return ``user_cache_dir``."""
-        directory = appdirs.user_cache_dir(
-            self.appname, self.appauthor, version=self.version,
-        )
-        if self.create:
-            self._ensure_directory_exists(directory)
-        return directory
-
-    @property
-    def user_log_dir(self):
-        """Return ``user_log_dir``."""
-        directory = appdirs.user_log_dir(
-            self.appname, self.appauthor, version=self.version,
-        )
-        if self.create:
-            self._ensure_directory_exists(directory)
-        return directory
-
-    def _ensure_directory_exists(self, directory):
-        """Ensure that the passed path exists."""
-        if not os.path.lexists(directory):
-            os.makedirs(directory)
-        return directory
 
 
 AppDirs = DobAppDirs('dob')
