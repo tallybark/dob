@@ -22,13 +22,19 @@ from __future__ import absolute_import, unicode_literals
 import click
 import sys
 
-from nark.helpers.colored import colorize, fg, attr
+from nark.helpers.colored import coloring, colorize, fg, attr
 
 __all__ = [
     'dob_in_user_exit',
     'dob_in_user_warning',
     'highlight_value',
 ]
+
+
+def click_echo(*args, **kwargs):
+    if coloring():
+        kwargs['color'] = True
+    click.echo(*args, **kwargs)
 
 
 def dob_in_user_exit(msg):
