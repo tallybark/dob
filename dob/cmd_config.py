@@ -152,6 +152,9 @@ AppDirs = DobAppDirs('dob')
 # *** Config defaults.
 # ***
 
+
+# FIXME: (lb): Can we DRY this? nark duplicates a lot of this.
+#   See also/SYNC: nark.helpers.config_helpers.get_default_backend_config()
 class BackendDefaults(object):
     """"""
     def __init__(self):
@@ -181,6 +184,13 @@ class BackendDefaults(object):
         return 'sqlite'
 
     @property
+    def db_path(self):
+        return os.path.join(
+            str(AppDirs.user_data_dir),
+            'dob.sqlite',
+        )
+
+    @property
     def db_host(self):
         return ''
 
@@ -191,13 +201,6 @@ class BackendDefaults(object):
     @property
     def db_name(self):
         return ''
-
-    @property
-    def db_path(self):
-        return os.path.join(
-            str(AppDirs.user_data_dir),
-            'dob.sqlite',
-        )
 
     @property
     def db_user(self):
@@ -220,6 +223,10 @@ class BackendDefaults(object):
     @property
     def default_tzinfo(self):
         return ''
+
+    @property
+    def allow_momentaneous(self):
+        return False
 
 
 class ClientDefaults(object):
@@ -479,13 +486,18 @@ def get_separate_configs(config):
         def get_default_tzinfo():
             return backend_config_or_default('default_tzinfo')
 
+        def get_allow_momentaneous():
+            return backend_config_or_default('allow_momentaneous')
+
         backend_config = {
             'store': get_store(),
             'day_start': get_day_start(),
             'fact_min_delta': get_fact_min_delta(),
+            # db_engine, etc., will be added next.
             'sql_log_level': get_sql_log_level(),
             'tz_aware': get_tz_aware(),
             'default_tzinfo': get_default_tzinfo(),
+            'allow_momentaneous': get_allow_momentaneous(),
         }
         backend_config.update(get_db_config())
         return backend_config
@@ -577,15 +589,16 @@ def fresh_config():
         config.set('Backend', 'daystart', backend.daystart)
         config.set('Backend', 'fact_min_delta', backend.fact_min_delta)
         config.set('Backend', 'db_engine', backend.db_engine)
+        config.set('Backend', 'db_path', backend.db_path)
         config.set('Backend', 'db_host', backend.db_host)
         config.set('Backend', 'db_port', backend.db_port)
         config.set('Backend', 'db_name', backend.db_name)
-        config.set('Backend', 'db_path', backend.db_path)
         config.set('Backend', 'db_user', backend.db_user)
         config.set('Backend', 'db_password', backend.db_password)
         config.set('Backend', 'sql_log_level', backend.sql_log_level)
         config.set('Backend', 'tz_aware', str(backend.tz_aware))
         config.set('Backend', 'default_tzinfo', backend.default_tzinfo)
+        config.set('Backend', 'allow_momentaneous', backend.allow_momentaneous)
 
     def set_defaults_client(config):
         client = ClientDefaults()
