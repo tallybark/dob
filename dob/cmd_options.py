@@ -44,18 +44,14 @@ __all__ = [
 # *** [TIME RANGE] Options.
 # ***
 
-# 2018-06-09: (lb): Trying --before and --after, to indicate these
-# options are search terms (filters) and not a Fact's start or end.
-# (I'm not sure I'll like these, but giving 'em a go.)
-# 2018-06-11: (lb): FIXME: Do like git: --since and --until
 _cmd_options_search = [
     click.option(
-        '-s', '--start', '--before',
-        help=_('The start time string (e.g. "2017-01-01 00:00").'),
+        '--since', '--after',
+        help=_('Show items more recent than a specific date.'),
     ),
     click.option(
-        '-e', '--end', '-after',
-        help=_('The end time string (e.g. "2017-02-01 00:00").'),
+        '--until', '--before',
+        help=_('Show items older than a specific date.'),
     ),
     click.option(
         '--deleted', is_flag=True, help=_('Show deleted items.'),

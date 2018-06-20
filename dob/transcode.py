@@ -55,8 +55,8 @@ __all__ = ['export_facts', 'import_facts']
 def export_facts(
     controller,
     to_format,
-    start,
-    end,
+    since,
+    until,
     filename=None,
     deleted=False,
     hidden=False,
@@ -74,8 +74,8 @@ def export_facts(
     Args:
         format (str): Format to export to.
             Valid options are: ``csv``, ``xml`` and ``ical``.
-        start (datetime.datetime): Restrict to facts starting at this time or later.
-        end (datetime.datetime): Restrict to facts ending no later than this time.
+        since (datetime.datetime): Restrict to facts starting at this time or later.
+        until (datetime.datetime): Restrict to facts ending no later than this time.
 
     Returns:
         None: If everything went alright.
@@ -84,18 +84,18 @@ def export_facts(
         click.Exception: If format is not recognized.
     """
 
-    def _export_facts(start, end):
+    def _export_facts(since, until):
         must_verify_format(to_format)
 
-        start, end = resolve_start_end(start, end)
+        since, until = resolve_since_until(since, until)
 
         filepath = resolve_filepath(filename, to_format)
 
         facts = search_facts(
             controller,
             key=key,
-            start=start,
-            end=end,
+            since=since,
+            until=until,
             # deleted=deleted,
             search_term=search_term,
             activity=activity,
@@ -119,12 +119,12 @@ def export_facts(
             controller.client_logger.info(message)
             raise click.ClickException(message)
 
-    def resolve_start_end(start, end):
-        if not start:
-            start = None
-        if not end:
-            end = None
-        return start, end
+    def resolve_since_until(since, until):
+        if not since:
+            since = None
+        if not until:
+            until = None
+        return since, until
 
     def resolve_filepath(filename, to_format):
         if filename:
@@ -155,7 +155,7 @@ def export_facts(
 
     # ***
 
-    _export_facts(start, end)
+    _export_facts(since, until)
 
 # ***
 

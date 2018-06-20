@@ -596,8 +596,6 @@ def edit_fact(controller, *args, **kwargs):
 @run.command('export', help=help_strings.EXPORT_HELP)
 # (lb): show_default=True is not recognized for click.argument.
 @click.argument('format', nargs=1, default='csv')
-@click.argument('start', nargs=1, default='')
-@click.argument('end', nargs=1, default='')
 @click.option(
     '-f', '--filename',
     help=_('The filename where to store the export file.'),
