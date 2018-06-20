@@ -38,29 +38,30 @@ def ask_user_for_edits(
     fact,
     always_ask=False,
     prompt_agent=None,
+    restrict_edit='',
 ):
     """
     """
 
     def _ask_user_for_edits():
+        verify_always_ask()
+
         prompter = get_prompter()
 
-        act_name, cat_name = ask_act_cat(prompter, fact, always_ask)
+        ask_act_cat(prompter, fact)
 
-        fact.activity = Activity.create_from_composite(act_name, cat_name)
-        try:
-            fact.activity = controller.activities.get_by_composite(
-                fact.activity.name, fact.activity.category, raw=False,
-            )
-        except KeyError:
-            pass
+        ask_for_tags(prompter, fact)
 
-        chosen_tags = ask_for_tags(prompter, fact)
-        fact.tags_replace(chosen_tags)
-
-        fact.description = fact_ask_description(fact, always_ask)
+        fact_ask_description(fact)
 
         return prompter
+
+    # ***
+
+    def verify_always_ask():
+        assert always_ask in [
+            True, False, 'actegory', 'tags', 'description',
+        ]
 
     # ***
 
@@ -73,12 +74,16 @@ def ask_user_for_edits(
 
     # ***
 
-    def ask_act_cat(prompter, fact, always_ask=False):
+    def ask_act_cat(prompter, fact):
         filter_activity, filter_category = prepare_ask_act_cat(fact)
-        if (not always_ask) and filter_activity and filter_category:
-            return filter_activity, filter_category
+        if (
+            (filter_activity and filter_category and always_ask is False)
+            or ('' != restrict_edit and 'actegory' != restrict_edit)
+        ):
+            return
 
-        return prompter.ask_act_cat(filter_activity, filter_category)
+        act_name, cat_name = prompter.ask_act_cat(filter_activity, filter_category)
+        set_actegory(fact, act_name, cat_name)
 
     def prepare_ask_act_cat(fact):
         filter_activity = ''
@@ -91,21 +96,39 @@ def ask_user_for_edits(
 
         return filter_activity, filter_category
 
+    def set_actegory(fact, act_name, cat_name):
+        fact.activity = Activity.create_from_composite(act_name, cat_name)
+        try:
+            fact.activity = controller.activities.get_by_composite(
+                fact.activity.name, fact.activity.category, raw=False,
+            )
+        except KeyError:
+            pass
+
     # ***
 
     def ask_for_tags(prompter, fact):
-        return prompter.ask_for_tags(
+        if (
+            (fact.tags and always_ask is False)
+            or ('' != restrict_edit and 'tags' != restrict_edit)
+        ):
+            return
+        chosen_tags = prompter.ask_for_tags(
             already_selected=fact.tags, activity=fact.activity,
         )
+        fact.tags_replace(chosen_tags)
 
     # ***
 
-    def fact_ask_description(fact, always_ask=False):
-        # Skip if already set.
-        if fact.description and not always_ask:
-            return fact.description
+    def fact_ask_description(fact):
+        if (
+            (fact.description and always_ask is False)
+            or ('' != restrict_edit and 'description' != restrict_edit)
+        ):
+            return
 
-        return ask_edit_with_editor(fact.description)
+        description = ask_edit_with_editor(fact.description)
+        fact.description = description
 
     # ***
 
