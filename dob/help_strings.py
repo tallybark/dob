@@ -95,6 +95,23 @@ DETAILS_HELP = _(
 
 
 # ***
+# *** [ENVIRONS] Command help.
+# ***
+
+ENVIRONS_HELP = _(
+    """
+    Like details command, but shell-sourceable.
+
+    Useful for setting up shell scripting, e.g.,
+
+       \b
+       eval "$({} environs)"
+       echo $NARK_CONF
+    """.format(__arg0name__)
+)
+
+
+# ***
 # *** [INDUCTEE] help.
 # ***
 

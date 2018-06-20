@@ -19,15 +19,23 @@ from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
+import os
+
+from nark.helpers.colored import fg, attr
+
 from . import __appname__ as dob_appname
 from . import __version__ as dob_version
 from .cmd_config import get_config_path, AppDirs
 from .helpers import ascii_art, click_echo, highlight_value
 
-__all__ = ['app_details', 'hamster_time']
+__all__ = [
+    'echo_app_details',
+    'echo_app_environs',
+    'hamster_time',
+]
 
 
-def app_details(controller, full=False):
+def echo_app_details(controller, full=False):
     """List details about the runtime environment."""
     def get_db_info():
         result = None
@@ -69,7 +77,7 @@ def app_details(controller, full=False):
             name=highlight_value(dob_appname),
             version=highlight_value(dob_version),
         )
-    ), color=True)
+    ))
     click_echo(
         "Configuration file at: {}".format(
             highlight_value(get_config_path()),
@@ -88,6 +96,84 @@ def app_details(controller, full=False):
     click_echo(get_db_info())
 
     if full:
+        appdir_paths = existent_app_dirs(include_errs=True, highlight=True)
+        for prop in sorted(appdir_paths.keys()):
+            path = appdir_paths[prop]
+            click_echo('AppDirs.{}: {}'.format(prop, highlight_value(path)))
+
+
+def echo_app_environs(controller):
+    """List details about runtime in source'able name=value format."""
+    environs = {}
+
+    def _echo_app_environs():
+        environs_add_all()
+        environs_echo()
+
+    def environs_add_all():
+        environs_add_appname_ver()
+        environs_add_config_path()
+        environs_add_log_path()
+        environs_add_reports_dir()
+        environs_add_db_url()
+        environs_add_db_path()
+        environs_add_user_app_dirs()
+
+    def environs_echo():
+        for key in sorted(environs.keys()):
+            val = environs[key]
+            click_echo('NARK_{}="{}"'.format(key.upper(), val))
+
+    def environs_add_appname_ver():
+        environs['appname'] = dob_appname
+        environs['version'] = dob_version
+
+    def environs_add_config_path():
+        environs['conf'] = get_config_path()
+
+    def environs_add_log_path():
+        environs['log'] = controller.client_config['logfile_path']
+
+    def environs_add_reports_dir():
+        environs['exports'] = controller.client_config['export_path']
+
+    def environs_add_db_url():
+        environs['db_url'] = controller.store.get_db_url()
+
+    def environs_add_db_path():
+        if controller.config['db_path']:
+            environs['db_path'] = controller.config['db_path']
+
+    def environs_add_user_app_dirs():
+        for prop, path in existent_app_dirs().items():
+            environs[prop] = path
+
+    return _echo_app_environs()
+
+def existent_app_dirs(include_errs=False, highlight=False):
+    """"""
+    def _existent_app_dirs():
+        was_create = appdirs_disable_create()
+        prop_paths = build_prop_paths()
+        appdirs_restore_create(was_create)
+        return prop_paths
+
+    def appdirs_disable_create():
+        # (lb): Our AppDirs defaults to trying to create directories. Tell it not to.
+        #   NOTE: I consider this side effect a bug. Paths should be lazy-created only
+        #   when a file stored therein is opened for writing.
+        was_create = AppDirs.create
+        AppDirs.create = False
+        return was_create
+
+    def appdirs_restore_create(was_create):
+        AppDirs.create = was_create
+
+    def build_prop_paths():
+        actual_prop_paths = {}
+
+        # CONFIRM: (lb): On virtualenv install, no site_* dirs.
+        #   Will this not be the case for site-wide, non-virtenv installs?
         for prop in [
             'user_data_dir',
             'site_data_dir',
@@ -96,17 +182,25 @@ def app_details(controller, full=False):
             'user_cache_dir',
             'user_log_dir',
         ]:
-            try:
-                path = getattr(AppDirs, prop)
-            except Exception as err:
-                # (lb): Seems to happen when path does not exist, e.g.,
-                #  AppDirs.site_data_dir: /usr/share/mate/dob
-                #  AppDirs.site_config_dir: /etc/xdg/xdg-mate
-                path = None
-            except PermissionError as err:
-                path = '<{}>'.format(err)
+            path = getattr(AppDirs, prop)
+            path = check_exists(path)
             if path is not None:
-                click_echo('AppDirs.{}: {}'.format(prop, highlight_value(path)))
+                actual_prop_paths[prop] = path
+
+        return actual_prop_paths
+
+    def check_exists(path):
+        if not os.path.exists(path):
+            if include_errs:
+                dne = _(' [dne]')
+                if highlight:
+                    dne = _('{}{}{}').format(fg('red_3b'), dne, attr('reset'))
+                path += dne
+            else:
+                path = None
+        return path
+
+    return _existent_app_dirs()
 
 
 def hamster_time(posits=[]):

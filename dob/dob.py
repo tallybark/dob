@@ -55,7 +55,7 @@ from .cmds_usage import tag as usage_tag
 from .complete import tab_complete
 from .copyright import echo_copyright, echo_license
 from .create import add_fact, cancel_fact, stop_fact
-from .details import app_details
+from .details import echo_app_details, echo_app_environs
 from .migrate import upgrade_legacy_database_file
 from .run_cli import disable_logging, dob_versions, pass_controller, run
 from .transcode import export_facts, import_facts
@@ -168,7 +168,18 @@ def copyright(controller):
 @pass_controller
 def details(controller, tmi):
     """List details about the runtime environment."""
-    app_details(controller, full=tmi)
+    echo_app_details(controller, full=tmi)
+
+
+# ***
+# *** [ENVIRONS] Command [like details command, but shell-sourceable].
+# ***
+
+@run.command(help=help_strings.ENVIRONS_HELP)
+@pass_controller
+def environs(controller):
+    """List shell-sourceable details about the runtime environment."""
+    echo_app_environs(controller)
 
 
 # ***
