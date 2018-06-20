@@ -235,6 +235,51 @@ def import_facts(
 
     # ***
 
+    # (lb): This is a very crude progress indicator.
+    #   I should just Google and find one.
+    #   But this does in a pinch. And really how useful is it?
+    #   I'm working on a 400-factoid import file, and the only
+    #   function that's noticeably slow is must_not_conflict_existing.
+    def click_echo_current_task(task, no_clear=False):
+        term_width = click.get_terminal_size()[0]
+        cursor_to_leftmost_column()
+        if not no_clear:
+            click_echo(' ' * term_width, nl=False)  # "Clear" cursor line.
+            cursor_to_leftmost_column()
+        click_echo(task, nl=False)
+        cursor_to_leftmost_column()
+        # Move cursor past text.
+        cursor_to_column_at(len(task) + 1)
+
+    def cursor_to_leftmost_column():
+        # FIXME: (lb): Can we use PPT to do cursoring? So that it detects terminal.
+        #   Like, this'll work for me in my terminal, but what about, e.g., Windows?
+        # MAGIC_CONTROL_CODE: Move cursor all the way left.
+        click_echo(u"\u001b[1000D", nl=False)
+
+    def cursor_to_column_at(col_num):
+        # FIXME: (lb): Should be a PPT call or otherwise terminal-agnostic,
+        #        and not specify a control code directly.
+        click_echo(u"\u001b[" + str(col_num) + "C", nl=False)
+
+    def start_crude_progressor(task_descrip):
+        click_echo_current_task(task_descrip)
+        term_width = click.get_terminal_size()[0] - len(task_descrip) - 1
+        dot_count = 0
+        fact_sep = '.'
+        return term_width, dot_count, fact_sep
+
+    def step_crude_progressor(task_descrip, term_width, dot_count, fact_sep):
+        dot_count += 1
+        if dot_count >= term_width:
+            click_echo_current_task(task_descrip, no_clear=True)
+            dot_count = 1
+            fact_sep = ';' if fact_sep == '.' else '.'
+        click_echo(fact_sep, nl=False)
+        return term_width, dot_count, fact_sep
+
+    # ***
+
     def parse_facts_from_stream(input_f, ask, yes, dry):
         # Track current empty line run count, to know when to check if line
         # starts a new Fact. Keep at -1 until we've seen the first fact.
@@ -247,6 +292,7 @@ def import_facts(
         accumulated_fact = []
         unprocessed_facts = []
 
+        click_echo_current_task(_('Parsing factoids...'))
         for line in input_f:
             line_num += 1
             (
@@ -415,6 +461,7 @@ def import_facts(
         new_facts = []
         hydrate_errs = []
         temp_id = -1
+        click_echo_current_task(_('Hydrating Facts...'))
         for fact_dict, accumulated_fact in unprocessed_facts:
             log_warnings_and_context(fact_dict)
             hydrate_description(fact_dict, accumulated_fact)
@@ -612,6 +659,7 @@ def import_facts(
     # ...
 
     def fix_clock_times_relative(new_facts, ante_fact, seqt_fact, conflicts):
+        click_echo_current_task(_('Fixing relative times...'))
         prev_time, later_facts = prev_and_later(new_facts, ante_fact, seqt_fact)
         for fact in new_facts:
             assert fact is later_facts[0]
@@ -694,6 +742,7 @@ def import_facts(
     # ...
 
     def fix_delta_times_relative(new_facts, ante_fact, seqt_fact, conflicts):
+        click_echo_current_task(_('Fixing relative deltas...'))
         prev_time, later_facts = prev_and_later(new_facts, ante_fact, seqt_fact)
         for fact in new_facts:
             assert fact is later_facts[0]
@@ -753,6 +802,7 @@ def import_facts(
     # ...
 
     def fix_blank_times_relative(new_facts, ante_fact, seqt_fact, conflicts):
+        click_echo_current_task(_('Fixing blank times...'))
         prev_time, later_facts = prev_and_later(new_facts, ante_fact, seqt_fact)
         for fact in new_facts:
             assert fact is later_facts[0]
@@ -800,6 +850,7 @@ def import_facts(
     # ...
 
     def verify_datetimes_sanity(new_facts, ante_fact, seqt_fact, conflicts):
+        click_echo_current_task(_('Verifying sanity times...'))
         prev_time, later_facts = prev_and_later(new_facts, ante_fact, seqt_fact)
         prev_fact = ante_fact
         for fact in new_facts:
@@ -894,11 +945,23 @@ def import_facts(
     # ***
 
     def must_not_conflict_existing(new_facts):
+        # (lb): Yuck. Sorry about this. Totally polluting what was a small
+        # function with lots of progress-output overhead.
+        task_descrip = _('Verifying times nonconflicting')
+        term_width, dot_count, fact_sep = start_crude_progressor(task_descrip)
+
         all_conflicts = []
         for fact in new_facts:
+            term_width, dot_count, fact_sep = step_crude_progressor(
+                task_descrip, term_width, dot_count, fact_sep,
+            )
+
             conflicts = mend_facts_times(controller, fact, time_hint='verify_both')
             if conflicts:
                 all_conflicts.append((fact, conflicts,))
+
+        click_echo_current_task('')
+
         # MAYBE/2018-05-19: (lb): Import *could* deal with conflicts (both
         # programmatically and morally), but I don't see a need currently.
         barf_on_overlapping_facts_old(all_conflicts)
@@ -1038,9 +1101,18 @@ def import_facts(
         celebrate(new_facts)
 
     def record_new_facts(new_facts, file_out, dry):
+        task_descrip = _('Saving facts')
+        term_width, dot_count, fact_sep = start_crude_progressor(task_descrip)
+
         for idx, fact in enumerate(new_facts):
+            term_width, dot_count, fact_sep = step_crude_progressor(
+                task_descrip, term_width, dot_count, fact_sep,
+            )
+
             fact.pk = None  # So FactManager._add is called, not FactManager._update.
             persist_fact(fact, idx, file_out, dry)
+
+        click_echo_current_task('')
 
     def persist_fact(fact, idx, file_out, dry):
         if not dry:
