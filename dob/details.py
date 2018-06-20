@@ -19,12 +19,10 @@ from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
-import click
-
 from . import __appname__ as dob_appname
 from . import __version__ as dob_version
 from .cmd_config import get_config_path, AppDirs
-from .helpers import ascii_art, highlight_value
+from .helpers import ascii_art, click_echo, highlight_value
 
 __all__ = ['app_details', 'hamster_time']
 
@@ -66,28 +64,28 @@ def app_details(controller, full=False):
         result = get_sqlalchemy_info()
         return result
 
-    click.echo(_(
+    click_echo(_(
         "You are running {name} version {version}".format(
             name=highlight_value(dob_appname),
             version=highlight_value(dob_version),
         )
-    ))
-    click.echo(
+    ), color=True)
+    click_echo(
         "Configuration file at: {}".format(
             highlight_value(get_config_path()),
         )
     )
-    click.echo(
+    click_echo(
         "Logfile stored at: {}".format(
             highlight_value(controller.client_config['logfile_path']),
         )
     )
-    click.echo(
+    click_echo(
         "Reports exported to: {}".format(
             highlight_value(controller.client_config['export_path']),
         )
     )
-    click.echo(get_db_info())
+    click_echo(get_db_info())
 
     if full:
         for prop in [
@@ -108,7 +106,7 @@ def app_details(controller, full=False):
             except PermissionError as err:
                 path = '<{}>'.format(err)
             if path is not None:
-                click.echo('AppDirs.{}: {}'.format(prop, highlight_value(path)))
+                click_echo('AppDirs.{}: {}'.format(prop, highlight_value(path)))
 
 
 def hamster_time(posits=[]):
@@ -118,5 +116,5 @@ def hamster_time(posits=[]):
         arts = [ascii_art.randomster()]
 
     for one_art_please in arts:
-        click.echo(one_art_please)
+        click_echo(one_art_please)
 
