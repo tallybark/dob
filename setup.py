@@ -102,8 +102,8 @@ def top_level_package_file_path(package_dir):
 
 def top_level_package_file_read(path):
     """Read the file at path, and decode as UTF-8."""
-    with open(path, 'rb') as f:
-        init_py = f.read().decode('utf-8')
+    with open(path, 'rb') as init_f:
+        init_py = init_f.read().decode('utf-8')
     return init_py
 
 
