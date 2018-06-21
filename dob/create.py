@@ -308,7 +308,7 @@ def stop_fact(controller):
         ).format(__appname__)
         raise click.ClickException(message)
     else:
-        echo_ongoing_completed(controller, fact)
+        echo_ongoing_completed(controller, fact, cancelled=False)
 
 
 # ***
@@ -324,26 +324,25 @@ def cancel_fact(controller, purge=False):
         KeyErŕor: No *ongoing fact* can be found.
     """
     try:
-        controller.facts.cancel_current_fact(purge=purge)
+        fact = controller.facts.cancel_current_fact(purge=purge)
     except KeyError:
         message = _("Nothing tracked right now. Not doing anything.")
         controller.client_logger.info(message)
         raise click.ClickException(message)
     else:
-        message = _("Tracking canceled.")
-        click_echo(message)
-        controller.client_logger.debug(message)
+        completed_msg = echo_ongoing_completed(controller, fact, cancelled=True)
 
 
 # ***
 
-def echo_ongoing_completed(controller, fact):
+def echo_ongoing_completed(controller, fact, cancelled=False):
     """"""
     def _echo_ongoing_completed():
         colorful = controller.client_config['term_color']
-        leader = _('Completed: ')
+        leader = _('Completed: ') if not cancelled else _('Cancelled: ')
         cut_width = width_avail(len(leader))
-        echo_fact(leader, colorful, cut_width)
+        completed_msg = echo_fact(leader, colorful, cut_width)
+        controller.client_logger.debug(completed_msg)
 
     def width_avail(leader_len):
         term_width = click.get_terminal_size()[0]
@@ -351,7 +350,7 @@ def echo_ongoing_completed(controller, fact):
         return width_avail
 
     def echo_fact(leader, colorful, cut_width):
-        click_echo(
+        completed_msg = (
             leader +
             fact.friendly_str(
                 shellify=False,
@@ -369,6 +368,8 @@ def echo_ongoing_completed(controller, fact):
                 show_elapsed=True,
             )
         )
+        click_echo(completed_msg)
+        return completed_msg
 
     _echo_ongoing_completed()
 
