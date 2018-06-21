@@ -260,6 +260,18 @@ def store_url(controller):
     click.echo(controller.data_store_url)
 
 
+@store_group.command('upgrade-legacy', help=help_strings.STORE_UPGRADE_LEGACY_HELP)
+@click.argument('filename', nargs=-1, type=click.File('r'))
+@click.option('-f', '--force', is_flag=True,
+              help=_('If specified, overwrite data store if is exists'))
+@pass_controller
+@click.pass_context
+def upgrade_legacy(ctx, controller, filename, force):
+    """Migrate a legacy "Hamster" database."""
+    file_in = must_no_more_than_one_file(filename)
+    upgrade_legacy_database_file(ctx, controller, file_in, force)
+
+
 # ***
 # *** [STATS] Command.
 # ***
@@ -735,14 +747,4 @@ def migrate_upgrade(controller):
 def migrate_version(controller):
     """Show migration information about the database."""
     migrate.version(controller)
-
-
-@migrate_group.command(help=help_strings.MIGRATE_LEGACY_HELP)
-@click.argument('filename', nargs=-1, type=click.File('r'))
-@pass_controller
-@click.pass_context
-def legacy(ctx, controller, filename):
-    """Migrate a legacy "Hamster" database."""
-    file_in = must_no_more_than_one_file(filename)
-    upgrade_legacy_database_file(ctx, controller, file_in)
 

@@ -284,6 +284,11 @@ STORE_URL_HELP = _(
 )
 
 
+STORE_UPGRADE_LEGACY_HELP = _(
+    """Migrate a legacy "Hamster" database."""
+)
+
+
 # ***
 # *** [STATS] Commands help.
 # ***
@@ -811,10 +816,5 @@ MIGRATE_UP_HELP = _(
 
 MIGRATE_VERSION_HELP = _(
     """Show the database migration version."""
-)
-
-
-MIGRATE_LEGACY_HELP = _(
-    """Migrate a legacy "Hamster" database."""
 )
 
