@@ -42,7 +42,12 @@ from nark.helpers.dated import (
 from nark.helpers.parsing import parse_factoid
 
 from . import __appname__
-from .cmd_common import barf_and_exit, echo_block_header
+from .cmd_common import (
+    barf_and_exit,
+    echo_block_header,
+    hydrate_activity,
+    hydrate_category
+)
 from .cmd_config import get_appdirs_subdir_file_path, AppDirs
 from .cmds_list.fact import search_facts
 from .create import echo_fact, mend_facts_times, save_facts_maybe
@@ -62,8 +67,8 @@ def export_facts(
     hidden=False,
     key=None,
     search_term='',
-    activity=None,
-    category=None,
+    filter_activity='',
+    filter_category='',
     sort_order='desc',
     limit='',
     offset='',
@@ -90,6 +95,9 @@ def export_facts(
         since, until = resolve_since_until(since, until)
 
         filepath = resolve_filepath(filename, to_format)
+
+        activity = hydrate_activity(controller, filter_activity)
+        category = hydrate_category(controller, filter_category)
 
         facts = search_facts(
             controller,

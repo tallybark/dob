@@ -646,7 +646,16 @@ def transcode_export(
     controller, *args, format, **kwargs
 ):
     """Export all facts of within a given timewindow to a file of specified format."""
-    export_facts(controller, *args, to_format=format, **kwargs)
+    activity = cmd_options.postprocess_options_list_activitied(kwargs)
+    category = cmd_options.postprocess_options_list_categoried(kwargs)
+    export_facts(
+        controller,
+        *args,
+        to_format=format,
+        filter_activity=activity,
+        filter_category=category,
+        **kwargs
+    )
 
 
 # ***
