@@ -28,6 +28,7 @@ from . import __appname__ as dob_appname
 from . import __version__ as dob_version
 from .cmd_config import get_config_path, AppDirs
 from .helpers import ascii_art, click_echo, highlight_value
+from .plugins import ClickAliasablePluginGroup
 
 __all__ = [
     'echo_app_details',
@@ -39,70 +40,108 @@ __all__ = [
 
 def echo_app_details(controller, full=False):
     """List details about the runtime environment."""
+    def _echo_app_details():
+        echo_name_version()
+        echo_config_path()
+        echo_plugins_basepath()
+        echo_logfile_path()
+        echo_export_path()
+        echo_db_info()
+        echo_app_dirs()
+
+    def echo_name_version():
+        click_echo(_(
+            "You are running {name} version {version}"
+        ).format(
+            name=highlight_value(dob_appname),
+            version=highlight_value(dob_version),
+        ))
+
+    def echo_config_path():
+        click_echo(_(
+            "Configuration file at: {}"
+        ).format(
+            highlight_value(get_config_path()),
+        ))
+
+    def echo_plugins_basepath():
+        click_echo(_(
+            "Plugins directory at: {}"
+        ).format(
+            # (lb): Such hack.
+            highlight_value(ClickAliasablePluginGroup().plugins_basepath),
+        ))
+
+    def echo_logfile_path():
+        click_echo(_(
+            "Logfile stored at: {}"
+        ).format(
+            highlight_value(controller.client_config['logfile_path']),
+        ))
+
+    def echo_export_path():
+        click_echo(_(
+            "Reports exported to: {}"
+        ).format(
+            highlight_value(controller.client_config['export_path']),
+        ))
+
+    def echo_db_info():
+        click_echo(get_db_info())
+
     def get_db_info():
         result = None
-
-        def get_sqlalchemy_info():
-            engine = controller.config['db_engine']
-            if engine == 'sqlite':
-                sqlalchemy_string = _(
-                    "Using {engine} on database: {db_path}"
-                    .format(
-                        engine=highlight_value('sqlite'),
-                        db_path=highlight_value(controller.config['db_path']),
-                    )
-                )
-            else:
-                port = controller.config.get('db_port', '')
-                if port:
-                    port = ':{}'.format(port)
-
-                sqlalchemy_string = _(
-                    "Using {engine} on database {db_name} at:"
-                    " {username}@{host}{port}".format(
-                        engine=highlight_value(engine),
-                        db_name=highlight_value(controller.config['db_name']),
-                        username=highlight_value(controller.config['db_user']),
-                        host=highlight_value(controller.config['db_host']),
-                        port=highlight_value(port),
-                    )
-                )
-            return sqlalchemy_string
-
         # For now we do not need to check for various store option as we allow
         # only one anyway.
         result = get_sqlalchemy_info()
         return result
 
-    click_echo(_(
-        "You are running {name} version {version}"
-    ).format(
-        name=highlight_value(dob_appname),
-        version=highlight_value(dob_version),
-    ))
-    click_echo(_(
-        "Configuration file at: {}"
-    ).format(
-        highlight_value(get_config_path()),
-    ))
-    click_echo(_(
-        "Logfile stored at: {}"
-    ).format(
-        highlight_value(controller.client_config['logfile_path']),
-    ))
-    click_echo(_(
-        "Reports exported to: {}"
-    ).format(
-        highlight_value(controller.client_config['export_path']),
-    ))
-    click_echo(get_db_info())
+    def get_sqlalchemy_info():
+        """"""
+        def _get_sqlalchemy_info():
+            engine = controller.config['db_engine']
+            if engine == 'sqlite':
+                return sqlalchemy_string_sqlite()
+            else:
+                return sqlalchemy_string_remote(engine)
 
-    if full:
+        def sqlalchemy_string_sqlite():
+            sqlalchemy_string = _(
+                "Using {engine} on database: {db_path}"
+                .format(
+                    engine=highlight_value('sqlite'),
+                    db_path=highlight_value(controller.config['db_path']),
+                )
+            )
+            return sqlalchemy_string
+
+        def sqlalchemy_string_remote(engine):
+            port = controller.config.get('db_port', '')
+            if port:
+                port = ':{}'.format(port)
+            sqlalchemy_string = _(
+                "Using {engine} on database {db_name} at:"
+                " {username}@{host}{port}".format(
+                    engine=highlight_value(engine),
+                    db_name=highlight_value(controller.config['db_name']),
+                    username=highlight_value(controller.config['db_user']),
+                    host=highlight_value(controller.config['db_host']),
+                    port=highlight_value(port),
+                )
+            )
+            return sqlalchemy_string
+
+        return _get_sqlalchemy_info()
+
+    def echo_app_dirs():
+        if not full:
+            return
         appdir_paths = existent_app_dirs(include_errs=True, highlight=True)
         for prop in sorted(appdir_paths.keys()):
             path = appdir_paths[prop]
             click_echo('AppDirs.{}: {}'.format(prop, highlight_value(path)))
 
+    _echo_app_details()
 
 
 def echo_app_environs(controller):
@@ -116,6 +155,7 @@ def echo_app_environs(controller):
     def environs_add_all():
         environs_add_appname_ver()
         environs_add_config_path()
+        environs_add_plugins_path()
         environs_add_log_path()
         environs_add_reports_dir()
         environs_add_db_url()
@@ -125,7 +165,7 @@ def echo_app_environs(controller):
     def environs_echo():
         for key in sorted(environs.keys()):
             val = environs[key]
-            click_echo('NARK_{}="{}"'.format(key.upper(), val))
+            click_echo('DOB_{}="{}"'.format(key.upper(), val))
 
     def environs_add_appname_ver():
         environs['appname'] = dob_appname
@@ -133,6 +173,9 @@ def echo_app_environs(controller):
 
     def environs_add_config_path():
         environs['conf'] = get_config_path()
+
+    def environs_add_plugins_path():
+        environs['plugins'] = ClickAliasablePluginGroup().plugins_basepath
 
     def environs_add_log_path():
         environs['log'] = controller.client_config['logfile_path']
