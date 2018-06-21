@@ -214,6 +214,24 @@ def replenish_config():
 
 
 # ***
+# *** Config helpers.
+# ***
+
+def from_config_or_default(config, cls_defaults, section, keyname):
+    try:
+        return config.get(section, keyname)
+    except NoOptionError:
+        return getattr(cls_defaults(), keyname)
+
+
+def from_config_or_default_boolean(config, cls_defaults, section, keyname):
+    try:
+        return config.getboolean(section, keyname)
+    except NoOptionError:
+        return getattr(cls_defaults(), keyname)
+
+
+# ***
 # *** Config helper: get_separate_configs.
 # ***
 
@@ -258,16 +276,14 @@ def get_separate_configs(config):
         such.
         """
         def client_config_or_default(keyname):
-            try:
-                return config.get('Client', keyname)
-            except NoOptionError:
-                return getattr(ClientDefaults(), keyname)
+            return from_config_or_default(
+                config, ClientDefaults, 'Client', keyname,
+            )
 
         def client_config_or_default_boolean(keyname):
-            try:
-                return config.getboolean('Client', keyname)
-            except NoOptionError:
-                return getattr(ClientDefaults(), keyname)
+            return from_config_or_default_boolean(
+                config, ClientDefaults, 'Client', keyname,
+            )
 
         def get_log_level():
             log_level_name = client_config_or_default('log_level')
@@ -337,10 +353,14 @@ def get_separate_configs(config):
             hammsterlib?
         """
         def backend_config_or_default(keyname):
-            try:
-                return config.get('Backend', keyname)
-            except NoOptionError:
-                return getattr(BackendDefaults(), keyname)
+            return from_config_or_default(
+                config, BackendDefaults, 'Backend', keyname,
+            )
+
+        def backend_config_or_default_boolean(keyname):
+            return from_config_or_default_boolean(
+                config, BackendDefaults, 'Backend', keyname,
+            )
 
         def get_day_start():
             day_start_text = backend_config_or_default('daystart')
@@ -399,13 +419,13 @@ def get_separate_configs(config):
             return sql_log_level
 
         def get_tz_aware():
-            return backend_config_or_default('tz_aware')
+            return backend_config_or_default_boolean('tz_aware')
 
         def get_default_tzinfo():
             return backend_config_or_default('default_tzinfo')
 
         def get_allow_momentaneous():
-            return backend_config_or_default('allow_momentaneous')
+            return backend_config_or_default_boolean('allow_momentaneous')
 
         backend_config = {
             'store': get_store(),
