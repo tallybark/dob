@@ -61,14 +61,12 @@ def list_current_fact(controller):
         dob_in_user_exit(str(err))
     else:
         colorful = controller.client_config['term_color']
+        localize = controller.config['tz_aware']
         click_echo(
             fact.friendly_str(
                 shellify=False,
                 description_sep=': ',
-
-                # FIXME: fact being saved as UTC
-                localize=True,
-
+                localize=localize,
                 colorful=colorful,
                 show_elapsed=True,
             )
