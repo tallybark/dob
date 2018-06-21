@@ -285,6 +285,17 @@ STORE_URL_HELP = _(
 
 
 # ***
+# *** [STATS] Commands help.
+# ***
+
+STATS_HELP = _(
+    """
+    List stats about your data store.
+    """
+)
+
+
+# ***
 # *** [LIST] Commands help.
 # ***
 

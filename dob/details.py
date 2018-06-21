@@ -22,6 +22,7 @@ from gettext import gettext as _
 import os
 
 from nark.helpers.colored import fg, attr
+from nark.items import Fact
 
 from . import __appname__ as dob_appname
 from . import __version__ as dob_version
@@ -31,6 +32,7 @@ from .helpers import ascii_art, click_echo, highlight_value
 __all__ = [
     'echo_app_details',
     'echo_app_environs',
+    'echo_data_stats',
     'hamster_time',
 ]
 
@@ -73,26 +75,26 @@ def echo_app_details(controller, full=False):
         return result
 
     click_echo(_(
-        "You are running {name} version {version}".format(
-            name=highlight_value(dob_appname),
-            version=highlight_value(dob_version),
-        )
+        "You are running {name} version {version}"
+    ).format(
+        name=highlight_value(dob_appname),
+        version=highlight_value(dob_version),
     ))
-    click_echo(
-        "Configuration file at: {}".format(
-            highlight_value(get_config_path()),
-        )
-    )
-    click_echo(
-        "Logfile stored at: {}".format(
-            highlight_value(controller.client_config['logfile_path']),
-        )
-    )
-    click_echo(
-        "Reports exported to: {}".format(
-            highlight_value(controller.client_config['export_path']),
-        )
-    )
+    click_echo(_(
+        "Configuration file at: {}"
+    ).format(
+        highlight_value(get_config_path()),
+    ))
+    click_echo(_(
+        "Logfile stored at: {}"
+    ).format(
+        highlight_value(controller.client_config['logfile_path']),
+    ))
+    click_echo(_(
+        "Reports exported to: {}"
+    ).format(
+        highlight_value(controller.client_config['export_path']),
+    ))
     click_echo(get_db_info())
 
     if full:
@@ -150,6 +152,7 @@ def echo_app_environs(controller):
 
     return _echo_app_environs()
 
+
 def existent_app_dirs(include_errs=False, highlight=False):
     """"""
     def _existent_app_dirs():
@@ -201,6 +204,47 @@ def existent_app_dirs(include_errs=False, highlight=False):
         return path
 
     return _existent_app_dirs()
+
+
+def echo_data_stats(controller):
+    def _echo_data_stats():
+        echo_counts()
+        echo_facts_interesting()
+
+    def echo_counts():
+        # MAYBE: Add filtering, like activity, category, search_term, after, until, etc.
+        num_activities = controller.activities.get_all(count_results=True)
+        num_categories = controller.categories.get_all(count_results=True)
+        num_facts = controller.facts.get_all(count_results=True)
+        num_tags = controller.tags.get_all(count_results=True)
+        # FIXME: Calculate length of Hamstering, i.e., delta first and last facts.
+        # FIXME: Other stats?
+        click_echo(_("No. of      facts: {}").format(highlight_value(num_facts)))
+        click_echo(_("No. of  tag names: {}").format(highlight_value(num_tags)))
+        click_echo(_("No. of activities: {}").format(highlight_value(num_activities)))
+        click_echo(_("No. of categories: {}").format(highlight_value(num_categories)))
+
+    def echo_facts_interesting():
+        first_facts = controller.facts.get_all(
+            sort_col='start', sort_order='asc', limit=1,
+        )
+        final_facts = controller.facts.get_all(
+            sort_col='start', sort_order='desc', limit=1,
+        )
+        assert len(first_facts) <= 1
+        assert len(final_facts) <= 1
+        if not first_facts:
+            assert not final_facts
+            return
+        first_fact = first_facts.pop()
+        final_fact = final_facts.pop()
+        time_0 = first_fact.start
+        time_n = final_fact.end or controller.now
+        spanner = Fact(activity=None, start=time_0, end=time_n)
+        elapsed = spanner.get_string_delta(format='')
+        click_echo(_("Hamstering Length: {}").format(highlight_value(elapsed)))
+
+    _echo_data_stats()
 
 
 def hamster_time(posits=[]):

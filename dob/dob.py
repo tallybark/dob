@@ -55,7 +55,7 @@ from .cmds_usage import tag as usage_tag
 from .complete import tab_complete
 from .copyright import echo_copyright, echo_license
 from .create import add_fact, cancel_fact, stop_fact
-from .details import echo_app_details, echo_app_environs
+from .details import echo_app_details, echo_app_environs, echo_data_stats
 from .migrate import upgrade_legacy_database_file
 from .run_cli import disable_logging, dob_versions, pass_controller, run
 from .transcode import export_facts, import_facts
@@ -258,6 +258,18 @@ def store_path(controller):
 def store_url(controller):
     """"""
     click.echo(controller.data_store_url)
+
+
+# ***
+# *** [STATS] Command.
+# ***
+
+@run.command('stats', help=help_strings.STATS_HELP)
+@pass_controller
+@induct_newbies
+def nark_stats(controller):
+    """List stats about the user's data."""
+    echo_data_stats(controller)
 
 
 # ***
