@@ -82,7 +82,8 @@ def backend_integrity(func):
         barf_on_endless_facts(endless_facts)
 
     def barf_on_endless_facts(endless_facts):
-        if not endless_facts:
+        # There can be only 1. Or none.
+        if not endless_facts or len(endless_facts) == 1:
             return
 
         for fact in endless_facts:
@@ -92,7 +93,7 @@ def backend_integrity(func):
             click_echo(fact.friendly_diff(fact))
             click_echo()
         msg = _(
-            'Found saved fact(s) without start_time and/or end_time.'
+            'Found saved fact(s) without start time and/or end time.'
             '\nSee list of offending Facts above.'
             # MAYBE/2018-05-23 17:05: (lb): We could offer an easy way out, e.g.,
             #   '\n\nTry, e.g.,\n\n  {} edit {} --end now'.format(__appname__, ...)

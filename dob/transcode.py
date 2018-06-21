@@ -631,7 +631,7 @@ def import_facts(
             if not ante_fact.end:
                 assert False  # Caught earlier by backend_integrity().
                 raise Exception(_(
-                    'Found saved fact without end_time: {}'.format(ante_fact)
+                    'Found saved fact without end time: {}'.format(ante_fact)
                 ))
             isinstance(ante_fact.end, datetime)
             prev_time = ante_fact.end
@@ -641,7 +641,7 @@ def import_facts(
             if not seqt_fact.start:
                 assert False  # Caught earlier by: backend_integrity().
                 raise Exception(_(
-                    'Found saved fact without start_time: {}'.format(seqt_fact)
+                    'Found saved fact without start time: {}'.format(seqt_fact)
                 ))
             assert isinstance(seqt_fact.start, datetime)
             later_facts += [seqt_fact]
