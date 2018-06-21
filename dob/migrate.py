@@ -171,8 +171,10 @@ def upgrade_legacy_database_file(ctx, controller, file_in, force):
     def _upgrade_legacy_database_file():
         if file_in is None:
             echo_help()
+            return None
         else:
             copy_and_upgrade()
+            return True
 
     def copy_and_upgrade():
         copy_into_place()
@@ -220,7 +222,7 @@ def upgrade_legacy_database_file(ctx, controller, file_in, force):
         while response:
             response = controller.store.migrations.upgrade()
 
-    _upgrade_legacy_database_file()
+    return _upgrade_legacy_database_file()
 
 
 def _instruct_upgrade(controller):

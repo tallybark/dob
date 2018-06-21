@@ -31,7 +31,12 @@ from . import cmd_options
 from . import help_strings
 from . import migrate
 from . import update
-from .cmd_common import induct_newbies, insist_germinated, must_no_more_than_one_file
+from .cmd_common import (
+    induct_newbies,
+    insist_germinated,
+    must_no_more_than_one_file,
+    post_processor
+)
 from .cmd_options import (
     cmd_options_factoid,
     cmd_options_insert,
@@ -266,11 +271,12 @@ def store_url(controller):
 @click.option('-f', '--force', is_flag=True,
               help=_('If specified, overwrite data store if is exists'))
 @pass_controller
+@post_processor
 @click.pass_context
 def upgrade_legacy(ctx, controller, filename, force):
     """Migrate a legacy "Hamster" database."""
     file_in = must_no_more_than_one_file(filename)
-    upgrade_legacy_database_file(ctx, controller, file_in, force)
+    return upgrade_legacy_database_file(ctx, controller, file_in, force)
 
 
 # ***
@@ -531,9 +537,10 @@ def usage_facts(controller, *args, **kwargs):
 @run.command('stop', help=help_strings.STOP_HELP)
 @pass_controller
 @induct_newbies
+@post_processor
 def stop(controller):
     """Stop tracking current fact (by setting its 'end')."""
-    stop_fact(controller)
+    return stop_fact(controller)
 
 
 @run.command('cancel', help=help_strings.CANCEL_HELP)
@@ -543,9 +550,10 @@ def stop(controller):
 )
 @pass_controller
 @induct_newbies
+@post_processor
 def cancel(controller, force):
     """Cancel 'ongoing fact'. Stop it without storing in the backend."""
-    cancel_fact(controller, force)
+    return cancel_fact(controller, purge=force)
 
 
 @run.command('current', aliases=['show'], help=help_strings.CURRENT_HELP)
@@ -565,9 +573,10 @@ def current(controller):
 @cmd_options_insert
 @pass_controller
 @induct_newbies
+@post_processor
 def on(controller, *args, **kwargs):
     """Start or add a fact using the `on`/`now`/`start` directive."""
-    add_fact(controller, *args, time_hint='verify_none', **kwargs)
+    return add_fact(controller, *args, time_hint='verify_none', **kwargs)
 
 
 @run.command(help=help_strings.START_HELP_AT)
@@ -575,9 +584,10 @@ def on(controller, *args, **kwargs):
 @cmd_options_insert
 @pass_controller
 @induct_newbies
+@post_processor
 def at(controller, *args, **kwargs):
     """Start or add a fact using the `at` directive."""
-    add_fact(controller, *args, time_hint='verify_start', **kwargs)
+    return add_fact(controller, *args, time_hint='verify_start', **kwargs)
 
 
 @run.command(aliases=['until'], help=help_strings.START_HELP_TO)
@@ -585,9 +595,10 @@ def at(controller, *args, **kwargs):
 @cmd_options_insert
 @pass_controller
 @induct_newbies
+@post_processor
 def to(controller, *args, **kwargs):
     """Start or add a fact using the `to`/`until` directive."""
-    add_fact(controller, *args, time_hint='verify_end', **kwargs)
+    return add_fact(controller, *args, time_hint='verify_end', **kwargs)
 
 
 # (lb): We cannot name the function `from`, which is a Python reserved word,
@@ -597,9 +608,10 @@ def to(controller, *args, **kwargs):
 @cmd_options_insert
 @pass_controller
 @induct_newbies
+@post_processor
 def between(controller, *args, **kwargs):
     """Add a fact using the `from ... to` directive."""
-    add_fact(controller, *args, time_hint='verify_both', **kwargs)
+    return add_fact(controller, *args, time_hint='verify_both', **kwargs)
 
 
 # ***
@@ -620,9 +632,10 @@ def edit_group(ctx, controller):
 @click.argument('key', nargs=1, type=int)
 @pass_controller
 @induct_newbies
+@post_processor
 def edit_fact(controller, *args, **kwargs):
     """Inline-Edit specified Fact using preferred $EDITOR."""
-    update.edit_fact(controller, *args, **kwargs)
+    return update.edit_fact(controller, *args, **kwargs)
 
 
 # ***
@@ -677,6 +690,7 @@ def transcode_export(
 @cmd_options_insert
 @pass_controller
 @induct_newbies
+@post_processor
 def transcode_import(controller, filename, output, force, *args, **kwargs):
     """Import from file or STDIN (pipe)."""
     file_in = must_no_more_than_one_file(filename)
@@ -693,7 +707,7 @@ def transcode_import(controller, filename, output, force, *args, **kwargs):
         click_echo(msg)
         sys.exit(1)
 
-    import_facts(controller, *args, file_in=file_in, file_out=output, **kwargs)
+    return import_facts(controller, *args, file_in=file_in, file_out=output, **kwargs)
 
 
 # ***

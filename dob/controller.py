@@ -24,6 +24,7 @@ from gettext import gettext as _
 import click
 import os
 import sys
+from functools import update_wrapper
 
 from nark import HamsterControl
 
@@ -50,6 +51,8 @@ class Controller(HamsterControl):
     """
     A custom controller that adds config handling on top of its regular functionality.
     """
+
+    POST_PROCESSORS = []
 
     def __init__(self):
         """Load backend and client configs, and instantiate controller."""
@@ -260,4 +263,16 @@ class Controller(HamsterControl):
                 verb=verb, url=highlight_value(self.store.get_db_url()),
             )
         )
+
+    @staticmethod
+    def post_processor(func):
+        Controller.POST_PROCESSORS.append(func)
+
+    @staticmethod
+    def _post_process(controller, fact):
+        for handler in Controller.POST_PROCESSORS:
+            handler(controller, fact)
+
+    def post_process(self, controller, fact):
+        Controller._post_process(controller, fact)
 

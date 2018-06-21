@@ -308,6 +308,7 @@ def stop_fact(controller):
         raise click.ClickException(message)
     else:
         echo_ongoing_completed(controller, fact, cancelled=False)
+        return fact
 
 
 # ***
@@ -330,6 +331,7 @@ def cancel_fact(controller, purge=False):
         raise click.ClickException(message)
     else:
         completed_msg = echo_ongoing_completed(controller, fact, cancelled=True)
+        return fact
 
 
 # ***

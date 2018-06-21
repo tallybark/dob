@@ -197,6 +197,7 @@ def import_facts(
         must_complete_times(controller, new_facts)
         must_not_conflict_existing(new_facts)
         prompt_and_save(new_facts, raw_facts, backup, file_out, rule, ask, yes, dry)
+        return new_facts
 
     # ***
 

@@ -38,6 +38,7 @@ __all__ = [
     'hydrate_category',
     'induct_newbies',
     'must_no_more_than_one_file',
+    'post_processor',
     # Private:
     # 'backend_integrity',
     # 'insist_germinated',
@@ -124,6 +125,19 @@ def induct_newbies(func):
     @backend_integrity
     def wrapper(*args, **kwargs):
         func(*args, **kwargs)
+
+    return update_wrapper(wrapper, func)
+
+
+# ***
+
+def post_processor(func):
+    """
+    """
+
+    def wrapper(controller, *args, **kwargs):
+        fact = func(controller, *args, **kwargs)
+        controller.post_process(controller, fact)
 
     return update_wrapper(wrapper, func)
 
