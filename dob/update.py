@@ -30,7 +30,8 @@ def edit_fact(controller, key):
     """"""
     def _edit_fact():
         old_fact = fact_from_key(key)
-        edit_old_fact(old_fact)
+        edited_fact = edit_old_fact(old_fact)
+        return edited_fact
 
     def fact_from_key(key):
         if not key:
@@ -62,7 +63,8 @@ def edit_fact(controller, key):
         time_hint = fact_time_hint(old_fact)
         new_fact = new_fact_from_factoid(raw_fact, old_fact, time_hint)
         echo_edited_fact(new_fact, old_fact)
-        confirm_and_save(new_fact, time_hint)
+        new_fact = confirm_and_save(new_fact, time_hint)
+        return new_fact
 
     def editor_interact(old_fact):
         # FIXME/2018-06-11: (lb): Be explicit about str fcn. being called.
@@ -106,9 +108,11 @@ def edit_fact(controller, key):
         #   next time I run the edit command and see it die horribly here.
         raise NotImplementedError
 
-        mend_facts_confirm_and_save_maybe(
+        new_fact = mend_facts_confirm_and_save_maybe(
             controller, new_fact, time_hint, yes=False, dry=False,
         )
 
-    _edit_fact()
+        return new_fact
+
+    return _edit_fact()
 

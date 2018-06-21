@@ -99,7 +99,12 @@ def add_fact(
     if ask:
         interrogate.ask_user_for_edits(controller, fact)
 
-    mend_facts_confirm_and_save_maybe(controller, fact, time_hint, yes, dry)
+    new_fact = mend_facts_confirm_and_save_maybe(
+        controller, fact, time_hint, yes, dry,
+    )
+
+    return new_fact
+
 
 # ***
 
@@ -119,11 +124,12 @@ def mend_facts_confirm_and_save_maybe(controller, fact, time_hint, yes, dry):
     # Ask user what to do about conflicts/edits.
     must_confirm_fact_edits(controller, conflicts, yes, dry)
 
-    save_facts_maybe(controller, fact, conflicts, dry)
+    new_fact = save_facts_maybe(controller, fact, conflicts, dry)
+
+    return new_fact
 
 
 # ***
-
 
 def must_create_fact_from_factoid(
     controller, factoid, time_hint, ask,
@@ -241,7 +247,8 @@ def save_facts_maybe(controller, fact, conflicts, dry):
             else:
                 click.echo(original.friendly_diff(edited_fact))
 
-        save_fact(controller, fact, dry)
+        new_fact = save_fact(controller, fact, dry)
+        return new_fact
 
     def echo_dry_run():
         click.echo()
@@ -254,15 +261,17 @@ def save_facts_maybe(controller, fact, conflicts, dry):
         if not dry:
             controller.client_logger.debug('{}: {}'.format(_('Save fact'), fact))
             try:
-                fact = controller.facts.save(fact)
+                new_fact = controller.facts.save(fact)
             except Exception as err:
                 dob_in_user_exit(str(err))
         else:
+            new_fact = fact
             echo_fact(fact)
+        return new_fact
 
     # ***
 
-    _save_facts_maybe(controller, fact, conflicts, dry)
+    return _save_facts_maybe(controller, fact, conflicts, dry)
 
 
 def echo_fact(fact):
