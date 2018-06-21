@@ -27,6 +27,7 @@ from datetime import datetime
 
 from . import __arg0name__, __author__, __author_email__, __BigName__
 from . import __version__ as dob_version
+from .helpers import click_echo
 
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
@@ -67,7 +68,7 @@ def echo_copyright():
     ]
     notice = gpl3_notice_2018
     for line in notice:
-        click.echo(line)
+        click_echo(line)
 
 
 def echo_license():
@@ -97,5 +98,5 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     if os.path.exists(license_path):
         with open(license_path, 'rb') as f:
             license_txt = f.read().decode('utf-8').strip()
-    click.echo(license_txt)
+    click_echo(license_txt)
 

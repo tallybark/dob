@@ -72,7 +72,6 @@ AppDirs = DobAppDirs('dob')
 # *** Config defaults.
 # ***
 
-
 # FIXME: (lb): Can we DRY this? nark duplicates a lot of this.
 #   See also/SYNC: nark.helpers.config_helpers.get_default_backend_config()
 class BackendDefaults(object):
@@ -217,7 +216,6 @@ def replenish_config():
 # ***
 # *** Config helper: get_separate_configs.
 # ***
-
 
 def get_separate_configs(config):
     """
@@ -468,10 +466,10 @@ def get_config_instance():
 
     return _get_config_instance()
 
+
 # ***
 # *** Config function: get_config_path.
 # ***
-
 
 def get_config_path():
     """Show general information upon client launch."""
@@ -483,7 +481,6 @@ def get_config_path():
 # ***
 # *** Config helper: fresh_config.
 # ***
-
 
 def fresh_config():
     """
@@ -538,7 +535,6 @@ def fresh_config():
 # ***
 # *** Config function: store_config.
 # ***
-
 
 def store_config(config, file_path):
     configfile_path = os.path.dirname(file_path)

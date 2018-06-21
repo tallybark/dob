@@ -28,6 +28,8 @@ from humanfriendly.tables import format_pretty_table
 
 from nark.helpers.colored import attr
 
+from . import click_echo
+
 __all__ = ['generate_table', 'warn_if_truncated']
 
 
@@ -124,7 +126,7 @@ def _generate_table_truncate_cell_values(rows, trunccol, max_width):
 
 def _generate_table_display(rows, plain_headers, color_headers, table_type):
     if table_type == 'tabulate':
-        click.echo(tabulate(rows, headers=color_headers, tablefmt="fancy_grid"))
+        click_echo(tabulate(rows, headers=color_headers, tablefmt="fancy_grid"))
     elif table_type == 'texttable':
         # PROS: Texttable wraps long lines by **default**!
         #       And within the same column!
@@ -139,11 +141,11 @@ def _generate_table_display(rows, plain_headers, color_headers, table_type):
         ttable.set_cols_align(["l", "r"])
         rows.insert(0, plain_headers)
         ttable.add_rows(rows)
-        click.echo(ttable.draw())
+        click_echo(ttable.draw())
     else:
         assert table_type == 'friendly'
         # Haha, humanfriendly colors the header text green by default.
-        click.echo(format_pretty_table(rows, color_headers))
+        click_echo(format_pretty_table(rows, color_headers))
 
 
 def warn_if_truncated(controller, n_results, n_rows):

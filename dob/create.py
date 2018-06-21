@@ -30,7 +30,7 @@ from nark.helpers.parsing import ParserException
 
 from . import __appname__
 from . import interrogate
-from .helpers import dob_in_user_exit
+from .helpers import click_echo, dob_in_user_exit
 
 __all__ = [
     'add_fact',
@@ -369,7 +369,7 @@ def cancel_fact(controller, purge=False):
         raise click.ClickException(message)
     else:
         message = _("Tracking canceled.")
-        click.echo(message)
+        click_echo(message)
         controller.client_logger.debug(message)
 
 
@@ -390,7 +390,7 @@ def echo_ongoing_completed(controller, fact):
         return width_avail
 
     def echo_fact(leader, colorful, cut_width):
-        click.echo(
+        click_echo(
             leader +
             fact.friendly_str(
                 shellify=False,

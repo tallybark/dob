@@ -56,6 +56,7 @@ from .complete import tab_complete
 from .copyright import echo_copyright, echo_license
 from .create import add_fact, cancel_fact, stop_fact
 from .details import echo_app_details, echo_app_environs, echo_data_stats
+from .helpers import click_echo
 from .migrate import upgrade_legacy_database_file
 from .run_cli import disable_logging, dob_versions, pass_controller, run
 from .transcode import export_facts, import_facts
@@ -109,7 +110,7 @@ __all__ = [
 @click.pass_context
 def help(ctx):
     """Show help."""
-    click.echo(run.get_help(ctx))
+    click_echo(run.get_help(ctx))
 
 
 # ***
@@ -124,7 +125,7 @@ def version():
 
 def _version():
     """Show version information."""
-    click.echo(dob_versions())
+    click_echo(dob_versions())
 
 
 # ***
@@ -250,14 +251,14 @@ def store_create(controller, force):
 @pass_controller
 def store_path(controller):
     """"""
-    click.echo(controller.sqlite_db_path)
+    click_echo(controller.sqlite_db_path)
 
 
 @store_group.command('url', help=help_strings.STORE_URL_HELP)
 @pass_controller
 def store_url(controller):
     """"""
-    click.echo(controller.data_store_url)
+    click_echo(controller.data_store_url)
 
 
 @store_group.command('upgrade-legacy', help=help_strings.STORE_UPGRADE_LEGACY_HELP)
@@ -680,7 +681,7 @@ def transcode_import(controller, filename, output, force, *args, **kwargs):
 
     if output and not force and os.path.exists(output.name):
         msg = _('Outfile already exists at: {}'.format(output.name))
-        click.echo(msg)
+        click_echo(msg)
         sys.exit(1)
 
     import_facts(controller, *args, file_in=file_in, file_out=output, **kwargs)
@@ -714,7 +715,7 @@ def complete(controller):
 def migrate_group(ctx, controller):
     """Base `migrate` group command run prior to any of the dob-migrate commands."""
     if not ctx.invoked_subcommand:
-        click.echo(ctx.get_help())
+        click_echo(ctx.get_help())
 
 
 @migrate_group.command('control', help=help_strings.MIGRATE_CONTROL_HELP)

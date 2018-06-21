@@ -26,7 +26,7 @@ from nark.helpers.colored import colorize
 
 from .. import __arg0name__
 from ..cmd_common import error_exit_no_results, hydrate_activity, hydrate_category
-from ..helpers import dob_in_user_exit
+from ..helpers import click_echo, dob_in_user_exit
 from ..helpers.ascii_table import generate_table, warn_if_truncated
 
 __all__ = [
@@ -61,7 +61,7 @@ def list_current_fact(controller):
         dob_in_user_exit(str(err))
     else:
         colorful = controller.client_config['term_color']
-        click.echo(
+        click_echo(
             fact.friendly_str(
                 shellify=False,
                 description_sep=': ',
@@ -127,10 +127,10 @@ def list_facts(
         cut_width = output_truncate_at()
         for fact in results:
             output_fact_block(fact, colorful, cut_width)
-            click.echo()
+            click_echo()
             if sep_width:
-                click.echo(colorize(rule * sep_width, 'indian_red_1c'))
-                click.echo()
+                click_echo(colorize(rule * sep_width, 'indian_red_1c'))
+                click_echo()
 
     def output_rule_width():
         if not rule:
@@ -143,7 +143,7 @@ def list_facts(
         return click.get_terminal_size()[0]
 
     def output_fact_block(fact, colorful, cut_width):
-        click.echo(
+        click_echo(
             fact.friendly_str(
                 shellify=False,
                 description_sep='\n\n',
