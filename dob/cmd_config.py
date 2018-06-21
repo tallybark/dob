@@ -19,7 +19,6 @@ from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
-import appdirs
 import click
 import datetime
 import logging
@@ -570,8 +569,10 @@ def get_appdirs_subdir_file_path(
     AppDirs._ensure_directory_exists(subdir_path)
     full_path = os.path.join(subdir_path, basename_fmt.format(file_basename))
     if os.path.exists(full_path) and not os.path.isfile(full_path):
-        msg = '{} At:\n  {}'.format(
-            'UNEXPECTED: target path exists but not a file!',
+        msg = _(
+            '{} At:\n  {}'
+        ).format(
+            _('UNEXPECTED: target path exists but not a file!'),
             full_path,
         )
         dob_in_user_warning(msg)
