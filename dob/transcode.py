@@ -27,18 +27,10 @@ import os
 import re
 import sys
 import traceback
-from datetime import datetime, timedelta
 from io import open
-from six import text_type
 
 from nark import Fact, reports
 from nark.helpers.colored import fg, bg, attr
-from nark.helpers.dated import (
-    datetime_from_clock_after,
-    datetime_from_clock_prior,
-    parse_clock_time,
-    parse_relative_minutes,
-)
 from nark.helpers.parsing import parse_factoid
 
 from . import __appname__
@@ -50,8 +42,14 @@ from .cmd_common import (
 )
 from .cmd_config import get_appdirs_subdir_file_path, AppDirs
 from .cmds_list.fact import search_facts
-from .create import echo_fact, mend_facts_times, save_facts_maybe
-from .helpers import click_echo, dob_in_user_exit, highlight_value
+from .create import echo_fact, save_facts_maybe
+from .helpers import (
+    click_echo,
+    dob_in_user_exit,
+    highlight_value,
+    prepare_log_msg
+)
+from .helpers.fix_times import mend_facts_times, must_complete_times
 from .traverser.facts_carousel import FactsCarousel
 
 __all__ = ['export_facts', 'import_facts']
@@ -194,7 +192,7 @@ def import_facts(
         new_facts, hydrate_errs = hydrate_facts(unprocessed_facts)
         must_hydrated_all_facts(hydrate_errs)
         raw_facts = copy.deepcopy(new_facts)
-        must_complete_times(new_facts)
+        must_complete_times(controller, new_facts)
         must_not_conflict_existing(new_facts)
         prompt_and_save(new_facts, raw_facts, backup, file_out, rule, ask, yes, dry)
 
@@ -489,33 +487,6 @@ def import_facts(
             prepare_log_msg(display_dict, fact_warnings)
         )
 
-    def prepare_log_msg(fact_or_dict, msg_content):
-        try:
-            line_num = fact_or_dict['line_num']
-            raw_meta = fact_or_dict['raw_meta']
-        except TypeError:
-            line_num = fact_or_dict.ephemeral['line_num']
-            raw_meta = fact_or_dict.ephemeral['raw_meta']
-        # NOTE: Using colors overrides logger's coloring, which is great!
-        return _(
-            '{}At line: {}{} / {}\n  {}“{}”{}\n  {}{}{}'
-            .format(
-                attr('bold'),
-                line_num,
-                attr('reset'),
-
-                msg_content,
-
-                fg('hot_pink_2'),
-                raw_meta.strip(),
-                attr('reset'),
-
-                fg('grey_78'),
-                fact_or_dict,
-                attr('reset'),
-            )
-        )
-
     # Horizontal rule separator matches same character repeated at least thrice.
     # FIXME/2018-05-18: (lb): Document: HR is any repeated one of -, =, #, |.
     FACT_SEP_HR = re.compile(r'^([-=#|])\1{2}\1*$')
@@ -587,366 +558,6 @@ def import_facts(
             'Please fix your import data and try again.'
             ' See log output for details.'
         ))
-        barf_and_exit(msg)
-
-    # ***
-
-    def must_complete_times(new_facts):
-        if not new_facts:
-            return
-
-        conflicts = []
-
-        ante_fact = antecedent_fact(new_facts)
-        seqt_fact = subsequent_fact(new_facts)
-
-        # Clean up relative clock times first.
-        fix_clock_times_relative(new_facts, ante_fact, seqt_fact, conflicts)
-
-        # Clean up relative minutes times next.
-        fix_delta_times_relative(new_facts, ante_fact, seqt_fact, conflicts)
-
-        # Finally, fill in any blanks (with adjacent times).
-        fix_blank_times_relative(new_facts, ante_fact, seqt_fact, conflicts)
-
-        # One final start < end < start ... check.
-        verify_datetimes_sanity(new_facts, ante_fact, seqt_fact, conflicts)
-
-        barf_on_overlapping_facts_new(conflicts)
-
-    # ...
-
-    def antecedent_fact(new_facts):
-        for fact in new_facts:
-            if fact.start and isinstance(fact.start, datetime):
-                return controller.facts.antecedent(ref_time=fact.start)
-            elif fact.end and isinstance(fact.end, datetime):
-                return controller.facts.antecedent(ref_time=fact.end)
-        return None
-
-    def subsequent_fact(new_facts):
-        for fact in reversed(new_facts):
-            if fact.end and isinstance(fact.end, datetime):
-                return controller.facts.subsequent(ref_time=fact.end)
-            elif fact.start and isinstance(fact.start, datetime):
-                return controller.facts.subsequent(ref_time=fact.start)
-        return None
-
-    def prev_and_later(new_facts, ante_fact, seqt_fact):
-        prev_time = None
-        if ante_fact:
-            if not ante_fact.end:
-                assert False  # Caught earlier by backend_integrity().
-                raise Exception(_(
-                    'Found saved fact without end time: {}'.format(ante_fact)
-                ))
-            isinstance(ante_fact.end, datetime)
-            prev_time = ante_fact.end
-
-        later_facts = new_facts[0:]
-        if seqt_fact:
-            if not seqt_fact.start:
-                assert False  # Caught earlier by: backend_integrity().
-                raise Exception(_(
-                    'Found saved fact without start time: {}'.format(seqt_fact)
-                ))
-            assert isinstance(seqt_fact.start, datetime)
-            later_facts += [seqt_fact]
-
-        return prev_time, later_facts
-
-    def find_next_datetime(later_facts):
-        for fact in later_facts:
-            if isinstance(fact.start, datetime):
-                return fact.start, fact
-            if isinstance(fact.end, datetime):
-                return fact.end, fact
-        return None, None
-
-    # ...
-
-    def fix_clock_times_relative(new_facts, ante_fact, seqt_fact, conflicts):
-        click_echo_current_task(_('Fixing relative times...'))
-        prev_time, later_facts = prev_and_later(new_facts, ante_fact, seqt_fact)
-        for fact in new_facts:
-            assert fact is later_facts[0]
-            later_facts.pop(0)
-            prev_time = fix_clock_time_relative(
-                fact, 'start', prev_time, later_facts, conflicts
-            )
-            prev_time = fix_clock_time_relative(
-                fact, 'end', prev_time, later_facts, conflicts
-            )
-
-    def fix_clock_time_relative(fact, which, prev_time, later_facts, conflicts):
-        dt_fact = getattr(fact, which)
-        if dt_fact is not None:
-            if isinstance(dt_fact, datetime):
-                prev_time = dt_fact
-            else:
-                assert isinstance(dt_fact, text_type)
-                clock_time = parse_clock_time(dt_fact)
-                if clock_time is not None:
-                    prev_time = infer_datetime_from_clock(
-                        clock_time, fact, which, prev_time, later_facts, conflicts
-                    )
-        return prev_time
-
-    def infer_datetime_from_clock(
-        clock_time, fact, which, prev_time, later_facts, conflicts,
-    ):
-        dt_suss = None
-
-        at_oppo = 'end' if which == 'start' else 'start'
-        dt_oppo = getattr(fact, at_oppo)
-        if isinstance(dt_oppo, datetime):
-            # Prefer relative to fact's other time.
-            if which == 'start':
-                dt_suss, err = infer_from_clock_prior(fact, dt_oppo, clock_time)
-            else:
-                dt_suss, err = infer_from_clock_after(fact, dt_oppo, clock_time)
-        elif prev_time is not None:
-            # If fact's other time not set, prefer earlier clock time.
-            dt_suss, err = infer_from_clock_after(fact, prev_time, clock_time)
-        else:
-            # Last resort: go hunting for the next actual, factual real datetime.
-            # FIXME/2018-05-21 12:17: (lb): Will this ever happen?
-            #   Probably only if antecedent_fact not found??
-            next_time, _next_fact = find_next_datetime(later_facts)
-            if next_time is not None:
-                dt_suss, err = infer_from_clock_prior(fact, next_time, clock_time)
-
-        if dt_suss is not None:
-            assert err is None
-            setattr(fact, which, dt_suss)
-            prev_time = dt_suss
-        else:
-            msg_content = _(
-                'Could not decipher clock time from {} for {}'
-            ).format(clock_time, which)
-            conflict_msg = prepare_log_msg(fact, msg_content)
-            conflicts.append((fact, None, conflict_msg, ))
-        return prev_time
-
-    def infer_from_clock_prior(fact, dt_oppo, clock_time):
-        dt_suss = None
-        err_msg = None
-        try:
-            dt_suss = datetime_from_clock_prior(dt_oppo, clock_time)
-        except Exception as err:
-            err_msg = str(err)
-        return dt_suss, err_msg
-
-    def infer_from_clock_after(fact, dt_oppo, clock_time):
-        dt_suss = None
-        err_msg = None
-        try:
-            dt_suss = datetime_from_clock_after(dt_oppo, clock_time)
-        except Exception as err:
-            err_msg = str(err)
-        return dt_suss, err_msg
-
-    # ...
-
-    def fix_delta_times_relative(new_facts, ante_fact, seqt_fact, conflicts):
-        click_echo_current_task(_('Fixing relative deltas...'))
-        prev_time, later_facts = prev_and_later(new_facts, ante_fact, seqt_fact)
-        for fact in new_facts:
-            assert fact is later_facts[0]
-            later_facts.pop(0)
-            prev_time = fix_delta_time_relative(
-                fact, 'start', prev_time, later_facts, conflicts
-            )
-            prev_time = fix_delta_time_relative(
-                fact, 'end', prev_time, later_facts, conflicts
-            )
-
-    def fix_delta_time_relative(fact, which, prev_time, later_facts, conflicts):
-        dt_fact = getattr(fact, which)
-        if dt_fact is not None:
-            if isinstance(dt_fact, datetime):
-                prev_time = dt_fact
-            else:
-                assert isinstance(dt_fact, text_type)
-                delta_mins = parse_relative_minutes(dt_fact)
-                if delta_mins is not None:
-                    prev_time = infer_datetime_from_delta(
-                        delta_mins, fact, which, prev_time, later_facts, conflicts
-                    )
-        return prev_time
-
-    def infer_datetime_from_delta(
-        delta_mins, fact, which, prev_time, later_facts, conflicts,
-    ):
-        # If -delta, relative to *next* time; if +delta, relative to *prev* time.
-        dt_suss = None
-        # FIXME/MAYBE/2018-05-21 12:51: (lb): Should we only accept prev_time
-        #                               or next_time if immediately before/after?
-        if delta_mins >= 0:
-            if prev_time is not None:
-                dt_suss = prev_time + timedelta(minutes=delta_mins)
-            # else, we'll add a conflict below.
-        elif which == 'start' and isinstance(fact.end, datetime):
-            # NOTE: delta_mins < 0, so add the delta (to subtract it).
-            dt_suss = fact.end + timedelta(minutes=delta_mins)
-        else:
-            next_time, _next_fact = find_next_datetime(later_facts)
-            if next_time is not None:
-                # NOTE: delta_mins is negative, so add to next_time.
-                dt_suss = next_time + timedelta(minutes=delta_mins)
-
-        if dt_suss is not None:
-            setattr(fact, which, dt_suss)
-            prev_time = dt_suss
-        else:
-            msg_content = _(
-                'Could not infer delta time “{}” for {}'
-            ).format(delta_mins, which)
-            conflict_msg = prepare_log_msg(fact, msg_content)
-            conflicts.append((fact, None, conflict_msg, ))
-        return prev_time
-
-    # ...
-
-    def fix_blank_times_relative(new_facts, ante_fact, seqt_fact, conflicts):
-        click_echo_current_task(_('Fixing blank times...'))
-        prev_time, later_facts = prev_and_later(new_facts, ante_fact, seqt_fact)
-        for fact in new_facts:
-            assert fact is later_facts[0]
-            later_facts.pop(0)
-            assert fact.start or fact.end
-            prev_time = fix_blank_time_relative(
-                fact, 'start', prev_time, later_facts, conflicts
-            )
-            prev_time = fix_blank_time_relative(
-                fact, 'end', prev_time, later_facts, conflicts
-            )
-
-    def fix_blank_time_relative(fact, which, prev_time, later_facts, conflicts):
-        dt_fact = getattr(fact, which)
-        if isinstance(dt_fact, datetime):
-            prev_time = dt_fact
-        elif dt_fact:
-            msg_content = _(
-                'Could not translate relative date “{}” for {}'
-            ).format(dt_fact, which)
-            conflict_msg = prepare_log_msg(fact, msg_content)
-            conflicts.append((fact, None, conflict_msg, ))
-        else:
-            dt_suss = None
-
-            if which == 'start':
-                dt_suss = prev_time
-            elif which == 'end':
-                dt_suss, _next_fact = find_next_datetime(later_facts)
-                if dt_suss is None:
-                    dt_suss = controller.store.now
-
-            if dt_suss is not None:
-                setattr(fact, which, dt_suss)
-                prev_time = dt_suss
-            else:
-                msg_content = _(
-                    'Could not infer date left blank for {}'
-                ).format(which)
-                conflict_msg = prepare_log_msg(fact, msg_content)
-                conflicts.append((fact, None, conflict_msg, ))
-
-        return prev_time
-
-    # ...
-
-    def verify_datetimes_sanity(new_facts, ante_fact, seqt_fact, conflicts):
-        click_echo_current_task(_('Verifying sanity times...'))
-        prev_time, later_facts = prev_and_later(new_facts, ante_fact, seqt_fact)
-        prev_fact = ante_fact
-        for fact in new_facts:
-            assert fact is later_facts[0]
-            later_facts.pop(0)
-            n_datetimes = 0
-
-            if not fact.start:
-                # Rather than adding it again, e.g.,
-                #   conflicts.append((
-                #     fact, None, _('Could not determine start of new fact')))
-                # just verify we already caught it.
-                verify_datetimes_missing_already_caught(fact, conflicts)
-            elif isinstance(fact.start, datetime):
-                if prev_time and fact.start < prev_time:
-                    msg_content = _('New fact starts before previous fact ends')
-                    conflict_msg = prepare_log_msg(fact, msg_content)
-                    conflicts.append((fact, prev_fact, conflict_msg, ))
-                prev_time = fact.start
-                n_datetimes += 1
-            # else, a string that was unparsed; and conflict already added.
-
-            if not fact.end:
-                verify_datetimes_missing_already_caught(fact, conflicts)
-            elif isinstance(fact.end, datetime):
-                next_time, next_fact = find_next_datetime(later_facts)
-                if next_time and fact.end > next_time:
-                    msg_content = _('New fact ends after next fact starts')
-                    conflict_msg = prepare_log_msg(fact, msg_content)
-                    conflicts.append((fact, next_fact, conflict_msg, ))
-                prev_time = fact.end
-                n_datetimes += 1
-            # else, a string that was unparsed; and conflict already added.
-
-            if n_datetimes == 2 and fact.start > fact.end:
-                msg_content = _('New fact starts after it ends/ends before it starts')
-                conflict_msg = prepare_log_msg(fact, msg_content)
-                conflicts.append((fact, None, conflict_msg, ))
-
-            prev_fact = fact
-
-    def verify_datetimes_missing_already_caught(fact, conflicts):
-        found_it = list(filter(lambda conflict: fact is conflict[0], conflicts))
-        assert len(found_it) > 0
-
-    # ...
-
-    def barf_on_overlapping_facts_new(conflicts):
-        if not conflicts:
-            return
-
-        colorful = controller.client_config['term_color']
-
-        for fact, other, reason in conflicts:
-            # other might be None, another new Fact, or ante_fact or seqt_fact.
-            if other and other.pk:
-                prefix = 'Saved'
-                other_pk = '#{}: '.format(other.pk)
-            else:
-                prefix = 'New'
-                other_pk = ''
-            echo_block_header(
-                _('{} Fact Datetime Conflict!'.format(prefix)),
-                full_width=True,
-            )
-            click_echo()
-            click_echo(fact.friendly_diff(fact, truncate=True))
-            click_echo()
-            click_echo('{}: {}{}{}'.format(
-                _('Problem'),
-                fg('dodger_blue_1'),
-                reason,
-                attr('reset'),
-            ))
-            if other:
-                # FIXME/2018-06-12: (lb): Subtract edges; this is too much.
-                cut_width = click.get_terminal_size()[0]
-
-                click_echo('{}: {}{}'.format(
-                    _('Compare',),
-                    other_pk,
-                    other.friendly_str(colorful=colorful, cut_width=cut_width),
-                ))
-            click_echo()
-        msg = _(
-            'Could not determine, or did not validate, start and/or stop'
-            ' for one or more new Facts.'
-            '\nScroll up for details.'
-        )
         barf_and_exit(msg)
 
     # ***

@@ -31,13 +31,13 @@ from nark.helpers.parsing import ParserException
 from . import __appname__
 from . import interrogate
 from .helpers import click_echo, dob_in_user_exit
+from .helpers.fix_times import mend_facts_times, must_complete_times
 
 __all__ = [
     'add_fact',
     'stop_fact',
     'cancel_fact',
     'mend_facts_confirm_and_save_maybe',
-    'mend_facts_times',
     'save_facts_maybe',
     # Private:
     #   'must_confirm_fact_edits',
@@ -101,8 +101,16 @@ def add_fact(
 
     mend_facts_confirm_and_save_maybe(controller, fact, time_hint, yes, dry)
 
+# ***
 
 def mend_facts_confirm_and_save_maybe(controller, fact, time_hint, yes, dry):
+    old_end = fact.end
+    if fact.end is None:
+        fact.end = controller.now
+    new_facts = [fact,]
+    must_complete_times(controller, new_facts, ongoing_okay=True)
+    fact.end = old_end
+
     # Fill in the start and, or, end times, maybe.
     # Possibly correct the times of 2 other Facts!
     # Or die if too many Facts are abound tonight.
@@ -160,58 +168,6 @@ def must_create_fact_from_factoid(
 
 
 # ***
-
-
-# MAYBE/2018-06-09: (lb): Need to move any of this to LIB for other packages to use?
-def mend_facts_times(controller, fact, time_hint):
-    """"""
-
-    def _mend_facts_times(controller, fact, time_hint):
-        # The fact is considered "temporary", or open, if the user did not
-        # specify an end time, and if there's no Fact following the new Fact.
-        leave_open = new_fact_fill_now(fact, time_hint, controller.now)
-        conflicts = controller.facts.insert_forcefully(fact)
-
-        # Note that end may be None for ongoing Fact.
-        # Verify that start > end, if neither are None.
-        time_helpers.validate_start_end_range((fact.start, fact.end))
-
-        if leave_open:
-            fact.end = None
-
-        return conflicts
-
-    def new_fact_fill_now(fact, time_hint, now):
-        # We might temporarily set the end time to look for overlapping
-        # facts, so remember if we need to leave the fact open.
-        leave_open = False
-
-        if (time_hint == 'verify_none'):
-            assert not fact.start
-            assert not fact.end
-            fact.start = now
-            leave_open = True
-        elif (time_hint == 'verify_both'):
-            assert fact.start and fact.end
-        elif (time_hint == 'verify_start'):
-            assert not fact.end
-            leave_open = True
-            if not fact.start:
-                fact.start = now
-        elif (time_hint == 'verify_end'):
-            assert not fact.start
-            if not fact.end:
-                fact.end = now
-
-        return leave_open
-
-    # ***
-
-    return _mend_facts_times(controller, fact, time_hint)
-
-
-# ***
-
 
 def must_confirm_fact_edits(controller, conflicts, yes, dry):
     """"""
@@ -271,7 +227,6 @@ def must_confirm_fact_edits(controller, conflicts, yes, dry):
 
 # ***
 
-
 def save_facts_maybe(controller, fact, conflicts, dry):
     """"""
 
@@ -325,7 +280,6 @@ def echo_fact(fact):
 
 # ***
 
-
 def stop_fact(controller):
     """
     Stop current 'ongoing fact' and save it to the backend.
@@ -350,7 +304,6 @@ def stop_fact(controller):
 
 # ***
 
-
 def cancel_fact(controller, purge=False):
     """
     Cancel current fact, either marking it deleted, or really removing it.
@@ -374,7 +327,6 @@ def cancel_fact(controller, purge=False):
 
 
 # ***
-
 
 def echo_ongoing_completed(controller, fact):
     """"""
