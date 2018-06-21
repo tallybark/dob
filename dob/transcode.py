@@ -145,21 +145,20 @@ def export_facts(
     def export_formatted(facts, filepath, to_format):
         if to_format == 'csv':
             writer = reports.CSVWriter(filepath)
-            writer.write_report(facts)
-            click_echo(_("Facts have been exported to: {path}".format(path=filepath)))
         elif to_format == 'tsv':
             writer = reports.TSVWriter(filepath)
-            writer.write_report(facts)
-            click_echo(_("Facts have been exported to: {path}".format(path=filepath)))
         elif to_format == 'ical':
             writer = reports.ICALWriter(filepath)
-            writer.write_report(facts)
-            click_echo(_("Facts have been exported to: {path}".format(path=filepath)))
         else:
             assert to_format == 'xml'
             writer = reports.XMLWriter(filepath)
-            writer.write_report(facts)
-            click_echo(_("Facts have been exported to: {path}".format(path=filepath)))
+        writer.write_report(facts)
+        click_echo(_(
+            "{n_facts} Facts were exported to {path}"
+            ).format(
+                n_facts=highlight_value(len(facts)),
+                path=highlight_value(filepath),
+            ))
 
     # ***
 
