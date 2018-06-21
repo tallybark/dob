@@ -104,6 +104,7 @@ def echo_app_details(controller, full=False):
             click_echo('AppDirs.{}: {}'.format(prop, highlight_value(path)))
 
 
+
 def echo_app_environs(controller):
     """List details about runtime in source'able name=value format."""
     environs = {}

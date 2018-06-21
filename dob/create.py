@@ -24,7 +24,6 @@ import json
 from inflector import Inflector, English
 
 from nark import Fact
-from nark.helpers import time as time_helpers
 from nark.helpers.colored import fg, attr
 from nark.helpers.parsing import ParserException
 
@@ -112,7 +111,7 @@ def mend_facts_confirm_and_save_maybe(controller, fact, time_hint, yes, dry):
     old_end = fact.end
     if fact.end is None:
         fact.end = controller.now
-    new_facts = [fact,]
+    new_facts = [fact, ]
     must_complete_times(controller, new_facts, ongoing_okay=True)
     fact.end = old_end
 
