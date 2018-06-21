@@ -21,6 +21,7 @@ from gettext import gettext as _
 
 import click
 import sys
+from functools import update_wrapper
 
 from nark.helpers.colored import fg, attr, colorize
 
@@ -124,7 +125,7 @@ def induct_newbies(func):
     def wrapper(*args, **kwargs):
         func(*args, **kwargs)
 
-    return wrapper
+    return update_wrapper(wrapper, func)
 
 
 # ***
