@@ -19,6 +19,8 @@
 
 from __future__ import absolute_import, unicode_literals
 
+from gettext import gettext as _
+
 import click
 import sys
 
@@ -28,6 +30,7 @@ __all__ = [
     'dob_in_user_exit',
     'dob_in_user_warning',
     'highlight_value',
+    'prepare_log_msg',
 ]
 
 
@@ -50,4 +53,38 @@ def dob_in_user_warning(msg):
 def highlight_value(msg):
     highlight_color = 'medium_spring_green'
     return '{}{}{}'.format(fg(highlight_color), msg, attr('reset'))
+
+
+# ***
+
+def prepare_log_msg(fact_or_dict, msg_content):
+    try:
+        line_num = fact_or_dict['line_num']
+        raw_meta = fact_or_dict['raw_meta']
+    except TypeError:
+        try:
+            line_num = fact_or_dict.ephemeral['line_num']
+            raw_meta = fact_or_dict.ephemeral['raw_meta']
+        except Exception:
+            line_num = 0
+            raw_meta = ''
+    # NOTE: Using colors overrides logger's coloring, which is great!
+    return _(
+        '{}At line: {}{} / {}\n  {}“{}”{}\n  {}{}{}'
+        .format(
+            attr('bold'),
+            line_num,
+            attr('reset'),
+
+            msg_content,
+
+            fg('hot_pink_2'),
+            raw_meta.strip(),
+            attr('reset'),
+
+            fg('grey_78'),
+            fact_or_dict,
+            attr('reset'),
+        )
+    )
 
