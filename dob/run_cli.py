@@ -124,7 +124,8 @@ def run(ctx, controller, v, verbose, verboser, color):
     def _setup_tty_options(controller):
         # If piping output, Disable color and paging.
         # MAYBE: (lb): What about allowing color for outputting to ANSI file? Meh.
-        if not sys.stdout.isatty():
+        use_color = color
+        if use_color is None and not sys.stdout.isatty():
             controller.client_config['term_paging'] = False
             controller.client_config['term_color'] = False
         _setup_tty_paging(controller)
