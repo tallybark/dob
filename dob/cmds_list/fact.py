@@ -26,7 +26,7 @@ from nark.helpers.colored import colorize
 
 from .. import __arg0name__
 from ..cmd_common import error_exit_no_results, hydrate_activity, hydrate_category
-from ..helpers import click_echo, dob_in_user_exit
+from ..helpers import click_echo, dob_in_user_exit, dob_in_user_warning
 from ..helpers.ascii_table import generate_table, warn_if_truncated
 
 __all__ = [
@@ -34,6 +34,7 @@ __all__ = [
     'list_current_fact',
     'list_facts',
     'search_facts',
+    'find_latest_fact',
 ]
 
 
@@ -311,4 +312,19 @@ def generate_facts_table(controller, facts, show_duration=True, include_usage=Fa
         )
 
     return (table, header)
+
+
+def find_latest_fact(controller):
+    fact = None
+    try:
+        fact = controller.facts.get_current_fact()
+    except KeyError:
+        results = controller.facts.get_all(order='desc', limit=1)
+        if len(results) > 0:
+            assert len(results) == 1
+            fact, = results
+    except Exception as err:
+        # (lb): Unexpected! This could mean more than one ongoing Fact found!
+        dob_in_user_warning(str(err))
+    return fact
 
