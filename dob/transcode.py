@@ -726,7 +726,8 @@ def prompt_and_save(
                 task_descrip, term_width, dot_count, fact_sep,
             )
 
-            fact.pk = None  # So FactManager._add is called, not FactManager._update.
+            if fact.pk < 0:
+                fact.pk = None  # So FactManager._add is called, not _update.
             persist_fact(fact, idx, file_out, dry)
 
         progress.click_echo_current_task('')
