@@ -788,6 +788,8 @@ def prompt_and_save(
     # ***
 
     def celebrate(new_facts):
+        if not new_facts:
+            return
         click_echo('{}{}{}! {}'.format(
             attr('underlined'),
             _('Voilà'),
