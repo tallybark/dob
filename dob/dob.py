@@ -62,7 +62,7 @@ from .complete import tab_complete
 from .copyright import echo_copyright, echo_license
 from .create import add_fact, cancel_fact, stop_fact
 from .details import echo_app_details, echo_app_environs, echo_data_stats
-from .helpers import click_echo
+from .helpers import click_echo, dob_in_user_warning
 from .migrate import upgrade_legacy_database_file
 from .run_cli import disable_logging, dob_versions, pass_controller, run
 from .transcode import export_facts, import_facts
@@ -669,6 +669,17 @@ def cmd_export_opt_output_default(controller):
     default=cmd_export_opt_output_default,
     show_default=True,
 )
+@click.option(
+    '-f', '--format',
+    type=click.Choice(CMD_EXPORT_OPT_FORMAT_CHOICES),
+    help=_('Output format.'),
+    default=CMD_EXPORT_OPT_FORMAT_DEFAULT,
+    show_default=True,
+)
+@click.option('--csv', is_flag=True, help=_('Alias for `--format csv`'))
+@click.option('--tsv', is_flag=True, help=_('Alias for `--format tsv`'))
+@click.option('--xml', is_flag=True, help=_('Alias for `--format xml`'))
+@click.option('--ical', is_flag=True, help=_('Alias for `--format ical`'))
 @cmd_options_search
 @cmd_options_limit_offset
 @cmd_options_list_activitied
@@ -679,17 +690,36 @@ def transcode_export(
     controller, *args, output, format, **kwargs
 ):
     """Export all facts of within a given timewindow to a file of specified format."""
-    activity = cmd_options.postprocess_options_list_activitied(kwargs)
-    category = cmd_options.postprocess_options_list_categoried(kwargs)
-    export_facts(
-        controller,
-        *args,
-        to_format=format,
-        filter_activity=activity,
-        filter_category=category,
-        **kwargs
-    )
+    def _transcode_export():
+        activity = cmd_options.postprocess_options_list_activitied(kwargs)
+        category = cmd_options.postprocess_options_list_categoried(kwargs)
+        export_facts(
+            controller,
+            *args,
+            to_format=consolidate_format_options(),
+            file_out=output,
+            filter_activity=activity,
+            filter_category=category,
+            **kwargs
+        )
 
+    def consolidate_format_options():
+        chosen_fmt = format
+        fmts_specified = []
+        if chosen_fmt != CMD_EXPORT_OPT_FORMAT_DEFAULT:
+            fmts_specified = [chosen_fmt,]
+        for switch in CMD_EXPORT_OPT_FORMAT_CHOICES:
+            if kwargs[switch]:
+                chosen_fmt = switch
+                fmts_specified.append(switch)
+            del kwargs[switch]
+        if len(fmts_specified) > 1:
+            dob_in_user_warning(_(
+                'More than one format specified: {}'
+            ).format(fmts_specified))
+        return chosen_fmt
+
+    _transcode_export()
 
 # ***
 # *** [IMPORT] Command.

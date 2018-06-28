@@ -58,10 +58,10 @@ __all__ = ['export_facts', 'import_facts']
 
 def export_facts(
     controller,
-    to_format,
-    since,
-    until,
-    filename=None,
+    to_format='csv',
+    file_out=None,
+    since=None,
+    until=None,
     deleted=False,
     hidden=False,
     key=None,
@@ -93,7 +93,7 @@ def export_facts(
 
         since, until = resolve_since_until(since, until)
 
-        filepath = resolve_filepath(filename, to_format)
+        filepath = resolve_filepath(file_out, to_format)
 
         activity = hydrate_activity(controller, filter_activity)
         category = hydrate_category(controller, filter_category)
@@ -111,7 +111,7 @@ def export_facts(
             sort_order=sort_order,
             limit=limit,
             offset=offset,
-            # **kwarg
+            # **kwargs
         )
 
         export_formatted(facts, filepath, to_format)
@@ -133,15 +133,19 @@ def export_facts(
             until = None
         return since, until
 
-    def resolve_filepath(filename, to_format):
-        if filename:
-            filepath = filename
+    def resolve_filepath(file_out, to_format):
+        if file_out:
+            filepath = file_out.format(format=to_format)
         else:
-            filepath = controller.client_config['export_path']
-            filepath = filepath + '.' + to_format
+            filepath = ''  # Tell ReportWriter to use sys.stdout.
         return filepath
 
     def export_formatted(facts, filepath, to_format):
+        writer = fetch_export_writer(filepath, to_format)
+        writer.write_report(facts)
+        writer_report_path(filepath, facts)
+
+    def fetch_export_writer(filepath, to_format):
         if to_format == 'csv':
             writer = reports.CSVWriter(filepath)
         elif to_format == 'tsv':
@@ -151,7 +155,15 @@ def export_facts(
         else:
             assert to_format == 'xml'
             writer = reports.XMLWriter(filepath)
-        writer.write_report(facts)
+        return writer
+
+    def writer_report_path(filepath, facts):
+        if file_out == filepath:
+            # If supplied filename is same as filepath, no need to
+            # tell user. Otherwise, filepath was formed from, e.g.,
+            # "export.{format}", so spit out formatted filename.
+            return
+
         click_echo(_(
             "{n_facts} Facts were exported to {path}"
         ).format(
@@ -180,7 +192,7 @@ def import_facts(
     """
     Import Facts from STDIN or a file.
     """
-    progress = CrudeProgress()
+    progress = CrudeProgress(enabled=True)
 
     # MAYBE/2018-05-16 00:11: (lb): Parse whole file before prompting.
     #                               Allow --yes to work here, too?
