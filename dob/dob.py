@@ -629,12 +629,18 @@ def between(controller, *args, **kwargs):
 # *** [EDIT] Command(s).
 # ***
 
-@run.group('edit', help=help_strings.EDIT_GROUP_HELP)
+@run.group('edit', help=help_strings.EDIT_GROUP_HELP, invoke_without_command=True)
+@cmd_options_edit_item
 @pass_controller
+@induct_newbies
+@post_processor
 @click.pass_context
-def edit_group(ctx, controller):
+def edit_group(ctx, controller, *args, **kwargs):
     """Base `edit` group command run prior to any of the dob-edit commands."""
-    pass
+    if ctx.invoked_subcommand:
+        return None
+
+    return edit_fact_by_key(ctx, controller, *args, **kwargs)
 
 
 # *** FACTS.
