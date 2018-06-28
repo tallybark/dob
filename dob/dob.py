@@ -54,7 +54,7 @@ from .cmds_list import activity as list_activity
 from .cmds_list import category as list_category
 from .cmds_list import fact as list_fact
 from .cmds_list import tag as list_tag
-from .cmds_list.fact import list_current_fact
+from .cmds_list.fact import echo_ongoing_fact, echo_latest_ended
 from .cmds_usage import activity as usage_activity
 from .cmds_usage import category as usage_category
 from .cmds_usage import tag as usage_tag
@@ -562,7 +562,15 @@ def cancel(controller, force):
 @induct_newbies
 def current(controller):
     """Display current *ongoing fact*."""
-    list_current_fact(controller)
+    echo_ongoing_fact(controller)
+
+
+@run.command('latest', aliases=['last'], help=help_strings.LATEST_HELP)
+@pass_controller
+@induct_newbies
+def latest(controller):
+    """Display last saved tmp fact."""
+    echo_latest_ended(controller)
 
 
 # ***

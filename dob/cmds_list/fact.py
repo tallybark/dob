@@ -31,15 +31,30 @@ from ..helpers import click_echo, dob_in_user_exit, dob_in_user_warning
 from ..helpers.ascii_table import generate_table, warn_if_truncated
 
 __all__ = [
-    'generate_facts_table',
-    'list_current_fact',
+    'echo_latest_ended',
+    'echo_ongoing_fact',
+    'find_latest_fact',
     'list_facts',
     'search_facts',
-    'find_latest_fact',
+    'generate_facts_table',
+    # Private:
+    #  'echo_single_fact',
 ]
 
 
-def list_current_fact(controller):
+def echo_latest_ended(controller):
+    list_facts(
+        controller,
+        include_usage=False,
+        block_format=True,
+        #rule='_',
+        span=True,  # (lb):
+        sort_order='desc',
+        limit=1,
+    )
+
+
+def echo_ongoing_fact(controller):
     """
     Return current *ongoing fact*.
 
@@ -49,30 +64,53 @@ def list_current_fact(controller):
     Raises:
         click.ClickException: If we fail to fetch any *ongoing fact*.
     """
-    try:
-        fact = controller.facts.get_current_fact()
-    except KeyError:
+    fact = find_latest_fact(controller, restrict='ongoing')
+    if fact is not None:
+        echo_single_fact(controller, fact)
+    else:
         msg = '{} {} {}'.format(
             _('No active fact.'),
             _('Try starting a fact first.'),
-            _('For help, run `{} now --help`').format(__arg0name__),
+            # (lb): MAYBE: Would there be any value to pointing user to help?
+            #   I'm guessing that if a user gets this far, they know what they
+            #   are doing, so probably not much value in such a message.
+            #   (I'm also not sure which help we'd suggest they read.)
+            # _('For help, run `{} add --help`').format(__arg0name__),
         )
         dob_in_user_exit(msg)
-    except Exception as err:
-        # (lb): Unexpected! This could mean more than one ongoing Fact found!
-        dob_in_user_exit(str(err))
-    else:
-        colorful = controller.client_config['term_color']
-        localize = controller.config['tz_aware']
-        click_echo(
-            fact.friendly_str(
-                shellify=False,
-                description_sep=': ',
-                localize=localize,
-                colorful=colorful,
-                show_elapsed=True,
-            )
+
+
+def find_latest_fact(controller, restrict):
+    assert restrict in ['ended', 'ongoing', ]
+    fact = None
+    if not restrict or restrict == 'ongoing':
+        try:
+            fact = controller.facts.get_current_fact()
+        except KeyError:
+            fact = None
+        except Exception as err:
+            # (lb): Unexpected! This could mean more than one ongoing Fact found!
+            dob_in_user_warning(str(err))
+    if fact is None and restrict != 'ongoing':
+        results = controller.facts.get_all(sort_order='desc', limit=1)
+        if len(results) > 0:
+            assert len(results) == 1
+            fact, = results
+    return fact
+
+
+def echo_single_fact(controller, fact):
+    colorful = controller.client_config['term_color']
+    localize = controller.config['tz_aware']
+    click_echo(
+        fact.friendly_str(
+            shellify=False,
+            description_sep=': ',
+            localize=localize,
+            colorful=colorful,
+            show_elapsed=True,
         )
+    )
 
 
 def list_facts(
@@ -322,19 +360,4 @@ def generate_facts_table(controller, facts, show_duration=True, include_usage=Fa
         )
 
     return (table, header)
-
-
-def find_latest_fact(controller):
-    fact = None
-    try:
-        fact = controller.facts.get_current_fact()
-    except KeyError:
-        results = controller.facts.get_all(order='desc', limit=1)
-        if len(results) > 0:
-            assert len(results) == 1
-            fact, = results
-    except Exception as err:
-        # (lb): Unexpected! This could mean more than one ongoing Fact found!
-        dob_in_user_warning(str(err))
-    return fact
 
