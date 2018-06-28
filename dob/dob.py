@@ -546,7 +546,7 @@ def stop(controller):
 
 @run.command('cancel', help=help_strings.CANCEL_HELP)
 @click.option(
-    '-f', '--force', '--purge',
+    '-f', '--force', '--purge', is_flag=True,
     help=_('Completely delete fact, rather than just marking deleted.'),
 )
 @pass_controller
