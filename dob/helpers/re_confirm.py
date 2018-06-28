@@ -72,7 +72,7 @@ def create_confirm_session(message, suffix=' (y/n) ', **kwargs):
     #   Second Ctrl-c: Ignored (increment count from 0 to 1).
     #   Third Ctrl-c: Bingo! Really exit.
     # MAYBE: Keep temp file of edits and tell user where/how they can recover.
-    @bindings.add('c-c')
+    @bindings.add('c-q')
     def mash(event):
         count['cc'] += 1
         if count['cc'] > 1:
