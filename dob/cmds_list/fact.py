@@ -123,6 +123,7 @@ def list_facts(
     block_format=None,
     rule='',
     span=False,
+    out_file=None,
     term_width=None,
     *args,
     **kwargs
@@ -166,10 +167,10 @@ def list_facts(
         cut_width = output_truncate_at()
         for fact in results:
             output_fact_block(fact, colorful, cut_width)
-            click_echo()
+            write_out()
             if sep_width:
-                click_echo(colorize(rule * sep_width, 'indian_red_1c'))
-                click_echo()
+                write_out(colorize(rule * sep_width, 'indian_red_1c'))
+                write_out()
 
     def output_rule_width():
         if not rule:
@@ -190,7 +191,7 @@ def list_facts(
             return 80
 
     def output_fact_block(fact, colorful, cut_width):
-        click_echo(
+        write_out(
             fact.friendly_str(
                 shellify=False,
                 description_sep='\n\n',
@@ -219,6 +220,12 @@ def list_facts(
         #   We could also fail if too many records; or find a better library.
         generate_table(table, headers, table_type, truncate, trunccol=desc_col_idx)
         warn_if_truncated(controller, len(results), len(table))
+
+    def write_out(line=''):
+        if out_file is not None:
+            out_file.write(str(line) + "\n")
+        else:
+            click_echo(line)
 
     _list_facts()
 
