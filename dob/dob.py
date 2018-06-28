@@ -48,6 +48,7 @@ from .cmd_options import (
     cmd_options_table_bunce,
     cmd_options_usage,
     postprocess_options_table_bunce,
+    OptionWithDynamicHelp,
 )
 from .cmds_list import activity as list_activity
 from .cmds_list import category as list_category
@@ -642,12 +643,23 @@ def edit_fact(controller, *args, **kwargs):
 # *** [EXPORT] Command.
 # ***
 
+CMD_EXPORT_OPT_FORMAT_CHOICES = ['csv', 'tsv', 'xml', 'ical']
+CMD_EXPORT_OPT_FORMAT_DEFAULT = 'csv'
+
+def cmd_export_opt_output_default(controller):
+    if controller is not None:
+        return '{}.{{format}}'.format(controller.client_config['export_path'])
+    else:
+        return _('(Dynamic)')
+
+
 @run.command('export', help=help_strings.EXPORT_HELP)
-# (lb): show_default=True is not recognized for click.argument.
-@click.argument('format', nargs=1, default='csv')
 @click.option(
-    '-f', '--filename',
-    help=_('The filename where to store the export file.'),
+    '-o', '--output',
+    cls=OptionWithDynamicHelp,
+    help=_('Path to export file.'),
+    default=cmd_export_opt_output_default,
+    show_default=True,
 )
 @cmd_options_search
 @cmd_options_limit_offset
@@ -656,7 +668,7 @@ def edit_fact(controller, *args, **kwargs):
 @pass_controller
 @induct_newbies
 def transcode_export(
-    controller, *args, format, **kwargs
+    controller, *args, output, format, **kwargs
 ):
     """Export all facts of within a given timewindow to a file of specified format."""
     activity = cmd_options.postprocess_options_list_activitied(kwargs)
