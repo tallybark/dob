@@ -209,8 +209,8 @@ def cmd_options_insert(func):
 
 _cmd_options_list_fact = [
     click.option(
-        '-w', '--raw', is_flag=True,
-        help='Output Facts in document format, not table.',
+        '-w', '--doc', '--document', is_flag=True,
+        help='Output Facts in multi-line block document format, not table.',
     ),
     click.option(
         '-r', '--rule', '--sep', nargs=1, default='',

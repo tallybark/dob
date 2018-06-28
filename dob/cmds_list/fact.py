@@ -82,7 +82,7 @@ def list_facts(
     filter_category='',
     table_type='friendly',
     truncate=False,
-    raw=None,
+    block_format=None,
     rule='',
     span=False,
     term_width=None,
@@ -110,7 +110,7 @@ def list_facts(
         )
         if not results:
             error_exit_no_results(_('facts'))
-        if raw:
+        if block_format:
             output_block(results)
         else:
             output_table(results)

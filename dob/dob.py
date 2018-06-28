@@ -411,8 +411,8 @@ def generate_list_facts_command(func):
     @cmd_options_list_fact
     @pass_controller
     @induct_newbies
-    def list_facts(controller, *args, **kwargs):
-        _list_facts(controller, *args, **kwargs)
+    def list_facts(controller, *args, doc, **kwargs):
+        _list_facts(controller, *args, block_format=doc, **kwargs)
     return update_wrapper(list_facts, func)
 
 
