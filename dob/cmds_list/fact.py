@@ -20,6 +20,7 @@ from __future__ import absolute_import, unicode_literals
 from gettext import gettext as _
 
 import click
+import sys
 from collections import namedtuple
 
 from nark.helpers.colored import colorize
@@ -84,6 +85,7 @@ def list_facts(
     raw=None,
     rule='',
     span=False,
+    term_width=None,
     *args,
     **kwargs
 ):
@@ -134,12 +136,20 @@ def list_facts(
     def output_rule_width():
         if not rule:
             return None
-        return click.get_terminal_size()[0]
+        return terminal_width()
 
     def output_truncate_at():
         if not truncate:
             return None
-        return click.get_terminal_size()[0]
+        return terminal_width()
+
+    def terminal_width():
+        if term_width is not None:
+            return term_width
+        elif sys.stdout.isatty():
+            return click.get_terminal_size()[0]
+        else:
+            return 80
 
     def output_fact_block(fact, colorful, cut_width):
         click_echo(
