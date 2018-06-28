@@ -22,8 +22,13 @@ from gettext import gettext as _
 import click
 import os
 import random
-from pyfiglet import Figlet
 from six import text_type
+
+try:
+    # (lb): Not including pyfiglet because it's large and unnecessary.
+    from pyfiglet import Figlet
+except ImportError:
+    pass
 
 from nark.helpers.colored import fg, bg, attr
 
@@ -59,8 +64,9 @@ def hamster_artwork():
         _hamster_artwork_11,
     ]
     # Add randomized font image, but make less likely.
-    hamster_artwork = hamster_artwork * 3 + [figletize_hamster()]
-    return hamster_artwork
+    artwork = hamster_artwork * 3
+    append_figlet_text_maybe(artwork)
+    return artwork
 
 
 def fingies_artwork():
@@ -92,11 +98,20 @@ def dead_hamsters_society():
     return defunct_artwork
 
 
+def append_figlet_text_maybe(artwork):
+    try:
+        artwork.append(figletize_hamster())
+    except Exception as err:
+        return
+
+
 def figletize_hamster():
     figlet = Figlet()
     figlet.setFont(font=random.choice(figlet.getFonts()))
     hword = ''.join(
-        random.choice((text_type.upper, text_type.lower))(lttr) for lttr in 'hamster'
+        random.choice(
+            (text_type.upper, text_type.lower)
+        )(lttr) for lttr in 'hamster'
     )
     rendered = figlet.renderText(hword)
     return "\n" + rendered + "\n"
