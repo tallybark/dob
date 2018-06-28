@@ -359,7 +359,7 @@ class TestCurrent(object):
 #        controller = controller_with_logging
 ## FIXME: (lb): get_tmp_fact is replaced with get_current_fact...
 #        controller.facts.get_tmp_fact = mocker.MagicMock(return_value=fact)
-#        cmds_list.fact.list_current_fact(controller)
+#        cmds_list.fact.echo_ongoing_fact(controller)
 #        out, err = capsys.readouterr()
 #        assert controller.facts.get_tmp_fact
 #        assert str(fact) in out
@@ -368,7 +368,7 @@ class TestCurrent(object):
         """Make sure we display proper feedback if there is no current 'ongoing fact."""
         controller = controller_with_logging
         with pytest.raises(ClickException):
-            cmds_list.fact.list_current_fact(controller)
+            cmds_list.fact.echo_ongoing_fact(controller)
             out, err = capsys.readouterr()
 # FIXME: Use snapshot here.
             assert 'There seems no be no activity beeing tracked right now' in err
