@@ -286,7 +286,7 @@ def controller_with_logging(lib_config, client_config):
 # NEED?
         'limit': '',
         'offset': '',
-        'order': 'desc',
+        'sort_order': 'desc',
     }),
     ('2015-12-12 18:00', '2015-12-12 19:30', '', {
         'start': datetime.datetime(2015, 12, 12, 18, 0, 0),
@@ -294,7 +294,7 @@ def controller_with_logging(lib_config, client_config):
 # NEED?
         'limit': '',
         'offset': '',
-        'order': 'desc',
+        'sort_order': 'desc',
     }),
     ('2015-12-12 18:00', '2015-12-12 19:30', '', {
         'start': datetime.datetime(2015, 12, 12, 18, 0, 0),
@@ -302,7 +302,7 @@ def controller_with_logging(lib_config, client_config):
 # NEED?
         'limit': '',
         'offset': '',
-        'order': 'desc',
+        'sort_order': 'desc',
     }),
     ('2015-12-12 18:00', '', '', {
         'start': freezegun.api.FakeDatetime(2015, 12, 12, 18, 0, 0),
@@ -310,7 +310,7 @@ def controller_with_logging(lib_config, client_config):
 # NEED?
         'limit': '',
         'offset': '',
-        'order': 'desc',
+        'sort_order': 'desc',
     }),
     ('2015-12-12', '', '', {
         'start': freezegun.api.FakeDate(2015, 12, 12),
@@ -318,7 +318,7 @@ def controller_with_logging(lib_config, client_config):
 # NEED?
         'limit': '',
         'offset': '',
-        'order': 'desc',
+        'sort_order': 'desc',
     }),
     ('13:00', '', '', {
         'start': datetime.time(13, 0),
@@ -326,7 +326,7 @@ def controller_with_logging(lib_config, client_config):
 # NEED?
         'limit': '',
         'offset': '',
-        'order': 'desc',
+        'sort_order': 'desc',
     }),
 ])
 def search_parameter_parametrized(request):
