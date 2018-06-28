@@ -42,7 +42,13 @@ __all__ = [
 ]
 
 
-def must_complete_times(controller, new_facts, progress=None, ongoing_okay=False):
+def must_complete_times(
+    controller,
+    new_facts,
+    progress=None,
+    ongoing_okay=False,
+    leave_blanks=False,
+):
     """"""
 
     # ***
@@ -63,7 +69,8 @@ def must_complete_times(controller, new_facts, progress=None, ongoing_okay=False
         fix_delta_times_relative(new_facts, ante_fact, seqt_fact, conflicts)
 
         # Finally, fill in any blanks (with adjacent times).
-        fix_blank_times_relative(new_facts, ante_fact, seqt_fact, conflicts)
+        if not leave_blanks:
+            fix_blank_times_relative(new_facts, ante_fact, seqt_fact, conflicts)
 
         # One final start < end < start ... check.
         verify_datetimes_sanity(new_facts, ante_fact, seqt_fact, conflicts)
@@ -244,11 +251,6 @@ def must_complete_times(controller, new_facts, progress=None, ongoing_okay=False
     ):
         # If -delta, relative to *next* time; if +delta, relative to *prev* time.
         dt_suss = None
-        # FIXME/MAYBE/2018-05-21 12:51: (lb): Should we only accept prev_time
-        #                               or next_time if immediately before/after?
-#
-#        import pdb;pdb.set_trace()
-#        if delta_mins >= 0:
         if delta_minus is False:
             if prev_time is not None:
                 dt_suss = prev_time + timedelta(minutes=delta_mins)
@@ -367,6 +369,8 @@ def must_complete_times(controller, new_facts, progress=None, ongoing_okay=False
             prev_fact = fact
 
     def verify_datetimes_missing_already_caught(fact, conflicts):
+        if leave_blanks:
+            return
         found_it = list(filter(lambda conflict: fact is conflict[0], conflicts))
         assert len(found_it) > 0
 
@@ -429,14 +433,16 @@ def mend_facts_times(controller, fact, time_hint):
     def _mend_facts_times(controller, fact, time_hint):
         # The fact is considered "temporary", or open, if the user did not
         # specify an end time, and if there's no Fact following the new Fact.
-        leave_open = new_fact_fill_now(fact, time_hint, controller.now)
+        open_start, open_end = new_fact_fill_now(fact, time_hint, controller.now)
         conflicts = controller.facts.insert_forcefully(fact)
 
         # Note that end may be None for ongoing Fact.
         # Verify that start > end, if neither are None.
         time_helpers.validate_start_end_range((fact.start, fact.end))
 
-        if leave_open:
+        if open_start:
+            fact.start = None
+        if open_end:
             fact.end = None
 
         return conflicts
@@ -444,26 +450,28 @@ def mend_facts_times(controller, fact, time_hint):
     def new_fact_fill_now(fact, time_hint, now):
         # We might temporarily set the end time to look for overlapping
         # facts, so remember if we need to leave the fact open.
-        leave_open = False
+        open_start = False
+        open_end = False
 
         if (time_hint == 'verify_none'):
             assert not fact.start
             assert not fact.end
             fact.start = now
-            leave_open = True
+            open_end = True
         elif (time_hint == 'verify_both'):
             assert fact.start and fact.end
         elif (time_hint == 'verify_start'):
             assert not fact.end
-            leave_open = True
+            open_end = True
             if not fact.start:
                 fact.start = now
         elif (time_hint == 'verify_end'):
             assert not fact.start
+            open_start = True
             if not fact.end:
                 fact.end = now
 
-        return leave_open
+        return open_start, open_end
 
     # ***
 

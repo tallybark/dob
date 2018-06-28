@@ -112,7 +112,7 @@ def mend_facts_confirm_and_save_maybe(controller, fact, time_hint, yes, dry):
     if fact.end is None:
         fact.end = controller.now
     new_facts = [fact, ]
-    must_complete_times(controller, new_facts, ongoing_okay=True)
+    must_complete_times(controller, new_facts, ongoing_okay=True, leave_blanks=True)
     fact.end = old_end
 
     # Fill in the start and, or, end times, maybe.
