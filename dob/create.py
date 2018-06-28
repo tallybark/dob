@@ -300,12 +300,11 @@ def stop_fact(controller):
     """
     try:
         fact = controller.facts.stop_current_fact()
-    except ValueError:
-        message = _(
-            "Unable to end current fact. Are you sure there is one?"
-            "Try running `{} current`"
-        ).format(__appname__)
-        raise click.ClickException(message)
+    except KeyError:
+        msg = _(
+            "It doesn't look like there's any current Fact {}to{} stop."
+        ).format(attr('italic'), attr('res_italic'))
+        dob_in_user_exit(msg)
     else:
         echo_ongoing_completed(controller, fact, cancelled=False)
         return fact
