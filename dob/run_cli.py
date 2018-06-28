@@ -44,10 +44,12 @@ __all__ = [
     'pass_controller',
     'dob_versions',
     'run',
+    'bulk_set_levels',
     'disable_logging',
     # Private:
     #  'CONTEXT_SETTINGS',
     #  '_setup_logging',
+    #  '_get_loggers',
 ]
 
 
@@ -170,11 +172,7 @@ def run(ctx, controller, v, verbose, verboser, color):
 def _setup_logging(controller, verbose=False, verboser=False):
     """Setup logging for the lib_logger as well as client specific logging."""
     controller.client_logger = logging.getLogger('dob')
-    loggers = [
-        controller.lib_logger,
-        controller.sql_logger,
-        controller.client_logger,
-    ]
+    loggers = _get_loggers(controller)
     # Clear existing Handlers, and set the level.
     # MAYBE: Allow user to specify different levels for different loggers.
     client_level = controller.client_config['log_level']
@@ -205,6 +203,20 @@ def _setup_logging(controller, verbose=False, verboser=False):
             _('Unknown Client.log_level specified: {}')
             .format(client_level)
         )
+
+
+def _get_loggers(controller):
+    loggers = [
+        controller.lib_logger,
+        controller.sql_logger,
+        controller.client_logger,
+    ]
+    return loggers
+
+
+def bulk_set_levels(controller, log_level):
+    for logger in _get_loggers(controller):
+        logger.setLevel(log_level)
 
 
 def disable_logging(controller):
