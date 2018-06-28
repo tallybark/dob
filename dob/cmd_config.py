@@ -304,7 +304,7 @@ def get_separate_configs(config):
             log_filename = client_config_or_default('log_filename')
             return os.path.join(log_dir, log_filename)
 
-        def get_export_dir():
+        def get_export_path():
             """
             Return path to save exports to.
             File extension will be added by export method.
@@ -327,7 +327,7 @@ def get_separate_configs(config):
             'log_level': get_log_level(),
             'log_console': get_log_console(),
             'logfile_path': get_logfile_path(),
-            'export_path': get_export_dir(),
+            'export_path': get_export_path(),
             'term_color': get_term_color(),
             'term_paging': get_term_paging(),
             'separators': get_separators(),

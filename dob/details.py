@@ -82,8 +82,8 @@ def echo_app_details(controller, full=False):
     def echo_export_path():
         click_echo(_(
             "Reports exported to: {}"
-        ).format(
-            highlight_value(controller.client_config['export_path']),
+        ).format(highlight_value(
+            '{}.{{format}}'.format(controller.client_config['export_path']))
         ))
 
     def echo_db_info():
