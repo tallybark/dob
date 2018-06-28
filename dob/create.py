@@ -27,7 +27,6 @@ from nark import Fact
 from nark.helpers.colored import fg, attr
 from nark.helpers.parsing import ParserException
 
-from . import __appname__
 from . import interrogate
 from .helpers import click_echo, dob_in_user_exit
 from .helpers.fix_times import mend_facts_times, must_complete_times
@@ -329,7 +328,7 @@ def cancel_fact(controller, purge=False):
         controller.client_logger.info(message)
         raise click.ClickException(message)
     else:
-        completed_msg = echo_ongoing_completed(controller, fact, cancelled=True)
+        echo_ongoing_completed(controller, fact, cancelled=True)
         return fact
 
 

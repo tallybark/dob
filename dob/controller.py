@@ -24,7 +24,6 @@ from gettext import gettext as _
 import click
 import os
 import sys
-from functools import update_wrapper
 
 from nark import HamsterControl
 from nark.helpers.colored import disable_colors, enable_colors

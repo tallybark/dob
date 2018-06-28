@@ -212,8 +212,19 @@ def import_facts(
         raw_facts = copy.deepcopy(new_facts)
         must_complete_times(controller, new_facts)
         must_not_conflict_existing(new_facts)
-        prompt_and_save(controller, new_facts, raw_facts,
-            file_in, file_out, rule, backup, leave_backup, ask, yes, dry, progress,
+        prompt_and_save(
+            controller,
+            new_facts,
+            raw_facts,
+            file_in,
+            file_out,
+            rule,
+            backup,
+            leave_backup,
+            ask,
+            yes,
+            dry,
+            progress,
         )
         return new_facts
 

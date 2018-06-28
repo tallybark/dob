@@ -694,6 +694,7 @@ def edit_fact_by_key(ctx, controller, *args, key, **kwargs):
 CMD_EXPORT_OPT_FORMAT_CHOICES = ['csv', 'tsv', 'xml', 'ical']
 CMD_EXPORT_OPT_FORMAT_DEFAULT = 'csv'
 
+
 def cmd_export_opt_output_default(controller):
     if controller is not None:
         return '{}.{{format}}'.format(controller.client_config['export_path'])
@@ -747,7 +748,7 @@ def transcode_export(
         chosen_fmt = format
         fmts_specified = []
         if chosen_fmt != CMD_EXPORT_OPT_FORMAT_DEFAULT:
-            fmts_specified = [chosen_fmt,]
+            fmts_specified = [chosen_fmt, ]
         for switch in CMD_EXPORT_OPT_FORMAT_CHOICES:
             if kwargs[switch]:
                 chosen_fmt = switch
@@ -760,6 +761,7 @@ def transcode_export(
         return chosen_fmt
 
     _transcode_export()
+
 
 # ***
 # *** [IMPORT] Command.

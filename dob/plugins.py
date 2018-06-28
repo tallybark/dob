@@ -30,7 +30,7 @@ import sys
 from click_alias import ClickAliasedGroup
 
 from .cmd_config import get_appdirs_subdir_file_path, AppDirs
-from .helpers import dob_in_user_exit, dob_in_user_warning
+from .helpers import dob_in_user_warning
 
 __all__ = [
     'install_plugin',

@@ -25,7 +25,6 @@ from collections import namedtuple
 
 from nark.helpers.colored import colorize
 
-from .. import __arg0name__
 from ..cmd_common import error_exit_no_results, hydrate_activity, hydrate_category
 from ..helpers import click_echo, dob_in_user_exit, dob_in_user_warning
 from ..helpers.ascii_table import generate_table, warn_if_truncated
@@ -47,8 +46,7 @@ def echo_latest_ended(controller):
         controller,
         include_usage=False,
         block_format=True,
-        #rule='_',
-        span=True,  # (lb):
+        span=True,
         sort_order='desc',
         limit=1,
     )
