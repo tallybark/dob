@@ -27,6 +27,7 @@ import sys
 from functools import update_wrapper
 
 from nark import HamsterControl
+from nark.helpers.colored import disable_colors, enable_colors
 
 from . import __arg0name__
 from . import help_strings
@@ -275,4 +276,14 @@ class Controller(HamsterControl):
 
     def post_process(self, controller, fact):
         Controller._post_process(controller, fact)
+
+    def setup_tty_color(self, use_color):
+        if use_color is None:
+            use_color = self.client_config['term_color']
+        else:
+            self.client_config['term_color'] = use_color
+        if use_color:
+            enable_colors()
+        else:
+            disable_colors()
 

@@ -27,7 +27,6 @@ import sys
 
 from nark import __version__ as nark_version
 from nark.helpers import logging as logging_helpers
-from nark.helpers.colored import disable_colors, enable_colors
 
 from . import __appname__ as dob_appname
 from . import __version__ as dob_version
@@ -139,12 +138,7 @@ def run(ctx, controller, v, verbose, verboser, color):
 
     def _setup_tty_color(controller):
         use_color = color
-        if use_color is None:
-            use_color = controller.client_config['term_color']
-        if use_color:
-            enable_colors()
-        else:
-            disable_colors()
+        controller.setup_tty_color(use_color)
 
     def _run_handle_banner():
         # (lb): I find the greeting annoying, and somewhat boastful.
