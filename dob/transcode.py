@@ -53,7 +53,11 @@ from .helpers.crude_progress import CrudeProgress
 from .helpers.fix_times import mend_facts_times, must_complete_times
 from .traverser.facts_carousel import FactsCarousel
 
-__all__ = ['export_facts', 'import_facts']
+__all__ = [
+    'export_facts',
+    'import_facts',
+    'prompt_and_save',
+]
 
 
 def export_facts(
@@ -208,7 +212,9 @@ def import_facts(
         raw_facts = copy.deepcopy(new_facts)
         must_complete_times(controller, new_facts)
         must_not_conflict_existing(new_facts)
-        prompt_and_save(new_facts, raw_facts, backup, file_out, rule, ask, yes, dry)
+        prompt_and_save(controller, new_facts, raw_facts,
+            file_in, file_out, rule, backup, leave_backup, ask, yes, dry, progress,
+        )
         return new_facts
 
     # ***
@@ -581,12 +587,35 @@ def import_facts(
 
     # ***
 
-    def prompt_and_save(new_facts, raw_facts, backup, file_out, rule, ask, yes, dry):
+    _import_facts()
+
+
+# ***
+
+def prompt_and_save(
+    controller,
+    new_facts,
+    raw_facts,
+    file_in=None,
+    file_out=None,
+    rule='',
+    backup=True,
+    leave_backup=False,
+    ask=False,
+    yes=False,
+    dry=False,
+    progress=None,
+    old_fact=None,
+):
+    """"""
+    progress = CrudeProgress(enabled=True) if progress is None else progress
+
+    def _prompt_and_save():
         backup_f = prepare_backup_file(backup)
         delete_backup = False
         inner_error = None
         try:
-            prompt_persist(new_facts, raw_facts, backup_f, rule, ask, yes, dry)
+            prompt_persist(backup_f)
             delete_backup = True
         except SystemExit as err:
             # Explicit sys.exit() from our code. The str(err)
@@ -628,7 +657,7 @@ def import_facts(
             dob_in_user_exit(msg)
         return backup_f
 
-    IMPORT_BACKUP_DIR = 'importer'
+    IMPORT_BACKUP_DIR = 'carousel'
 
     def get_import_ephemeral_backup_path():
         backup_prefix = 'dob.import-'
@@ -658,13 +687,13 @@ def import_facts(
 
     # ***
 
-    def prompt_persist(new_facts, raw_facts, backup_f, rule, ask, yes, dry):
-        okay = prompt_all(new_facts, raw_facts, backup_f, rule, ask, yes, dry)
-        persist_facts(okay, new_facts, file_out, dry)
+    def prompt_persist(backup_f):
+        okay = prompt_all(backup_f)
+        persist_facts(okay)
 
     # ***
 
-    def prompt_all(new_facts, raw_facts, backup_f, rule, ask, yes, dry):
+    def prompt_all(backup_f):
         if yes:
             return True
 
@@ -673,7 +702,7 @@ def import_facts(
         backup_callback()
 
         facts_carousel = FactsCarousel(
-            controller, new_facts, raw_facts, backup_callback, dry,
+            controller, old_fact, new_facts, raw_facts, backup_callback, dry,
         )
 
         confirmed_all = facts_carousel.gallop()
@@ -682,7 +711,7 @@ def import_facts(
 
     # ***
 
-    def persist_facts(confirmed_all, new_facts, file_out, dry):
+    def persist_facts(confirmed_all):
         if not confirmed_all:
             return
         record_new_facts(new_facts, file_out, dry)
@@ -765,7 +794,5 @@ def import_facts(
             _('Saved {} facts.').format(highlight_value(len(new_facts))),
         ))
 
-    # *** [export_facts] entry.
-
-    _import_facts()
+    _prompt_and_save()
 

@@ -23,6 +23,7 @@ from gettext import gettext as _
 
 import click
 import os
+import re
 import sys
 from click_alias import ClickAliasedGroup
 from functools import update_wrapper
@@ -47,6 +48,7 @@ from .cmd_options import (
     cmd_options_search,
     cmd_options_table_bunce,
     cmd_options_usage,
+    cmd_options_edit_item,
     postprocess_options_table_bunce,
     OptionWithDynamicHelp,
 )
@@ -62,7 +64,7 @@ from .complete import tab_complete
 from .copyright import echo_copyright, echo_license
 from .create import add_fact, cancel_fact, stop_fact
 from .details import echo_app_details, echo_app_environs, echo_data_stats
-from .helpers import click_echo, dob_in_user_warning
+from .helpers import click_echo, dob_in_user_exit, dob_in_user_warning
 from .migrate import upgrade_legacy_database_file
 from .run_cli import disable_logging, dob_versions, pass_controller, run
 from .transcode import export_facts, import_facts
@@ -638,13 +640,45 @@ def edit_group(ctx, controller):
 # *** FACTS.
 
 @edit_group.command('fact', help=help_strings.EDIT_FACT_HELP)
-@click.argument('key', nargs=1, type=int)
+@cmd_options_edit_item
 @pass_controller
 @induct_newbies
 @post_processor
-def edit_fact(controller, *args, **kwargs):
+@click.pass_context
+def edit_fact(ctx, controller, *args, **kwargs):
     """Inline-Edit specified Fact using preferred $EDITOR."""
-    return update.edit_fact(controller, *args, **kwargs)
+    return edit_fact_by_key(ctx, controller, *args, **kwargs)
+
+
+def edit_fact_by_key(ctx, controller, *args, key, **kwargs):
+    def _edit_fact_by_key():
+        keys = assemble_keys()
+        return process_edit_command(keys)
+
+    def assemble_keys():
+        keys = []
+        # The 'key' click.argument is nargs=-1, so it's an iterable.
+        for arg_key in key:
+            keys.append(arg_key)
+        # See also if user specified '-1', '-2', etc.
+        for kwg_key in kwargs.keys():
+            match = re.match(r'^latest_(\d+)$', kwg_key)
+            if match is not None:
+                keys.append(-1 * int(match.groups()[0]))
+        return keys
+
+    def process_edit_command(keys):
+        if not keys:
+            click_echo(ctx.get_help())
+            edited_item = None
+        elif len(keys) > 1:
+            dob_in_user_exit(_("Too many keys specified! Try just one."))
+        else:
+            edited_item = update.edit_fact(controller, key=keys[0])
+        return edited_item
+
+    return _edit_fact_by_key()
+
 
 
 # ***

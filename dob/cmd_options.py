@@ -35,6 +35,7 @@ __all__ = [
     'cmd_options_search',
     'cmd_options_table_bunce',
     'cmd_options_usage',
+    'cmd_options_edit_item',
     'postprocess_options_list_activitied',
     'postprocess_options_list_categoried',
     'postprocess_options_table_bunce',
@@ -325,4 +326,23 @@ class OptionWithDynamicHelp(click.Option):
         hr = super(OptionWithDynamicHelp, self).get_help_record(ctx)
         self.temporary_ctx = None
         return hr
+
+
+# ***
+# *** [EDIT ITEM] Options.
+# ***
+
+_cmd_options_edit_item = [
+    click.argument('key', nargs=-1, type=int),
+    click.option(
+        '-1', 'latest_1', is_flag=True,
+        help=_('Edit most recently saved item.'),
+    ),
+]
+
+
+def cmd_options_edit_item(func):
+    for option in reversed(_cmd_options_edit_item):
+        func = option(func)
+    return func
 
