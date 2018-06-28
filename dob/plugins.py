@@ -88,6 +88,8 @@ class ClickAliasablePluginGroup(ClickAliasedGroup):
 
     def eval_source_and_look_for_commands(self, py_text, py_path, name):
         code = self.source_compile(py_text, py_path)
+        if code is None:
+            return set()
         globcals = {}
         self.eval_source_code(code, globcals, py_path)
         cmds = self.probe_source_for_commands(globcals, name)
@@ -97,10 +99,11 @@ class ClickAliasablePluginGroup(ClickAliasedGroup):
         try:
             code = compile(py_text.read(), py_path, 'exec')
         except Exception as err:
+            code = None
             msg = _(
                 'ERROR: Could not compile plugins file "{}": {}'
             ).format(py_path, str(err))
-            dob_in_user_exit(msg)
+            dob_in_user_warning(msg)
         return code
 
     def eval_source_code(self, code, globcals, py_path):
@@ -111,7 +114,7 @@ class ClickAliasablePluginGroup(ClickAliasedGroup):
             msg = _(
                 'ERROR: Could not source plugins file "{}": {}'
             ).format(py_path, str(err))
-            dob_in_user_exit(msg)
+            dob_in_user_warning(msg)
 
     def probe_source_for_commands(self, globcals, name):
         # Check for alias now, after having sourced the plugin.
