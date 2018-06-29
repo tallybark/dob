@@ -1,3 +1,4 @@
+# USAGE: `/bin/cp .ignore.example .ignore` and personalize.
 .coverage
 .git/
 .pytest_cache/
@@ -7,5 +8,4 @@ dob*.egg-info/
 htmlcov/
 man/dob.1
 messages.pot
-.trustme.log
 

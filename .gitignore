@@ -58,3 +58,8 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# In lieu of a personalizable, secondary Grep/Silver Searcher/RipGrep ignore,
+# like .gitignore's .git/info/exclude, the repo contains an .ignore.example.
+.ignore
+
