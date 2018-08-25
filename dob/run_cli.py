@@ -35,6 +35,9 @@ from .copyright import echo_copyright
 from .helpers import click_echo
 from .plugins import ClickAliasablePluginGroup
 
+# FIXME: PROFILING
+from nark.helpers.dev.profiling import profile_elapsed, timefunct
+
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
 
@@ -47,6 +50,8 @@ __all__ = [
 ]
 
 
+# Profiling: Controller is made during Command.invoke via click.MultiCommand.invoke.
+# Profiling: Controller calls _get_store: ~ 0.173 secs.
 pass_controller = click.make_pass_decorator(Controller, ensure=True)
 
 
@@ -93,6 +98,8 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 @click.option('-V', '--verbose', is_flag=True, help=_('Be chatty. (-VV for more.)'))
 @click.option('-VV', '--verboser', is_flag=True, help=_('Be chattier.'), hidden=True)
 @click.option('--color/--no-color', '-C', default=None, help=_('Color, or plain.'))
+# Profiling: pass_controller appears to take ~ ¼ seconds.
+@timefunct('run: create Controller [_get_store]')
 @pass_controller
 @click.pass_context
 # NOTE: @click.group transforms this func. definition into a callback that
@@ -110,6 +117,7 @@ def run(ctx, controller, v, verbose, verboser, color):
         Show version and exit, if user specified -v option.
         Setup up loggers.
         """
+        profile_elapsed('To dob:    run')
         _setup_tty_options(controller)
         _run_handle_banner()
         _run_handle_version(show_version, ctx)

@@ -21,6 +21,12 @@ from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
+# FIXME: PROFILING
+from nark.helpers.dev.profiling import profile_elapsed
+# FIXME: PROFILING
+# E402 module level import not at top of file
+profile_elapsed('To dob:   _top')  # noqa: E402
+
 import click
 import os
 import re
@@ -863,4 +869,14 @@ def migrate_upgrade(controller):
 def migrate_version(controller):
     """Show migration information about the database."""
     migrate.version(controller)
+
+
+# 2018-07-15 14:00ish: To loaded: 0.440 secs.
+# After adding lazy-loading:
+# 2018-07-15 18:06:    To loaded: 0.060 secs.
+# 2018-07-15 18:06:    To run:    0.329 secs.
+# About ~ 0.150 is sqlalchemy, which is unavoidable?
+# About ~ 0.005 is loading config.
+# The other half of the time, ~ 0.145, is plugins.
+profile_elapsed('To dob: loaded')
 
