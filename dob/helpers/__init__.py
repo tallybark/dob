@@ -24,11 +24,14 @@ from gettext import gettext as _
 import click
 import sys
 
-from nark.helpers.colored import coloring, colorize, fg, attr
+from nark.helpers.colored import coloring, colorize, bg, fg, attr
+
 
 __all__ = [
+    'conflict_prefix',
     'dob_in_user_exit',
     'dob_in_user_warning',
+    'echo_fact',
     'highlight_value',
     'prepare_log_msg',
 ]
@@ -50,6 +53,19 @@ def dob_in_user_warning(msg):
     click.echo(colorize(msg, 'red_3b'), err=True)
 
 
+def echo_fact(fact):
+    click.echo('{}Dry run! New fact{}:\n '.format(
+        attr('underlined'),
+        attr('reset'),
+    ))
+    click.echo('{}{}{}{}'.format(
+        fg('steel_blue_1b'),
+        attr('bold'),
+        fact.friendly_str(description_sep='\n\n'),
+        attr('reset'),
+    ))
+
+
 def highlight_value(msg):
     highlight_color = 'medium_spring_green'
     return '{}{}{}'.format(fg(highlight_color), msg, attr('reset'))
@@ -58,32 +74,57 @@ def highlight_value(msg):
 # ***
 
 def prepare_log_msg(fact_or_dict, msg_content):
-    try:
-        line_num = fact_or_dict['line_num']
-        raw_meta = fact_or_dict['raw_meta']
-    except TypeError:
+    def _prepare_log_msg():
         try:
-            line_num = fact_or_dict.ephemeral['line_num']
-            raw_meta = fact_or_dict.ephemeral['raw_meta']
-        except Exception:
-            line_num = 0
-            raw_meta = ''
-    # NOTE: Using colors overrides logger's coloring, which is great!
-    return _(
-        '{}At line: {}{} / {}\n  {}“{}”{}\n  {}{}{}'
+            line_num = fact_or_dict['line_num']
+            line_raw = fact_or_dict['line_raw']
+        except TypeError:
+            try:
+                line_num = fact_or_dict.parsed_source.line_num
+                line_raw = fact_or_dict.parsed_source.line_raw
+            except Exception:
+                line_num = 0
+                line_raw = ''
+        # NOTE: Using colors overrides logger's coloring, which is great!
+        return _(
+            '{}{}{}: {}{}: {}{} / {}{}{}\n\n{}: {}“{}”{}\n\n{}: {}{}{}'
+            .format(
+                attr('bold'),
+                conflict_prefix(_('Problem')),
+                attr('reset'),
+
+                fg('dodger_blue_1'),
+                _('On line'),
+                line_num,
+                attr('reset'),
+
+                attr('underlined'),
+                msg_content,
+                attr('reset'),
+
+                conflict_prefix(_('  Typed')),
+                fg('hot_pink_2'),
+                line_raw.strip(),
+                attr('reset'),
+
+                conflict_prefix(_(' Parsed')),
+                fg('grey_78'),
+                fact_or_dict,
+                attr('reset'),
+            )
+        )
+
+    return _prepare_log_msg()
+
+
+# ***
+
+def conflict_prefix(prefix):
+    return (
+        '{}{}{}'
         .format(
-            attr('bold'),
-            line_num,
-            attr('reset'),
-
-            msg_content,
-
-            fg('hot_pink_2'),
-            raw_meta.strip(),
-            attr('reset'),
-
-            fg('grey_78'),
-            fact_or_dict,
+            bg('medium_violet_red'),
+            prefix,
             attr('reset'),
         )
     )

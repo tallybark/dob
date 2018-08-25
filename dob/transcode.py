@@ -42,10 +42,11 @@ from .cmd_common import (
 )
 from .cmd_config import get_appdirs_subdir_file_path, AppDirs
 from .cmds_list.fact import search_facts
-from .create import echo_fact, save_facts_maybe
+from .create import save_facts_maybe
 from .helpers import (
     click_echo,
     dob_in_user_exit,
+    echo_fact,
     highlight_value,
     prepare_log_msg
 )
