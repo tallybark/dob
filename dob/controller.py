@@ -36,6 +36,7 @@ from .copyright import echo_copyright
 from .cmd_config import get_config_path, furnish_config, replenish_config
 from .helpers import click_echo, dob_in_user_exit, highlight_value
 from .migrate import upgrade_legacy_database_instructions
+from .traverser.placeable_fact import PlaceableFact
 
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
@@ -104,6 +105,7 @@ class Controller(HamsterControl):
             return bool(self.store.get_db_url())
 
     def standup_store(self):
+        self.store.fact_cls = PlaceableFact
         return super(Controller, self).standup_store()
 
     def insist_germinated(self):
