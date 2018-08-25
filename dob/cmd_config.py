@@ -158,8 +158,28 @@ class ClientDefaults(object):
         pass
 
     @property
+    def carousel_lexer(self):
+        return ''
+
+    @property
+    def devmode(self):
+        return False
+
+    @property
+    def editor_suffix(self):
+        return ''
+
+    @property
     def export_path(self):
         return ''
+
+    @property
+    def fifo_dir(self):
+        return ''
+
+    @property
+    def log_color(self):
+        return False
 
     @property
     def log_console(self):
@@ -175,6 +195,10 @@ class ClientDefaults(object):
 
     @property
     def separators(self):
+        return ''
+
+    @property
+    def styling(self):
         return ''
 
     @property
@@ -289,12 +313,27 @@ def get_separate_configs(config):
                 config, ClientDefaults, 'Client', keyname,
             )
 
+        def get_carousel_lexer():
+            return client_config_or_default('carousel_lexer')
+
+        def get_devmode():
+            return client_config_or_default('devmode')
+
+        def get_editor_suffix():
+            return client_config_or_default('editor_suffix')
+
         def get_export_path():
             """
             Return path to save exports to.
             File extension will be added by export method.
             """
             return os.path.join(AppDirs.user_data_dir, 'export')
+
+        def get_fifo_dir():
+            return client_config_or_default('fifo_dir')
+
+        def get_log_color():
+            return client_config_or_default_boolean('log_color')
 
         def get_log_console():
             return client_config_or_default_boolean('log_console')
@@ -318,6 +357,9 @@ def get_separate_configs(config):
         def get_separators():
             return client_config_or_default('separators')
 
+        def get_styling():
+            return client_config_or_default('styling')
+
         def get_show_greeting():
             return client_config_or_default_boolean('show_greeting')
 
@@ -328,11 +370,17 @@ def get_separate_configs(config):
             return client_config_or_default_boolean('term_paging')
 
         return {
+            'carousel_lexer': get_carousel_lexer(),
+            'devmode': get_devmode(),
+            'editor_suffix': get_editor_suffix(),
             'export_path': get_export_path(),
+            'fifo_dir': get_fifo_dir(),
+            'log_color': get_log_color(),
             'log_console': get_log_console(),
             'logfile_path': get_logfile_path(),
             'log_level': get_log_level(),
             'separators': get_separators(),
+            'styling': get_styling(),
             'show_greeting': get_show_greeting(),
             'term_color': get_term_color(),
             'term_paging': get_term_paging(),
@@ -553,11 +601,17 @@ def fresh_config():
     def set_defaults_client(config):
         client = ClientDefaults()
         config.add_section('Client')
+        config.set('Client', 'carousel_lexer', client.carousel_lexer)
+        config.set('Client', 'devmode', client.devmode)
+        config.set('Client', 'editor_suffix', client.editor_suffix)
         config.set('Client', 'export_path', client.export_path)
+        config.set('Client', 'fifo_dir', client.fifo_dir)
+        config.set('Client', 'log_color', str(client.log_color))
         config.set('Client', 'log_console', str(client.log_console))
         config.set('Client', 'log_filename', client.log_filename)
         config.set('Client', 'log_level', client.log_level)
         config.set('Client', 'separators', client.separators)
+        config.set('Client', 'styling', client.styling)
         config.set('Client', 'show_greeting', str(client.show_greeting))
         config.set('Client', 'term_color', str(client.term_color))
         config.set('Client', 'term_paging', str(client.term_paging))
