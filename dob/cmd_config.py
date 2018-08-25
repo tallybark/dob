@@ -400,18 +400,27 @@ def get_separate_configs(config):
             return backend_config_or_default_boolean('allow_momentaneous')
 
         def get_day_start():
-            day_start_text = backend_config_or_default('day_start')
-            if not day_start_text:
-                return ''
-            try:
-                day_start = datetime.datetime.strptime(
-                    day_start_text, '%H:%M:%S',
-                ).time()
-            except ValueError as err:
-                raise ValueError(_(
-                    'Failed to parse "day_start" from config: {}'
-                ).format(day_start_text))
-            return day_start
+            def _get_day_start():
+                day_start = None
+                day_start_text = backend_config_or_default('day_start')
+                if day_start_text:
+                    try:
+                        day_start = datetime.datetime.strptime(
+                            day_start_text, '%H:%M:%S',
+                        ).time()
+                    except ValueError as err:
+                        warn_invalid(day_start_text)
+                if not day_start:
+                    day_start = datetime.time(0, 0, 0)
+                return day_start
+
+            def warn_invalid(day_start_text):
+                msg = _(
+                    'WARNING: Invalid "day_start" from config: {}'
+                ).format(str(day_start_text))
+                dob_in_user_warning(msg)
+
+            return _get_day_start()
 
         def get_fact_min_delta():
             return backend_config_or_default('fact_min_delta')
