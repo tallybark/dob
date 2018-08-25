@@ -85,21 +85,6 @@ class BackendDefaults(object):
         return 'sqlalchemy'
 
     @property
-    def daystart(self):
-        # (lb): Disable this by default; I've never liked this logic!
-        #   In Legacy Hamster: '00:00:00'
-        return ''
-
-    @property
-    def fact_min_delta(self):
-        # (lb): Disable this by default; I've never liked this logic!
-        #   In Legacy Hamster: 60, i.e., facts must be 1 minute apart!
-        #   In Modern Hamster (nark), you can make facts every seconds,
-        #     or every millisecond, we don't care, so long as they do
-        #     not overlap!
-        return '0'
-
-    @property
     def db_engine(self):
         return 'sqlite'
 
@@ -134,6 +119,25 @@ class BackendDefaults(object):
         return ''
 
     @property
+    def allow_momentaneous(self):
+        return False
+
+    @property
+    def daystart(self):
+        # (lb): Disable this by default; I've never liked this logic!
+        #   In Legacy Hamster: '00:00:00'
+        return ''
+
+    @property
+    def fact_min_delta(self):
+        # (lb): Disable this by default; I've never liked this logic!
+        #   In Legacy Hamster: 60, i.e., facts must be 1 minute apart!
+        #   In Modern Hamster (nark), you can make facts every seconds,
+        #     or every millisecond, we don't care, so long as they do
+        #     not overlap!
+        return '0'
+
+    @property
     def sql_log_level(self):
         return 'WARNING'
 
@@ -147,10 +151,6 @@ class BackendDefaults(object):
     def default_tzinfo(self):
         return ''
 
-    @property
-    def allow_momentaneous(self):
-        return False
-
 
 class ClientDefaults(object):
     """"""
@@ -158,8 +158,8 @@ class ClientDefaults(object):
         pass
 
     @property
-    def log_level(self):
-        return 'WARNING'
+    def export_path(self):
+        return ''
 
     @property
     def log_console(self):
@@ -170,16 +170,8 @@ class ClientDefaults(object):
         return 'dob.log'
 
     @property
-    def export_path(self):
-        return ''
-
-    @property
-    def term_color(self):
-        return True
-
-    @property
-    def term_paging(self):
-        return False
+    def log_level(self):
+        return 'WARNING'
 
     @property
     def separators(self):
@@ -187,6 +179,14 @@ class ClientDefaults(object):
 
     @property
     def show_greeting(self):
+        return False
+
+    @property
+    def term_color(self):
+        return True
+
+    @property
+    def term_paging(self):
         return False
 
 
@@ -289,6 +289,21 @@ def get_separate_configs(config):
                 config, ClientDefaults, 'Client', keyname,
             )
 
+        def get_export_path():
+            """
+            Return path to save exports to.
+            File extension will be added by export method.
+            """
+            return os.path.join(AppDirs.user_data_dir, 'export')
+
+        def get_log_console():
+            return client_config_or_default_boolean('log_console')
+
+        def get_logfile_path():
+            log_dir = AppDirs.user_log_dir
+            log_filename = client_config_or_default('log_filename')
+            return os.path.join(log_dir, log_filename)
+
         def get_log_level():
             log_level_name = client_config_or_default('log_level')
             try:
@@ -300,20 +315,11 @@ def get_separate_configs(config):
                 dob_in_user_exit(msg)
             return log_level
 
-        def get_log_console():
-            return client_config_or_default_boolean('log_console')
+        def get_separators():
+            return client_config_or_default('separators')
 
-        def get_logfile_path():
-            log_dir = AppDirs.user_log_dir
-            log_filename = client_config_or_default('log_filename')
-            return os.path.join(log_dir, log_filename)
-
-        def get_export_path():
-            """
-            Return path to save exports to.
-            File extension will be added by export method.
-            """
-            return os.path.join(AppDirs.user_data_dir, 'export')
+        def get_show_greeting():
+            return client_config_or_default_boolean('show_greeting')
 
         def get_term_color():
             return client_config_or_default_boolean('term_color')
@@ -321,21 +327,15 @@ def get_separate_configs(config):
         def get_term_paging():
             return client_config_or_default_boolean('term_paging')
 
-        def get_separators():
-            return client_config_or_default('separators')
-
-        def get_show_greeting():
-            return client_config_or_default_boolean('show_greeting')
-
         return {
-            'log_level': get_log_level(),
+            'export_path': get_export_path(),
             'log_console': get_log_console(),
             'logfile_path': get_logfile_path(),
-            'export_path': get_export_path(),
-            'term_color': get_term_color(),
-            'term_paging': get_term_paging(),
+            'log_level': get_log_level(),
             'separators': get_separators(),
             'show_greeting': get_show_greeting(),
+            'term_color': get_term_color(),
+            'term_paging': get_term_paging(),
         }
 
     def get_backend_config(config):
@@ -366,20 +366,6 @@ def get_separate_configs(config):
                 config, BackendDefaults, 'Backend', keyname,
             )
 
-        def get_day_start():
-            day_start_text = backend_config_or_default('daystart')
-            if not day_start_text:
-                return ''
-            try:
-                day_start = datetime.datetime.strptime(
-                    day_start_text, '%H:%M:%S',
-                ).time()
-            except ValueError as err:
-                raise ValueError(_(
-                    'Failed to parse "day_start" from config: {}'
-                ).format(day_start_text))
-            return day_start
-
         def get_store():
             store = backend_config_or_default('store')
             if store not in nark.control.REGISTERED_BACKENDS.keys():
@@ -388,9 +374,6 @@ def get_separate_configs(config):
 
         def get_db_path():
             return backend_config_or_default('db_path')
-
-        def get_fact_min_delta():
-            return backend_config_or_default('fact_min_delta')
 
         def get_db_config():
             """
@@ -413,6 +396,26 @@ def get_separate_configs(config):
                 })
             return result
 
+        def get_allow_momentaneous():
+            return backend_config_or_default_boolean('allow_momentaneous')
+
+        def get_day_start():
+            day_start_text = backend_config_or_default('daystart')
+            if not day_start_text:
+                return ''
+            try:
+                day_start = datetime.datetime.strptime(
+                    day_start_text, '%H:%M:%S',
+                ).time()
+            except ValueError as err:
+                raise ValueError(_(
+                    'Failed to parse "day_start" from config: {}'
+                ).format(day_start_text))
+            return day_start
+
+        def get_fact_min_delta():
+            return backend_config_or_default('fact_min_delta')
+
         def get_sql_log_level():
             # (lb): A wee bit of a hack! Don't log during the dob-complete
             #   command, lest yuck!
@@ -428,18 +431,15 @@ def get_separate_configs(config):
         def get_default_tzinfo():
             return backend_config_or_default('default_tzinfo')
 
-        def get_allow_momentaneous():
-            return backend_config_or_default_boolean('allow_momentaneous')
-
         backend_config = {
             'store': get_store(),
+            # db_engine, etc., will be added next.
+            'allow_momentaneous': get_allow_momentaneous(),
             'day_start': get_day_start(),
             'fact_min_delta': get_fact_min_delta(),
-            # db_engine, etc., will be added next.
             'sql_log_level': get_sql_log_level(),
             'tz_aware': get_tz_aware(),
             'default_tzinfo': get_default_tzinfo(),
-            'allow_momentaneous': get_allow_momentaneous(),
         }
         backend_config.update(get_db_config())
         return backend_config
@@ -527,8 +527,6 @@ def fresh_config():
         backend = BackendDefaults()
         config.add_section('Backend')
         config.set('Backend', 'store', backend.store)
-        config.set('Backend', 'daystart', backend.daystart)
-        config.set('Backend', 'fact_min_delta', backend.fact_min_delta)
         config.set('Backend', 'db_engine', backend.db_engine)
         config.set('Backend', 'db_path', backend.db_path)
         config.set('Backend', 'db_host', backend.db_host)
@@ -536,22 +534,24 @@ def fresh_config():
         config.set('Backend', 'db_name', backend.db_name)
         config.set('Backend', 'db_user', backend.db_user)
         config.set('Backend', 'db_password', backend.db_password)
+        config.set('Backend', 'allow_momentaneous', backend.allow_momentaneous)
+        config.set('Backend', 'daystart', backend.daystart)
+        config.set('Backend', 'fact_min_delta', backend.fact_min_delta)
         config.set('Backend', 'sql_log_level', backend.sql_log_level)
         config.set('Backend', 'tz_aware', str(backend.tz_aware))
         config.set('Backend', 'default_tzinfo', backend.default_tzinfo)
-        config.set('Backend', 'allow_momentaneous', backend.allow_momentaneous)
 
     def set_defaults_client(config):
         client = ClientDefaults()
         config.add_section('Client')
-        config.set('Client', 'log_level', client.log_level)
+        config.set('Client', 'export_path', client.export_path)
         config.set('Client', 'log_console', str(client.log_console))
         config.set('Client', 'log_filename', client.log_filename)
-        config.set('Client', 'export_path', client.export_path)
-        config.set('Client', 'term_color', str(client.term_color))
-        config.set('Client', 'term_paging', str(client.term_paging))
+        config.set('Client', 'log_level', client.log_level)
         config.set('Client', 'separators', client.separators)
         config.set('Client', 'show_greeting', str(client.show_greeting))
+        config.set('Client', 'term_color', str(client.term_color))
+        config.set('Client', 'term_paging', str(client.term_paging))
 
     return _fresh_config()
 
