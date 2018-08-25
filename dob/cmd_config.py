@@ -27,7 +27,7 @@ import os
 import sys
 
 import nark
-from nark.helpers.config_helpers import NarkAppDirs
+from nark.helpers.app_dirs import NarkAppDirs
 
 from .helpers import dob_in_user_exit, dob_in_user_warning
 
