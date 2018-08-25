@@ -66,7 +66,7 @@ from .create import add_fact, cancel_fact, stop_fact
 from .details import echo_app_details, echo_app_environs, echo_data_stats
 from .helpers import click_echo, dob_in_user_exit, dob_in_user_warning
 from .migrate import upgrade_legacy_database_file
-from .run_cli import disable_logging, dob_versions, pass_controller, run
+from .run_cli import dob_versions, pass_controller, run
 from .transcode import export_facts, import_facts
 
 # Disable the python_2_unicode_compatible future import warning.
@@ -816,7 +816,7 @@ def transcode_import(controller, filename, output, force, *args, **kwargs):
 @induct_newbies
 def complete(controller):
     """Bash tab-completion helper."""
-    disable_logging(controller)
+    controller.disable_logging()
     tab_complete(controller)
 
 

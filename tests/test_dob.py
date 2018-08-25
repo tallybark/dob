@@ -482,7 +482,7 @@ class TestSetupLogging(object):
         """
         Test that library and client logger have log level set according to config.
         """
-        dob._setup_logging(controller)
+        controller.setup_logging()
         assert controller.lib_logger.level == (
             controller.client_config['log_level'])
         assert controller.client_logger.level == (
@@ -493,7 +493,7 @@ class TestSetupLogging(object):
         Make sure that if console loggin is on lib and client logger have a streamhandler.
         """
         controller.client_config['log_console'] = True
-        dob._setup_logging(controller)
+        controller.setup_logging()
         assert isinstance(controller.client_logger.handlers[0],
             logging.StreamHandler)
         assert isinstance(controller.lib_logger.handlers[0],
@@ -502,7 +502,7 @@ class TestSetupLogging(object):
 
     def test_setup_logging_no_logging(self, controller):
         """Make sure that if no logging enabled, our loggers don't have any handlers."""
-        dob._setup_logging(controller)
+        controller.setup_logging()
         assert controller.lib_logger.handlers == []
         assert controller.client_logger.handlers == []
 
@@ -513,7 +513,7 @@ class TestSetupLogging(object):
         controller.client_config['logfile_path'] = os.path.join(
             appdirs.user_log_dir, 'foobar.log',
         )
-        dob._setup_logging(controller)
+        controller.setup_logging()
         assert isinstance(controller.lib_logger.handlers[0],
             logging.FileHandler)
         assert isinstance(controller.client_logger.handlers[0],

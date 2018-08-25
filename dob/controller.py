@@ -22,10 +22,12 @@ from __future__ import absolute_import, unicode_literals
 from gettext import gettext as _
 
 import click
+import logging
 import os
 import sys
 
 from nark import HamsterControl
+from nark.helpers import logging as logging_helpers
 from nark.helpers.colored import disable_colors, enable_colors
 
 from . import __arg0name__
@@ -42,10 +44,10 @@ __all__ = [
     'Controller',
 ]
 
+
 # ***
 # *** [CONTROLLER] HamsterControl Controller.
 # ***
-
 
 class Controller(HamsterControl):
     """
@@ -100,6 +102,9 @@ class Controller(HamsterControl):
             return os.path.isfile(self.config['db_path'])
         else:
             return bool(self.store.get_db_url())
+
+    def standup_store(self):
+        return super(Controller, self).standup_store()
 
     def insist_germinated(self):
         """Assist user if config or database not present."""
@@ -285,4 +290,63 @@ class Controller(HamsterControl):
             enable_colors()
         else:
             disable_colors()
+
+    # ***
+
+    def setup_logging(self, verbose=False, verboser=False):
+        """Setup logging for the lib_logger as well as client specific logging."""
+        self.client_logger = logging.getLogger('dob')
+        loggers = self.get_loggers()
+        # Clear existing Handlers, and set the level.
+        # MAYBE: Allow user to specify different levels for different loggers.
+        client_level = self.client_config['log_level']
+        log_level, warn_name = logging_helpers.resolve_log_level(client_level)
+        # We can at least allow some simpler optioning from the command args.
+        if verbose:
+            log_level = min(logging.INFO, log_level)
+        if verboser:
+            log_level = min(logging.DEBUG, log_level)
+        for logger in loggers:
+            logger.handlers = []
+            logger.setLevel(log_level)
+
+        color = self.client_config['log_color']
+        formatter = logging_helpers.formatter_basic(color=color)
+
+        if self.client_config['log_console']:
+            console_handler = logging.StreamHandler()
+            logging_helpers.setup_handler(console_handler, formatter, *loggers)
+
+        if self.client_config['logfile_path']:
+            filename = self.client_config['logfile_path']
+            file_handler = logging.FileHandler(filename, encoding='utf-8')
+            logging_helpers.setup_handler(file_handler, formatter, *loggers)
+
+        if warn_name:
+            self.client_logger.warning(
+                _('Unknown Client.log_level specified: {}')
+                .format(client_level)
+            )
+
+    def get_loggers(self):
+        loggers = [
+            self.lib_logger,
+            self.sql_logger,
+            self.client_logger,
+        ]
+        return loggers
+
+    def bulk_set_log_levels(self, log_level):
+        for logger in self.get_loggers():
+            logger.setLevel(log_level)
+
+    def disable_logging(self):
+        loggers = [
+            self.lib_logger,
+            self.sql_logger,
+            self.client_logger,
+        ]
+        for logger in loggers:
+            logger.handlers = []
+            logger.setLevel(logging.NOTSET)
 

@@ -22,11 +22,9 @@ from __future__ import absolute_import, unicode_literals
 from gettext import gettext as _
 
 import click
-import logging
 import sys
 
 from nark import __version__ as nark_version
-from nark.helpers import logging as logging_helpers
 
 from . import __appname__ as dob_appname
 from . import __version__ as dob_version
@@ -44,12 +42,8 @@ __all__ = [
     'pass_controller',
     'dob_versions',
     'run',
-    'bulk_set_levels',
-    'disable_logging',
     # Private:
     #  'CONTEXT_SETTINGS',
-    #  '_setup_logging',
-    #  '_get_loggers',
 ]
 
 
@@ -120,7 +114,7 @@ def run(ctx, controller, v, verbose, verboser, color):
         _run_handle_banner()
         _run_handle_version(show_version, ctx)
         _run_handle_without_command(ctx)
-        _setup_logging(controller, verbose, verboser)
+        controller.setup_logging(verbose, verboser)
 
     def _setup_tty_options(controller):
         # If piping output, Disable color and paging.
@@ -168,64 +162,4 @@ def run(ctx, controller, v, verbose, verboser, color):
 
     _run(ctx, controller, show_version=v)
 
-
-def _setup_logging(controller, verbose=False, verboser=False):
-    """Setup logging for the lib_logger as well as client specific logging."""
-    controller.client_logger = logging.getLogger('dob')
-    loggers = _get_loggers(controller)
-    # Clear existing Handlers, and set the level.
-    # MAYBE: Allow user to specify different levels for different loggers.
-    client_level = controller.client_config['log_level']
-    log_level, warn_name = logging_helpers.resolve_log_level(client_level)
-    # We can at least allow some simpler optioning from the command args.
-    if verbose:
-        log_level = min(logging.INFO, log_level)
-    if verboser:
-        log_level = min(logging.DEBUG, log_level)
-    for logger in loggers:
-        logger.handlers = []
-        logger.setLevel(log_level)
-
-    color = controller.client_config['term_color']
-    formatter = logging_helpers.formatter_basic(color=color)
-
-    if controller.client_config['log_console']:
-        console_handler = logging.StreamHandler()
-        logging_helpers.setupHandler(console_handler, formatter, *loggers)
-
-    if controller.client_config['logfile_path']:
-        filename = controller.client_config['logfile_path']
-        file_handler = logging.FileHandler(filename, encoding='utf-8')
-        logging_helpers.setupHandler(file_handler, formatter, *loggers)
-
-    if warn_name:
-        controller.client_logger.warning(
-            _('Unknown Client.log_level specified: {}')
-            .format(client_level)
-        )
-
-
-def _get_loggers(controller):
-    loggers = [
-        controller.lib_logger,
-        controller.sql_logger,
-        controller.client_logger,
-    ]
-    return loggers
-
-
-def bulk_set_levels(controller, log_level):
-    for logger in _get_loggers(controller):
-        logger.setLevel(log_level)
-
-
-def disable_logging(controller):
-    loggers = [
-        controller.lib_logger,
-        controller.sql_logger,
-        controller.client_logger,
-    ]
-    for logger in loggers:
-        logger.handlers = []
-        logger.setLevel(logging.NOTSET)
 
