@@ -285,7 +285,7 @@ def echo_data_stats(controller):
         time_0 = first_fact.start
         time_n = final_fact.end or controller.now
         spanner = Fact(activity=None, start=time_0, end=time_n)
-        elapsed = spanner.get_string_delta(formatting='')
+        elapsed = spanner.format_delta(style='')
         click_echo(_("Hamstering Length: {}").format(highlight_value(elapsed)))
 
     _echo_data_stats()
