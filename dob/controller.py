@@ -350,3 +350,20 @@ class Controller(HamsterControl):
             logger.handlers = []
             logger.setLevel(logging.NOTSET)
 
+    # ***
+
+    def affirm(self, condition):
+        if condition:
+            return
+        self.client_logger.error(_('Something catastrophic happened!'))
+        if not self.client_config['devmode']:
+            return
+        import traceback
+        traceback.print_stack()
+        traceback.print_exc()
+        import pdb
+        pdb.set_trace()
+        # This makes neither input echo nor any command output appear!
+        #   import sys, pdb; pdb.Pdb(stdout=sys.__stdout__).set_trace()
+        #   import sys, pdb; pdb.Pdb(stdout=STDOUT).set_trace()
+
