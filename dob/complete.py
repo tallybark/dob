@@ -26,13 +26,28 @@ from gettext import gettext as _
 import click
 from click.parser import split_arg_string
 
-from nark.helpers.parsing import TIME_HINT_MAP
 from nark.helpers.parsing import ParserMissingActivityException
 from nark.helpers.parsing import ParserMissingDatetimeOneException
 from nark.helpers.parsing import ParserMissingDatetimeTwoException
 from nark.items.fact import Fact
 
 __all__ = ['tab_complete']
+
+
+TIME_HINT_MAP = {
+    # SYNC_ME: RE_TIME_HINT, TIME_HINT_MAP, and @generate_add_fact_command's.
+    'on': 'verify_none',
+    'now': 'verify_none',  # 'on' alias
+    'from': 'verify_both',
+    'between': 'verify_both',  # 'from' alias
+    'at': 'verify_start',
+    'to': 'verify_end',
+    'until': 'verify_end',  # 'to' alias
+    'then': 'verify_then',
+    'still': 'verify_still',
+    'after': 'verify_none',
+    'next': 'verify_none',  # 'after' alias
+}
 
 
 # FIXME/2018-05-17 18:04: On `dob import <tab>`, showing commands, not files! why??
