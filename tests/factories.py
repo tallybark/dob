@@ -22,7 +22,9 @@ import datetime
 import factory
 import faker
 
-import nark
+from nark.items import Activity
+from nark.items import Category
+from nark.items import Fact
 
 
 class CategoryFactory(factory.Factory):
@@ -32,7 +34,7 @@ class CategoryFactory(factory.Factory):
     name = factory.Faker('word')
 
     class Meta:
-        model = nark.Category
+        model = Category
 
 
 class ActivityFactory(factory.Factory):
@@ -44,7 +46,7 @@ class ActivityFactory(factory.Factory):
     deleted = False
 
     class Meta:
-        model = nark.Activity
+        model = Activity
 
 
 class FactFactory(factory.Factory):
@@ -57,4 +59,5 @@ class FactFactory(factory.Factory):
     description = factory.Faker('paragraph')
 
     class Meta:
-        model = nark.Fact
+        model = Fact
+
