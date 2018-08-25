@@ -26,7 +26,7 @@ import logging
 import os
 import sys
 
-from nark import HamsterControl
+from nark.control import HamsterControl
 from nark.helpers import logging as logging_helpers
 from nark.helpers.colored import disable_colors, enable_colors
 
