@@ -40,8 +40,8 @@ __all__ = [
     'must_no_more_than_one_file',
     'post_processor',
     # Private:
-    # 'backend_integrity',
-    # 'insist_germinated',
+    #  'backend_integrity',
+    #  'insist_germinated',
 ]
 
 
@@ -136,8 +136,8 @@ def post_processor(func):
     """
 
     def wrapper(controller, *args, **kwargs):
-        fact = func(controller, *args, **kwargs)
-        controller.post_process(controller, fact)
+        facts = func(controller, *args, **kwargs)
+        controller.post_process(controller, facts)
 
     return update_wrapper(wrapper, func)
 
