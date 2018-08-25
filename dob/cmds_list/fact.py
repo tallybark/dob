@@ -24,32 +24,32 @@ import sys
 from collections import namedtuple
 
 from nark.helpers.colored import colorize
+from nark.helpers.parse_time import parse_dated
 
 from ..cmd_common import error_exit_no_results, hydrate_activity, hydrate_category
 from ..helpers import click_echo, dob_in_user_exit, dob_in_user_warning
 from ..helpers.ascii_table import generate_table, warn_if_truncated
 
+
 __all__ = [
     'echo_latest_ended',
     'echo_ongoing_fact',
+    'echo_ongoing_or_ended',
     'find_latest_fact',
+    'find_maiden_fact',
     'list_facts',
     'search_facts',
     'generate_facts_table',
     # Private:
+    #  'echo_most_recent',
     #  'echo_single_fact',
 ]
 
 
+# ***
+
 def echo_latest_ended(controller):
-    list_facts(
-        controller,
-        include_usage=False,
-        block_format=True,
-        span=True,
-        sort_order='desc',
-        limit=1,
-    )
+    echo_most_recent(controller, restrict='ended')
 
 
 def echo_ongoing_fact(controller):
@@ -62,24 +62,25 @@ def echo_ongoing_fact(controller):
     Raises:
         click.ClickException: If we fail to fetch any *ongoing fact*.
     """
-    fact = find_latest_fact(controller, restrict='ongoing')
+    empty_msg = _('No active fact. Try starting a new fact first.')
+    echo_most_recent(controller, restrict='ongoing', empty_msg=empty_msg)
+
+
+def echo_ongoing_or_ended(controller):
+    echo_most_recent(controller, restrict=None)
+
+
+def echo_most_recent(controller, restrict=None, empty_msg=None):
+    fact = find_latest_fact(controller, restrict=restrict)
     if fact is not None:
         echo_single_fact(controller, fact)
     else:
-        msg = '{} {} {}'.format(
-            _('No active fact.'),
-            _('Try starting a fact first.'),
-            # (lb): MAYBE: Would there be any value to pointing user to help?
-            #   I'm guessing that if a user gets this far, they know what they
-            #   are doing, so probably not much value in such a message.
-            #   (I'm also not sure which help we'd suggest they read.)
-            # _('For help, run `{} add --help`').format(__arg0name__),
-        )
-        dob_in_user_exit(msg)
+        empty_msg = empty_msg if empty_msg else _('No facts found.')
+        dob_in_user_exit(empty_msg)
 
 
-def find_latest_fact(controller, restrict):
-    assert restrict in ['ended', 'ongoing', ]
+def find_latest_fact(controller, restrict=None):
+    assert not restrict or restrict in ['ended', 'ongoing', ]
     fact = None
     if not restrict or restrict == 'ongoing':
         try:
@@ -90,12 +91,29 @@ def find_latest_fact(controller, restrict):
             # (lb): Unexpected! This could mean more than one ongoing Fact found!
             dob_in_user_warning(str(err))
     if fact is None and restrict != 'ongoing':
-        results = controller.facts.get_all(sort_order='desc', limit=1)
+        results = controller.facts.get_all(
+            sort_col='start', sort_order='desc', limit=1, exclude_ongoing=True,
+        )
         if len(results) > 0:
             assert len(results) == 1
             fact, = results
     return fact
 
+
+# ***
+
+def find_maiden_fact(controller):
+    fact = None
+    results = controller.facts.get_all(
+        sort_col='start', sort_order='asc', limit=1,
+    )
+    if len(results) > 0:
+        assert len(results) == 1
+        fact, = results
+    return fact
+
+
+# ***
 
 def echo_single_fact(controller, fact):
     colorful = controller.client_config['term_color']
@@ -111,8 +129,11 @@ def echo_single_fact(controller, fact):
     )
 
 
+# ***
+
 def list_facts(
     controller,
+    include_id=False,
     include_usage=False,
     filter_activity='',
     filter_category='',
@@ -163,12 +184,12 @@ def list_facts(
         colorful = controller.client_config['term_color']
         sep_width = output_rule_width()
         cut_width = output_truncate_at()
-        for fact in results:
+        for idx, fact in enumerate(results):
+            write_out() if idx > 0 else None
             output_fact_block(fact, colorful, cut_width)
-            write_out()
             if sep_width:
-                write_out(colorize(rule * sep_width, 'indian_red_1c'))
                 write_out()
+                write_out(colorize(rule * sep_width, 'indian_red_1c'))
 
     def output_rule_width():
         if not rule:
@@ -194,7 +215,7 @@ def list_facts(
                 shellify=False,
                 description_sep='\n\n',
                 localize=True,
-                include_id=True,
+                include_id=include_id,
                 colorful=colorful,
                 cut_width=cut_width,
                 show_elapsed=span,
@@ -212,7 +233,7 @@ def list_facts(
         #   ['Key', 'Start', 'End', 'Activity', 'Category', 'Tags', 'Description',]
         #   and sometimes + ['Duration']
         desc_col_idx = 6  # MAGIC_NUMBER: Depends on generate_facts_table.
-        # (lb): This is ridiculously slow on a mere 15K records! So
+        # FIXME: (lb): This is ridiculously slow on a mere 15K records! So
         #   Use --limit/--offset or other ways of filter filter
         #   We should offer a --limit/--offset feature.
         #   We could also fail if too many records; or find a better library.
@@ -221,18 +242,20 @@ def list_facts(
 
     def write_out(line=''):
         if out_file is not None:
-            out_file.write(str(line) + "\n")
+            out_file.write(line + "\n")
         else:
             click_echo(line)
 
     _list_facts()
 
 
+# ***
+
 def search_facts(
     controller,
     key=None,
-    start=None,
-    end=None,
+    since=None,
+    until=None,
     *args,
     **kwargs
 ):
@@ -245,25 +268,26 @@ def search_facts(
 
         FIXME: Keep documenting...
     """
+    def _search_facts():
+        if key:
+            return [controller.facts.get(pk=key)]
+        else:
+            return get_all(since, until)
 
-    if key:
-        results = [controller.facts.get(pk=key)]
-    else:
-        # Convert the start and time strings to datetimes.
-        # FIXME/2018-06-10: (lb): Need to parse time. Use iso8601 library.
-        if start:
-            raise NotImplementedError
-            # WAS: start = time_helpers.parse_time(start)
-        if end:
-            raise NotImplementedError
-            # WAS: end = time_helpers.parse_time(end)
+    def get_all(since, until):
+        # Convert the since and until time strings to datetimes.
+        since = parse_dated(since, controller.now) if since else None
+        until = parse_dated(until, controller.now) if until else None
 
         results = controller.facts.get_all(
-            start=start, end=end, *args, **kwargs
+            since=since, until=until, *args, **kwargs
         )
+        return results
 
-    return results
+    return _search_facts()
 
+
+# ***
 
 def generate_facts_table(controller, facts, show_duration=True, include_usage=False):
     """
@@ -349,7 +373,7 @@ def generate_facts_table(controller, facts, show_duration=True, include_usage=Fa
 
         additional = {}
         if show_duration:
-            additional['delta'] = fact.get_string_delta('')
+            additional['delta'] = fact.format_delta(style='')
 
         table.append(
             TableRow(
