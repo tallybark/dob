@@ -28,6 +28,7 @@ from nark.helpers.colored import fg, attr
 
 from . import __arg0name__
 from . import help_strings
+# Profiling: load AppDirs: ~ 0.011 secs.
 from .cmd_config import AppDirs
 from .helpers import (
     click_echo,
@@ -35,6 +36,7 @@ from .helpers import (
     dob_in_user_warning,
     highlight_value
 )
+
 
 __all__ = [
     'control',

@@ -20,10 +20,11 @@ from __future__ import absolute_import, unicode_literals
 import editor
 import six
 
-from nark import Activity
+from nark.items.activity import Activity
 
-from .prompters import PrompterCommon
-from .prompters.prompt__awesome import AwesomePrompt
+# Lazy-load AwesomePrompt to save ~0.1 seconds when not needed.
+from . import prompters
+
 
 __all__ = [
     'ask_user_for_edits',
@@ -67,9 +68,9 @@ def ask_user_for_edits(
 
     def get_prompter():
         if prompt_agent is None:
-            return AwesomePrompt(controller)
+            return prompters.path.AwesomePrompt(controller)
         else:
-            assert isinstance(prompt_agent, PrompterCommon)
+            assert isinstance(prompt_agent, prompters.path.PrompterCommon)
             return prompt_agent
 
     # ***

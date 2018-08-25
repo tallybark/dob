@@ -58,6 +58,10 @@ requirements = [
     'humanfriendly',
     # Human Friendly timedelta formatter, e.g., "1 day, 4 hours, 4 mins."
     'human-friendly_pedantic-timedelta',
+    # https://github.com/mnmelo/lazy_import
+    'lazy_import',
+    # https://github.com/pytest-dev/apipkg
+    'apipkg',
     # Just Another EDITOR package.
     #  https://github.com/fmoo/python-editor
     'python-editor',

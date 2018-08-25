@@ -21,22 +21,21 @@ from gettext import gettext as _
 
 import click
 import datetime
+import lazy_import
 import logging
 import os
 import sys
-# Once we drop Py2 support, we can use the builtin again, but Unicode support
-# under Python 2 is practically non existing and manual encoding is not easily
-# possible.
-from backports.configparser import (
-    DuplicateOptionError,
-    NoOptionError,
-    SafeConfigParser
-)
 
 import nark
 from nark.helpers.config_helpers import NarkAppDirs
 
 from .helpers import dob_in_user_exit, dob_in_user_warning
+
+# Profiling: load backports: ~ 0.006 secs.
+# LATER: Drop Py2 support, then switch from backports to builtin configparser.
+# (lb): Py2 uses backports for Unicode support [if I understand correctly].
+# (lb): This is probably pointless, as config is always loaded.
+configparser = lazy_import.lazy_module('backports.configparser')
 
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
@@ -220,14 +219,14 @@ def replenish_config():
 def from_config_or_default(config, cls_defaults, section, keyname):
     try:
         return config.get(section, keyname)
-    except NoOptionError:
+    except configparser.NoOptionError:
         return getattr(cls_defaults(), keyname)
 
 
 def from_config_or_default_boolean(config, cls_defaults, section, keyname):
     try:
         return config.getboolean(section, keyname)
-    except NoOptionError:
+    except configparser.NoOptionError:
         return getattr(cls_defaults(), keyname)
 
 
@@ -460,7 +459,7 @@ def get_config_instance():
     def _get_config_instance():
         try:
             return unpack_config()
-        except DuplicateOptionError as err:
+        except configparser.DuplicateOptionError as err:
             return suffer_config(err)
 
     def unpack_config():
@@ -471,7 +470,7 @@ def get_config_instance():
         return prepare_config(duplicates_ok=True)
 
     def prepare_config(duplicates_ok):
-        config = SafeConfigParser(strict=not duplicates_ok)
+        config = configparser.SafeConfigParser(strict=not duplicates_ok)
         configfile_path = get_config_path()
         if config.read(configfile_path):
             return config, True
@@ -514,7 +513,7 @@ def fresh_config():
     # This may be usefull to turn into a proper command, so users can restore to
     # factory settings easily.
     def _fresh_config():
-        config = SafeConfigParser()
+        config = configparser.SafeConfigParser()
         set_defaults_backend(config)
         set_defaults_client(config)
         return config

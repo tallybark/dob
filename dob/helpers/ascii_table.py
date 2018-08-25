@@ -20,15 +20,23 @@ from __future__ import absolute_import, unicode_literals
 from gettext import gettext as _
 
 import click
-# (lb): I know, I know, 3 table libraries! I couldn't find one I liked the
-# best, so now they're all included, and the user can choose their fave.
-from tabulate import tabulate
-from texttable import Texttable
-from humanfriendly.tables import format_pretty_table
+import lazy_import
 
 from nark.helpers.colored import attr
 
 from . import click_echo
+
+# (lb): I know, I know, 3 table libraries! I couldn't find one I liked the
+# best, so now they're all included, and the user can choose their fave.
+# Profiling: load times:
+#  ~ 0.004 secs.  / from tabulate import tabulate
+#  ~ 0.015 secs.  / from texttable import Texttable
+#  ~ 0.020 secs.  / from humanfriendly.tables import format_pretty_table
+tabulate = lazy_import.lazy_module('tabulate')
+texttable = lazy_import.lazy_module('texttable')
+format_pretty_table = lazy_import.lazy_callable(
+    'humanfriendly.tables.format_pretty_table'
+)
 
 __all__ = ['generate_table', 'warn_if_truncated']
 
@@ -126,7 +134,10 @@ def _generate_table_truncate_cell_values(rows, trunccol, max_width):
 
 def _generate_table_display(rows, plain_headers, color_headers, table_type):
     if table_type == 'tabulate':
-        click_echo(tabulate(rows, headers=color_headers, tablefmt="fancy_grid"))
+        tabulation = tabulate.tabulate(
+            rows, headers=color_headers, tablefmt="fancy_grid",
+        )
+        click_echo(tabulation)
     elif table_type == 'texttable':
         # PROS: Texttable wraps long lines by **default**!
         #       And within the same column!
@@ -137,15 +148,17 @@ def _generate_table_display(rows, plain_headers, color_headers, table_type):
         # CONS: Texttable counts control characters.
         #       If you add color to your headers, their columns will not
         #       line up with the content rows! (lb): "A deal breaker!"
-        ttable = Texttable()
+        ttable = texttable.Texttable()
         ttable.set_cols_align(["l", "r"])
         rows.insert(0, plain_headers)
         ttable.add_rows(rows)
-        click_echo(ttable.draw())
+        textable = ttable.draw()
+        click_echo(textable)
     else:
         assert table_type == 'friendly'
         # Haha, humanfriendly colors the header text green by default.
-        click_echo(format_pretty_table(rows, color_headers))
+        friendly = format_pretty_table(rows, color_headers)
+        click_echo(friendly)
 
 
 def warn_if_truncated(controller, n_results, n_rows):
