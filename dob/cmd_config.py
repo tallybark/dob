@@ -123,7 +123,7 @@ class BackendDefaults(object):
         return False
 
     @property
-    def daystart(self):
+    def day_start(self):
         # (lb): Disable this by default; I've never liked this logic!
         #   In Legacy Hamster: '00:00:00'
         return ''
@@ -400,7 +400,7 @@ def get_separate_configs(config):
             return backend_config_or_default_boolean('allow_momentaneous')
 
         def get_day_start():
-            day_start_text = backend_config_or_default('daystart')
+            day_start_text = backend_config_or_default('day_start')
             if not day_start_text:
                 return ''
             try:
@@ -535,7 +535,7 @@ def fresh_config():
         config.set('Backend', 'db_user', backend.db_user)
         config.set('Backend', 'db_password', backend.db_password)
         config.set('Backend', 'allow_momentaneous', backend.allow_momentaneous)
-        config.set('Backend', 'daystart', backend.daystart)
+        config.set('Backend', 'day_start', backend.day_start)
         config.set('Backend', 'fact_min_delta', backend.fact_min_delta)
         config.set('Backend', 'sql_log_level', backend.sql_log_level)
         config.set('Backend', 'tz_aware', str(backend.tz_aware))

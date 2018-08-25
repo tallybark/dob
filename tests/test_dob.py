@@ -543,20 +543,20 @@ class TestGetConfig(object):
             )
 
 #    @pytest.mark.parametrize('day_start', ['05:00:00'])
-#    def test_daystart_valid(self, config_instance, day_start):
+#    def test_day_start_valid(self, config_instance, day_start):
 #        """Test that ``day_start`` string translate to proper ``datetime.time`` instances."""
 #        backend, client = cmd_config.get_config(config_instance(
-#            daystart=day_start)
+#            day_start=day_start)
 #        )
 #        assert backend['day_start'] == datetime.datetime.strptime(
 #            '05:00:00', '%H:%M:%S').time()
 
 #    @pytest.mark.parametrize('day_start', ['foobar'])
-#    def test_daystart_invalid(self, config_instance, day_start):
+#    def test_day_start_invalid(self, config_instance, day_start):
 #        """Test that invalid ``day_start`` strings raises ``ValueError``."""
 #        with pytest.raises(ValueError):
 #            backend, client = cmd_config.get_config(
-#                config_instance(daystart=day_start)
+#                config_instance(day_start=day_start)
 #            )
 
     def test_invalid_store(self, config_instance):

@@ -107,11 +107,10 @@ def lib_config(tmpdir):
     """
     return {
         'store': 'sqlalchemy',
-        'day_start': datetime.time(hour=0, minute=0, second=0),
-        #'day_start': '',
         'db_engine': 'sqlite',
         'db_path': ':memory:',
         'sql_log_level': 'WARNING',
+        'day_start': datetime.time(hour=5, minute=0, second=0),
         #'fact_min_delta': 0,
         'fact_min_delta': 60,
         'tz_aware': False,
@@ -149,8 +148,6 @@ def config_instance(tmpdir, faker):
             # Backend
             config.add_section('Backend')
             config.set('Backend', 'store', kwargs.get('store', 'sqlalchemy'))
-            config.set('Backend', 'daystart', kwargs.get('daystart', '00:00:00'))
-            #config.set('Backend', 'daystart', kwargs.get('daystart', ''))
             config.set('Backend', 'fact_min_delta', kwargs.get('fact_min_delta', '60'))
             #config.set('Backend', 'fact_min_delta', kwargs.get('fact_min_delta', '0'))
             config.set('Backend', 'db_engine', kwargs.get('db_engine', 'sqlite'))
@@ -162,6 +159,7 @@ def config_instance(tmpdir, faker):
             config.set('Backend', 'db_port', kwargs.get('db_port', ''))
             config.set('Backend', 'db_user', kwargs.get('db_user', '')),
             config.set('Backend', 'db_password', kwargs.get('db_password', ''))
+            config.set('Backend', 'day_start', kwargs.get('day_start', '00:00:00'))
             config.set('Backend', 'sql_log_level', kwargs.get('sql_log_level', 'WARNING'))
             config.set('Backend', 'tz_aware', 'False')
             config.set('Backend', 'default_tzinfo', '')  # America/Menominee
