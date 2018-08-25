@@ -367,3 +367,44 @@ class Controller(HamsterControl):
         #   import sys, pdb; pdb.Pdb(stdout=sys.__stdout__).set_trace()
         #   import sys, pdb; pdb.Pdb(stdout=STDOUT).set_trace()
 
+    # ***
+
+    def wire_pdb_pipes(self):
+        if not self.client_config['devmode']:
+            return
+        if not self.client_config['fifo_dir']:
+            return
+        # Fix terminal echo in PDB on breakpoint.
+        # NOTE: Readline-ish stuff does not work, like previous history with up arrow.
+        #       But copy-paste works, TFG.
+        # https://stackoverflow.com/questions/17074177/
+        #   how-to-debug-python-cli-that-takes-stdin
+        try:
+            self.monkey_patch_set_trace()
+        except FileNotFoundError as err:
+            self.client_logger.warning(
+                _('Cannot patch set_trace: ‘{}’'.format(err))
+            )
+
+    def monkey_patch_set_trace(self):
+        import pdb
+        basename = self.client_config['fifo_dir']
+        fifo_stdin = open(os.path.join(basename, 'fifo_stdin'), 'r')
+        fifo_stdout = open(os.path.join(basename, 'fifo_stdout'), 'w')
+        mypdb = pdb.Pdb(stdin=fifo_stdin, stdout=fifo_stdout)
+        pdb.set_trace = mypdb.set_trace
+
+    # ANOTHER OPTION:
+    # def tty_pdb():
+    #     from contextlib import (
+    #         _RedirectStream, redirect_stdout, redirect_stderr
+    #     )
+    #     class redirect_stdin(_RedirectStream):
+    #         _stream = 'stdin'
+    #     with open('/dev/tty', 'r') as new_stdin, \
+    #          open('/dev/tty', 'w') as new_stdout, \
+    #          open('/dev/tty', 'w') as new_stderr, \
+    #          redirect_stdin(new_stdin), \
+    #          redirect_stdout(new_stdout), redirect_stderr(new_stderr):
+    #         __import__('pdb').set_trace()
+
