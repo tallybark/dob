@@ -31,6 +31,7 @@ from click_alias import ClickAliasedGroup
 
 from .cmd_config import get_appdirs_subdir_file_path, AppDirs
 from .helpers import dob_in_user_warning
+from .helpers.path import compile_and_eval_source
 
 __all__ = [
     'install_plugin',
@@ -59,10 +60,16 @@ class ClickAliasablePluginGroup(ClickAliasedGroup):
         return cmd_names
 
     def get_command(self, ctx, name):
+        # NOTE: get_command is called via self.resolve_command, from
+        #       click.MultiCommand.invoke. Just FYI. -(lb)
         # Call the get-commands func., which really just sources the plugins, so they
         # can tie into Click; then we can just call the base class implementation.
-        self.get_commands_from_plugins(name)
         cmd = super(ClickAliasablePluginGroup, self).get_command(ctx, name)
+        if cmd is None:
+            # (lb): Profiling: Loading plugins [2018-07-15: I have 3]: 0.139 secs.
+            #       So only call if necessary.
+            self.get_commands_from_plugins(name)
+            cmd = super(ClickAliasablePluginGroup, self).get_command(ctx, name)
         return cmd
 
     def get_commands_from_plugins(self, name):
@@ -82,48 +89,20 @@ class ClickAliasablePluginGroup(ClickAliasedGroup):
         return list(cmds)
 
     def open_source_eval_and_poke_around(self, py_path, name):
-        with open(py_path) as py_text:
-            cmds = self.eval_source_and_look_for_commands(py_text, py_path, name)
+        # NOTE: The code that's eval()ed might append to self._aliases!
+        #       (Or anything else!)
+        eval_globals = compile_and_eval_source(py_path)
+        cmds = self.probe_source_for_commands(eval_globals, name)
         return cmds
 
-    def eval_source_and_look_for_commands(self, py_text, py_path, name):
-        code = self.source_compile(py_text, py_path)
-        if code is None:
-            return set()
-        globcals = {}
-        self.eval_source_code(code, globcals, py_path)
-        cmds = self.probe_source_for_commands(globcals, name)
-        return cmds
-
-    def source_compile(self, py_text, py_path):
-        try:
-            code = compile(py_text.read(), py_path, 'exec')
-        except Exception as err:
-            code = None
-            msg = _(
-                'ERROR: Could not compile plugins file "{}": {}'
-            ).format(py_path, str(err))
-            dob_in_user_warning(msg)
-        return code
-
-    def eval_source_code(self, code, globcals, py_path):
-        try:
-            # NOTE: This might append to self._aliases!
-            eval(code, globcals, globcals)
-        except Exception as err:
-            msg = _(
-                'ERROR: Could not source plugins file "{}": {}'
-            ).format(py_path, str(err))
-            dob_in_user_warning(msg)
-
-    def probe_source_for_commands(self, globcals, name):
+    def probe_source_for_commands(self, eval_globals, name):
         # Check for alias now, after having sourced the plugin.
         cmd_name = None
         if name:
             cmd_name = self.resolve_alias(name)
 
         cmds = set()
-        for lname, obj in globcals.items():
+        for lname, obj in eval_globals.items():
             if not isinstance(obj, click.Command):
                 continue
             if self is obj:
