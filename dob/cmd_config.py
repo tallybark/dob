@@ -71,8 +71,10 @@ AppDirs = DobAppDirs('dob')
 # *** Config defaults.
 # ***
 
-# FIXME: (lb): Can we DRY this? nark duplicates a lot of this.
-#   See also/SYNC: nark.helpers.config_helpers.get_default_backend_config()
+# FIXME: (lb): DRY this. nark duplicates a lot of this.
+#   See also/SYNC: nark.helpers.app_config.get_default_backend_config()
+#   (We can make a single, layered config manager
+#    that'll support arbitrary plugin config, too.)
 class BackendDefaults(object):
     """"""
     def __init__(self):
@@ -104,7 +106,10 @@ class BackendDefaults(object):
     @property
     def db_path(self):
         return os.path.join(
-            str(AppDirs.user_data_dir),
+            AppDirs.user_data_dir,
+            # MAYBE: Rename? 'nark.sqlite'?? or 'hamster.sqlite'??
+            # FIXME: Make this a package const rather than inline literal.
+            #        (Maybe on Config refactor how to do so will be evident.)
             'dob.sqlite',
         )
 
