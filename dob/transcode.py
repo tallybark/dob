@@ -26,7 +26,7 @@ import copy
 import re
 import sys
 
-from nark import Fact, reports
+from nark import reports
 from nark.helpers.colored import fg, bg, attr
 from nark.helpers.parsing import parse_factoid
 
@@ -45,7 +45,14 @@ from .helpers import (
     prepare_log_msg
 )
 from .helpers.crude_progress import CrudeProgress
-from .helpers.fix_times import mend_facts_times, must_complete_times
+from .helpers.fix_times import (
+    mend_facts_times,
+    must_complete_times,
+    reduce_time_hint,
+    then_extend_fact,
+    DEFAULT_SQUASH_SEP
+)
+from .traverser.placeable_fact import PlaceableFact
 
 __all__ = [
     'export_facts',
@@ -115,9 +122,13 @@ def export_facts(
 
     def must_verify_format(to_format):
         accepted_formats = ['csv', 'tsv', 'ical', 'xml']
-        # [TODO]
-        # Once nark has a proper 'export' register available we should be able
-        # to streamline this.
+        # (lb): An old hamster-lib comment:
+        #   [TODO]
+        #   Once nark has a proper 'export' register available we should be able
+        #   to streamline this.
+        # (lb): I think the comment means that formats should be registered
+        # with nark (like how plugins register). And then we wouldn't need
+        # a hard-coded accepted_formats lookup.
         if to_format not in accepted_formats:
             message = _("Unrecocgnized export format received")
             controller.client_logger.info(message)
@@ -189,6 +200,16 @@ def import_facts(
     """
     Import Facts from STDIN or a file.
     """
+
+    # Bah. Progress is only useful if mend_facts_times calls insert_forcefully,
+    # otherwise the import operation should be fast (at least for the 1Kish Fact
+    # imports this author has ran). And insert_forcefully is only needed if the
+    # Fact range being imported overlaps with existing Facts. Which it really
+    # shouldn't, i.e., the use case is, I've been on vacation and Hamstering to
+    # a file on my phone, and now I want that data imported into Hamster, which
+    # we be strictly following the latest Fact saved in the store.
+    # FIXME: Remove Progress? Hrmmm...
+    #          Well, Parsing Factoids appears for a blip on 500 Facts file, I suppose.
     progress = CrudeProgress(enabled=True)
 
     # MAYBE/2018-05-16 00:11: (lb): Parse whole file before prompting.
@@ -202,24 +223,22 @@ def import_facts(
         unprocessed_facts = parse_facts_from_stream(input_f, ask, yes, dry)
         new_facts, hydrate_errs = hydrate_facts(unprocessed_facts)
         must_hydrated_all_facts(hydrate_errs)
-        raw_facts = copy.deepcopy(new_facts)
-        must_complete_times(controller, new_facts)
+        must_complete_times(controller, new_facts, progress=progress)
         must_not_conflict_existing(new_facts)
-        prompt_and_save(
+        saved_facts = prompt_and_save(
             controller,
-            new_facts,
-            raw_facts,
-            file_in,
-            file_out,
-            rule,
-            backup,
-            leave_backup,
-            ask,
-            yes,
-            dry,
-            progress,
+            edit_facts=new_facts,
+            file_in=file_in,
+            file_out=file_out,
+            rule=rule,
+            backup=backup,
+            leave_backup=leave_backup,
+            ask=ask,
+            yes=yes,
+            dry=dry,
+            progress=progress,
         )
-        return new_facts
+        return saved_facts
 
     # ***
 
@@ -289,8 +308,8 @@ def import_facts(
             if fact_dict is None:
                 bl_count = 0
                 continue
-            fact_dict['line_num'] = line_num
-            fact_dict['raw_meta'] = line
+            fact_dict['parsed_source.line_num'] = line_num
+            fact_dict['parsed_source.line_raw'] = line
             if not accumulated_fact:
                 # First Fact.
                 assert current_fact_dict is None
@@ -371,15 +390,20 @@ def import_facts(
             )
             barf_and_exit(msg)
 
-    # See also: parsing.TIME_HINT_MAP
-
     RE_TIME_HINT = re.compile(
-        # Skipping: on|now.
+        # SYNC_ME: RE_TIME_HINT, TIME_HINT_MAP, and @generate_add_fact_command's.
         r'^('
-            '(?P<verify_start>at)|'  # noqa: E131
-            '(?P<verify_end>to|until)|'
+            # Skipping: Doesn't make sense: '(?P<verify_none>on|now)'
             '(?P<verify_both>from|between)'
-        ' )',
+            '|(?P<verify_start>at)'  # noqa: E131
+            '|(?P<verify_end>to|until)'
+            '|(?P<verify_then_none>then:)'
+            '|(?P<verify_then_some>then)'
+            '|(?P<verify_still_none>still:)'
+            '|(?P<verify_still_some>still)'
+            # NOTE: Require colon postfix, b/c no time component.
+            '|(?P<verify_after>after:|since:|next:)'
+        ' )',  # NOTE The SPACE CHARACTER following THE DIRECTIVE!
         re.IGNORECASE,
     )
 
@@ -426,9 +450,11 @@ def import_facts(
         # Per dob-insert commands, parser expects iterable.
         factoid = (line,)
 
+        use_hint = reduce_time_hint(time_hint)
+
         fact_dict, err = parse_factoid(
             factoid=factoid,
-            time_hint=time_hint,
+            time_hint=use_hint,
             # MEH: (lb): Should we leave hash_stamps='#@' ?
             #   I sorta like using the proper tag symbol
             #   when not worried about shell interpolation.
@@ -438,7 +464,17 @@ def import_facts(
             # all the errors and exiting.
             lenient=True,
         )
+
+        fact_dict_set_time_hint(fact_dict, time_hint)
+
         return fact_dict, err
+
+    def fact_dict_set_time_hint(fact_dict, time_hint):
+        fact_dict['time_hint'] = time_hint
+        if time_hint == "verify_after":
+            assert not fact_dict['start'] and not fact_dict['end']
+            # (lb): How's this for a hack!?
+            fact_dict['start'] = "+0"
 
     # ***
 
@@ -448,27 +484,29 @@ def import_facts(
         temp_id = -1
         progress.click_echo_current_task(_('Hydrating Facts...'))
         for fact_dict, accumulated_fact in unprocessed_facts:
-            log_warnings_and_context(fact_dict)
+            add_hydration_warnings(fact_dict, hydrate_errs)
             hydrate_description(fact_dict, accumulated_fact)
-            new_fact, err = create_from_parsed_fact(fact_dict)
+
+            new_fact, err_msg = create_fact_from_parsed_dict(fact_dict)
             if new_fact:
-                temp_id = add_new_fact(new_fact, temp_id, new_facts)
+                assert not err_msg
+                time_hint = fact_dict['time_hint']
+                temp_id = add_new_fact(new_fact, time_hint, temp_id, new_facts)
             else:
-                hydrate_errs.append(err)
+                assert not new_fact
+                hydrate_errs.append(err_msg)
         return new_facts, hydrate_errs
 
-    def log_warnings_and_context(fact_dict):
+    def add_hydration_warnings(fact_dict, hydrate_errs):
         if not fact_dict['warnings']:
             return
         fact_warnings = '\n  '.join(fact_dict['warnings'])
         display_dict = copy.copy(fact_dict)
         del display_dict['warnings']
-        controller.client_logger.warning(
-            prepare_log_msg(display_dict, fact_warnings)
-        )
+        err_msg = prepare_log_msg(display_dict, fact_warnings)
+        hydrate_errs.append(err_msg)
 
     # Horizontal rule separator matches same character repeated at least thrice.
-    # FIXME/2018-05-18: (lb): Document: HR is any repeated one of -, =, #, |.
     FACT_SEP_HR = re.compile(r'^([-=#|])\1{2}\1*$')
 
     def hydrate_description(fact_dict, accumulated_fact):
@@ -490,7 +528,6 @@ def import_facts(
     def cull_factless_fact_separator(desc_lines):
         # To make import file more readable, user can add
         # separator line between facts. Cull it if found.
-        # MAYBE/2018-05-18: (lb): Make this operation optional?
         while len(desc_lines) > 0 and not desc_lines[-1].strip():
             desc_lines.pop()
 
@@ -505,38 +542,129 @@ def import_facts(
 
         return desc_lines
 
-    def create_from_parsed_fact(fact_dict):
+    def create_fact_from_parsed_dict(fact_dict):
         new_fact = None
         err_msg = None
-        ephemeral = {
-            'line_num': fact_dict['line_num'],
-            'raw_meta': fact_dict['raw_meta'],
-        }
         try:
-            new_fact = Fact.create_from_parsed_fact(
-                fact_dict, lenient=True, ephemeral=ephemeral,
+            new_fact = PlaceableFact.create_from_parsed_fact(
+                fact_dict,
+                lenient=True,
+                line_num=fact_dict['parsed_source.line_num'],
+                line_raw=fact_dict['parsed_source.line_raw'],
             )
-        except Exception as err:
+        except ValueError as err:
             err_msg = prepare_log_msg(fact_dict, str(err))
         # (lb): Returning a tuple that smells like Golang: (fact, err, ).
         return new_fact, err_msg
 
-    def add_new_fact(new_fact, temp_id, new_facts):
+    def add_new_fact(new_fact, time_hint, temp_id, new_facts):
         if new_fact is None:
+            return temp_id
+        add_facts = maybe_squash_extend_prev(new_fact, time_hint, new_facts)
+        for add_fact in add_facts:
+            temp_id = add_new_fact_maybe(add_fact, temp_id, new_facts)
+        return temp_id
+
+    def maybe_squash_extend_prev(new_fact, time_hint, new_facts):
+        if time_hint not in [
+            'verify_end',
+            'verify_then_none',
+            'verify_then_some',
+            'verify_still_none',
+            'verify_still_some',
+        ]:
+            return [new_fact]
+        prev_fact = new_facts[-1] if new_facts else None
+        return squash_extend_if_prev(prev_fact, new_fact, time_hint, new_facts)
+
+    def squash_extend_if_prev(prev_fact, new_fact, time_hint, new_facts):
+        new_new_facts = squend_check_noop_or_extend(prev_fact, new_fact, time_hint)
+        if new_new_facts is not None:
+            return new_new_facts
+        return squend_squash_or_extend(prev_fact, new_fact, time_hint, new_facts)
+
+    def squend_check_noop_or_extend(prev_fact, new_fact, time_hint):
+        if prev_fact is None:
+            # First fact in import, and no facts in store.
+            return [new_fact]
+        elif prev_fact.start is None:
+            # First fact in import; found last fact in store.
+            # Later, mend_facts_times will squash with ongoing Fact.
+            assert prev_fact.pk is -1
+            return [new_fact]
+        elif prev_fact.end is not None:
+            return maybe_set_start_maybe_extend_prev(
+                prev_fact, new_fact, time_hint,
+            )
+        elif new_fact.start and new_fact.end:
+            # This fact is a `then ... to`, so really just a `from/between`.
+            return [new_fact]
+        assert not new_fact.deleted
+        return None
+
+    def squend_squash_or_extend(prev_fact, new_fact, time_hint, new_facts):
+        squash_facts_maybe(new_fact, prev_fact)
+        if not new_fact.deleted:
+            return [new_fact]
+
+        prev_or_new_fact = maybe_extend_fact(controller, prev_fact, time_hint)
+        # Return None is prev fact was extended.
+        if prev_or_new_fact is not new_fact:
+            assert prev_or_new_fact is new_facts[-1]
+        return [prev_or_new_fact] if prev_or_new_fact is new_fact else []
+
+    def maybe_set_start_maybe_extend_prev(prev_fact, new_fact, time_hint):
+        if time_hint in [
+            'verify_then_none',
+            'verify_then_some',
+            'verify_still_none',
+            'verify_still_some',
+        ]:
+            extended_fact = then_extend_fact(controller, prev_fact)
+            extended_fact.end = new_fact.start
+            if time_hint in ['verify_still_none', 'verify_still_some']:
+                new_fact.activity = prev_fact.activity
+                new_fact.tags = list(prev_fact.tags)
+            return [extended_fact, new_fact]
+        else:
+            assert time_hint == 'verify_end'  # ``to``
+            assert new_fact.start is None
+            # Fix it in post, er, fix_delta_time_relative.
+            new_fact.start = "+0"
+            return [new_fact]
+
+    def squash_facts_maybe(new_fact, prev_fact):
+        assert new_fact.pk is None
+        # 2018-06-30: (lb): Ug. Why does this squash logic seem so forced?
+        new_fact.pk = -1  # To appease squash().
+        prev_fact.squash(new_fact, DEFAULT_SQUASH_SEP)
+        new_fact.pk = None
+
+    def maybe_extend_fact(controller, new_fact, time_hint):
+        if time_hint not in ['verify_then_none', 'verify_then_some']:
+            return new_fact
+        return then_extend_fact(controller, new_fact)
+
+    def add_new_fact_maybe(new_fact, temp_id, new_facts):
+        if not new_fact or new_fact.deleted:
             return temp_id
         new_fact.pk = temp_id
         new_facts.append(new_fact)
         temp_id -= 1
         return temp_id
 
+    # ***
+
     def must_hydrated_all_facts(hydrate_errs):
         if not hydrate_errs:
             return
         for err_msg in hydrate_errs:
-            controller.client_logger.error(err_msg)
+            click_echo()
+            click_echo(err_msg)
+            click_echo()
         msg = (_(
             'Please fix your import data and try again.'
-            ' See log output for details.'
+            ' Scroll up for details.'
         ))
         barf_and_exit(msg)
 
@@ -548,21 +676,37 @@ def import_facts(
         task_descrip = _('Verifying times nonconflicting')
         term_width, dot_count, fact_sep = progress.start_crude_progressor(task_descrip)
 
+        should_mend_all = store_overlaps_range(new_facts)
+
         all_conflicts = []
-        for fact in new_facts:
+        for idx, fact in enumerate(new_facts):
             term_width, dot_count, fact_sep = progress.step_crude_progressor(
                 task_descrip, term_width, dot_count, fact_sep,
             )
+            skip_store = (idx > 0) and (not should_mend_all)
+            conflicts = mend_facts_times(
+                controller, fact, time_hint='verify_both', skip_store=skip_store,
+            )
+            assert not fact.deleted  # Only on squash, which shouldn't happen.
 
-            conflicts = mend_facts_times(controller, fact, time_hint='verify_both')
             if conflicts:
                 all_conflicts.append((fact, conflicts,))
 
         progress.click_echo_current_task('')
 
-        # MAYBE/2018-05-19: (lb): Import *could* deal with conflicts (both
-        # programmatically and morally), but I don't see a need currently.
         barf_on_overlapping_facts_old(all_conflicts)
+
+    def store_overlaps_range(new_facts):
+        assert new_facts[0].start
+        since = new_facts[0].start
+        first_fact_at_or_after = search_facts(
+            controller, since=since, sort_col='start', sort_order='asc', limit=1,
+        )
+        if not first_fact_at_or_after:
+            return False
+        assert len(first_fact_at_or_after) == 1
+        should_mend_all = (first_fact_at_or_after[0].start < new_facts[-1].end)
+        return should_mend_all
 
     def barf_on_overlapping_facts_old(conflicts):
         if not conflicts:
