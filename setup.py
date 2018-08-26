@@ -21,6 +21,8 @@ except ImportError:
 
 
 requirements = [
+    # https://github.com/pytest-dev/apipkg
+    'apipkg',
     # Platform-specific directory magic.
     #  https://github.com/ActiveState/appdirs
     'appdirs',
@@ -51,8 +53,6 @@ requirements = [
     'future',
     # Vocabulary word pluralizer.
     'Inflector',
-    # The heart of Hamster. (Ye olde `hamster-lib`).
-    'nark',
     # Humanfriendly is one of the many table formatter choices.
     #  https://github.com/xolox/python-humanfriendly
     'humanfriendly',
@@ -60,13 +60,13 @@ requirements = [
     'human-friendly_pedantic-timedelta',
     # https://github.com/mnmelo/lazy_import
     'lazy_import',
-    # https://github.com/pytest-dev/apipkg
-    'apipkg',
+    # The heart of Hamster. (Ye olde `hamster-lib`).
+    'nark',
+    # Amazeballs prompt library.
+    'prompt-toolkit >= 2.0.0',
     # Just Another EDITOR package.
     #  https://github.com/fmoo/python-editor
     'python-editor',
-    # Amazeballs prompt library.
-    'prompt-toolkit >= 2.0.0',
     # Virtuous Six Python 2 and 3 compatibility library.
     #  https://six.readthedocs.io/
     'six',
