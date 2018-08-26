@@ -44,6 +44,60 @@ __all__ = [
 ]
 
 
+# MAYBE/2018-06-09: (lb): Need to move any of this to LIB for other packages to use?
+def mend_facts_times(controller, fact, time_hint):
+    """"""
+
+    def _mend_facts_times(controller, fact, time_hint):
+        # The fact is considered "temporary", or open, if the user did not
+        # specify an end time, and if there's no Fact following the new Fact.
+        open_start, open_end = new_fact_fill_now(fact, time_hint, controller.now)
+        conflicts = controller.facts.insert_forcefully(fact)
+
+        # Note that end may be None for ongoing Fact.
+        # Verify that start > end, if neither are None.
+        time_helpers.validate_start_end_range((fact.start, fact.end))
+
+        if open_start:
+            fact.start = None
+        if open_end:
+            fact.end = None
+
+        return conflicts
+
+    def new_fact_fill_now(fact, time_hint, now):
+        # We might temporarily set the end time to look for overlapping
+        # facts, so remember if we need to leave the fact open.
+        open_start = False
+        open_end = False
+
+        if (time_hint == 'verify_none'):
+            assert not fact.start
+            assert not fact.end
+            fact.start = now
+            open_end = True
+        elif (time_hint == 'verify_both'):
+            assert fact.start and fact.end
+        elif (time_hint == 'verify_start'):
+            assert not fact.end
+            open_end = True
+            if not fact.start:
+                fact.start = now
+        elif (time_hint == 'verify_end'):
+            assert not fact.start
+            open_start = True
+            if not fact.end:
+                fact.end = now
+
+        return open_start, open_end
+
+    # ***
+
+    return _mend_facts_times(controller, fact, time_hint)
+
+
+# ***
+
 def must_complete_times(
     controller,
     new_facts,
@@ -424,60 +478,6 @@ def must_complete_times(
         barf_and_exit(msg, crude=crude)
 
     _must_complete_times()
-
-
-# ***
-
-# MAYBE/2018-06-09: (lb): Need to move any of this to LIB for other packages to use?
-def mend_facts_times(controller, fact, time_hint):
-    """"""
-
-    def _mend_facts_times(controller, fact, time_hint):
-        # The fact is considered "temporary", or open, if the user did not
-        # specify an end time, and if there's no Fact following the new Fact.
-        open_start, open_end = new_fact_fill_now(fact, time_hint, controller.now)
-        conflicts = controller.facts.insert_forcefully(fact)
-
-        # Note that end may be None for ongoing Fact.
-        # Verify that start > end, if neither are None.
-        time_helpers.validate_start_end_range((fact.start, fact.end))
-
-        if open_start:
-            fact.start = None
-        if open_end:
-            fact.end = None
-
-        return conflicts
-
-    def new_fact_fill_now(fact, time_hint, now):
-        # We might temporarily set the end time to look for overlapping
-        # facts, so remember if we need to leave the fact open.
-        open_start = False
-        open_end = False
-
-        if (time_hint == 'verify_none'):
-            assert not fact.start
-            assert not fact.end
-            fact.start = now
-            open_end = True
-        elif (time_hint == 'verify_both'):
-            assert fact.start and fact.end
-        elif (time_hint == 'verify_start'):
-            assert not fact.end
-            open_end = True
-            if not fact.start:
-                fact.start = now
-        elif (time_hint == 'verify_end'):
-            assert not fact.start
-            open_start = True
-            if not fact.end:
-                fact.end = now
-
-        return open_start, open_end
-
-    # ***
-
-    return _mend_facts_times(controller, fact, time_hint)
 
 
 # ***
