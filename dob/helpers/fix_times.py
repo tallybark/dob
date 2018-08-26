@@ -37,6 +37,7 @@ from ..cmd_common import barf_and_exit, echo_block_header
 
 
 __all__ = [
+    'insert_forcefully',
     'mend_facts_times',
     'must_complete_times',
 ]
@@ -479,4 +480,258 @@ def mend_facts_times(controller, fact, time_hint):
 
 
 # ***
+
+def insert_forcefully(self, fact, squash_sep=''):
+    """
+    Insert the possibly open-ended Fact into the set of logical
+    (chronological) Facts, possibly changing the time frames of,
+    or removing, other Facts.
+
+    Args:
+        fact (nark.Fact):
+            The Fact to insert, with either or both ``start`` and ``end`` set.
+
+    Returns:
+        list: List of edited ``Facts``, ordered by ``start``.
+
+    Raises:
+        ValueError: If start or end time is not specified and cannot be
+            deduced by other Facts in the system.
+    """
+    allow_momentaneous = self.store.config['allow_momentaneous']
+
+    def _insert_forcefully(facts, fact):
+        # Steps:
+        #   Find fact overlapping start.
+        #   Find fact overlapping end.
+        #   Find facts wholly contained between start and end.
+        #   Return unique set of facts indicating edits and deletions.
+
+        conflicts = []
+        conflicts += find_conflict_at_edge(facts, fact, 'start')
+        conflicts += find_conflict_at_edge(facts, fact, 'end')
+        conflicts += find_conflicts_during(facts, fact)
+
+        edited_conflicts = resolve_overlapping(fact, conflicts)
+
+        return edited_conflicts
+
+    # ***
+
+    def find_conflict_at_edge(facts, fact, ref_time):
+        conflicts = []
+        find_edge = False
+        fact_time = getattr(fact, ref_time)
+        if fact_time:  # fact.start or fact.end
+            conflicts = facts.surrounding(fact_time)
+            if conflicts:
+                if len(conflicts) != 1:
+                    self.store.logger.warning(_(
+                        "Found more than one Fact ({} total) at: '{}'"
+                        .format(len(conflicts), fact_time))
+                    )
+            else:
+                find_edge = True
+        else:
+            find_edge = True
+        if find_edge:
+            assert not conflicts
+            conflicts = inspect_time_boundary(facts, fact, ref_time)
+        return conflicts
+
+    def inspect_time_boundary(facts, fact, ref_time):
+        conflict = None
+        if ref_time == 'start':
+            if fact.start is None:
+                conflict = set_start_per_antecedent(facts, fact)
+            else:
+                conflict = facts.starting_at(fact)
+        else:
+            assert ref_time == 'end'
+            if fact.end is None:
+                set_end_per_subsequent(facts, fact)
+            else:
+                conflict = facts.ending_at(fact)
+        conflicts = [conflict] if conflict else []
+        return conflicts
+
+    # FIXME/2018-05-12: (lb): insert_forcefully does not respect tmp_fact!
+    #   if 'dob-to', and tmp fact, then start now, and end tmp_fact.
+    #   if 'dob-from', and tmp fact, then either close tmp at now,
+    #     or at from time, or complain (add to conflicts) if overlapped.
+    def set_start_per_antecedent(facts, fact):
+        assert fact.start is None
+        # Find a Fact with start < fact.end.
+        ref_fact = facts.antecedent(fact)
+        if not ref_fact:
+            raise ValueError(_(
+                'Please specify `start` for fact being added before time existed.'
+            ))
+        # Because we called surrounding and got nothing, we know that
+        # found_fact.end < fact.end; or that found_fact.end is None,
+        # a/k/a, the ongoing Fact.
+        conflict = None
+        if ref_fact.end is not None:
+            assert ref_fact.end < fact.end
+            fact.start = ref_fact.end
+        else:
+            # There's an ongoing Fact, and the new Fact has no start, which
+            # indicates that these two facts should be squashed. (We'll create
+            # an intermediate conflict now, and we'll squash the Facts later,
+            # so that we include the ongoing Fact in the list of edited Facts
+            # we return later.)
+            assert ref_fact.start < fact.end
+            conflict = ref_fact
+        return conflict
+
+    def set_end_per_subsequent(facts, fact):
+        assert fact.end is None
+        ref_fact = facts.subsequent(fact)
+        if ref_fact:
+            assert ref_fact.start > fact.start
+            fact.end = ref_fact.start
+        else:
+            # This is ongoing fact/current.
+            self.store.logger.debug(_("No end specified for Fact; assuming now."))
+            fact.end = self.store.now
+            # NOTE: for dob-on, we'll start start, then end will be
+            #       a few micros later... but the caller knows to unset
+            #       this Fact's end later (see: leave_open).
+            #       (lb): I wrote this code and I can't quite remember
+            #       why we fact to do this. I think so comparing against
+            #       other Facts works....
+
+    # ***
+
+    def find_conflicts_during(facts, fact):
+        conflicts = []
+        if fact.start and fact.end:
+            found_facts = facts.strictly_during(fact.start, fact.end)
+            conflicts += found_facts
+        return conflicts
+
+    def resolve_overlapping(fact, conflicts):
+        seen = set()
+        resolved = []
+        for conflict in conflicts:
+            assert conflict.pk > 0
+            if fact.pk == conflict.pk:
+                # Editing existing Fact may find itself in db.
+                continue
+            if conflict.pk in seen:
+                continue
+            seen.add(conflict.pk)
+            original = conflict.copy()
+            edited_conflicts = resolve_fact_conflict(fact, conflict)
+            for edited in edited_conflicts:
+                resolved.append((edited, original,))
+        return resolved
+
+    def resolve_fact_conflict(fact, conflict):
+        # If the conflict is contained within another Fact, that
+        # other Fact will be split in twain, so we may end up
+        # with more conflicts.
+        resolved = []
+        if fact.start is None and conflict.end is None:
+            resolve_fact_squash_fact(fact, conflict, resolved)
+        elif fact.start <= conflict.start:
+            resolve_fact_starts_before(fact, conflict, resolved)
+        elif conflict.end is None or fact.end >= conflict.end:
+            resolve_fact_ends_after(fact, conflict, resolved)
+        else:
+            # The new fact is contained *within* the conflict!
+            resolve_fact_is_inside(fact, conflict, resolved)
+        return cull_duplicates(resolved)
+
+    def resolve_fact_squash_fact(fact, conflict, resolved):
+        conflict.dirty_reasons.add('stopped')
+        conflict.dirty_reasons.add('end')
+        conflict.dirty_reasons.add('squash')
+        conflict.squash(fact, squash_sep)
+        resolved.append(conflict)
+
+    def resolve_fact_starts_before(fact, conflict, resolved):
+        if fact.end <= conflict.start:
+            # Disparate facts.
+            return
+        elif conflict.end and fact.end >= conflict.end:
+            if (
+                allow_momentaneous
+                and (fact.start == conflict.start)
+                and (conflict.start == conflict.end)
+            ):
+                # (lb): 0-length Fact is not surrounded by new Fact.
+                #   As they say in Futurama, I'm going to allow this.
+                return
+            conflict.deleted = True
+            conflict.dirty_reasons.add('deleted-starts_before')
+        else:
+            # This is either the last Fact in the database, which is still
+            # open (if conflict.end is None); or fact ends before conflict
+            # ends. And in either case, fact ends after conflict starts,
+            # so move conflict's start to no longer conflict.
+            assert conflict.start < fact.end
+            conflict.start = fact.end
+            conflict.dirty_reasons.add('start')
+        resolved.append(conflict)
+
+    def resolve_fact_ends_after(fact, conflict, resolved):
+        if conflict.end is not None and fact.start >= conflict.end:
+            # Disparate facts.
+            return
+        elif fact.start <= conflict.start:
+            if (
+                allow_momentaneous
+                and (fact.end == conflict.end)
+                and (conflict.start == conflict.end)
+            ):
+                # 0-length Fact is not surrounded by new Fact; I'll allow it.
+                return
+            conflict.deleted = True
+            conflict.dirty_reasons.add('deleted-ends_after')
+        else:
+            # (lb): Here's where we might stop an ongoing fact
+            # when adding a new fact.
+            assert conflict.end is None or conflict.end > fact.start
+            # A little hack: signal the caller if this is/was ongoing fact.
+            if conflict.end is None:
+                conflict.dirty_reasons.add('stopped')
+            conflict.end = fact.start
+            conflict.dirty_reasons.add('end')
+        resolved.append(conflict)
+
+    def resolve_fact_is_inside(fact, conflict, resolved):
+        resolve_fact_split_prior(fact, conflict, resolved)
+        resolve_fact_split_after(fact, conflict, resolved)
+
+    def resolve_fact_split_prior(fact, conflict, resolved):
+        # Make a copy of the conflict, to not affect resolve_fact_split_after.
+        lconflict = copy.deepcopy(conflict)
+        lconflict.split_from = conflict.pk
+        # Leave lconflict.pk set so the old fact is marked deleted.
+        lconflict.end = fact.start
+        lconflict.dirty_reasons.add('lsplit')
+        resolved.append(lconflict)
+
+    def resolve_fact_split_after(fact, conflict, resolved):
+        rconflict = copy.deepcopy(conflict)
+        rconflict.split_from = conflict.pk
+        rconflict.pk = None
+        rconflict.start = fact.end
+        rconflict.dirty_reasons.add('rsplit')
+        resolved.append(rconflict)
+
+    def cull_duplicates(resolved):
+        seen = set()
+        culled = []
+        for conflict in resolved:
+            if conflict in seen:
+                continue
+            seen.add(conflict)
+            culled.append(conflict)
+        return culled
+
+    # The actual insert_forcefully function.
+
+    return _insert_forcefully(self, fact)
 
