@@ -718,12 +718,12 @@ def edit_fact_by_key(ctx, controller, *args, key, **kwargs):
     def process_edit_command(keys):
         if not keys:
             click_echo(ctx.get_help())
-            edited_item = None
+            edited_facts = None
         elif len(keys) > 1:
             dob_in_user_exit(_("Too many keys specified! Try just one."))
         else:
-            edited_item = update.edit_fact(controller, key=keys[0])
-        return edited_item
+            edited_facts = update.edit_fact(controller, key=keys[0])
+        return edited_facts
 
     return _edit_fact_by_key()
 
