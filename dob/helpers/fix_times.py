@@ -34,17 +34,146 @@ from nark.helpers.dated import (
 
 from . import click_echo, prepare_log_msg
 from ..cmd_common import barf_and_exit, echo_block_header
-
+from ..cmds_list.fact import find_latest_fact
+from ..traverser.placeable_fact import PlaceableFact
 
 __all__ = [
     'insert_forcefully',
     'mend_facts_times',
     'must_complete_times',
+    'reduce_time_hint',
     'resolve_overlapping',
+    'then_extend_fact',
+    'unite_and_stretch',
 ]
 
 
-# MAYBE/2018-06-09: (lb): Need to move any of this to LIB for other packages to use?
+DEFAULT_SQUASH_SEP = '\n\n--\n\n'
+
+
+# ***
+
+def reduce_time_hint(time_hint):
+    if time_hint in [
+        'verify_after',
+        'verify_then_none',
+        'verify_still_none',
+    ]:
+        return 'verify_none'
+    elif time_hint in [
+        'verify_start',
+        'verify_then_start',
+        'verify_still_start',
+    ]:
+        return 'verify_start'
+    elif time_hint in [
+        'verify_both',
+        'verify_end',
+        'verify_then',
+        'verify_still',
+    ]:
+        return time_hint
+    assert False  # Unreachable.
+
+
+# ***
+
+def then_extend_fact(controller, new_fact):
+    return PlaceableFact(
+        activity=new_fact.activity,
+        start=new_fact.end,
+        end=None,
+        description=None,
+        tags=list(new_fact.tags),
+    )
+
+
+# ***
+
+# unite_and_stretch is called on create, not transcode nor edit.
+def unite_and_stretch(
+    controller,
+    new_fact,
+    time_hint,
+    conflicts,
+    squash_sep=DEFAULT_SQUASH_SEP,
+):
+    """"""
+    def _unite_and_stretch():
+        if time_hint not in [
+            'verify_end',  # Use prev's fact end if set; or squash facts.
+            'verify_then',  # Like `at`, but back-fill gap, start is time-spec or now.
+            'verify_after',  # Left `then` w/o time-spec; sets start to final's end.
+            'verify_still',  # Like `then`, but copy prev fact's meta; time optional.
+        ]:
+            return [new_fact]
+        ongoing = find_ongoing_to_stretch() if time_hint == 'verify_end' else None
+        if ongoing is not None:
+            return squash_or_not(ongoing)
+        return extend_or_not()
+
+    def find_ongoing_to_stretch():
+        if new_fact.start:
+            return None
+        if new_fact.deleted:
+            # If you ``to`` and ongoing fact, set_start_per_antecedent
+            # (part of insert_forcefully) will squash the new_fact.
+            return None
+        controller.affirm(new_fact.pk is None)
+        # conflicts is (edited, original) tuples.
+        # One conflict is marked 'stopped' if it was ongoing Fact.
+        ongoings = [con for con in conflicts if 'stopped' in con[0].dirty_reasons]
+        controller.affirm(len(ongoings) <= 1)
+        return ongoings[0] if ongoings else None
+
+    def squash_or_not(ongoing):
+        if time_hint == 'verify_end':
+            ongoing.squash(new_fact, squash_sep)
+            return [ongoing]
+        else:
+            # Normally, verify_then and verify_after apply to latest, stopped
+            # Fact, and not an ongoing fact. In the case of the latter, don't
+            # do anything; there's no time gap to process.
+            return [new_fact]
+
+    def extend_or_not():
+        final_fact = find_latest_fact(controller)
+
+        if final_fact is None:
+            return [new_fact]
+        new_fact_or_two = [new_fact]
+
+        if time_hint == 'verify_end':
+            controller.affirm(final_fact.end is not None)
+            new_fact.start = final_fact.end
+        elif time_hint in ['verify_then', 'verify_still']:
+            if new_fact.start is None:
+                # User did not specify a then-time, so use previous fact's end.
+                # FIXME/2018-07-06: Do I care? This means for ``then`` in an
+                # import requires a time-spec, and ``next``/``after``/``since``
+                # do not. But in live, command line add command, ``then`` works
+                # without time-spec and acts just like next/after/since.
+                new_fact.start = final_fact.end
+            if final_fact.end is None:
+                controller.affirm(new_fact.start is not None)
+                final_fact.end = new_fact.start
+            elif new_fact.start != final_fact.end:
+                fill_fact = then_extend_fact(controller, final_fact)
+                fill_fact.end = new_fact.start
+                new_fact_or_two.insert(0, fill_fact)
+            # else, start == end, so nothing to fill.
+            if time_hint == 'verify_still':
+                new_fact.activity = final_fact.activity
+                new_fact.tags = list(final_fact.tags)
+        elif time_hint == 'verify_after':
+            new_fact.start = final_fact.end
+        return new_fact_or_two
+
+    return _unite_and_stretch()
+
+
+# ***
+
 def mend_facts_times(controller, fact, time_hint):
     """"""
 
