@@ -541,8 +541,8 @@ def echo_ongoing_completed(controller, fact, cancelled=False):
 
 def prompt_and_save(
     controller,
-    new_facts,
-    raw_facts,
+    edit_facts=None,
+    orig_facts=None,
     file_in=None,
     file_out=None,
     rule='',
@@ -552,7 +552,6 @@ def prompt_and_save(
     yes=False,
     dry=False,
     progress=None,
-    old_fact=None,
 ):
     """"""
     progress = CrudeProgress(enabled=True) if progress is None else progress
@@ -561,8 +560,9 @@ def prompt_and_save(
         backup_f = prepare_backup_file(backup)
         delete_backup = False
         inner_error = None
+        saved_facts = []
         try:
-            prompt_persist(backup_f)
+            saved_facts = prompt_persist(backup_f)
             delete_backup = True
         except SystemExit as err:
             # Explicit sys.exit() from our code. The str(err)
@@ -586,36 +586,57 @@ def prompt_and_save(
                     )
                 dob_in_user_exit(msg)
             cleanup_files(backup_f, file_out, delete_backup)
+        return saved_facts
 
     # ***
 
     def prepare_backup_file(backup):
         if not backup:
             return None
-        backup_path = get_import_ephemeral_backup_path()
+        backup_path, backup_link = get_import_ephemeral_backup_path()
         backup_f = None
+        log_msg = _("Creating backup at {0}").format(backup_path)
+        controller.client_logger.info(log_msg)
         try:
             backup_f = open(backup_path, 'w')
         except Exception as err:
             msg = (
-                'Failed to open temporary backup file at "{}": {}'
+                'Failed to create temporary backup file at "{}": {}'
                 .format(backup_path, str(err))
             )
             dob_in_user_exit(msg)
+        try:
+            # NOTE: os.remove removes the file being linked; we want unlink.
+            #   We also want lexists, not exists, to get True for broken links.
+            os.unlink(backup_link) if os.path.lexists(backup_link) else None
+            os.symlink(backup_path, backup_link)
+        except Exception as err:
+            msg = (
+                'Failed to remove temporary backup file link at "{}": {}'
+                .format(backup_link, str(err))
+            )
+            dob_in_user_warning(msg)
         return backup_f
 
     IMPORT_BACKUP_DIR = 'carousel'
 
     def get_import_ephemeral_backup_path():
-        backup_prefix = 'dob.import-'
+        backup_prefix = 'dob.import'
         backup_tstamp = controller.now.strftime('%Y%m%d%H%M%S')
-        backup_basename = backup_prefix + backup_tstamp
+        backup_basename = backup_prefix + '-' + backup_tstamp
         backup_fullpath = get_appdirs_subdir_file_path(
             file_basename=backup_basename,
             dir_dirname=IMPORT_BACKUP_DIR,
             appdirs_dir=AppDirs.user_cache_dir,
         )
-        return backup_fullpath
+        # 2018-06-29 18:56: This symlink really isn't that helpful...
+        #   but we'll see if I start using it. At least for DEVing.
+        backup_linkpath = get_appdirs_subdir_file_path(
+            file_basename=backup_prefix,
+            dir_dirname=IMPORT_BACKUP_DIR,
+            appdirs_dir=AppDirs.user_cache_dir,
+        )
+        return backup_fullpath, backup_linkpath
 
     def cleanup_files(backup_f, file_out, delete_backup):
         if backup_f:
@@ -635,8 +656,9 @@ def prompt_and_save(
     # ***
 
     def prompt_persist(backup_f):
-        okay = prompt_all(backup_f)
-        persist_facts(okay)
+        ready_facts = prompt_all(backup_f)
+        persist_facts(ready_facts)
+        return ready_facts
 
     # ***
 
@@ -644,105 +666,265 @@ def prompt_and_save(
         if yes:
             return True
 
-        backup_callback = write_facts_file(new_facts, backup_f, rule, dry)
-        # Create the tmp file.
-        backup_callback()
+        backup_callback = write_facts_file(backup_f, rule, dry)
 
-        facts_carousel = FactsCarousel(
-            controller, old_fact, new_facts, raw_facts, backup_callback, dry,
+        # Lazy-load the carousel and save ~0.065s.
+        from .traverser.carousel import Carousel
+
+        carousel = Carousel(
+            controller,
+            edit_facts=edit_facts,
+            orig_facts=orig_facts,
+            dirty_callback=backup_callback,
+            dry=dry,
         )
 
-        confirmed_all = facts_carousel.gallop()
+        # MAYBE/2018-07-18 02:53: Setting up the carousel seems
+        # like it should be moved to its own module (away from create.py).
+        # prompt_and_save in general should be its own thing.
 
-        return confirmed_all
+        load_and_apply_style(carousel)
+
+        load_and_apply_lexer(carousel)
+
+        # Create a just-in-case backup file to capture unsaved edits.
+        backup_callback(carousel)
+
+        ready_facts = carousel.gallop()
+
+        return ready_facts
 
     # ***
 
-    def persist_facts(confirmed_all):
-        if not confirmed_all:
+    def persist_facts(ready_facts):
+        if not ready_facts:
             return
-        record_new_facts(new_facts, file_out, dry)
-        celebrate(new_facts)
+        record_ready_facts(ready_facts, file_out, dry)
+        celebrate(ready_facts)
 
-    def record_new_facts(new_facts, file_out, dry):
+    def record_ready_facts(ready_facts, file_out, dry):
         task_descrip = _('Saving facts')
         term_width, dot_count, fact_sep = progress.start_crude_progressor(task_descrip)
 
-        for idx, fact in enumerate(new_facts):
+        new_and_edited = []
+
+        other_edits = {fact.pk: fact for fact in ready_facts}
+
+        for idx, fact in enumerate(ready_facts):
             term_width, dot_count, fact_sep = progress.step_crude_progressor(
                 task_descrip, term_width, dot_count, fact_sep,
             )
 
-            if fact.pk < 0:
-                fact.pk = None  # So FactManager._add is called, not _update.
-            persist_fact(fact, idx, file_out, dry)
+            is_first_fact = idx == 0
+            is_final_fact = idx == (len(ready_facts) - 1)
+            fact_pk = fact.pk
+            new_and_edited += persist_fact(
+                fact, other_edits, is_first_fact, is_final_fact, file_out, dry,
+            )
+            assert fact.pk == fact_pk
+            # The saved Fact is marked deleted and a new one is created.
+            assert fact.deleted
+            # Once saved, rely on Fact in store for checking conflicts.
+            del other_edits[fact.pk]
+
+        assert len(other_edits) == 0
 
         progress.click_echo_current_task('')
 
-    def persist_fact(fact, idx, file_out, dry):
+    def persist_fact(fact, other_edits, is_first_fact, is_final_fact, file_out, dry):
+        new_and_edited = [fact, ]
         if not dry:
             # If user did not specify an output file, save to database
             # (otherwise, we may have been maintaining a temporary file).
             if not file_out:
-                persist_fact_save(fact, dry)
+                new_and_edited = persist_fact_save(
+                    fact, is_final_fact, other_edits, dry,
+                )
             else:
-                write_fact_block_format(file_out, fact, rule, idx)
+                write_fact_block_format(file_out, fact, rule, is_first_fact)
         else:
             echo_block_header(_('Fresh Fact!'))
             click_echo()
             echo_fact(fact)
             click_echo()
+        return new_and_edited
 
     # ***
 
-    def write_facts_file(new_facts, fact_f, rule, dry):
-        def wrapper():
+    def write_facts_file(fact_f, rule, dry):
+        def wrapper(carousel):
             if dry or not fact_f:
                 return
+            fact_f.truncate(0)
+            # (lb): truncate doesn't move the pointer (you can peek()), and while
+            # write seems to still work, it feels best to reset the pointer.
             fact_f.seek(0)
-            for idx, fact in enumerate(new_facts):
+            for idx, fact in enumerate(carousel.prepared_facts):
+                if fact.deleted:
+                    continue  # An interval-gap Fact, auto-made by carousel.
                 write_fact_block_format(fact_f, fact, rule, idx)
             fact_f.flush()
 
         return wrapper
 
-    def write_fact_block_format(fact_f, fact, rule, idx):
-        write_fact_separator(fact_f, rule, idx)
+    def write_fact_block_format(fact_f, fact, rule, is_first_fact):
+        write_fact_separator(fact_f, rule, is_first_fact)
         fact_f.write(
             fact.friendly_str(
-                description_sep='\n\n',
+                # description_sep='\n\n',
+                description_sep=': ',
                 shellify=False,
                 colorful=False,
+                omit_empty_actegory=True,
             )
         )
 
     RULE_WIDTH = 76  # How wide to print the between-facts separator.
 
-    def write_fact_separator(fact_f, rule, idx):
-        if idx == 0:
+    def write_fact_separator(fact_f, rule, is_first_fact):
+        if is_first_fact:
             return
         fact_f.write('\n\n')
         if rule:
             fact_f.write('{}\n\n'.format(rule * RULE_WIDTH))
 
-    def persist_fact_save(fact, dry):
-        conflicts = []
-        save_facts_maybe(controller, fact, conflicts, dry)
-        if conflicts:
-            print(conflicts)
-            assert False  # ????
+    def persist_fact_save(fact, is_final_fact, other_edits, dry):
+        # (lb): This is a rudimentary check. I'm guessing other code
+        # will prevent user from editing old Fact and deleting its
+        # end, either creating a second ongoing Fact, OR, more weirdly,
+        # creating an ongoing Fact that has closed Facts after it!
+        time_hint = 'verify_both' if not is_final_fact else 'verify_last'
+        new_and_edited = mend_facts_confirm_and_save_maybe(
+            controller, fact, time_hint, other_edits, yes=yes, dry=dry,
+        )
+        return new_and_edited
 
     # ***
 
-    def celebrate(new_facts):
-        if not new_facts:
+    def load_and_apply_style(carousel):
+        chosen_style = load_molding('styling', various_styles, 'color')
+        carousel.chosen_style = chosen_style
+
+    def load_and_apply_lexer(carousel):
+        default_name = None
+        # If you want to test the lexers, edit your config, or try, e.g.,
+        #  default_name = 'hyphenator'
+        chosen_lexer = load_molding('carousel_lexer', various_lexers, default_name)
+        if chosen_lexer is not None:
+            chosen_lexer = chosen_lexer()
+
+        if chosen_lexer is None:
+            lexer_name = controller.client_config['carousel_lexer']
+            chosen_lexer = load_pygments_lexer(lexer_name)
+
+        if chosen_lexer is not None:
+            carousel.chosen_lexer = chosen_lexer
+
+    def load_molding(cfg_key, module, default_name=None):
+        def _load_molding():
+            molding = None
+            # The molding_name is thus far, i.e., 'styling', or 'carousel_lexer'.
+            molding_name = controller.client_config[cfg_key]
+            molding_f = try_loading_internal(module, molding_name)
+            if molding_f is not None:
+                molding = molding_f()
+            elif molding_name:
+                # See if there's a user JSON styling.
+                molding = load_user_styling(molding_name)
+            if not molding:
+                warn_tell_on_molding_not_found(molding_name)
+                if default_name:
+                    molding = try_loading_internal(module, default_name)()
+            return molding
+
+        def try_loading_internal(module, molding_name):
+            if not molding_name:
+                return None
+            # See if this is one of the basic baked-in styles/lexers/things.
+            return getattr(module, molding_name, None)
+
+        def load_user_styling(molding_name):
+            # Load style from user-managed JSON files.
+            #   E.g., glob ~/.config/dob/molding/*.json.
+            molding = None
+            molding_glob = '{0}.*'.format(molding_name)
+            molding_paths = glob.glob(os.path.join(user_moldings_base(), molding_glob))
+            for molding_path in molding_paths:
+                try:
+                    fname, fext = molding_path.rsplit('.', 1)
+                except ValueError:
+                    continue
+                # (lb): Whatever. If multiple matches, use last parsed.
+                molding = parse_molding(fext, molding_path)
+            return molding
+
+        def user_moldings_base():
+            moldings_base = os.path.join(
+                AppDirs.user_config_dir, 'molding',
+            )
+            return moldings_base
+
+        def parse_molding(fext, molding_path):
+            if fext == 'py':
+                return load_module(molding_path)
+            elif fext.endswith('json'):
+                return load_json(molding_path)
+            else:
+                return None
+
+        def load_module(py_path):
+            eval_globals = compile_and_eval_source(py_path)
+            return eval_globals['default']
+
+        def load_json(json_path):
+            import hjson
+            with open(json_path, 'r') as json_text:
+                try:
+                    return hjson.loads(json_text)
+                except hjson.scanner.HjsonDecodeError as err:
+                    warn_tell_on_molding_not_json(json_path, err)
+
+        def warn_tell_on_molding_not_found(molding_name):
+            if molding_name:
+                msg = _('Not a recognized “{0}”: “{1}”').format(cfg_key, molding_name)
+                controller.client_logger.warning(msg)
+                dob_in_user_warning(msg)  # Also blather to stdout.
+            else:
+                controller.client_logger.debug(
+                    _('Loaded default molding for “{0}”'.format(cfg_key))
+                )
+
+        def warn_tell_on_molding_not_json(json_path, err):
+            msg = _('Not valid JSON at “{0}”: “{1}”').format(json_path, err)
+            controller.client_logger.warning(msg)
+            dob_in_user_warning(msg)  # Also blather to stdout.
+
+        return _load_molding()
+
+    # FIXME: Move this into carousel? Or into new module? seems misplaced
+    #        (because it glues PPT and Pygments objects).
+    def load_pygments_lexer(lexer_name):
+        # (lb): I'm a reSTie, personally, so we'll just default to that.
+        lexer_name = lexer_name or 'RstLexer'
+        try:
+            return PygmentsLexer(getattr(pygments.lexers, lexer_name))
+        except AttributeError:
+            msg = _('Not a recognized Pygments lexer: “{0}”').format(lexer_name)
+            controller.client_logger.warning(msg)
+            dob_in_user_warning(msg)
+            return None
+
+    # ***
+
+    def celebrate(ready_facts):
+        if not ready_facts:
             return
         click_echo('{}{}{}! {}'.format(
             attr('underlined'),
             _('Voilà'),
             attr('reset'),
-            _('Saved {} facts.').format(highlight_value(len(new_facts))),
+            _('Saved {} facts.').format(highlight_value(len(ready_facts))),
         ))
 
-    _prompt_and_save()
+    return _prompt_and_save()
 
