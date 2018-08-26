@@ -40,6 +40,7 @@ __all__ = [
     'insert_forcefully',
     'mend_facts_times',
     'must_complete_times',
+    'resolve_overlapping',
 ]
 
 
@@ -481,7 +482,7 @@ def mend_facts_times(controller, fact, time_hint):
 
 # ***
 
-def insert_forcefully(self, fact, squash_sep=''):
+def insert_forcefully(controller, fact, squash_sep=''):
     """
     Insert the possibly open-ended Fact into the set of logical
     (chronological) Facts, possibly changing the time frames of,
@@ -498,7 +499,8 @@ def insert_forcefully(self, fact, squash_sep=''):
         ValueError: If start or end time is not specified and cannot be
             deduced by other Facts in the system.
     """
-    allow_momentaneous = self.store.config['allow_momentaneous']
+    # NOTE: controller is controller.facts.store.
+    allow_momentaneous = controller.config['allow_momentaneous']
 
     def _insert_forcefully(facts, fact):
         # Steps:
@@ -512,7 +514,9 @@ def insert_forcefully(self, fact, squash_sep=''):
         conflicts += find_conflict_at_edge(facts, fact, 'end')
         conflicts += find_conflicts_during(facts, fact)
 
-        edited_conflicts = resolve_overlapping(fact, conflicts)
+        edited_conflicts = resolve_overlapping(
+            fact, conflicts, squash_sep, allow_momentaneous,
+        )
 
         return edited_conflicts
 
@@ -526,7 +530,7 @@ def insert_forcefully(self, fact, squash_sep=''):
             conflicts = facts.surrounding(fact_time)
             if conflicts:
                 if len(conflicts) != 1:
-                    self.store.logger.warning(_(
+                    controller.client_logger.warning(_(
                         "Found more than one Fact ({} total) at: '{}'"
                         .format(len(conflicts), fact_time))
                     )
@@ -555,10 +559,6 @@ def insert_forcefully(self, fact, squash_sep=''):
         conflicts = [conflict] if conflict else []
         return conflicts
 
-    # FIXME/2018-05-12: (lb): insert_forcefully does not respect tmp_fact!
-    #   if 'dob-to', and tmp fact, then start now, and end tmp_fact.
-    #   if 'dob-from', and tmp fact, then either close tmp at now,
-    #     or at from time, or complain (add to conflicts) if overlapped.
     def set_start_per_antecedent(facts, fact):
         assert fact.start is None
         # Find a Fact with start < fact.end.
@@ -592,8 +592,10 @@ def insert_forcefully(self, fact, squash_sep=''):
             fact.end = ref_fact.start
         else:
             # This is ongoing fact/current.
-            self.store.logger.debug(_("No end specified for Fact; assuming now."))
-            fact.end = self.store.now
+            controller.client_logger.debug(
+                _("No end specified for Fact; assuming now.")
+            )
+            fact.end = controller.now  # Same as: facts.store.now
             # NOTE: for dob-on, we'll start start, then end will be
             #       a few micros later... but the caller knows to unset
             #       this Fact's end later (see: leave_open).
@@ -610,7 +612,16 @@ def insert_forcefully(self, fact, squash_sep=''):
             conflicts += found_facts
         return conflicts
 
-    def resolve_overlapping(fact, conflicts):
+    # ***
+
+    return _insert_forcefully(controller.facts, fact)
+
+
+# ***
+
+def resolve_overlapping(fact, conflicts, squash_sep='', allow_momentaneous=False):
+    """"""
+    def _resolve_overlapping(fact, conflicts):
         seen = set()
         resolved = []
         for conflict in conflicts:
@@ -706,7 +717,7 @@ def insert_forcefully(self, fact, squash_sep=''):
 
     def resolve_fact_split_prior(fact, conflict, resolved):
         # Make a copy of the conflict, to not affect resolve_fact_split_after.
-        lconflict = copy.deepcopy(conflict)
+        lconflict = conflict.copy()
         lconflict.split_from = conflict.pk
         # Leave lconflict.pk set so the old fact is marked deleted.
         lconflict.end = fact.start
@@ -714,7 +725,7 @@ def insert_forcefully(self, fact, squash_sep=''):
         resolved.append(lconflict)
 
     def resolve_fact_split_after(fact, conflict, resolved):
-        rconflict = copy.deepcopy(conflict)
+        rconflict = conflict.copy()
         rconflict.split_from = conflict.pk
         rconflict.pk = None
         rconflict.start = fact.end
@@ -731,7 +742,7 @@ def insert_forcefully(self, fact, squash_sep=''):
             culled.append(conflict)
         return culled
 
-    # The actual insert_forcefully function.
+    # ***
 
-    return _insert_forcefully(self, fact)
+    return _resolve_overlapping(fact, conflicts)
 
