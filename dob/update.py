@@ -21,10 +21,9 @@ from gettext import gettext as _
 
 import click
 
-from .create import mend_facts_confirm_and_save_maybe
+from .create import mend_facts_confirm_and_save_maybe, prompt_and_save
 from .helpers import dob_in_user_exit
 from .interrogate import ask_edit_with_editor
-from .transcode import prompt_and_save
 
 __all__ = ['edit_fact']
 
@@ -36,15 +35,17 @@ def edit_fact(controller, key, use_carousel=True):
         if old_fact is None:
             return None
         if use_carousel:
-            edited_fact = edit_old_fact(old_fact)
+            edited_facts = edit_old_fact(old_fact)
         else:
-            edited_fact = edit_old_factoid(old_fact)
-        return edited_fact
+            edited_facts = edit_old_factoid(old_fact)
+        return edited_facts
 
     def fact_from_key(key):
         if not key:
-            assert False  # Caller should verify first, eh.
-            # return None
+            # (lb): This had been a happy path, e.g.,:
+            #   return None
+            # but really the caller should verify first, eh.
+            assert False
 
         if key > 0:
             return fact_from_key_pk(key)
@@ -77,24 +78,11 @@ def edit_fact(controller, key, use_carousel=True):
     # ***
 
     def edit_old_fact(old_fact):
-        new_facts = []
-        raw_facts = []
-        prompt_and_save(
+        saved_facts = prompt_and_save(
             controller,
-            new_facts,
-            raw_facts,
-            file_in=None,
-            file_out=None,
-            rule='',
-            backup=True,
-            leave_backup=False,
-            ask=False,
-            yes=False,
-            dry=False,
-            progress=None,
-            old_fact=old_fact,
+            edit_facts=[old_fact],
         )
-        return new_facts
+        return saved_facts
 
     # ***
 
@@ -104,8 +92,8 @@ def edit_fact(controller, key, use_carousel=True):
         time_hint = fact_time_hint(old_fact)
         new_fact = new_fact_from_factoid(raw_fact, old_fact, time_hint)
         echo_edited_fact(new_fact, old_fact)
-        new_fact = confirm_and_save(new_fact, time_hint)
-        return new_fact
+        new_and_edited = confirm_and_save(new_fact, time_hint)
+        return new_and_edited
 
     def editor_interact(old_fact):
         # FIXME/2018-06-11: (lb): Be explicit about str fcn. being called.
@@ -138,7 +126,7 @@ def edit_fact(controller, key, use_carousel=True):
         # NOTE: Parser expects Iterable of input parts.
         new_fact, __err = old_fact.create_from_factoid(
             (raw_fact,),
-            time_hint=time_hint,
+            time_hint=time_hint,  # Either 'verify_both' or 'verify_start'.
             lenient=True,
         )
         # FIXME/2018-06-10: (lb): Do we care about the error?
@@ -162,11 +150,15 @@ def edit_fact(controller, key, use_carousel=True):
         click.echo(old_fact.friendly_diff(new_fact))
 
     def confirm_and_save(new_fact, time_hint):
-        new_fact = mend_facts_confirm_and_save_maybe(
-            controller, new_fact, time_hint, yes=False, dry=False,
+        new_and_edited = mend_facts_confirm_and_save_maybe(
+            controller,
+            new_fact,
+            time_hint,
+            other_edits={},
+            yes=False,
+            dry=False,
         )
-
-        return new_fact
+        return new_and_edited
 
         # ***
 
