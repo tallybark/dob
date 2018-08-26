@@ -61,6 +61,7 @@ __all__ = [
     'add_fact',
     'cancel_fact',
     'mend_facts_confirm_and_save_maybe',
+    'prompt_and_save',
     'stop_fact',
     # Private:
     #   'echo_ongoing_completed',
@@ -534,4 +535,214 @@ def echo_ongoing_completed(controller, fact, cancelled=False):
         return completed_msg
 
     _echo_ongoing_completed()
+
+
+# ***
+
+def prompt_and_save(
+    controller,
+    new_facts,
+    raw_facts,
+    file_in=None,
+    file_out=None,
+    rule='',
+    backup=True,
+    leave_backup=False,
+    ask=False,
+    yes=False,
+    dry=False,
+    progress=None,
+    old_fact=None,
+):
+    """"""
+    progress = CrudeProgress(enabled=True) if progress is None else progress
+
+    def _prompt_and_save():
+        backup_f = prepare_backup_file(backup)
+        delete_backup = False
+        inner_error = None
+        try:
+            prompt_persist(backup_f)
+            delete_backup = True
+        except SystemExit as err:
+            # Explicit sys.exit() from our code. The str(err)
+            # is just the exit code #.
+            raise
+        except BaseException as err:
+            # NOTE: Using BaseException, not just Exception, so that we
+            #       always catch (KeyboardInterrupt, SystemExit), etc.
+            # Don't cleanup backup file.
+            traceback.print_exc()
+            inner_error = str(err)
+        finally:
+            if not delete_backup:
+                msg = 'Something horrible happened!'
+                if inner_error is not None:
+                    msg += _(' err: "{}"').format(inner_error)
+                if backup_f:
+                    msg += (
+                        _("\nBut don't worry. A backup of edits was saved at: {}")
+                        .format(backup_f.name)
+                    )
+                dob_in_user_exit(msg)
+            cleanup_files(backup_f, file_out, delete_backup)
+
+    # ***
+
+    def prepare_backup_file(backup):
+        if not backup:
+            return None
+        backup_path = get_import_ephemeral_backup_path()
+        backup_f = None
+        try:
+            backup_f = open(backup_path, 'w')
+        except Exception as err:
+            msg = (
+                'Failed to open temporary backup file at "{}": {}'
+                .format(backup_path, str(err))
+            )
+            dob_in_user_exit(msg)
+        return backup_f
+
+    IMPORT_BACKUP_DIR = 'carousel'
+
+    def get_import_ephemeral_backup_path():
+        backup_prefix = 'dob.import-'
+        backup_tstamp = controller.now.strftime('%Y%m%d%H%M%S')
+        backup_basename = backup_prefix + backup_tstamp
+        backup_fullpath = get_appdirs_subdir_file_path(
+            file_basename=backup_basename,
+            dir_dirname=IMPORT_BACKUP_DIR,
+            appdirs_dir=AppDirs.user_cache_dir,
+        )
+        return backup_fullpath
+
+    def cleanup_files(backup_f, file_out, delete_backup):
+        if backup_f:
+            backup_f.close()
+            if delete_backup:
+                if not leave_backup:
+                    os.unlink(backup_f.name)
+                else:
+                    click_echo(
+                        _('Abandoned working backup at: {}')
+                        .format(highlight_value(backup_f.name))
+                    )
+        # (lb): Click will close the file, but we can also cleanup first.
+        if file_out and not dry:
+            file_out.close()
+
+    # ***
+
+    def prompt_persist(backup_f):
+        okay = prompt_all(backup_f)
+        persist_facts(okay)
+
+    # ***
+
+    def prompt_all(backup_f):
+        if yes:
+            return True
+
+        backup_callback = write_facts_file(new_facts, backup_f, rule, dry)
+        # Create the tmp file.
+        backup_callback()
+
+        facts_carousel = FactsCarousel(
+            controller, old_fact, new_facts, raw_facts, backup_callback, dry,
+        )
+
+        confirmed_all = facts_carousel.gallop()
+
+        return confirmed_all
+
+    # ***
+
+    def persist_facts(confirmed_all):
+        if not confirmed_all:
+            return
+        record_new_facts(new_facts, file_out, dry)
+        celebrate(new_facts)
+
+    def record_new_facts(new_facts, file_out, dry):
+        task_descrip = _('Saving facts')
+        term_width, dot_count, fact_sep = progress.start_crude_progressor(task_descrip)
+
+        for idx, fact in enumerate(new_facts):
+            term_width, dot_count, fact_sep = progress.step_crude_progressor(
+                task_descrip, term_width, dot_count, fact_sep,
+            )
+
+            if fact.pk < 0:
+                fact.pk = None  # So FactManager._add is called, not _update.
+            persist_fact(fact, idx, file_out, dry)
+
+        progress.click_echo_current_task('')
+
+    def persist_fact(fact, idx, file_out, dry):
+        if not dry:
+            # If user did not specify an output file, save to database
+            # (otherwise, we may have been maintaining a temporary file).
+            if not file_out:
+                persist_fact_save(fact, dry)
+            else:
+                write_fact_block_format(file_out, fact, rule, idx)
+        else:
+            echo_block_header(_('Fresh Fact!'))
+            click_echo()
+            echo_fact(fact)
+            click_echo()
+
+    # ***
+
+    def write_facts_file(new_facts, fact_f, rule, dry):
+        def wrapper():
+            if dry or not fact_f:
+                return
+            fact_f.seek(0)
+            for idx, fact in enumerate(new_facts):
+                write_fact_block_format(fact_f, fact, rule, idx)
+            fact_f.flush()
+
+        return wrapper
+
+    def write_fact_block_format(fact_f, fact, rule, idx):
+        write_fact_separator(fact_f, rule, idx)
+        fact_f.write(
+            fact.friendly_str(
+                description_sep='\n\n',
+                shellify=False,
+                colorful=False,
+            )
+        )
+
+    RULE_WIDTH = 76  # How wide to print the between-facts separator.
+
+    def write_fact_separator(fact_f, rule, idx):
+        if idx == 0:
+            return
+        fact_f.write('\n\n')
+        if rule:
+            fact_f.write('{}\n\n'.format(rule * RULE_WIDTH))
+
+    def persist_fact_save(fact, dry):
+        conflicts = []
+        save_facts_maybe(controller, fact, conflicts, dry)
+        if conflicts:
+            print(conflicts)
+            assert False  # ????
+
+    # ***
+
+    def celebrate(new_facts):
+        if not new_facts:
+            return
+        click_echo('{}{}{}! {}'.format(
+            attr('underlined'),
+            _('Voilà'),
+            attr('reset'),
+            _('Saved {} facts.').format(highlight_value(len(new_facts))),
+        ))
+
+    _prompt_and_save()
 
