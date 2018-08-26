@@ -53,6 +53,8 @@ requirements = [
     'future',
     # Vocabulary word pluralizer.
     'Inflector',
+    # https://github.com/hjson/hjson-py
+    'hjson',
     # Humanfriendly is one of the many table formatter choices.
     #  https://github.com/xolox/python-humanfriendly
     'humanfriendly',
@@ -64,12 +66,17 @@ requirements = [
     'nark',
     # Amazeballs prompt library.
     'prompt-toolkit >= 2.0.0',
+    # For the Carousel Fact description lexer.
+    #  http://pygments.org/
+    'pygments',
     # Just Another EDITOR package.
     #  https://github.com/fmoo/python-editor
     'python-editor',
     # Virtuous Six Python 2 and 3 compatibility library.
     #  https://six.readthedocs.io/
     'six',
+    # https://github.com/grantjenks/python-sortedcontainers/
+    'sortedcontainers',
     # Tabulate is one of the many table formatter choices.
     #  https://bitbucket.org/astanin/python-tabulate
     'tabulate',
