@@ -99,10 +99,13 @@ __all__ = [
     # 'stop',
     # 'cancel',
     # 'current',
-    # 'on',
-    # 'at',
-    # 'to',
-    # 'between',
+    # 'latest',
+    # 'add_fact_on',
+    # 'add_fact_at',
+    # 'add_fact_to',
+    # 'add_fact_then',
+    # 'add_fact_after',
+    # 'add_fact_from',
     # 'edit_group',
     # 'edit_fact',
     # 'transcode_export',
@@ -593,50 +596,79 @@ def show(controller):
 # *** [CREATE-FACT] Commands.
 # ***
 
-@run.command(aliases=['now'], help=help_strings.START_HELP_ON)
-@cmd_options_factoid
-@cmd_options_insert
-@pass_controller
-@induct_newbies
-@post_processor
-def on(controller, *args, **kwargs):
-    """Start or add a fact using the `on`/`now`/`start` directive."""
-    return add_fact(controller, *args, time_hint='verify_none', **kwargs)
+def generate_add_fact_command(time_hint):
+    def _generate_add_fact_command(func):
+        @cmd_options_factoid
+        @cmd_options_insert
+        @pass_controller
+        @induct_newbies
+        @post_processor
+        def _add_fact(controller, *args, **kwargs):
+            return add_fact(controller, *args, time_hint=time_hint, **kwargs)
+        return update_wrapper(_add_fact, func)
+    return _generate_add_fact_command
 
 
-@run.command(help=help_strings.START_HELP_AT)
-@cmd_options_factoid
-@cmd_options_insert
-@pass_controller
-@induct_newbies
-@post_processor
-def at(controller, *args, **kwargs):
+@run.command("on", aliases=["on:", "now", "now:"], help=help_strings.START_HELP_ON)
+@generate_add_fact_command("verify_none")
+def add_fact_on(controller, *args, **kwargs):
+    """Start or add a fact using the `on`/`now` directive."""
+    assert(False)  # Not reachable, because generate_add_fact_command.
+    pass
+
+
+@run.command("from", help=help_strings.START_HELP_FROM)
+@generate_add_fact_command("verify_both")
+def add_fact_from(controller, *args, **kwargs):
+    """Add a fact using the `from ... to/until` directive."""
+    assert(False)  # Not reachable, because generate_add_fact_command.
+    pass
+
+
+@run.command("at", aliases=["at:"], help=help_strings.START_HELP_AT)
+@generate_add_fact_command("verify_start")
+def add_fact_at(controller, *args, **kwargs):
     """Start or add a fact using the `at` directive."""
-    return add_fact(controller, *args, time_hint='verify_start', **kwargs)
+    assert(False)  # Not reachable, because generate_add_fact_command.
+    pass
 
 
-@run.command(aliases=['until'], help=help_strings.START_HELP_TO)
-@cmd_options_factoid
-@cmd_options_insert
-@pass_controller
-@induct_newbies
-@post_processor
-def to(controller, *args, **kwargs):
+@run.command("to", aliases=["to:", "until", "until:"], help=help_strings.START_HELP_TO)
+@generate_add_fact_command("verify_end")
+def add_fact_to(controller, *args, **kwargs):
     """Start or add a fact using the `to`/`until` directive."""
-    return add_fact(controller, *args, time_hint='verify_end', **kwargs)
+    assert(False)  # Not reachable, because generate_add_fact_command.
+    pass
 
 
-# (lb): We cannot name the function `from`, which is a Python reserved word,
-# so set the command name via the composable group command() decorator.
-@run.command('from', help=help_strings.START_HELP_BETWEEN)
-@cmd_options_factoid
-@cmd_options_insert
-@pass_controller
-@induct_newbies
-@post_processor
-def between(controller, *args, **kwargs):
-    """Add a fact using the `from ... to` directive."""
-    return add_fact(controller, *args, time_hint='verify_both', **kwargs)
+@run.command("then", aliases=["then:"], help=help_strings.START_HELP_THEN)
+@generate_add_fact_command("verify_then")
+def add_fact_then(controller, *args, **kwargs):
+    """Start or add a fact using the `then` directive."""
+    assert(False)  # Not reachable, because generate_add_fact_command.
+    pass
+
+
+@run.command("still", aliases=["still:"], help=help_strings.START_HELP_STILL)
+@generate_add_fact_command("verify_still")
+def add_fact_still(controller, *args, **kwargs):
+    """Start or add a fact using the `still` directive."""
+    assert(False)  # Not reachable, because generate_add_fact_command.
+    pass
+
+
+@run.command(
+    "after",
+    # (lb): Is "after"/"after:" good enough?
+    #       Is "next"/""next:" also useful?
+    aliases=["after:", "next", "next:", ],
+    help=help_strings.START_HELP_AFTER
+)
+@generate_add_fact_command("verify_after")
+def add_fact_after(controller, *args, **kwargs):
+    """Start or add a fact using the `after` directive."""
+    assert(False)  # Not reachable, because generate_add_fact_command.
+    pass
 
 
 # ***
