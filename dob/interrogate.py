@@ -18,7 +18,8 @@
 from __future__ import absolute_import, unicode_literals
 
 import editor
-import six
+import tempfile
+from six import text_type
 
 from nark.items.activity import Activity
 
@@ -28,6 +29,7 @@ from . import prompters
 
 __all__ = [
     'ask_user_for_edits',
+    'ask_edit_with_editor',
 ]
 
 
@@ -128,12 +130,69 @@ def ask_user_for_edits(
         ):
             return
 
-        description = ask_edit_with_editor(fact.description)
-        fact.description = description
+        # (lb): Strip whitespace from the description. This is how `git` works.
+        # Not that we have to be like git. But it makes parsed results match
+        # the input, i.e., it we didn't strip() and then re-parsed the non-
+        # stripped description, the parser would strip, and we'd see a difference
+        # between the pre-parsed and post-parsed description, albeit only
+        # leading and/or trailing whitespace. (If we wanted to preserve whitespace,
+        # we'd have to make the parser a little more intelligent, but currently
+        # the parser strip()s while it parses, to simplify the parsing algorithm.)
+        raw_description = ask_edit_with_editor(controller, fact, fact.description)
+        fact.description = raw_description.strip()
 
     # ***
 
-    def ask_edit_with_editor(content):
+    return _ask_user_for_edits()
+
+
+# ***
+
+def ask_edit_with_editor(controller, fact=None, content=''):
+    def _ask_edit_with_editor():
+        contents = prepare_contents(content)
+        filename = temp_filename()
+        edited = run_editor(filename, contents)
+        return edited
+
+    def prepare_contents(content):
+        content = content if content else ''
+        # FIXME: py2 compatible? Or need to six.b()?
+        # contents = six.b(str(content))  # NOPE: Has problems with Unicode, like: ½
+        contents = text_type(content).encode()
+        return contents
+
+    def temp_filename():
+        tmpfile = tempfile.NamedTemporaryFile(
+            prefix=prepare_prefix(),
+            suffix=prepare_suffix(),
+        )
+        filename = tmpfile.name
+        return filename
+
+    def prepare_prefix():
+        # Vim names the terminal with the file's basename, which is
+        # normally meaningless, e.g., "tmprvapy77w.rst (/tmp)", but
+        # we can give the randomly-named temp file a prefix to make
+        # the title more meaningful.
+        prefix = None
+        if fact is not None:
+            # E.g., "17:33 07 Apr 2018 "
+            timefmt = '%H:%M %d %b %Y '
+            if fact.start:
+                prefix = fact.start.strftime(timefmt)
+            elif fact.end:
+                prefix = fact.end.strftime(timefmt)
+        return prefix
+
+    def prepare_suffix():
+        # User can set a suffix, which can be useful so, e.g., Vim
+        # sees the extension and set filetype appropriately.
+        # (lb): I like my Hamster logs to look like reST documents!
+        suffix = controller.client_config['editor_suffix'] or None
+        return suffix
+
+    def run_editor(filename, contents):
         # NOTE: You'll find EDITOR features in multiple libraries.
         #       The UX should be indistinguishable to the user.
         #       E.g., we could use click's `edit` instead of editor's:
@@ -145,14 +204,12 @@ def ask_user_for_edits(
         #                      extension='.txt',
         #                      filename=None)
         #
-        content = content if content else ''
-        contents = six.b(str(content))
-        result = editor.edit(contents=contents)
-        # FIXME/2018-05-10: (lb): Is this py2 compatible?
+        result = editor.edit(filename=filename, contents=contents)
+        # FIXME/2018-05-10: (lb): Is this py2 compatible? (2018-06-29: Do I care?)
         edited = result.decode()
+        # Necessary?:
+        #   edited = result.decode('utf-8')
         return edited
 
-    # ***
-
-    return _ask_user_for_edits()
+    return _ask_edit_with_editor()
 

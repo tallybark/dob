@@ -20,12 +20,10 @@ from __future__ import absolute_import, unicode_literals
 from gettext import gettext as _
 
 import click
-import copy
-import editor
-import six
 
 from .create import mend_facts_confirm_and_save_maybe
 from .helpers import dob_in_user_exit
+from .interrogate import ask_edit_with_editor
 from .transcode import prompt_and_save
 
 __all__ = ['edit_fact']
@@ -63,11 +61,10 @@ def edit_fact(controller, key, use_carousel=True):
             )
 
     def fact_from_key_relative(key):
-        # FIXME/2018-06-10: (lb): This is crudely implemented, and
-        # won't work in edges cases (e.g., if you add a fact, then
-        # edit another fact, then `edit -1`, you'll edit the fact
-        # you edited, and not the latest fact, as this feature should
-        # work.
+        # FIXME/2018-06-10: (lb): This is crudely implemented, and won't
+        # work in edges cases (e.g., if you add a fact, then edit another
+        # fact, then `edit -1`, you'll edit the fact you edited, and not
+        # the latest fact, as this feature should work.
         offset = -1 - key
         old_facts = controller.facts.get_all(
             sort_order='desc',
@@ -119,12 +116,9 @@ def edit_fact(controller, key, use_carousel=True):
             colorful=False,
             show_elapsed=False,
         )
-        contents = six.b(old_raw_fact)
 
-        result = editor.edit(contents=contents)
+        new_raw_fact = ask_edit_with_editor(controller, old_fact, old_raw_fact)
 
-        # FIXME/2018-05-10: (lb): Is this py2 compatible?
-        new_raw_fact = result.decode()
         if old_raw_fact == new_raw_fact:
             dob_in_user_exit(
                 _("Nothing changed! New Fact same as the old Fact.")
