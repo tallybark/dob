@@ -119,10 +119,6 @@ __all__ = [
 ]
 
 
-# ***
-# *** [HELP] Just a simple `help` alias.
-# ***
-
 @run.command(hidden=True, help=help_strings.HELP_HELP)
 @click.pass_context
 def help(ctx):
@@ -732,12 +728,13 @@ def edit_fact_by_key(ctx, controller, *args, key, **kwargs):
     return _edit_fact_by_key()
 
 
-
 # ***
 # *** [EXPORT] Command.
 # ***
 
 CMD_EXPORT_OPT_FORMAT_CHOICES = ['csv', 'tsv', 'xml', 'ical']
+
+
 CMD_EXPORT_OPT_FORMAT_DEFAULT = 'csv'
 
 
