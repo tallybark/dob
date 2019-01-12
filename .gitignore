@@ -63,3 +63,6 @@ target/
 # like .gitignore's .git/info/exclude, the repo contains an .ignore.example.
 .ignore
 
+# ‘quickfix’ make task for Vim development.
+.make.out
+

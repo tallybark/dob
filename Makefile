@@ -102,8 +102,10 @@ develop:
 lint:
 	flake8 dob tests
 
-test:
-	py.test $(TEST_ARGS) tests/
+test: test-local quickfix
+
+test-local:
+	py.test $(TEST_ARGS) tests/ | tee .make.out
 
 test-all:
 	tox
@@ -121,6 +123,13 @@ coverage-html: coverage view-coverage
 
 view-coverage:
 	$(PYBROWSER) htmlcov/index.html
+
+quickfix:
+	# Convert partial paths to full paths, for Vim quickfix.
+	sed -r "s#^([^ ]+:[0-9]+:)#$(shell pwd)/\1#" -i .make.out
+	# Convert double-colons in messages (not file:line:s) -- at least
+	# those we can identify -- to avoid quickfix errorformat hits.
+	sed -r "s#^(.* .*):([0-9]+):#\1∷\2:#" -i .make.out
 
 docs:
 	rm -f docs/hamster_cli.rst
