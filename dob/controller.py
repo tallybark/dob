@@ -57,9 +57,9 @@ class Controller(HamsterControl):
 
     POST_PROCESSORS = []
 
-    def __init__(self):
+    def __init__(self, nark_preset=None, dob_preset=None):
         """Load backend and client configs, and instantiate controller."""
-        nark_config, dob_config, preexists = furnish_config()
+        nark_config, dob_config, preexists = furnish_config(nark_preset, dob_preset)
         self._adjust_log_level(nark_config)
         super(Controller, self).__init__(nark_config)
         self.client_config = dob_config

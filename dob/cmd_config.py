@@ -227,9 +227,9 @@ LOG_LEVELS = {
 }
 
 
-def furnish_config():
+def furnish_config(nark_preset=None, dob_preset=None):
     config, preexists = get_config_instance()
-    configs = get_separate_configs(config)
+    configs = get_separate_configs(config, nark_preset, dob_preset)
     return (*configs), preexists
 
 
@@ -245,25 +245,31 @@ def replenish_config():
 # *** Config helpers.
 # ***
 
-def from_config_or_default(config, cls_defaults, section, keyname):
+def from_config_or_default(config, tests_preset, cls_defaults, section, keyname):
+    default_value = getattr(cls_defaults(), keyname)
+    if isinstance(tests_preset, dict):
+        return tests_preset.get(keyname, default_value)
     try:
         return config.get(section, keyname)
     except configparser.NoOptionError:
-        return getattr(cls_defaults(), keyname)
+        return default_value
 
 
-def from_config_or_default_boolean(config, cls_defaults, section, keyname):
+def from_config_or_default_boolean(config, tests_preset, cls_defaults, section, keyname):
+    default_value = getattr(cls_defaults(), keyname)
+    if isinstance(tests_preset, dict):
+        return tests_preset.get(keyname, default_value)
     try:
         return config.getboolean(section, keyname)
     except configparser.NoOptionError:
-        return getattr(cls_defaults(), keyname)
+        return default_value
 
 
 # ***
 # *** Config helper: get_separate_configs.
 # ***
 
-def get_separate_configs(config):
+def get_separate_configs(config, nark_preset=None, dob_preset=None):
     """
     Rertrieve config dictionaries for backend and client setup.
 
@@ -278,11 +284,11 @@ def get_separate_configs(config):
     """
     def _get_separate_configs(config):
         return (
-            get_backend_config(config),
-            get_client_config(config),
+            get_backend_config(config, nark_preset),
+            get_client_config(config, dob_preset),
         )
 
-    def get_client_config(config):
+    def get_client_config(config, dob_preset=None):
         """
         Read and translate config file client section into dictionary.
 
@@ -305,12 +311,12 @@ def get_separate_configs(config):
         """
         def client_config_or_default(keyname):
             return from_config_or_default(
-                config, ClientDefaults, 'Client', keyname,
+                config, dob_preset, ClientDefaults, 'Client', keyname,
             )
 
         def client_config_or_default_boolean(keyname):
             return from_config_or_default_boolean(
-                config, ClientDefaults, 'Client', keyname,
+                config, dob_preset, ClientDefaults, 'Client', keyname,
             )
 
         def get_carousel_lexer():
@@ -386,7 +392,7 @@ def get_separate_configs(config):
             'term_paging': get_term_paging(),
         }
 
-    def get_backend_config(config):
+    def get_backend_config(config, nark_preset=None):
         """
         Return properly populated config dictionaries for consumption by our
         application.
@@ -406,12 +412,12 @@ def get_separate_configs(config):
         """
         def backend_config_or_default(keyname):
             return from_config_or_default(
-                config, BackendDefaults, 'Backend', keyname,
+                config, nark_preset, BackendDefaults, 'Backend', keyname,
             )
 
         def backend_config_or_default_boolean(keyname):
             return from_config_or_default_boolean(
-                config, BackendDefaults, 'Backend', keyname,
+                config, nark_preset, BackendDefaults, 'Backend', keyname,
             )
 
         def get_store():

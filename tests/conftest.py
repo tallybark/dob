@@ -43,6 +43,7 @@ import freezegun
 import nark
 
 import dob.dob as dob
+from dob.controller import Controller
 
 from . import factories
 
@@ -248,11 +249,16 @@ def invalid_tmp_fact(tmpdir, client_config):
         pickle.dump(None, fobj)
 
 
+def prepare_controller(lib_config, client_config):
+    controller = Controller(lib_config, client_config)
+    return controller
+
+
 @pytest.yield_fixture
 def controller(lib_config, client_config):
     """Provide a pseudo controller instance."""
-    controller = nark.HamsterControl(lib_config)
-    controller.client_config = client_config
+    controller = prepare_controller(lib_config, client_config)
+    controller.standup_store()
     yield controller
     controller.store.cleanup()
 
@@ -260,11 +266,9 @@ def controller(lib_config, client_config):
 @pytest.yield_fixture
 def controller_with_logging(lib_config, client_config):
     """Provide a pseudo controller instance with logging setup."""
-    controller = nark.HamsterControl(lib_config)
-    controller.client_config = client_config
-    # [FIXME]
-    # We shouldn't shortcut like this!
-    dob._setup_logging(controller)
+    controller = prepare_controller(lib_config, client_config)
+    controller.setup_logging()
+    controller.standup_store()
     yield controller
     controller.store.cleanup()
 
