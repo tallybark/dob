@@ -2,19 +2,6 @@ BUILDDIR = _build
 
 .PHONY: clean-pyc clean-build docs clean
 
-define BROWSER_PYSCRIPT
-import os, webbrowser, sys
-try:
-	from urllib import pathname2url
-except:
-	from urllib.request import pathname2url
-
-webbrowser.open("file://" + pathname2url(os.path.abspath(sys.argv[1])))
-endef
-export BROWSER_PYSCRIPT
-
-BROWSER := python -c "$$BROWSER_PYSCRIPT"
-
 # Setup up the man page directories.
 PREFIX ?= /usr/local
 MANDIR := $(abspath $(PREFIX)/man)
@@ -28,6 +15,19 @@ mkfile_base := $(dir $(mkfile_path))
 # USAGE: To wire man pages under the user's local directory, try:
 #   PREFIX=~/.local make man-link
 #   man dob
+
+define BROWSER_PYSCRIPT
+import os, webbrowser, sys
+try:
+	from urllib import pathname2url
+except:
+	from urllib.request import pathname2url
+
+webbrowser.open("file://" + pathname2url(os.path.abspath(sys.argv[1])))
+endef
+export BROWSER_PYSCRIPT
+
+BROWSER := python -c "$$BROWSER_PYSCRIPT"
 
 help:
 	@echo "Please choose a target for make:"
