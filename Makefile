@@ -58,6 +58,7 @@ help:
 	@echo "   cloc            \"count lines of code\""
 	@echo "   coverage        check code coverage quickly with the default Python"
 	@echo "   coverage-html   generate HTML coverage reference for every source file"
+	@echo "   view-coverage   open coverage docs in new tab (set BROWSER to specify app)"
 	@echo "   docs            generate Sphinx HTML documentation, including API docs"
 	@echo "   isort           run isort; sorts and groups imports in every module"
 	@echo "   lint            check style with flake8"
@@ -115,8 +116,10 @@ coverage:
 	coverage run -m pytest $(TEST_ARGS) tests
 	coverage report
 
-coverage-html: coverage
+coverage-html: coverage view-coverage
 	coverage html
+
+view-coverage:
 	$(PYBROWSER) htmlcov/index.html
 
 docs:
