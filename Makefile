@@ -16,6 +16,15 @@ mkfile_base := $(dir $(mkfile_path))
 #   PREFIX=~/.local make man-link
 #   man dob
 
+# DEV: Set BROWSER environ to pick your browser, otherwise webbrowser ignores
+# the system default and goes through its list, which starts with 'mozilla'.
+# E.g.,
+#
+#   BROWSER=chromium-browser make view-coverage
+#
+# Alternatively, one could be less distro-friendly and leverage sensible-utils, e.g.,
+#
+#   PYBROWSER := sensible-browser
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys
 try:
@@ -26,8 +35,8 @@ except:
 webbrowser.open("file://" + pathname2url(os.path.abspath(sys.argv[1])))
 endef
 export BROWSER_PYSCRIPT
-
-BROWSER := python -c "$$BROWSER_PYSCRIPT"
+# NOTE: Cannot name BROWSER, else overrides environ of same name.
+PYBROWSER := python -c "$$BROWSER_PYSCRIPT"
 
 help:
 	@echo "Please choose a target for make:"
@@ -108,7 +117,7 @@ coverage:
 
 coverage-html: coverage
 	coverage html
-	$(BROWSER) htmlcov/index.html
+	$(PYBROWSER) htmlcov/index.html
 
 docs:
 	rm -f docs/hamster_cli.rst
@@ -116,7 +125,7 @@ docs:
 	sphinx-apidoc -o docs/ dob
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
-	$(BROWSER) docs/_build/html/index.html
+	$(PYBROWSER) docs/_build/html/index.html
 
 isort:
 	isort --recursive setup.py dob/ tests/
