@@ -38,6 +38,7 @@ from nark.helpers.parsing import ParserException
 from . import interrogate
 from .cmd_common import echo_block_header
 from .cmd_config import get_appdirs_subdir_file_path, AppDirs
+from .help_strings import NOTHING_TO_STOP_HELP
 from .helpers import (
     click_echo,
     dob_in_user_exit,
@@ -470,10 +471,7 @@ def stop_fact(controller):
     try:
         fact = controller.facts.stop_current_fact()
     except KeyError:
-        msg = _(
-            "It doesn't look like there's any current Fact {}to{} stop."
-        ).format(attr('italic'), attr('res_italic'))
-        dob_in_user_exit(msg)
+        dob_in_user_exit(NOTHING_TO_STOP_HELP)
     else:
         echo_ongoing_completed(controller, fact, cancelled=False)
         return fact

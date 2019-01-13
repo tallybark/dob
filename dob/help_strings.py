@@ -516,6 +516,17 @@ CURRENT_HELP = _(
 )
 
 
+NO_ACTIVE_FACT_HELP = _(
+    """No active fact. Try {}starting{} a new fact first."""
+).format(attr('italic'), attr('res_italic'))
+
+
+NOTHING_TO_STOP_HELP = _(
+    #"""It doesn't look like there's any current Fact {}to{} stop."""
+    """Sorry, bud, there's no ongoing Fact {}to{} stop."""
+).format(attr('italic'), attr('res_italic'))
+
+
 LATEST_HELP = _(
     """Display the latest completed fact (i.e., with the latest end time)."""
 )

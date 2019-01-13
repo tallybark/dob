@@ -27,6 +27,7 @@ from nark.helpers.colored import colorize
 from nark.helpers.parse_time import parse_dated
 
 from ..cmd_common import error_exit_no_results, hydrate_activity, hydrate_category
+from ..help_strings import NO_ACTIVE_FACT_HELP
 from ..helpers import click_echo, dob_in_user_exit, dob_in_user_warning
 from ..helpers.ascii_table import generate_table, warn_if_truncated
 
@@ -62,8 +63,7 @@ def echo_ongoing_fact(controller):
     Raises:
         click.ClickException: If we fail to fetch any *ongoing fact*.
     """
-    empty_msg = _('No active fact. Try starting a new fact first.')
-    echo_most_recent(controller, restrict='ongoing', empty_msg=empty_msg)
+    echo_most_recent(controller, restrict='ongoing', empty_msg=NO_ACTIVE_FACT_HELP)
 
 
 def echo_ongoing_or_ended(controller):
