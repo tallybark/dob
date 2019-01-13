@@ -34,7 +34,7 @@ from .helpers import dob_in_user_exit, dob_in_user_warning
 # Profiling: load backports: ~ 0.006 secs.
 # LATER: Drop Py2 support, then switch from backports to builtin configparser.
 # (lb): Py2 uses backports for Unicode support [if I understand correctly].
-# (lb): This is probably pointless, as config is always loaded.
+# (lb): This lazy-load is probably pointless, as config is always loaded.
 configparser = lazy_import.lazy_module('backports.configparser')
 
 # Disable the python_2_unicode_compatible future import warning.
