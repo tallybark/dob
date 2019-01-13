@@ -323,7 +323,7 @@ def get_separate_configs(config, nark_preset=None, dob_preset=None):
             return client_config_or_default('carousel_lexer')
 
         def get_devmode():
-            return client_config_or_default('devmode')
+            return client_config_or_default_boolean('devmode')
 
         def get_editor_suffix():
             return client_config_or_default('editor_suffix')
@@ -598,7 +598,7 @@ def fresh_config():
         config.set('Backend', 'db_name', backend.db_name)
         config.set('Backend', 'db_user', backend.db_user)
         config.set('Backend', 'db_password', backend.db_password)
-        config.set('Backend', 'allow_momentaneous', backend.allow_momentaneous)
+        config.set('Backend', 'allow_momentaneous', str(backend.allow_momentaneous))
         config.set('Backend', 'day_start', backend.day_start)
         config.set('Backend', 'fact_min_delta', backend.fact_min_delta)
         config.set('Backend', 'sql_log_level', backend.sql_log_level)
@@ -609,7 +609,7 @@ def fresh_config():
         client = ClientDefaults()
         config.add_section('Client')
         config.set('Client', 'carousel_lexer', client.carousel_lexer)
-        config.set('Client', 'devmode', client.devmode)
+        config.set('Client', 'devmode', str(client.devmode))
         config.set('Client', 'editor_suffix', client.editor_suffix)
         config.set('Client', 'export_path', client.export_path)
         config.set('Client', 'fifo_dir', client.fifo_dir)
