@@ -112,6 +112,26 @@ ENVIRONS_HELP = _(
 
 
 # ***
+# *** [DEBUG] Command help.
+# ***
+
+DEBUG_HELP = _(
+    """
+    """
+)
+
+
+# ***
+# *** [DEMO] Command help.
+# ***
+
+DEMO_HELP = _(
+    """
+    """
+)
+
+
+# ***
 # *** [INDUCTEE] help.
 # ***
 
@@ -217,16 +237,6 @@ FIXME: Provide example commands.
     banner=NEWBIE_HELP_WELCOME,
     # mintgreen=(fg('spring_green_2a') + attr('bold')),
     # reset=attr('reset'),
-)
-
-
-# ***
-# *** [DEMO] Command help.
-# ***
-
-DEMO_HELP = _(
-    """
-    """
 )
 
 
@@ -502,7 +512,17 @@ CANCEL_HELP = _(
 
 
 CURRENT_HELP = _(
-    """Display current tmp fact."""
+    """Display the current, open-ended, ongoing fact, if there is one."""
+)
+
+
+LATEST_HELP = _(
+    """Display the latest completed fact (i.e., with the latest end time)."""
+)
+
+
+HELP_CMD_SHOW = _(
+    """Display ongoing fact, or latest fact if there is no ongoing fact."""
 )
 
 
@@ -719,13 +739,31 @@ START_HELP_AT = _(
 ).format(START_HELP_COMMON)
 
 
+START_HELP_THEN = _(
+    """
+    """
+)
+
+
+START_HELP_STILL = _(
+    """
+    """
+)
+
+
+START_HELP_AFTER = _(
+    """
+    """
+)
+
+
 START_HELP_TO = _(
     """
     """
 )
 
 
-START_HELP_BETWEEN = _(
+START_HELP_FROM = _(
     """
     """
 )
@@ -755,15 +793,7 @@ EDIT_FACT_HELP = _(
 
 EXPORT_HELP = _(
     """
-    Export all facts of within a given time window to a file of specified format.
-
-    \b
-    FORMAT: Export format. [Default: ``csv``]
-            Choices: 'csv', 'tsv', 'xml' and 'ical'
-
-    START: Start of time window.
-
-    END: End of time window.
+    Export facts.
     """
 )
 
