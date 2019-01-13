@@ -578,7 +578,7 @@ def fresh_config():
             not yet written to file.
     """
     # [FIXME]
-    # This may be usefull to turn into a proper command, so users can restore to
+    # This may be useful to turn into a proper command, so users can restore to
     # factory settings easily.
     def _fresh_config():
         config = configparser.SafeConfigParser()
