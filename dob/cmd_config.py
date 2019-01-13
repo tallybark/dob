@@ -427,6 +427,7 @@ def get_separate_configs(config, nark_preset=None, dob_preset=None):
             return store
 
         def get_db_path():
+            # 2019-01-11: Not called.
             return backend_config_or_default('db_path')
 
         def get_db_config():
