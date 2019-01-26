@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# This file is part of 'dob'.
+# This file is part of 'dob'. Copyright © 2018-2019 Hot Off The Hamster.
 #
 # 'dob' is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -218,10 +218,16 @@ class Controller(HamsterControl):
         #   because we'll show the help/usage (which Click would normally
         #   handle if we had not tampered with invoke_without_command).
         if (
-            (len(sys.argv) > 2) or
-            ((len(sys.argv) == 2) and (sys.argv[1] not in ('-v', 'version')))
+            (len(sys.argv) > 2)
+            or (
+                (len(sys.argv) == 2)
+                and (sys.argv[1] not in ('-v', 'version'))
+            )
         ):
             return
+        # FIXME/EXPLAIN/2019-01-22: (lb): What about other 2 loggers?
+        #   lib_log_level
+        #   cli_log_level
         nark_config['sql_log_level'] = 'WARNING'
 
     def check_sqlite_store_ready(self):
@@ -301,16 +307,21 @@ class Controller(HamsterControl):
         loggers = self.get_loggers()
         # Clear existing Handlers, and set the level.
         # MAYBE: Allow user to specify different levels for different loggers.
-        client_level = self.client_config['log_level']
-        log_level, warn_name = logging_helpers.resolve_log_level(client_level)
+        cli_log_level_name = self.client_config['cli_log_level']
+        cli_log_level, warn_name = logging_helpers.resolve_log_level(cli_log_level_name)
         # We can at least allow some simpler optioning from the command args.
         if verbose:
-            log_level = min(logging.INFO, log_level)
+            cli_log_level = min(logging.INFO, cli_log_level)
         if verboser:
-            log_level = min(logging.DEBUG, log_level)
-        for logger in loggers:
-            logger.handlers = []
-            logger.setLevel(log_level)
+            cli_log_level = min(logging.DEBUG, cli_log_level)
+        # 2019-01-25 (lb): I have not had any issues for past few weeks, but,
+        #   just FYI in case you do, you might need to clear handlers on
+        #   lib_logger and sql_logger, e.g.,:
+        #        for logger in loggers:
+        #            logger.handlers = []
+        #            logger.setLevel(cli_log_level)
+        self.client_logger.handlers = []
+        self.client_logger.setLevel(cli_log_level)
 
         color = self.client_config['log_color']
         formatter = logging_helpers.formatter_basic(color=color)
@@ -326,8 +337,8 @@ class Controller(HamsterControl):
 
         if warn_name:
             self.client_logger.warning(
-                _('Unknown Client.log_level specified: {}')
-                .format(client_level)
+                _('Unknown Client.cli_log_level specified: {}')
+                .format(cli_log_level)
             )
 
     def get_loggers(self):
