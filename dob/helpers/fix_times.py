@@ -39,13 +39,14 @@ from ..cmds_list.fact import find_latest_fact
 from ..traverser.placeable_fact import PlaceableFact
 
 __all__ = [
-    'insert_forcefully',
     'mend_facts_times',
     'must_complete_times',
     'reduce_time_hint',
-    'resolve_overlapping',
     'then_extend_fact',
     'unite_and_stretch',
+    # Private:
+    #   'insert_forcefully',
+    #   'resolve_overlapping',
 ]
 
 
