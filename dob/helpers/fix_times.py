@@ -943,9 +943,6 @@ def resolve_overlapping(fact, conflicts, squash_sep='', allow_momentaneous=False
         return cull_duplicates(resolved)
 
     def resolve_fact_squash_fact(fact, conflict, resolved):
-        conflict.dirty_reasons.add('stopped')
-        conflict.dirty_reasons.add('end')
-        conflict.dirty_reasons.add('squash')
         conflict.squash(fact, squash_sep)
         resolved.append(conflict)
 
