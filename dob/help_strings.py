@@ -26,9 +26,6 @@ from nark.helpers.colored import fg, attr
 from . import __arg0name__, __BigName__
 
 
-# FIXME: Dehardcode: Use .format(appname=__arg0name__) herein!
-
-
 # ***
 # *** [BARE] Command help.
 # ***
@@ -182,9 +179,9 @@ To create a fresh, empty database, run:{reset}
 
 {upgrade_title}
 {paragraph_color}
-To learn how to upgrade, run:{reset}
+To learn how to upgrade from a previous version (of dob, or hamster), run:{reset}
 
-  {cmd_color}{appname} upgrade{reset}
+  {cmd_color}{appname} migrate{reset}
 
 {demo_title}
 {paragraph_color}
@@ -522,7 +519,7 @@ NO_ACTIVE_FACT_HELP = _(
 
 
 NOTHING_TO_STOP_HELP = _(
-    #"""It doesn't look like there's any current Fact {}to{} stop."""
+    # """It doesn't look like there's any current Fact {}to{} stop."""
     """Sorry, bud, there's no ongoing Fact {}to{} stop."""
 ).format(attr('italic'), attr('res_italic'))
 
