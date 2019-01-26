@@ -130,3 +130,40 @@ def conflict_prefix(prefix):
         )
     )
 
+
+# ***
+
+def integer_range_groupify(integers):
+    from itertools import groupby
+    from operator import itemgetter
+
+    def _integer_range_groupify():
+        srtd = sorted(map(int, integers))
+        return assemble_groups(srtd)
+
+    def range_key_recursive(srtd, ix):
+        if ix[0] == 0:
+            # Very first item, so always start of group.
+            return ix[1]
+        prev_idx = ix[0] - 1
+        prev_val = int(srtd[prev_idx])
+        if ix[1] == prev_val + 1:
+            # Previous item value is 1 before this one, so walk backwards.
+            return range_key_recursive(srtd, (prev_idx, prev_val,))
+        return ix[1]
+
+    def range_key(srtd, ix):
+        key = range_key_recursive(srtd, ix)
+        # print('ix:', ix, 'key:', key)
+        return key
+
+    def assemble_groups(srtd):
+        grouped = []
+        for key, grp in groupby(enumerate(srtd), lambda ix: range_key(srtd, ix)):
+            # print('key: {} / grp: {} {}'.format(key, grp, list(grp)))
+            # print(list(map(itemgetter(1), grp)))
+            grouped.append(list(map(itemgetter(1), grp)))
+        return grouped
+
+    return _integer_range_groupify()
+
