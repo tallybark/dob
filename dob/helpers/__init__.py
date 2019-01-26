@@ -78,13 +78,14 @@ def prepare_log_msg(fact_or_dict, msg_content):
         try:
             line_num = fact_or_dict['line_num']
             line_raw = fact_or_dict['line_raw']
+        except KeyError:
+            line_num = fact_or_dict['parsed_source.line_num']
+            line_raw = fact_or_dict['parsed_source.line_raw']
         except TypeError:
-            try:
-                line_num = fact_or_dict.parsed_source.line_num
-                line_raw = fact_or_dict.parsed_source.line_raw
-            except Exception:
-                line_num = 0
-                line_raw = ''
+            line_num = fact_or_dict.parsed_source.line_num
+            line_raw = fact_or_dict.parsed_source.line_raw
+        line_num = line_num or 0
+        line_raw = line_raw or ''
         # NOTE: Using colors overrides logger's coloring, which is great!
         return _(
             '{}{}{}: {}{}: {}{} / {}{}{}\n\n{}: {}“{}”{}\n\n{}: {}{}{}'
