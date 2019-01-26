@@ -248,7 +248,6 @@ def must_complete_times(
     controller,
     new_facts,
     progress=None,
-    ongoing_okay=False,
     leave_blanks=False,
     other_edits={},
     suppress_barf=False,
