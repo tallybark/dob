@@ -68,7 +68,7 @@ AppDirs = DobAppDirs('dob')
 
 
 # ***
-# *** Config defaults.
+# *** Config defaults: `nark` back end.
 # ***
 
 # FIXME: (lb): DRY this. nark duplicates a lot of this.
@@ -138,6 +138,10 @@ class BackendDefaults(object):
         return '0'
 
     @property
+    def lib_log_level(self):
+        return 'WARNING'
+
+    @property
     def sql_log_level(self):
         return 'WARNING'
 
@@ -151,6 +155,10 @@ class BackendDefaults(object):
     def default_tzinfo(self):
         return ''
 
+
+# ***
+# *** Config defaults: `dob` front end.
+# ***
 
 class ClientDefaults(object):
     """"""
@@ -190,7 +198,7 @@ class ClientDefaults(object):
         return 'dob.log'
 
     @property
-    def log_level(self):
+    def cli_log_level(self):
         return 'WARNING'
 
     @property
@@ -215,7 +223,7 @@ class ClientDefaults(object):
 
 
 # ***
-# *** Config function: furnish_config.
+# *** Config function: log level helpers.
 # ***
 
 LOG_LEVELS = {
@@ -226,6 +234,29 @@ LOG_LEVELS = {
     'critical': logging.CRITICAL,
 }
 
+
+# MEH/2019-01-17: Deal with this when refactoring config:
+#   If cli_log_level is wrong, app just logs a warning.
+#   But for some reason, here, if sql_log_level is wrong,
+#   app dies. Should probably just warning instead and
+#   get on with life... print colorful stderr message,
+#   but live.
+#     See also: nark/nark/control.py and nark/nark/helpers/logging.py
+#     have log_level functions, should probably consolidate this!
+def must_verify_log_level(log_level_name):
+    try:
+        log_level = LOG_LEVELS[log_level_name.lower()]
+    except KeyError:
+        msg = _(
+            "Unrecognized log level value in config: “{}”. Try one of: {}."
+        ).format(log_level_name, ', '.join(LOG_LEVELS))
+        dob_in_user_exit(msg)
+    return log_level
+
+
+# ***
+# *** Config function: furnish_config.
+# ***
 
 def furnish_config(nark_preset=None, dob_preset=None):
     config, preexists = get_config_instance()
@@ -349,16 +380,11 @@ def get_separate_configs(config, nark_preset=None, dob_preset=None):
             log_filename = client_config_or_default('log_filename')
             return os.path.join(log_dir, log_filename)
 
-        def get_log_level():
-            log_level_name = client_config_or_default('log_level')
-            try:
-                log_level = LOG_LEVELS[log_level_name.lower()]
-            except KeyError:
-                msg = _(
-                    "Unrecognized log level value in config: “{}”. Try one of: {}."
-                ).format(log_level_name, ', '.join(LOG_LEVELS))
-                dob_in_user_exit(msg)
-            return log_level
+        def get_cli_log_level():
+            cli_log_level_name = client_config_or_default('cli_log_level')
+            # MEH/2019-01-17: We should warn, not die; see: resolve_log_level.
+            cli_log_level = must_verify_log_level(cli_log_level_name)
+            return cli_log_level
 
         def get_separators():
             return client_config_or_default('separators')
@@ -384,7 +410,7 @@ def get_separate_configs(config, nark_preset=None, dob_preset=None):
             'log_color': get_log_color(),
             'log_console': get_log_console(),
             'logfile_path': get_logfile_path(),
-            'log_level': get_log_level(),
+            'cli_log_level': get_cli_log_level(),
             'separators': get_separators(),
             'styling': get_styling(),
             'show_greeting': get_show_greeting(),
@@ -463,7 +489,7 @@ def get_separate_configs(config, nark_preset=None, dob_preset=None):
                         day_start = datetime.datetime.strptime(
                             day_start_text, '%H:%M:%S',
                         ).time()
-                    except ValueError as err:
+                    except ValueError:
                         warn_invalid(day_start_text)
                 if not day_start:
                     day_start = datetime.time(0, 0, 0)
@@ -480,13 +506,26 @@ def get_separate_configs(config, nark_preset=None, dob_preset=None):
         def get_fact_min_delta():
             return backend_config_or_default('fact_min_delta')
 
-        def get_sql_log_level():
+        def get_log_level_safe(keyname):
+            # FIXME/EXPLAIN/2019-01-17: What only do this for nark,
+            #   and not also for cli_log_level ?
+            #   TEST: Per comment, test ``dob complete`` and see if dob logs
+            #     anything (and if so, apply this logic to cli_log_level).
+
             # (lb): A wee bit of a hack! Don't log during the dob-complete
             #   command, lest yuck!
             if (len(sys.argv) == 2) and (sys.argv[1] == 'complete'):
                 # Disable for dob-complete.
                 return logging.CRITICAL + 1
-            sql_log_level = backend_config_or_default('sql_log_level')
+            sql_log_level = backend_config_or_default(keyname)
+            return sql_log_level
+
+        def get_lib_log_level():
+            lib_log_level = get_log_level_safe('lib_log_level')
+            return lib_log_level
+
+        def get_sql_log_level():
+            sql_log_level = get_log_level_safe('sql_log_level')
             return sql_log_level
 
         def get_tz_aware():
@@ -501,6 +540,7 @@ def get_separate_configs(config, nark_preset=None, dob_preset=None):
             'allow_momentaneous': get_allow_momentaneous(),
             'day_start': get_day_start(),
             'fact_min_delta': get_fact_min_delta(),
+            'lib_log_level': get_lib_log_level(),
             'sql_log_level': get_sql_log_level(),
             'tz_aware': get_tz_aware(),
             'default_tzinfo': get_default_tzinfo(),
@@ -601,6 +641,7 @@ def fresh_config():
         config.set('Backend', 'allow_momentaneous', str(backend.allow_momentaneous))
         config.set('Backend', 'day_start', backend.day_start)
         config.set('Backend', 'fact_min_delta', backend.fact_min_delta)
+        config.set('Backend', 'lib_log_level', backend.lib_log_level)
         config.set('Backend', 'sql_log_level', backend.sql_log_level)
         config.set('Backend', 'tz_aware', str(backend.tz_aware))
         config.set('Backend', 'default_tzinfo', backend.default_tzinfo)
@@ -616,7 +657,7 @@ def fresh_config():
         config.set('Client', 'log_color', str(client.log_color))
         config.set('Client', 'log_console', str(client.log_console))
         config.set('Client', 'log_filename', client.log_filename)
-        config.set('Client', 'log_level', client.log_level)
+        config.set('Client', 'cli_log_level', client.cli_log_level)
         config.set('Client', 'separators', client.separators)
         config.set('Client', 'styling', client.styling)
         config.set('Client', 'show_greeting', str(client.show_greeting))
