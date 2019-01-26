@@ -123,7 +123,6 @@ def run(ctx, controller, v, verbose, verboser, color):
         _run_handle_version(show_version, ctx)
         _run_handle_without_command(ctx)
         controller.setup_logging(verbose, verboser)
-        controller.wire_pdb_pipes()
 
     def _setup_tty_options(controller):
         # If piping output, Disable color and paging.

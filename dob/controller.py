@@ -374,50 +374,38 @@ class Controller(HamsterControl):
         import traceback
         traceback.print_stack()
         traceback.print_exc()
-        import pdb
-        pdb.set_trace()
-        # This makes neither input echo nor any command output appear!
-        #   import sys, pdb; pdb.Pdb(stdout=sys.__stdout__).set_trace()
-        #   import sys, pdb; pdb.Pdb(stdout=STDOUT).set_trace()
+        self.pdb_set_trace()
 
     # ***
 
-    def wire_pdb_pipes(self):
-        if not self.client_config['devmode']:
-            return
-        if not self.client_config['fifo_dir']:
-            return
-        # Fix terminal echo in PDB on breakpoint.
-        # NOTE: Readline-ish stuff does not work, like previous history with up arrow.
-        #       But copy-paste works, TFG.
-        # https://stackoverflow.com/questions/17074177/
-        #   how-to-debug-python-cli-that-takes-stdin
-        try:
-            self.monkey_patch_set_trace()
-        except FileNotFoundError as err:
-            self.client_logger.warning(
-                _('Cannot patch set_trace: ‘{}’'.format(err))
-            )
-
-    def monkey_patch_set_trace(self):
+    def pdb_set_trace(self):
         import pdb
-        basename = self.client_config['fifo_dir']
-        fifo_stdin = open(os.path.join(basename, 'fifo_stdin'), 'r')
-        fifo_stdout = open(os.path.join(basename, 'fifo_stdout'), 'w')
-        mypdb = pdb.Pdb(stdin=fifo_stdin, stdout=fifo_stdout)
-        pdb.set_trace = mypdb.set_trace
+        self.pdb_break_enter()
+        pdb.set_trace()
+        self.pdb_break_leave()
 
-    # ANOTHER OPTION:
-    # def tty_pdb():
-    #     from contextlib import (
-    #         _RedirectStream, redirect_stdout, redirect_stderr
-    #     )
-    #     class redirect_stdin(_RedirectStream):
-    #         _stream = 'stdin'
-    #     with open('/dev/tty', 'r') as new_stdin, \
-    #          open('/dev/tty', 'w') as new_stdout, \
-    #          open('/dev/tty', 'w') as new_stderr, \
-    #          redirect_stdin(new_stdin), \
-    #          redirect_stdout(new_stdout), redirect_stderr(new_stderr):
-    #         __import__('pdb').set_trace()
+    def pdb_break_enter(self):
+        import subprocess
+        # If the developer breaks into code from within the Carousel,
+        # i.e., from within the Python Prompt Toolkit library, then
+        # pdb terminal echo of stdin back to stdout is broken. You'll
+        # see that pdb.stdin and pdb.stdout still match the sys.__stdin__
+        # and sys.__stdout__, so that's not the issue -- it's that pdb
+        # terminal is in *raw* mode. We can fix this by shelling to stty.
+        proc = subprocess.Popen(['stty', '--save'], stdout=subprocess.PIPE)
+        (stdout_data, stderr_data) = proc.communicate()
+        self.stty_saved = stdout_data.strip()
+        # Before breaking, twiddle the terminal away from PPT temporarily.
+        subprocess.Popen(['stty', 'sane'])
+
+    def pdb_break_leave(self):
+        import subprocess
+        # Aha! This is awesome! We can totally recover from an interactive
+        # debug session! First, restore the terminal settings (which we
+        # reset so the our keystrokes on stdin were echoed back to us)
+        # so that sending keys to PPT works again.
+        subprocess.Popen(['stty', self.stty_saved])
+        # And then the caller, if self.carousel, will redraw the interface
+        # (because it has the handle to the application).
+        self.client_logger.debug(_("Get on with it!"))
 
