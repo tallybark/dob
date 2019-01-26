@@ -37,7 +37,7 @@ __all__ = [
     'echo_ongoing_fact',
     'echo_ongoing_or_ended',
     'find_latest_fact',
-    'find_maiden_fact',
+    'find_oldest_fact',
     'list_facts',
     'search_facts',
     'generate_facts_table',
@@ -102,7 +102,7 @@ def find_latest_fact(controller, restrict=None):
 
 # ***
 
-def find_maiden_fact(controller):
+def find_oldest_fact(controller):
     fact = None
     results = controller.facts.get_all(
         sort_col='start', sort_order='asc', limit=1,
