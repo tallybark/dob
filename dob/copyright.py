@@ -43,7 +43,7 @@ def echo_copyright():
     cur_year = str(datetime.now().year)
     year_range = '2018'
     if cur_year != year_range:
-        year_range = '2018-{}'.format(year_range)
+        year_range = '2018-{}'.format(cur_year)
     gpl3_notice_2018 = [
         '{app_name} {version}'.format(
             app_name=__BigName__,
