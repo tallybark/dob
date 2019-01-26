@@ -250,7 +250,10 @@ def must_complete_times(
     other_edits={},
     suppress_barf=False,
 ):
-    """"""
+    """
+    NOTE: new_facts must be ordered list of facts, or conflicts will happen.
+      FIXME: also, write this helpdoc, eh?
+    """
 
     # ***
 
@@ -289,6 +292,8 @@ def must_complete_times(
         # One final start < end < start ... check.
         verify_datetimes_sanity(new_facts, ante_fact, seqt_fact, conflicts)
 
+        # MAYBE/2019-01-22: Make barfing optional, so Carousel can use this
+        #  fcn... or maybe Carousel does not need this function (not sure yet).
         barf_on_overlapping_facts_new(conflicts)
 
         return conflicts
@@ -592,6 +597,7 @@ def must_complete_times(
     # ...
 
     def verify_datetimes_sanity(new_facts, ante_fact, seqt_fact, conflicts):
+        """"""
         progress and progress.click_echo_current_task(_('Verifying sanity times...'))
         prev_time, later_facts = prev_and_later(new_facts, ante_fact, seqt_fact)
         prev_fact = ante_fact
@@ -603,7 +609,8 @@ def must_complete_times(
             if not fact.start:
                 # Rather than adding it again, e.g.,
                 #   conflicts.append((
-                #     fact, None, _('Could not determine start of new fact')))
+                #     fact, None, _('Could not determine start of new fact'))
+                #   )
                 # just verify we already caught it.
                 is_edge_fact = idx == 0
                 verify_datetimes_missing_already_caught(fact, conflicts, is_edge_fact)
@@ -689,6 +696,25 @@ def must_complete_times(
 
 # ***
 
+# FIXME/TESTING/2019-01-22: Test adding fact when there's an ongoing Fact.
+#   - Test new Fact with and without start.
+#     - A new Fact without start gets squashed into current ongoing Fact?
+#     - A new Fact with a start ends the current ongoing.
+#   - Three ways to add new Fact: 1.) single CLI command; 2.) Carousel; 3.) import.
+#   - Or does other code handle ongoing Fact, I don't remember...
+
+# NOTE/2019-01-22: insert_forcefully checks one Fact being edited against
+# the store only, and it ignores any other edited Facts you might have.
+# The current use cases define this restriction:
+# - The command line only lets the user edit one Fact at a time;
+# - The Carousel manages it own set of edited Facts and does not
+#   need (call) this function (and it will not let user change a
+#   Fact's start or end time if the new Fact's times would fully
+#   shadow another Fact's times);
+# - The import function will let a user edit multiple Facts, but
+#   it die-complains if *any* Fact conflicts, so its use of this
+#   function is only in the context of a single Fact vs. the db.
+
 def insert_forcefully(controller, fact, squash_sep=''):
     """
     Insert the possibly open-ended Fact into the set of logical
@@ -706,7 +732,6 @@ def insert_forcefully(controller, fact, squash_sep=''):
         ValueError: If start or end time is not specified and cannot be
             deduced by other Facts in the system.
     """
-    # NOTE: controller is controller.facts.store.
     allow_momentaneous = controller.config['allow_momentaneous']
 
     def _insert_forcefully(facts, fact):
@@ -754,22 +779,59 @@ def insert_forcefully(controller, fact, squash_sep=''):
         conflict = None
         if ref_time == 'start':
             if fact.start is None:
+                # MAYBE/SIMPLIFY/2019-01-22: Lots of comments in insert_forcefully
+                #   about perhaps being redundant, and using just must_complete_times.
+                # Here's one such old comment:
+                #   # FIXME: rely on must_complete_times.
+                #   # we could probably assert that fact.start is not None,
+                #   #  and remove set_start_per_antecedent
+
                 conflict = set_start_per_antecedent(facts, fact)
             else:
                 conflict = facts.starting_at(fact)
         else:
             assert ref_time == 'end'
             if fact.end is None:
+                # FIXME/TESTME/2019-01-22: Is this path possible? Will code
+                # have called must_complete_times first, and this situation
+                # have been remedied? See comment above, before function def,
+                # that talks about the different use cases: Codify all this
+                # blather in tests! (I'm curious how the functions here in
+                # insert_forcefully, set_end_per_subsequent, as well as
+                # set_start_per_antecedent, compare to must_complete_times,
+                # which has its own start and end setting code.)
                 set_end_per_subsequent(facts, fact)
             else:
+                # LATER/BACKLOG/LOWLOWPRIORITY/2019-01-22: Momentaneous:
+                #   If supporting momentaneous, could have multiple Facts
+                #   with same ending_at (and not just multiple versions
+                #   of the same Fact (with all but 1 deleted).
                 conflict = facts.ending_at(fact)
         conflicts = [conflict] if conflict else []
         return conflicts
 
+    # MAYBE/SIMPLIFY/2019-01-22: Merge this code into must_complete_times?
+    #   FIXME: Redundant (see must_complete_times). Can probably remove this?
+    #          Or consolidate with must_complete_times...
+    #
+    # FIXME/2018-08-23 00:50: Is this comment even valid anymore?
+    #    # FIXME/2018-05-12: (lb): insert_forcefully does not respect tmp_fact!
+    #    #   if 'dob-to', and tmp fact, then start now, and end tmp_fact.
+    #    #   if 'dob-from', and tmp fact, then either close tmp at now,
+    #    #     or at from time, or complain (add to conflicts) if overlapped.
+
     def set_start_per_antecedent(facts, fact):
         assert fact.start is None
+
         # Find a Fact with start < fact.end.
         ref_fact = facts.antecedent(fact)
+
+        # MAYBE/SIMPLIFY/2019-01-22: Merge this code into must_complete_times?
+        # - See "redundant" comment below, too.
+        # - 6 mo. old comment says:
+        #   - FIXME: Make this error a conflict in must_complete_times,
+        #             then remove set_start_per_antecedent.
+
         if not ref_fact:
             raise ValueError(_(
                 'Please specify `start` for fact being added before time existed.'
@@ -789,7 +851,14 @@ def insert_forcefully(controller, fact, squash_sep=''):
             # we return later.)
             assert ref_fact.start < fact.end
             conflict = ref_fact
+
         return conflict
+
+    # MAYBE/SIMPLIFY/2019-01-22: Is this function redundant? Can it be removed?
+    #   A comment from 6 mos. ago suggests that
+    #     must_complete_times acts similar to set_end_per_subsequent,
+    #     or that set_end_per_subsequent can be merged into must_complete_times.
+    #   I might also not care anymore. Maybe consult coverage for the truth?
 
     def set_end_per_subsequent(facts, fact):
         assert fact.end is None
