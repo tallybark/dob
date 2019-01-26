@@ -1,19 +1,16 @@
-# This file is used for local testing with and without tox as well as for
-# testing on the CI servers.
+# This file is used for local testing with and without tox,
+# as well as for testing on the CI servers.
 
-# NOTE: (lb): ORDER HERE MATTERS!
-# Avoid:
-#   ImportError: The ``fake-factory`` package is now called ``Faker``.
-# At least I read that on a blog after getting that error, and
-# reordering this list fixed it.
-fake-factory==0.7.4
+# Fakers and Factories.
 factory-boy==2.10.0
-
+Faker==1.0.1
 fauxfactory==2.0.9
-pytest_faker==2.0.0
 pytest-factoryboy==2.0.1
+pytest_faker==2.0.0
 
+# The rest.
 coverage==4.5.1
+flake8
 freezegun==0.3.10
 future==0.16.0
 isort==4.3.4
