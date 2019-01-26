@@ -843,6 +843,11 @@ def insert_forcefully(controller, fact, squash_sep=''):
             raise ValueError(_(
                 'Please specify `start` for fact being added before time existed.'
             ))
+        elif not ref_fact.end:
+            raise ValueError(_(
+                'Please complete the latest fact or specify the new fact start time.'
+            ))
+
         # Because we called surrounding and got nothing, we know that
         # found_fact.end < fact.end; or that found_fact.end is None,
         # a/k/a, the ongoing Fact.
