@@ -57,9 +57,12 @@ DEFAULT_SQUASH_SEP = '\n\n--\n\n'
 
 def reduce_time_hint(time_hint):
     if time_hint in [
+        'verify_none',
         'verify_after',
         'verify_then_none',
+        'verify_then_some',
         'verify_still_none',
+        'verify_still_some',
     ]:
         return 'verify_none'
     elif time_hint in [
