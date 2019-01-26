@@ -408,6 +408,14 @@ def must_complete_times(
         elif prev_time is not None:
             # If fact's other time not set, prefer earlier clock time.
             dt_suss, err = infer_from_clock_after(fact, prev_time, clock_time)
+        elif not later_facts:
+            # First fact ever! being entered. Use now, now.
+            #   2019-01-11 17:43: On add first new fact. At least from:
+            #     py.test --pdb -vv -k test_start_add_new_fact tests/
+            # Note that we do not use infer_from_clock_after, which would add a day
+            # to avoid a conflict, e.g., do not do this:
+            #   dt_suss, err = infer_from_clock_after(fact, controller.now, clock_time)
+            dt_suss, err = infer_from_clock_prior(fact, controller.now, clock_time)
         else:
             # Last resort: go hunting for the next actual, factual real datetime.
             # FIXME/2018-05-21 12:17: (lb): Will this ever happen?
