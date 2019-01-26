@@ -153,11 +153,8 @@ def unite_and_stretch(
             new_fact.start = final_fact.end
         elif time_hint in ['verify_then', 'verify_still']:
             if new_fact.start is None:
-                # User did not specify a then-time, so use previous fact's end.
-                # FIXME/2018-07-06: Do I care? This means for ``then`` in an
-                # import requires a time-spec, and ``next``/``after``/``since``
-                # do not. But in live, command line add command, ``then`` works
-                # without time-spec and acts just like next/after/since.
+                # User did not specify then- or still-time. Use previous end.
+                controller.affirm(final_fact.end is not None)
                 new_fact.start = final_fact.end
             if final_fact.end is None:
                 controller.affirm(new_fact.start is not None)
