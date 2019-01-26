@@ -285,7 +285,7 @@ def must_complete_times(
         #      and then calling from_other_edits_maybe,
         #    like we currently do here).
 
-        ante_fact = antecedent_fact(controller.facts, new_facts)
+        ante_fact = antecedent_fact(controller.facts, new_facts, controller.now)
         ante_fact = from_other_edits_maybe(ante_fact)
 
         seqt_fact = subsequent_fact(controller.facts, new_facts)
