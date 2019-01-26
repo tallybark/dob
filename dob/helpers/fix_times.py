@@ -613,7 +613,7 @@ def must_complete_times(
                 #   )
                 # just verify we already caught it.
                 is_edge_fact = idx == 0
-                verify_datetimes_missing_already_caught(fact, conflicts, is_edge_fact)
+                affirm_datetimes_missing_already_caught(fact, conflicts, is_edge_fact)
             elif isinstance(fact.start, datetime):
                 if prev_time and fact.start < prev_time:
                     msg_content = _('New fact starts before previous fact ends')
@@ -625,7 +625,7 @@ def must_complete_times(
 
             if not fact.end:
                 is_edge_fact = idx == (len(new_facts) - 1)
-                verify_datetimes_missing_already_caught(fact, conflicts, is_edge_fact)
+                affirm_datetimes_missing_already_caught(fact, conflicts, is_edge_fact)
             elif isinstance(fact.end, datetime):
                 next_time, next_fact = find_next_datetime(later_facts, fact.pk)
                 if next_time and fact.end > next_time:
@@ -643,7 +643,7 @@ def must_complete_times(
 
             prev_fact = fact
 
-    def verify_datetimes_missing_already_caught(fact, conflicts, is_edge_fact):
+    def affirm_datetimes_missing_already_caught(fact, conflicts, is_edge_fact):
         if leave_blanks:
             return
         found_it = list(filter(lambda conflict: fact is conflict[0], conflicts))
