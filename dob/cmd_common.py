@@ -135,9 +135,12 @@ def post_processor(func):
     """
     """
 
-    def wrapper(controller, *args, **kwargs):
-        facts = func(controller, *args, **kwargs)
-        controller.post_process(controller, facts)
+    def wrapper(ctx, controller, *args, **kwargs):
+        # Ensure that plugins are loaded, which may have functions
+        # decorated with @Controller.post_processor.
+        ctx.parent.command.ensure_plugged_in()
+        facts = func(ctx, controller, *args, **kwargs)
+        controller.post_process(controller, facts, show_plugin_error=None)
 
     return update_wrapper(wrapper, func)
 

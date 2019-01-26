@@ -282,12 +282,16 @@ class Controller(HamsterControl):
         Controller.POST_PROCESSORS.append(func)
 
     @staticmethod
-    def _post_process(controller, fact):
+    def _post_process(controller, fact_facts_or_true, show_plugin_error=None):
+        # facts_or_true is one of:
+        # - The saved/edited Fact;
+        # - a list of Facts;
+        # - or True, on upgrade-legacy.
         for handler in Controller.POST_PROCESSORS:
-            handler(controller, fact)
+            handler(controller, fact_facts_or_true, show_plugin_error)
 
-    def post_process(self, controller, fact):
-        Controller._post_process(controller, fact)
+    def post_process(self, controller, fact_facts_or_true, show_plugin_error=None):
+        Controller._post_process(controller, fact_facts_or_true, show_plugin_error)
 
     def setup_tty_color(self, use_color):
         if use_color is None:

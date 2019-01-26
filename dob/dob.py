@@ -279,8 +279,8 @@ def store_url(controller):
 @click.option('-f', '--force', is_flag=True,
               help=_('If specified, overwrite data store if is exists'))
 @pass_controller
-@post_processor
 @click.pass_context
+@post_processor
 def upgrade_legacy(ctx, controller, filename, force):
     """Migrate a legacy "Hamster" database."""
     file_in = must_no_more_than_one_file(filename)
@@ -545,8 +545,9 @@ def usage_facts(controller, *args, **kwargs):
 @run.command('stop', help=help_strings.STOP_HELP)
 @pass_controller
 @induct_newbies
+@click.pass_context
 @post_processor
-def stop(controller):
+def stop(ctx, controller):
     """Stop tracking current fact (by setting its 'end')."""
     return stop_fact(controller)
 
@@ -558,8 +559,9 @@ def stop(controller):
 )
 @pass_controller
 @induct_newbies
+@click.pass_context
 @post_processor
-def cancel(controller, force):
+def cancel(ctx, controller, force):
     """Cancel 'ongoing fact'. Stop it without storing in the backend."""
     return cancel_fact(controller, purge=force)
 
@@ -598,8 +600,9 @@ def generate_add_fact_command(time_hint):
         @cmd_options_insert
         @pass_controller
         @induct_newbies
+        @click.pass_context
         @post_processor
-        def _add_fact(controller, *args, **kwargs):
+        def _add_fact(ctx, controller, *args, **kwargs):
             return add_fact(controller, *args, time_hint=time_hint, **kwargs)
         return update_wrapper(_add_fact, func)
     return _generate_add_fact_command
@@ -675,8 +678,8 @@ def add_fact_after(controller, *args, **kwargs):
 @cmd_options_edit_item
 @pass_controller
 @induct_newbies
-@post_processor
 @click.pass_context
+@post_processor
 def edit_group(ctx, controller, *args, **kwargs):
     """Base `edit` group command run prior to any of the dob-edit commands."""
     if ctx.invoked_subcommand:
@@ -691,8 +694,8 @@ def edit_group(ctx, controller, *args, **kwargs):
 @cmd_options_edit_item
 @pass_controller
 @induct_newbies
-@post_processor
 @click.pass_context
+@post_processor
 def edit_fact(ctx, controller, *args, **kwargs):
     """Inline-Edit specified Fact using preferred $EDITOR."""
     return edit_fact_by_key(ctx, controller, *args, **kwargs)
@@ -825,8 +828,9 @@ def transcode_export(
 @cmd_options_insert
 @pass_controller
 @induct_newbies
+@click.pass_context
 @post_processor
-def transcode_import(controller, filename, output, force, *args, **kwargs):
+def transcode_import(ctx, controller, filename, output, force, *args, **kwargs):
     """Import from file or STDIN (pipe)."""
     file_in = must_no_more_than_one_file(filename)
 
