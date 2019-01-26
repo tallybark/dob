@@ -46,6 +46,7 @@ class ClickAliasablePluginGroup(ClickAliasedGroup):
         self.plugins_basepath = os.path.join(
             AppDirs.user_config_dir, 'plugins',
         )
+        self.has_loaded = False
 
     @property
     def plugin_paths(self):
@@ -75,6 +76,11 @@ class ClickAliasablePluginGroup(ClickAliasedGroup):
             cmd = super(ClickAliasablePluginGroup, self).get_command(ctx, name)
         return cmd
 
+    def ensure_plugged_in(self):
+        if self.has_loaded:
+            return
+        self.get_commands_from_plugins(name=None)
+
     def get_commands_from_plugins(self, name):
         cmds = set()
         for py_path in self.plugin_paths:
@@ -89,6 +95,7 @@ class ClickAliasablePluginGroup(ClickAliasedGroup):
                     'ERROR: Could not open plugins file "{}": {}'
                 ).format(py_path, str(err))
                 dob_in_user_warning(msg)
+        self.has_loaded = True
         return list(cmds)
 
     def open_source_eval_and_poke_around(self, py_path, name):
