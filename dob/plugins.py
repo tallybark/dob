@@ -53,6 +53,7 @@ class ClickAliasablePluginGroup(ClickAliasedGroup):
         return py_paths
 
     def list_commands(self, ctx):
+        """Called by click-alias to get list of commands."""
         set_names = set()
         for cmd in self.get_commands_from_plugins(name=None):
             set_names.add(cmd.name)
@@ -60,6 +61,8 @@ class ClickAliasablePluginGroup(ClickAliasedGroup):
         return cmd_names
 
     def get_command(self, ctx, name):
+        # Aha!:
+        #   assert ctx.command is self  # So True.
         # NOTE: get_command is called via self.resolve_command, from
         #       click.MultiCommand.invoke. Just FYI. -(lb)
         # Call the get-commands func., which really just sources the plugins, so they
