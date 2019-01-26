@@ -28,6 +28,10 @@ from nark.helpers.fact_time import (
     datetime_from_clock_after,
     datetime_from_clock_prior
 )
+from nark.helpers.facts_fit import (
+    antecedent_fact,
+    subsequent_fact
+)
 from nark.helpers.parse_time import (
     parse_clock_time,
     parse_relative_minutes
@@ -262,8 +266,30 @@ def must_complete_times(
 
         conflicts = []
 
-        ante_fact = from_other_edits_maybe(antecedent_fact(new_facts))
-        seqt_fact = from_other_edits_maybe(subsequent_fact(new_facts))
+        # FIXME/BACKLOG/2019-01-22: The logic here is not exactly correct,
+        #   but for most current use cases, it works -- but if you were to
+        #   edit an existing fact, and to specify different times for it,
+        #   the call to from_other_edits_maybe() could set ante_fact or
+        #   seqt_fact to the edited fact, but the edited fact is not
+        #   necessarily an antecedent or a subsequent fact of the group!
+        # SOLUTION: Mimic FactsManager's facts_mgr_fact_dec/_inc, and treat
+        #   new_facts (a contiguous block of facts) as a time window, and
+        #   create other time windows for any edited facts, and then manage
+        #   all the time window groups here in this function when fixing times.
+        #   E.g., if user edits a Fact and changes its time, send 1 object
+        #   to this function, a sorted_contiguous_facts_list(), that contains
+        #   2 groups: 1 time window blocking where the edited fact originally
+        #   occupied; and 1 time window containing the newly edited fact.
+        #   Then call FactsManager to get antecedent and subsequent facts
+        #   (instead of calling controller.facts.subsequent/antecedent
+        #      and then calling from_other_edits_maybe,
+        #    like we currently do here).
+
+        ante_fact = antecedent_fact(controller.facts, new_facts)
+        ante_fact = from_other_edits_maybe(ante_fact)
+
+        seqt_fact = subsequent_fact(controller.facts, new_facts)
+        seqt_fact = from_other_edits_maybe(seqt_fact)
 
         # Clean up relative clock times first (e.g., given "12:34",
         # assume date is fact's other time's date,
@@ -297,25 +323,7 @@ def must_complete_times(
 
         return conflicts
 
-    # ...
-
-    def antecedent_fact(new_facts):
-        for fact in new_facts:
-            if (
-                (fact.start and isinstance(fact.start, datetime))
-                or (fact.end and isinstance(fact.end, datetime))
-            ):
-                return controller.facts.antecedent(fact=fact)
-        return controller.facts.antecedent(ref_time=controller.now)
-
-    def subsequent_fact(new_facts):
-        for fact in reversed(new_facts):
-            if (
-                (fact.end and isinstance(fact.end, datetime))
-                or (fact.start and isinstance(fact.start, datetime))
-            ):
-                return controller.facts.subsequent(fact=fact)
-        return None
+    # ***
 
     def from_other_edits_maybe(fact):
         if fact is None:
