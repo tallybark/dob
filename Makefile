@@ -112,6 +112,8 @@ test-all:
 
 test-one:
 	# You can also obviously: TEST_ARGS=-x make test
+	# See also, e.g.,:
+	#   py.test --pdb -vv -k test_function tests/
 	py.test $(TEST_ARGS) -x tests/
 
 coverage:
