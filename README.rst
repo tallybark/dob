@@ -1,74 +1,117 @@
-===============================
-hamster_cli
-===============================
+###
+dob
+###
 
-.. FIXME/2018-06-13: This whole file!!!
+.. image:: https://travis-ci.com/hotoffthehamster/dob.svg?branch=develop
+  :target: https://travis-ci.com/hotoffthehamster/dob
+  :alt: Build Status
 
+.. image:: https://codecov.io/gh/hotoffthehamster/dob/branch/develop/graph/badge.svg
+  :target: https://codecov.io/gh/hotoffthehamster/dob
+  :alt: Coverage Status
 
-.. image:: https://img.shields.io/pypi/v/hamster_cli.svg
-        :target: https://pypi.python.org/pypi/hamster_cli
+.. image:: https://readthedocs.org/projects/dob/badge/?version=latest
+  :target: https://dob.readthedocs.io/en/latest/
+  :alt: Documentation Status
 
-.. image:: https://img.shields.io/travis/elbenfreund/hamster_cli/master.svg
-        :target: https://travis-ci.org/elbenfreund/hamster_cli
+.. image:: https://img.shields.io/github/release/hotoffthehamster/dob.svg?style=flat
+  :target: https://github.com/hotoffthehamster/dob/releases
+  :alt: GitHub Release Status
 
-.. image:: https://img.shields.io/codecov/c/gh/projecthamster/hamster_cli/master.svg
-        :target: https://codecov.io/gh/projecthamster/hamster-cli
+.. image:: https://img.shields.io/pypi/v/dob.svg
+  :target: https://pypi.org/project/dob/
+  :alt: PyPI Release Status
 
-.. image:: https://readthedocs.org/projects/hamst-cli/badge/?version=master
-        :target: https://readthedocs.org/projects/hamst-cli/badge/?version=master
-        :alt: Documentation Status
+.. image:: https://img.shields.io/github/license/hotoffthehamster/dob.svg?style=flat
+  :target: https://github.com/hotoffthehamster/dob/blob/develop/LICENSE
+  :alt: License Status
 
-.. image:: https://badge.waffle.io/elbenfreund/hamster_cli.png?label=ready&title=Ready
-        :target: https://waffle.io/elbenfreund/hamster_cli
-        :alt: 'Stories in Ready'
+.. |dob| replace:: ``dob``
+.. _dob: https://github.com/hotoffthehamster/dob
 
-.. image:: https://requires.io/github/elbenfreund/hamster_cli/requirements.svg?branch=master
-        :target: https://requires.io/github/elbenfreund/hamster_cli/requirements/?branch=master
-        :alt: Requirements Status
+.. |pip| replace:: ``pip``
+.. _pip: https://pip.pypa.io/en/stable/
 
+|dob|_ is an interactive, terminal-based time tracking application.
+It's got Vim-like navigation, robust filtering and searching
+capabilities, and a colorful, customizable interface.
 
+Install with |pip|_::
 
-A basic CLI for the hamster time tracker.
+    pip3 install dob
 
-*WARNING*
-This is still pre-alpha software. Altough we are reaching apoint were most
-things work as intended we make no promisse about your data as well as any
-commitment. In particular there is no intension to migrate any databases from
-this version to any future more mature release.
+For more options, read the
+`installation guide <https://dob.readthedocs.io/en/latest/installation.html>`__.
 
-News (2016-04-25)
------------------
-Version 0.12.0 is out! With this version we feel confident that you may be able
-to actually play with ``hamster-cli`` in a somewhat productive way. Whilst we
-are still far from being production ready and miss a significant amount of
-legacy feature this release may give you quite the idea where we are heading.
-For the first time we were able to give the frontend some love whilst further
-beefin up our QA toolchain, introducing even more tests and new test
-environments. The documentation has been vastly improved, digging into the code
-never was easier.
+=====
+Ethos
+=====
 
-Happy hacking; Eric.
+|dob|_ is a developer's tool, or at least targeted to someone whose
+comfortable in the terminal.
 
+|dob|_ is perfect for the person who asks,
+*Why must I use my mouse to manage time tracking?*
+
+|dob|_ is inspired by
+`Hamster <https://projecthamster.wordpress.com/>`__,
+a beloved but aged time tracking application for
+`GNOME <https://en.wikipedia.org/wiki/GNOME>`__.
+
+Give |dob|_ a try, and you might like it.
+
+- You can `Demo dob`_, `Import a legacy database`__, or `Start from scratch`__.
+
+__ https://dob.readthedocs.io/en/latest/installation.html#upgrade-legacy-database
+__ https://dob.readthedocs.io/en/latest/installation.html#start-fresh
+
+If you like |dob|_, hopefully you'll help us make it better!
+
+========
 Features
---------
-* High test coverage.
-* Well documented.
-* Lightweight.
-* Free software: GPL3
-* Uses ``hamsterlib``, which supports a wide array of databases.
-* Few dependencies
-* Active development.
+========
 
-Resources
+* Compatible with all current Python releases (3.5, 3.6, and 3.7).
+* Seamlessly integrates into your terminal-based workflow.
+* Naturally Unicode compatible -- spice up your notes!
+* Fully Timezone-aware -- don't lose time traveling!
+* Can migrate legacy Hamster databases (and fix integrity issues, too).
+* Excellent coverage (to give you comfort knowing your Facts are safe).
+* Well documented features -- at runtime, or on the command line.
+* Simple, elegant code base -- follows best practices, uses top libraries.
+* Low bar of entry to get raw access to data -- defaults to Sqlite3 store.
+* Constant Dogfooding -- I ``dob`` *daily!*
+* Free and open source -- hack away!
+
+See how you can
+`contribute
+<https://dob.readthedocs.io/en/latest/contributing.html>`__
+to the project.
+
+=======
+Example
+=======
+
+Demo |dob|_
 -----------
-* `Documentation <https://hamst-cli.readthedocs.org/en/master/>`_
 
-Credits
----------
-Tools used in rendering this package:
+You can easily demo |dob|_ without configuring the database.
 
-*  Cookiecutter_
-*  `cookiecutter-pypackage`_
+Run the ``demo`` command to load an interactive tutorial:
 
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+.. code-block:: Bash
+
+   $ dob demo
+
+`Keep reading`__ to learn how to create an empty data store,
+or to import an existing database.
+
+__ https://dob.readthedocs.io/en/latest/usage.html
+
+.. .. FIXME: the image.
+
+.. image:: https://raw.githubusercontent.com/hotoffthehamster/nark/develop/docs/_static/images/information-cat.png
+   :target: https://nark.readthedocs.io/en/latest/authors.html#information-cat
+   :align: center
+   :alt: "Information Cat"
+
