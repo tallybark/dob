@@ -30,7 +30,7 @@ requirements = [
     #  https://github.com/pallets/click
     # FIXME: (lb): Click has not been PyPI'ed since January, 2017,
     #        yet there's been a ton of activity since!
-    #        When I really want is the 'hidden' option, because
+    #        What I really want is the 'hidden' option, because
     #        there's a built-in `--version` option, and then I
     #        added the `-v` option, and I didn't want to pollute
     #        the help with 2 mostly redundant version option lines.
