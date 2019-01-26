@@ -56,7 +56,7 @@ from .cmd_options import (
     cmd_options_usage,
     cmd_options_edit_item,
     postprocess_options_table_bunce,
-    OptionWithDynamicHelp,
+    OptionWithDynamicHelp
 )
 from .cmds_list import activity as list_activity
 from .cmds_list import category as list_category

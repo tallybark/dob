@@ -30,7 +30,7 @@ from nark.helpers.fact_time import (
 )
 from nark.helpers.parse_time import (
     parse_clock_time,
-    parse_relative_minutes,
+    parse_relative_minutes
 )
 
 from . import click_echo, conflict_prefix, prepare_log_msg
