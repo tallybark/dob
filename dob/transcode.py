@@ -434,7 +434,16 @@ def import_facts(
             # ask the user for more details about the fact.
             #   Not always True:  assert not err
             controller.client_logger.debug(_(
-                'new fact_dict: {}'.format(fact_dict)
+                # Including the description is too verbose:
+                #   'new fact_dict: {}'.format(fact_dict)
+                # so let's make a complicated dictionary comprehension instead.
+                'new fact_dict: {}'.format(
+                    {
+                        key: val if key != 'description'
+                        else val[:10] + ((len(val) > 10) and '...' or '')
+                        for key, val in fact_dict.items()
+                    }
+                )
             ))
         return fact_dict
 
