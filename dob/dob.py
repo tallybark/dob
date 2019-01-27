@@ -200,6 +200,19 @@ def environs(controller):
 
 
 # ***
+# *** [DEBUG] Dump ya on a prompt.
+# ***
+
+@run.command(help=help_strings.DEBUG_HELP)
+@pass_controller
+def debug(controller):
+    """Break!"""
+    import pdb
+    pdb.set_trace()
+    pass
+
+
+# ***
 # *** [DEMO] Command.
 # ***
 
