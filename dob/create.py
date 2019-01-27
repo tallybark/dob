@@ -308,7 +308,8 @@ def must_create_fact_from_factoid(
             msg = _('Oops! {}').format(err)
             controller.client_logger.error(msg)
             dob_in_user_exit(msg)
-        fact_set_start_time_after_hack(fact, time_hint)
+        # This runs for verify_after, not verify_none/"blank time".
+        fact_set_start_time_after_hack(fact, time_hint=use_hint)
         return fact
 
     def must_prepare_factoid_item_separators(controller):
