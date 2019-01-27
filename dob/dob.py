@@ -563,12 +563,16 @@ def usage_facts(controller, *args, **kwargs):
 # ***
 
 @run.command('stop', help=help_strings.STOP_HELP)
+# FIXME/2018-08-26: Do we really want optional factoid argument for stop command?
+#   What happens if user specifies factoid on stop?
+@cmd_options_factoid
 @pass_controller
 @induct_newbies
 @click.pass_context
 @post_processor
-def stop(ctx, controller):
+def stop(ctx, controller, factoid):
     """Stop tracking current fact (by setting its 'end')."""
+    # FIXME/BACKLOG/2019-01-22 22:57: Add factoid to end of ongoing fact.
     return stop_fact(controller)
 
 
