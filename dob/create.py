@@ -226,7 +226,6 @@ def mend_fact_timey_wimey(controller, fact, time_hint, other_edits={}):
         must_complete_times(
             controller,
             new_facts,
-            ongoing_okay=True,
             leave_blanks=True,
             other_edits=other_edits,
         )
