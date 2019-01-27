@@ -755,11 +755,15 @@ def prompt_and_save(
             new_and_edited += persist_fact(
                 fact, other_edits, is_first_fact, is_final_fact, file_out, dry,
             )
-            assert fact.pk == fact_pk
-            # The saved Fact is marked deleted and a new one is created.
-            assert fact.deleted
+            # If an existing Fact:
+            #   - the pk is the same; and
+            #   - the saved Fact is marked deleted, and a new one is created,
+            #      or saved Fact is not marked deleted if it was ongoing Fact.
+            # But if a new Fact, pk was < 0, now it's None, and new fact pk > 0.
             # Once saved, rely on Fact in store for checking conflicts.
-            del other_edits[fact.pk]
+
+            # If fact existed, fact.pk; else, fact_pk < 0 is in-app temp. ID.
+            del other_edits[fact.pk is not None and fact.pk or fact_pk]
 
         assert len(other_edits) == 0
 
