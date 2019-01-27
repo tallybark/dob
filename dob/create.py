@@ -660,7 +660,18 @@ def prompt_and_save(
             backup_f.close()
             if delete_backup:
                 if not leave_backup:
-                    os.unlink(backup_f.name)
+                    try:
+                        os.unlink(backup_f.name)
+                    except FileNotFoundError:
+                        # [lb]: 2019-01-17: Happening occasionally on dob-import
+                        # testing, not sure if related dev_breakpoint usage, or
+                        # not editing any Facts, or what, but not predictably
+                        # recreating. Not a problem if it fails, but why would it
+                        # fail, especially given that the code just called close().
+                        controller.client_logger.warning(
+                            'nothing to cleanup?: backup file missing: {}'
+                            .format(backup_f.name)
+                        )
                 else:
                     click_echo(
                         _('Abandoned working backup at: {}')
