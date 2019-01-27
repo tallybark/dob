@@ -207,9 +207,7 @@ def import_facts(
     # Fact range being imported overlaps with existing Facts. Which it really
     # shouldn't, i.e., the use case is, I've been on vacation and Hamstering to
     # a file on my phone, and now I want that data imported into Hamster, which
-    # we be strictly following the latest Fact saved in the store.
-    # FIXME: Remove Progress? Hrmmm...
-    #          Well, Parsing Factoids appears for a blip on 500 Facts file, I suppose.
+    # will be strictly following the latest Fact saved in the store.
     progress = CrudeProgress(enabled=True)
 
     # MAYBE/2018-05-16 00:11: (lb): Parse whole file before prompting.
@@ -390,10 +388,24 @@ def import_facts(
             )
             barf_and_exit(msg)
 
+    # FIXME/2019-01-21: Document all the different usage, both in test, and README.
+    # E.g., "then: I did this" should be same as "at +0: I did this"
+    #   but if you specify start you don't need colon
+    #       "then 2019-01-21 23:47 I did this" should also work...
+    #   FIXME: Parse "then" expecting 1+ datetimes, or "then:" expecting none.
+    #   FIXME: Parse "still" expecting 1+ datetimes, or "still:" expecting none.
+    # FIXME: Three tests:
+    #           ``still <time-spec> <desc>``
+    #       vs. ``still: <desc>``
+    #       vs. ``still blah``
     RE_TIME_HINT = re.compile(
         # SYNC_ME: RE_TIME_HINT, TIME_HINT_MAP, and @generate_add_fact_command's.
         r'^('
             # Skipping: Doesn't make sense: '(?P<verify_none>on|now)'
+            # MAYBE/2019-01-22: Is "between" okay here?
+            #   We don't have a Click alias for it, so
+            #   there's a `dob from` command, but not `dob between`,
+            #   so maybe we want to remove "between" from here.
             '(?P<verify_both>from|between)'
             '|(?P<verify_start>at)'  # noqa: E131
             '|(?P<verify_end>to|until)'
@@ -401,7 +413,10 @@ def import_facts(
             '|(?P<verify_then_some>then)'
             '|(?P<verify_still_none>still:)'
             '|(?P<verify_still_some>still)'
-            # NOTE: Require colon postfix, b/c no time component.
+            # NOTE: Require colon postfix for options w/o time component.
+            # NOTE: 'now' would be confusing and conflict with other usage,
+            #       (at least I think it would?). E.g., do not do this:
+            #         '|(?P<verify_after>after:|since:|next:|now:)'
             '|(?P<verify_after>after:|since:|next:)'
         ' )',  # NOTE The SPACE CHARACTER following THE DIRECTIVE!
         re.IGNORECASE,
@@ -469,6 +484,7 @@ def import_facts(
 
         return fact_dict, err
 
+    # FIXME/DRY: See create.py/transcode.py.
     def fact_dict_set_time_hint(fact_dict, time_hint):
         fact_dict['time_hint'] = time_hint
         if time_hint == "verify_after":
@@ -486,7 +502,6 @@ def import_facts(
         for fact_dict, accumulated_fact in unprocessed_facts:
             add_hydration_warnings(fact_dict, hydrate_errs)
             hydrate_description(fact_dict, accumulated_fact)
-
             new_fact, err_msg = create_fact_from_parsed_dict(fact_dict)
             if new_fact:
                 assert not err_msg
@@ -507,6 +522,7 @@ def import_facts(
         hydrate_errs.append(err_msg)
 
     # Horizontal rule separator matches same character repeated at least thrice.
+    # FIXME/2018-05-18: (lb): Document: HR is any repeated one of -, =, #, |.
     FACT_SEP_HR = re.compile(r'^([-=#|])\1{2}\1*$')
 
     def hydrate_description(fact_dict, accumulated_fact):
@@ -528,6 +544,7 @@ def import_facts(
     def cull_factless_fact_separator(desc_lines):
         # To make import file more readable, user can add
         # separator line between facts. Cull it if found.
+        # MAYBE/2018-05-18: (lb): Make this operation optional?
         while len(desc_lines) > 0 and not desc_lines[-1].strip():
             desc_lines.pop()
 
