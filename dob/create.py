@@ -798,24 +798,24 @@ def prompt_and_save(
             # write seems to still work, it feels best to reset the pointer.
             fact_f.seek(0)
             for idx, fact in enumerate(carousel.prepared_facts):
-                if fact.deleted:
-                    continue  # An interval-gap Fact, auto-made by carousel.
-                write_fact_block_format(fact_f, fact, rule, idx)
+                # The Carousel should only send us facts that need to be
+                # stored, which excludes deleted Facts that were never stored.
+                controller.affirm((not fact.deleted) or (fact.pk > 0))
+                write_fact_block_format(fact_f, fact, rule, is_first_fact=(idx == 0))
             fact_f.flush()
 
         return wrapper
 
     def write_fact_block_format(fact_f, fact, rule, is_first_fact):
         write_fact_separator(fact_f, rule, is_first_fact)
-        fact_f.write(
-            fact.friendly_str(
-                # description_sep='\n\n',
-                description_sep=': ',
-                shellify=False,
-                colorful=False,
-                omit_empty_actegory=True,
-            )
+        friendly_str = fact.friendly_str(
+            # description_sep='\n\n',
+            description_sep=': ',
+            shellify=False,
+            colorful=False,
+            omit_empty_actegory=True,
         )
+        fact_f.write(friendly_str)
 
     RULE_WIDTH = 76  # How wide to print the between-facts separator.
 
