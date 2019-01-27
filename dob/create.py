@@ -654,8 +654,14 @@ def prompt_and_save(
     # ***
 
     def prompt_persist(backup_f):
-        ready_facts = prompt_all(backup_f)
+        ready_facts, carousel = prompt_all(backup_f)
         persist_facts(ready_facts)
+        # CLOSED_LOOP: (lb): whoa_nellie is (disabled) kludge to avoid abandoned
+        # event loop RuntimeError (better solution is needed; but sleeping here
+        # before app exit can anecdotally avoid issue. And by "anecdotal" I mean
+        # not necessarily guaranteed, so not a proper solution (and not even a
+        # proper "kludge" by more stringent standards)).
+        carousel.whoa_nellie()
         return ready_facts
 
     # ***
@@ -690,7 +696,7 @@ def prompt_and_save(
 
         ready_facts = carousel.gallop()
 
-        return ready_facts
+        return ready_facts, carousel
 
     # ***
 
