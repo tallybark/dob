@@ -23,6 +23,7 @@ from gettext import gettext as _
 
 import click
 import copy
+from datetime import datetime, time, timedelta
 import re
 import sys
 
@@ -218,10 +219,11 @@ def import_facts(
     def _import_facts():
         redirecting = must_specify_input(file_in)
         input_f = must_open_file(redirecting, file_in)
-        unprocessed_facts = parse_facts_from_stream(input_f, ask, yes, dry)
-        new_facts, hydrate_errs = hydrate_facts(unprocessed_facts)
-        must_hydrated_all_facts(hydrate_errs)
-        must_complete_times(controller, new_facts, progress=progress)
+        raw_facts = parse_facts_from_stream(input_f, ask, yes, dry)
+        new_facts = must_hydrate_facts(raw_facts)
+        conflicts = must_complete_times(controller, new_facts, progress=progress)
+        controller.affirm(not conflicts)  # (lb): 2019-01-19: This happen?
+        repair_shoulder_fact_times(new_facts, raw_facts)
         must_not_conflict_existing(new_facts)
         saved_facts = prompt_and_save(
             controller,
@@ -503,12 +505,17 @@ def import_facts(
 
     # ***
 
-    def hydrate_facts(unprocessed_facts):
+    def must_hydrate_facts(raw_facts):
+        new_facts, hydrate_errs = hydrate_facts(raw_facts)
+        must_hydrated_all_facts(hydrate_errs)
+        return new_facts
+
+    def hydrate_facts(raw_facts):
         new_facts = []
         hydrate_errs = []
         temp_id = -1
         progress.click_echo_current_task(_('Hydrating Facts...'))
-        for fact_dict, accumulated_fact in unprocessed_facts:
+        for fact_dict, accumulated_fact in raw_facts:
             add_hydration_warnings(fact_dict, hydrate_errs)
             hydrate_description(fact_dict, accumulated_fact)
             new_fact, err_msg = create_fact_from_parsed_dict(fact_dict)
@@ -600,10 +607,10 @@ def import_facts(
             'verify_still_some',
         ]:
             return [new_fact]
-        prev_fact = new_facts[-1] if new_facts else None
-        return squash_extend_if_prev(prev_fact, new_fact, time_hint, new_facts)
+        return squash_extend_if_prev(new_fact, time_hint, new_facts)
 
-    def squash_extend_if_prev(prev_fact, new_fact, time_hint, new_facts):
+    def squash_extend_if_prev(new_fact, time_hint, new_facts):
+        prev_fact = new_facts[-1] if new_facts else None
         new_new_facts = squend_check_noop_or_extend(prev_fact, new_fact, time_hint)
         if new_new_facts is not None:
             return new_new_facts
@@ -611,20 +618,19 @@ def import_facts(
 
     def squend_check_noop_or_extend(prev_fact, new_fact, time_hint):
         if prev_fact is None:
-            # First fact in import, and no facts in store.
-            return [new_fact]
-        elif prev_fact.start is None:
-            # First fact in import; found last fact in store.
-            # Later, mend_facts_times will squash with ongoing Fact.
-            assert prev_fact.pk is -1
+            # First fact in import. Will check store later for boundary fact.
             return [new_fact]
         elif prev_fact.end is not None:
             return maybe_set_start_maybe_extend_prev(
                 prev_fact, new_fact, time_hint,
             )
+        elif prev_fact.start is None:
+            return [new_fact]
         elif new_fact.start and new_fact.end:
             # This fact is a `then ... to`, so really just a `from/between`.
             return [new_fact]
+        # E.g., prev_fact is at-fact, with no end; and new_fact is to-fact,
+        # with no start. Return None, and caller will squend_squash_or_extend.
         assert not new_fact.deleted
         return None
 
@@ -696,22 +702,58 @@ def import_facts(
 
     # ***
 
+    def repair_shoulder_fact_times(new_facts, raw_facts):
+        # If user did not specify first fact start time, and/or last fact's
+        # end time, fix_times.must_complete_times will have assigned times.
+        # Note that there are a number of places where two facts may be merged:
+        # - Earlier during this import task, under add_new_fact(), squash and
+        #   extend code is used.
+        # - Here, but just on the first and final import facts, to sew them
+        #   into the fabric of the facts in the store.
+        # - In many of the fix_times functions:
+        #     unite_and_stretch, insert_forcefully, and resolve_overlapping.
+        # (lb): Maybe someday we can combine this code better. The way different
+        #   features were grown, however, resulted in squash code in a few places.
+
+        if not new_facts[0].start:
+            # User did not specify first fact's start, and we did not find
+            # an antecedent fact in the data store, so, what? Set earliest
+            # time ever? Clip to midnight that day?
+            new_facts[0].start = datetime.combine(new_facts[0].end, time.min)
+            if new_facts[0].start == new_facts[0].end:
+                new_facts[0].start = new_facts[0].end - timedelta(days=1)
+        elif not raw_facts[0][0]['start']:
+            new_facts[0].start = None
+
+        controller.affirm(new_facts[-1].end)
+        if not raw_facts[-1][0]['end']:
+            new_facts[-1].end = None
+
+    # ***
+
     def must_not_conflict_existing(new_facts):
         # (lb): Yuck. Sorry about this. Totally polluting what was a small
         # function with lots of progress-output overhead.
         task_descrip = _('Verifying times nonconflicting')
         term_width, dot_count, fact_sep = progress.start_crude_progressor(task_descrip)
 
-        should_mend_all = store_overlaps_range(new_facts)
+        could_be_more = fix_range_conflicts_easy(new_facts)
 
         all_conflicts = []
         for idx, fact in enumerate(new_facts):
             term_width, dot_count, fact_sep = progress.step_crude_progressor(
                 task_descrip, term_width, dot_count, fact_sep,
             )
-            skip_store = (idx > 0) and (not should_mend_all)
+
+            if idx == len(new_facts) - 1:
+                time_hint = 'verify_last'
+            elif idx == 0 and not fact.start:
+                time_hint = 'verify_end'
+            else:
+                time_hint = 'verify_both'
+
             conflicts = mend_facts_times(
-                controller, fact, time_hint='verify_both', skip_store=skip_store,
+                controller, fact, time_hint=time_hint, skip_store=not could_be_more,
             )
             assert not fact.deleted  # Only on squash, which shouldn't happen.
 
@@ -720,19 +762,102 @@ def import_facts(
 
         progress.click_echo_current_task('')
 
+        # Handling anything other than the ongoing fact seems beyond the
+        # scope of the import function. dob is not a conflict resolution
+        # application!
         barf_on_overlapping_facts_old(all_conflicts)
 
-    def store_overlaps_range(new_facts):
-        assert new_facts[0].start
-        since = new_facts[0].start
-        first_fact_at_or_after = search_facts(
-            controller, since=since, sort_col='start', sort_order='asc', limit=1,
-        )
-        if not first_fact_at_or_after:
-            return False
-        assert len(first_fact_at_or_after) == 1
-        should_mend_all = (first_fact_at_or_after[0].start < new_facts[-1].end)
-        return should_mend_all
+    def fix_range_conflicts_easy(new_facts):
+        """
+        Check time range of facts being imported against store.
+        Returns True if time range overlaps with any existing facts;
+        the ongoing fact only overlaps if it starts during the time
+        range.
+        """
+        def _fix_range_conflicts_easy():
+            first_time = new_facts[0].start or new_facts[0].end
+            final_time = new_facts[-1].end or new_facts[-1].start
+            # There's a compelling function, controller.facts.strictly_during,
+            # but it ignores overlapping shoulder facts (and the ongoing fact).
+            # Check instead manually against the fact before the last time,
+            # and also the fact after the first time.
+            ante_fact = controller.facts.antecedent(ref_time=final_time)
+            seqt_fact = controller.facts.subsequent(ref_time=first_time)
+            check_all = False
+            check_all = easy_fix_final(check_all, seqt_fact, final_time)
+            check_all = easy_fix_first(check_all, ante_fact, first_time)
+            return check_all
+
+        def easy_fix_final(check_all, seqt_fact, final_time):
+            if not seqt_fact:
+                return check_all
+            if seqt_fact.start < final_time:
+                # Fact found in store ends after first_time,
+                #  and starts before final_time.
+                return True
+            if new_facts[-1].end:
+                # The final import fact ends on or before
+                #  the start of the after-fact.
+                return check_all
+            # If here, the final import fact is endless.
+            # Obvious path is to end it using start of first fact after.
+            if new_facts[-1].start == seqt_fact.start:
+                # The ongoing final import fact starts at same time as final store fact.
+                if not seqt_fact.end:
+                    # To test this path: have ongoing fact in import with same start as
+                    # ongoing fact in the store.
+                    # (lb): We could end the existing fact, making it momentaneous,
+                    # but that seems extreme; feels more natural to combine the 2
+                    # facts. -- Alternatively, we could toss an error. But I could
+                    # see just combining the 2 facts, seems like a pretty rare case
+                    # anyway.
+                    seqt_fact.squash(new_facts[-1], DEFAULT_SQUASH_SEP)
+                    new_facts[-1] = seqt_fact
+                    return check_all
+                if not controller.config['allow_momentaneous']:
+                    # User is not allowing momentaneous Facts, so disallow.
+                    # Return True and we'll run thorough conflict check
+                    # (and exit on error instead of continuing import).
+                    return True
+                # The final import fact is endless, but it conflicts with a
+                # fact in the store. And the user is down with momentaneous
+                # so crown it as such.
+                # FIXME/2019-01-20 01:09: TESTME: Momentaneous feature.
+                #  (I think it works in db and code, but no way for user
+                #  to view in the UI. So they're essentially really well
+                #  hidden. Which is a design feature, maybe?)
+            new_facts[-1].end = seqt_fact.start
+            return check_all
+
+        def easy_fix_first(check_all, ante_fact, first_time):
+            if not ante_fact:
+                return check_all
+            if ante_fact.end:
+                if not new_facts[0].start:
+                    # I.e., a to-Fact is 1st Fact in import,
+                    #   and final Fact in store is closed.
+                    new_facts[0].start = ante_fact.end
+                if ante_fact.end > first_time:
+                    # Fact from store starts before final_time,
+                    #  and ends after first_time.
+                    return True
+                # else, first fact found before final_time
+                #        ends before first_time.
+                return check_all
+            # If here, it's the ongoing fact.
+            ongoing = controller.facts.endless()
+            controller.affirm(ante_fact == ongoing[0])
+            if new_facts[0].start:
+                ante_fact.end = new_facts[0].start
+                new_facts.insert(0, ante_fact)
+            else:
+                # Squash store's ongoing and import's first.
+                ante_fact.squash(new_facts[0], DEFAULT_SQUASH_SEP)
+                new_facts[0] = ante_fact
+
+            return check_all
+
+        return _fix_range_conflicts_easy()
 
     def barf_on_overlapping_facts_old(conflicts):
         if not conflicts:
