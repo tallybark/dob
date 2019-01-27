@@ -326,8 +326,11 @@ def must_create_fact_from_factoid(
             dob_in_user_exit(msg)
         return separators
 
-    # FIXME/DRY: See create.py/transcode.py.
+    # FIXME/DRY: See create.py/transcode.py (other places that use "+0").
+    #   (lb): 2019-01-22: Or maybe I don't care (not special enough to DRY?).
     def fact_set_start_time_after_hack(fact, time_hint):
+        # FIXME/2019-01-19 13:00: What about verify_next: and verify_then: ???
+        #   TESTME: Write more tests first to see if there's really an issue.
         if time_hint != "verify_after":
             return
         assert fact.start is None and fact.end is None
@@ -348,9 +351,11 @@ def must_confirm_fact_edits(controller, conflicts, yes, dry):
         conflicts = cull_stopped_ongoing(conflicts)
         if not conflicts:
             return
+
         yes = yes or dry
         if not yes:
             echo_confirmation_banner(conflicts)
+
         n_conflict = 0
         n_confirms = 0
         for edited_fact, original in conflicts:
@@ -364,7 +369,13 @@ def must_confirm_fact_edits(controller, conflicts, yes, dry):
                 controller.client_logger.debug(
                     _('Editing fact: {}').format(edited_fact)
                 )
+
         if n_conflict != n_confirms:
+            # (lb): This function is not used by the carousel -- only by
+            # one-off CLI commands -- so blowing up here is perfectly fine.
+            # (The carousel has its own error message display mechanism;
+            #  and more importantly the carousel should never die,
+            #  but should only ever be asked to die by the user.)
             dob_in_user_exit(_("Please try again."))
 
     def cull_stopped_ongoing(conflicts):
@@ -437,10 +448,10 @@ def save_facts_maybe(controller, new_facts, conflicts, ignore_pks, dry):
         if fact.pk and fact.pk < 0:
             fact.pk = None
         if fact.pk is None and fact.deleted:
-            controller.client_logger.debug('{}: {}'.format(_('Dead fact'), fact))
+            controller.client_logger.debug('{}: {}'.format(_('Dead fact'), fact.short))
             return []
         if not dry:
-            controller.client_logger.debug('{}: {}'.format(_('Save fact'), fact))
+            controller.client_logger.debug('{}: {}'.format(_('Save fact'), fact.short))
             try:
                 new_fact = controller.facts.save(fact, ignore_pks=ignore_pks)
             except Exception as err:
@@ -518,14 +529,21 @@ def echo_ongoing_completed(controller, fact, cancelled=False):
 
     def echo_fact(leader, colorful, cut_width):
         completed_msg = (
-            leader +
-            fact.friendly_str(
+            leader
+            + fact.friendly_str(
                 shellify=False,
                 description_sep=': ',
+
                 # FIXME: (lb): Implement localize.
+                # FIXME/2018-06-10: (lb): fact being saved as UTC
                 localize=True,
+
                 colorful=colorful,
+
+                # FIXME/2018-06-12: (lb): Too wide (wraps to next line);
+                # doesn't account for leading fact parts (times, act@gory, tags).
                 cut_width=cut_width,
+
                 show_elapsed=True,
             )
         )
@@ -562,9 +580,9 @@ def prompt_and_save(
         try:
             saved_facts = prompt_persist(backup_f)
             delete_backup = True
-        except SystemExit as err:
-            # Explicit sys.exit() from our code. The str(err)
-            # is just the exit code #.
+        except SystemExit:
+            # Explicit sys.exit() from our code.
+            # The str(err) is just the exit code #.
             raise
         except BaseException as err:
             # NOTE: Using BaseException, not just Exception, so that we
@@ -574,6 +592,7 @@ def prompt_and_save(
             inner_error = str(err)
         finally:
             if not delete_backup:
+                traceback.print_exc()
                 msg = 'Something horrible happened!'
                 if inner_error is not None:
                     msg += _(' err: "{}"').format(inner_error)
@@ -797,6 +816,8 @@ def prompt_and_save(
         # will prevent user from editing old Fact and deleting its
         # end, either creating a second ongoing Fact, OR, more weirdly,
         # creating an ongoing Fact that has closed Facts after it!
+        # 2018-07-05/TEST_ME: Test previous comment: try deleting end of old Fact.
+        # FIXME: Do we care to confirm if is_final_fact is indeed latest ever? Meh?
         time_hint = 'verify_both' if not is_final_fact else 'verify_last'
         new_and_edited = mend_facts_confirm_and_save_maybe(
             controller, fact, time_hint, other_edits, yes=yes, dry=dry,
@@ -869,6 +890,9 @@ def prompt_and_save(
             return moldings_base
 
         def parse_molding(fext, molding_path):
+            # FIXME/BACKLOG: Implement custom styling.
+            controller.affirm(False)  # FIXME: Not *yet* implemented!
+
             if fext == 'py':
                 return load_module(molding_path)
             elif fext.endswith('json'):
@@ -877,10 +901,16 @@ def prompt_and_save(
                 return None
 
         def load_module(py_path):
+            # FIXME/BACKLOG: Implement custom styling.
+            controller.affirm(False)  # FIXME: Not *yet* implemented!
+
             eval_globals = compile_and_eval_source(py_path)
             return eval_globals['default']
 
         def load_json(json_path):
+            # FIXME/BACKLOG: Implement custom styling.
+            controller.affirm(False)  # FIXME: Not *yet* implemented!
+
             import hjson
             with open(json_path, 'r') as json_text:
                 try:
