@@ -203,6 +203,8 @@ def environs(controller):
 # *** [DEMO] Command.
 # ***
 
+# FIXME: (lb): Move demo to a plugin!
+#
 @run.command('demo', help=help_strings.DEMO_HELP)
 @pass_controller
 def demo_dob_and_nark(controller):
