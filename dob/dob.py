@@ -403,6 +403,8 @@ def _list_facts(controller, *args, usage=False, **kwargs):
     activity = cmd_options.postprocess_options_list_activitied(kwargs)
     category = cmd_options.postprocess_options_list_categoried(kwargs)
     postprocess_options_table_bunce(kwargs)
+    # FIXME: (lb): Should probably impose limit by default
+    #          (without, my terminal hangs for a long while).
     list_fact.list_facts(
         controller,
         *args,
