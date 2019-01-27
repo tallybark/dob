@@ -496,7 +496,7 @@ def import_facts(
     # FIXME/DRY: See create.py/transcode.py.
     def fact_dict_set_time_hint(fact_dict, time_hint):
         fact_dict['time_hint'] = time_hint
-        if time_hint == "verify_after":
+        if time_hint in ('verify_after', 'verify_then_none', 'verify_still_none'):
             assert not fact_dict['start'] and not fact_dict['end']
             # (lb): How's this for a hack!?
             fact_dict['start'] = "+0"
