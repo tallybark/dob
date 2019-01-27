@@ -177,6 +177,9 @@ def copyright(controller):
 #   Though maybe 'show' should be alias for dob-current?
 # MAYBE: Calling this 'appinfo' would make this command first in the --help....
 #   @run.command(aliases=['show', 'status', 'info'], help=help_strings.DETAILS_HELP)
+# See also similarly named commands that have generic meanings:
+#   dob details | dob info | dob show
+# i.e., details about what? info about what? showing what?
 @run.command(aliases=['info'], help=help_strings.DETAILS_HELP)
 @click.option('--tmi', '--full', is_flag=True, help=_('Show AppDirs paths, too.'))
 @pass_controller
