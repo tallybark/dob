@@ -317,8 +317,6 @@ def must_complete_times(
         # One final start < end < start ... check.
         verify_datetimes_sanity(new_facts, ante_fact, seqt_fact, conflicts)
 
-        # MAYBE/2019-01-22: Make barfing optional, so Carousel can use this
-        #  fcn... or maybe Carousel does not need this function (not sure yet).
         barf_on_overlapping_facts_new(conflicts)
 
         return conflicts
@@ -370,6 +368,13 @@ def must_complete_times(
             if isinstance(fact.end, datetime):
                 return fact.end, fact
         return None, None
+
+    # ...
+
+    def conflict_message(fact, msg_content):
+        if suppress_barf:
+            return msg_content
+        return prepare_log_msg(fact, msg_content)
 
     # ...
 
@@ -440,7 +445,7 @@ def must_complete_times(
             msg_content = _(
                 'Could not decipher clock time “{}” for {}'
             ).format(clock_time, which)
-            conflict_msg = prepare_log_msg(fact, msg_content)
+            conflict_msg = conflict_message(fact, msg_content)
             conflicts.append((fact, None, conflict_msg, ))
         return prev_time
 
@@ -522,7 +527,7 @@ def must_complete_times(
             msg_content = _(
                 'Could not interpret delta time “{}” for {}'
             ).format(delta_mins, which)
-            conflict_msg = prepare_log_msg(fact, msg_content)
+            conflict_msg = conflict_message(fact, msg_content)
             conflicts.append((fact, None, conflict_msg, ))
         return prev_time
 
@@ -576,7 +581,7 @@ def must_complete_times(
         msg_content = _(
             'Could not translate relative time “{}” for {}'
         ).format(dt_fact, which)
-        conflict_msg = prepare_log_msg(fact, msg_content)
+        conflict_msg = conflict_message(fact, msg_content)
         conflicts.append((fact, None, conflict_msg, ))
 
     def conflicts_add_unsussed_relative(fact, which, conflicts, first_fact):
@@ -586,7 +591,7 @@ def must_complete_times(
         msg_content = _(
             'Could not infer time left blank for {}'
         ).format(which)
-        conflict_msg = prepare_log_msg(fact, msg_content)
+        conflict_msg = conflict_message(fact, msg_content)
         conflicts.append((fact, None, conflict_msg, ))
 
     # ...
@@ -603,7 +608,7 @@ def must_complete_times(
                     msg_content = _(
                         "Momentaneous Fact found, but allow_momentaneous=False"
                     )
-                    conflict_msg = prepare_log_msg(fact, msg_content)
+                    conflict_msg = conflict_message(fact, msg_content)
                     conflicts.append((fact, None, conflict_msg, ))
                 continue
             new_culled.append(fact)
@@ -632,7 +637,7 @@ def must_complete_times(
             elif isinstance(fact.start, datetime):
                 if prev_time and fact.start < prev_time:
                     msg_content = _('New fact starts before previous fact ends')
-                    conflict_msg = prepare_log_msg(fact, msg_content)
+                    conflict_msg = conflict_message(fact, msg_content)
                     conflicts.append((fact, prev_fact, conflict_msg, ))
                 prev_time = fact.start
                 n_datetimes += 1
@@ -645,7 +650,7 @@ def must_complete_times(
                 next_time, next_fact = find_next_datetime(later_facts, fact.pk)
                 if next_time and fact.end > next_time:
                     msg_content = _('New fact ends after next fact starts')
-                    conflict_msg = prepare_log_msg(fact, msg_content)
+                    conflict_msg = conflict_message(fact, msg_content)
                     conflicts.append((fact, next_fact, conflict_msg, ))
                 prev_time = fact.end
                 n_datetimes += 1
@@ -653,7 +658,7 @@ def must_complete_times(
 
             if n_datetimes == 2 and fact.start > fact.end:
                 msg_content = _('New fact starts after it ends/ends before it starts')
-                conflict_msg = prepare_log_msg(fact, msg_content)
+                conflict_msg = conflict_message(fact, msg_content)
                 conflicts.append((fact, None, conflict_msg, ))
 
             prev_fact = fact
