@@ -81,6 +81,7 @@ def edit_fact(controller, key, use_carousel=True):
         saved_facts = prompt_and_save(
             controller,
             edit_facts=[old_fact],
+            running_save=True,
         )
         return saved_facts
 

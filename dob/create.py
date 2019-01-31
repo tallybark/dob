@@ -158,7 +158,12 @@ def add_fact(
         orig_facts.append(original)
 
     if use_carousel:
-        saved_facts = prompt_and_save(controller, edit_facts, orig_facts)
+        saved_facts = prompt_and_save(
+            controller,
+            edit_facts,
+            orig_facts,
+            running_save=True,
+        )
     else:
         edited_fact = edit_facts[0]
         interrogate.ask_user_for_edits(controller, edited_fact) if ask else None
@@ -568,6 +573,7 @@ def prompt_and_save(
     yes=False,
     dry=False,
     progress=None,
+    running_save=False,
 ):
     """"""
     progress = CrudeProgress(enabled=True) if progress is None else progress
@@ -711,6 +717,7 @@ def prompt_and_save(
             orig_facts=orig_facts,
             dirty_callback=backup_callback,
             dry=dry,
+            running_save=running_save,
         )
 
         # MAYBE/2018-07-18 02:53: Setting up the carousel seems
