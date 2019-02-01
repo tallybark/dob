@@ -783,14 +783,14 @@ START_HELP_FROM = _(
 
 EDIT_GROUP_HELP = _(
     """
-    Edit facts, activities, categories, or tags.
+    Fire up the Carousel and edit Facts interactively.
     """
 )
 
 
 EDIT_FACT_HELP = _(
     """
-    Edit facts using your preferred \$EDITOR.
+    Fire up the Carousel and edit Facts interactively.
     """
 )
 
