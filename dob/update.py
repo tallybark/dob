@@ -25,12 +25,12 @@ from .create import mend_facts_confirm_and_save_maybe, prompt_and_save
 from .helpers import dob_in_user_exit
 from .interrogate import ask_edit_with_editor
 
-__all__ = ['edit_fact']
+__all__ = ['edit_fact_by_pk']
 
 
-def edit_fact(controller, key, use_carousel=True):
+def edit_fact_by_pk(controller, key, use_carousel=True):
     """"""
-    def _edit_fact():
+    def _edit_fact_by_pk():
         old_fact = fact_from_key(key)
         if old_fact is None:
             return None
@@ -167,5 +167,5 @@ def edit_fact(controller, key, use_carousel=True):
 
         # ***
 
-    return _edit_fact()
+    return _edit_fact_by_pk()
 

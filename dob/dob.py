@@ -109,7 +109,7 @@ __all__ = [
     # 'add_fact_after',
     # 'add_fact_from',
     # 'edit_group',
-    # 'edit_fact',
+    # 'dob_edit_fact',
     # 'transcode_export',
     # 'transcode_import',
     # 'complete',
@@ -440,14 +440,14 @@ def generate_list_facts_command(func):
     @cmd_options_list_fact
     @pass_controller
     @induct_newbies
-    def list_facts(controller, *args, doc, **kwargs):
+    def dob_list_facts(controller, *args, doc, **kwargs):
         _list_facts(controller, *args, block_format=doc, **kwargs)
-    return update_wrapper(list_facts, func)
+    return update_wrapper(dob_list_facts, func)
 
 
 @list_group.command('facts', help=help_strings.LIST_FACTS_HELP)
 @generate_list_facts_command
-def list_facts(controller, *args, **kwargs):
+def dob_list_facts(controller, *args, **kwargs):
     assert(False)  # Not reachable, because generate_list_facts_command.
     pass
 
@@ -731,7 +731,7 @@ def edit_group(ctx, controller, *args, **kwargs):
 @induct_newbies
 @click.pass_context
 @post_processor
-def edit_fact(ctx, controller, *args, **kwargs):
+def dob_edit_fact(ctx, controller, *args, **kwargs):
     """Inline-Edit specified Fact using preferred $EDITOR."""
     return edit_fact_by_key(ctx, controller, *args, **kwargs)
 
