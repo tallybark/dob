@@ -77,10 +77,11 @@ def add_fact(
     controller,
     factoid,
     time_hint,
-    ask=False,
+    use_carousel=False,
+    edit_text=False,
+    edit_meta=False,
     yes=False,
     dry=False,
-    use_carousel=True,
 ):
     """
     Start or add a fact.
@@ -105,7 +106,7 @@ def add_fact(
             If False, prompt user (i.e., using fancy interface built with
             python-prompt-toolkit) for each conflict.
 
-        ask (bool, optional): If True, prompt user for activity and/or
+        edit_meta (bool, optional): If True, prompt user for activity and/or
             category, if not indicated; and prompt user for tags. Shows
             MRU lists to try to make it easy for user to specify commonly
             used items.
@@ -156,21 +157,32 @@ def add_fact(
         # (lb): This is the only place orig_facts is not [edit_fact.copy(), ...].
         orig_facts.append(original)
 
-    if use_carousel:
-        saved_facts = prompt_and_save(
+    edit_fact = edit_facts[0]
+
+    if edit_text:
+        # User wants to edit description first.
+        interrogate.ask_user_for_edits(
             controller,
-            edit_facts,
-            orig_facts,
-            running_save=True,
+            fact=edit_fact,
+            always_ask=False,
+            restrict_edit='description',
         )
-    else:
-        edited_fact = edit_facts[0]
-        interrogate.ask_user_for_edits(controller, edited_fact) if ask else None
-        # Verify at least start time is set; end may or may not be set.
-        time_hint = 'verify_last'
-        saved_facts = mend_facts_confirm_and_save_maybe(
-            controller, edited_fact, time_hint, other_edits={}, yes=yes, dry=dry,
+
+    if edit_meta:
+        interrogate.ask_user_for_edits(
+            controller,
+            fact=edit_fact,
         )
+
+    saved_facts = prompt_and_save(
+        controller,
+        edit_facts,
+        orig_facts,
+        use_carousel=use_carousel,
+        yes=yes,
+        dry=dry,
+        progress=None,
+    )
 
     return saved_facts
 
@@ -449,6 +461,7 @@ def save_facts_maybe(controller, new_facts, conflicts, ignore_pks, dry):
         ))
 
     def save_fact(controller, fact, dry, ignore_pks=[]):
+        # (lb): SIMILAR: edits_manager.save_edited_fact, create.save_fact.
         if fact.pk and fact.pk < 0:
             fact.pk = None
         if fact.pk is None and fact.deleted:
@@ -568,11 +581,10 @@ def prompt_and_save(
     rule='',
     backup=True,
     leave_backup=False,
-    ask=False,
+    use_carousel=False,
     yes=False,
     dry=False,
     progress=None,
-    running_save=False,
 ):
     """"""
     progress = CrudeProgress(enabled=True) if progress is None else progress
@@ -702,7 +714,7 @@ def prompt_and_save(
     # ***
 
     def prompt_all(backup_f):
-        if yes:
+        if not use_carousel:
             return True
 
         backup_callback = write_facts_file(backup_f, rule, dry)
@@ -716,7 +728,6 @@ def prompt_and_save(
             orig_facts=orig_facts,
             dirty_callback=backup_callback,
             dry=dry,
-            running_save=running_save,
         )
 
         # MAYBE/2018-07-18 02:53: Setting up the carousel seems

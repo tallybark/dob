@@ -194,8 +194,7 @@ def import_facts(
     rule='',
     backup=True,
     leave_backup=False,
-    ask=False,
-    yes=False,
+    use_carousel=False,
     dry=False,
 ):
     """
@@ -233,9 +232,9 @@ def import_facts(
             rule=rule,
             backup=backup,
             leave_backup=leave_backup,
-            ask=ask,
-            yes=yes,
+            use_carousel=use_carousel,
             dry=dry,
+            yes=False,
             progress=progress,
         )
         return saved_facts

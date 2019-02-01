@@ -46,7 +46,9 @@ from .cmd_common import (
 )
 from .cmd_options import (
     cmd_options_factoid,
-    cmd_options_insert,
+    cmd_options_fact_add,
+    cmd_options_fact_dryable,
+    cmd_options_fact_nocarousel,
     cmd_options_limit_offset,
     cmd_options_list_activitied,
     cmd_options_list_categoried,
@@ -621,13 +623,16 @@ def show(controller):
 def generate_add_fact_command(time_hint):
     def _generate_add_fact_command(func):
         @cmd_options_factoid
-        @cmd_options_insert
+        @cmd_options_fact_add
+        @cmd_options_fact_dryable
         @pass_controller
         @induct_newbies
         @click.pass_context
         @post_processor
-        def _add_fact(ctx, controller, *args, **kwargs):
-            return add_fact(controller, *args, time_hint=time_hint, **kwargs)
+        def _add_fact(ctx, controller, *args, carousel, **kwargs):
+            return add_fact(
+                controller, *args, time_hint=time_hint, use_carousel=carousel, **kwargs
+            )
         return update_wrapper(_add_fact, func)
     return _generate_add_fact_command
 
@@ -700,6 +705,7 @@ def add_fact_after(controller, *args, **kwargs):
 
 @run.group('edit', help=help_strings.EDIT_GROUP_HELP, invoke_without_command=True)
 @cmd_options_edit_item
+@cmd_options_fact_nocarousel
 @pass_controller
 @induct_newbies
 @click.pass_context
@@ -720,6 +726,7 @@ def edit_group(ctx, controller, *args, **kwargs):
 
 @edit_group.command('fact', help=help_strings.EDIT_FACT_HELP)
 @cmd_options_edit_item
+@cmd_options_fact_nocarousel
 @pass_controller
 @induct_newbies
 @click.pass_context
@@ -729,7 +736,7 @@ def edit_fact(ctx, controller, *args, **kwargs):
     return edit_fact_by_key(ctx, controller, *args, **kwargs)
 
 
-def edit_fact_by_key(ctx, controller, *args, key, **kwargs):
+def edit_fact_by_key(ctx, controller, *args, key, no_carousel, **kwargs):
     def _edit_fact_by_key():
         keys = assemble_keys()
         return process_edit_command(keys)
@@ -751,9 +758,13 @@ def edit_fact_by_key(ctx, controller, *args, key, **kwargs):
             click_echo(ctx.get_help())
             edited_facts = None
         elif len(keys) > 1:
-            dob_in_user_exit(_("Too many keys specified! Try just one."))
+            dob_in_user_exit(_("Too many Fact keys specified! Try just one."))
         else:
-            edited_facts = update.edit_fact(controller, key=keys[0])
+            edited_facts = update.edit_fact_by_pk(
+                controller,
+                key=keys[0],
+                use_carousel=(not no_carousel),
+            )
         return edited_facts
 
     return _edit_fact_by_key()
@@ -853,12 +864,13 @@ def transcode_export(
               help=_('Keep plaintext backup of edited facts until committed'))
 @click.option('-X', '--leave-backup', is_flag=True,
               help=_('Leave working backup file after commit'))
-@cmd_options_insert
+@cmd_options_fact_nocarousel
+@cmd_options_fact_dryable
 @pass_controller
 @induct_newbies
 @click.pass_context
 @post_processor
-def transcode_import(ctx, controller, filename, output, force, *args, **kwargs):
+def transcode_import(ctx, controller, filename, output, force, no_carousel, *args, **kwargs):
     """Import from file or STDIN (pipe)."""
     file_in = must_no_more_than_one_file(filename)
 
@@ -874,7 +886,14 @@ def transcode_import(ctx, controller, filename, output, force, *args, **kwargs):
         click_echo(msg)
         sys.exit(1)
 
-    return import_facts(controller, *args, file_in=file_in, file_out=output, **kwargs)
+    return import_facts(
+        controller,
+        *args,
+        file_in=file_in,
+        file_out=output,
+        use_carousel=(not no_carousel),
+        **kwargs
+    )
 
 
 # ***

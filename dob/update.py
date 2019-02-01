@@ -81,7 +81,11 @@ def edit_fact(controller, key, use_carousel=True):
         saved_facts = prompt_and_save(
             controller,
             edit_facts=[old_fact],
-            running_save=True,
+            # (lb): The whole point on dob-edit is to fire up the Carousel.
+            use_carousel=True,
+            # MEH/2019-02-01: (lb) Support --yes or --dry on dob-edit?
+            yes=False,
+            dry=False,
         )
         return saved_facts
 

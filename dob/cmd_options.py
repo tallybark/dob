@@ -27,7 +27,9 @@ click.disable_unicode_literals_warning = True
 
 __all__ = [
     'cmd_options_factoid',
-    'cmd_options_insert',
+    'cmd_options_fact_add',
+    'cmd_options_fact_import',
+    'cmd_options_fact_insert',
     'cmd_options_limit_offset',
     'cmd_options_list_activitied',
     'cmd_options_list_categoried',
@@ -162,7 +164,7 @@ def _postprocess_options_table_bunce_asc_desc_to_sort_order(kwargs):
 
 
 # ***
-# *** [INSERT FACTOID] Options.
+# *** [ADD FACT/STOP FACT] Raw Factoid Option.
 # ***
 
 _cmd_options_factoid = [
@@ -180,15 +182,65 @@ def cmd_options_factoid(func):
 # *** [ADD FACT] Options.
 # ***
 
-_cmd_options_insert = [
+_cmd_options_fact_add = [
     click.option(
-        '-a', '--ask', is_flag=True,
-        help=_('Awesome Prompt for tags, and activity@category.'),
+        '-C', '--carousel', is_flag=True,
+        help=_('Edit new Fact before saving, using Carousel and Awesome Prompt.'),
     ),
+    click.option(
+        '-d', '--edit-text', is_flag=True,
+        help=_('Edit description using user‘s preferred $EDITOR.'),
+    ),
+    click.option(
+        '-a', '--edit-meta', is_flag=True,
+        help=_('Ask for act@gory and tags using Awesome Prompt.'),
+    ),
+    # (lb): 2019-02-01: Current thinking is that conflicts are only okay
+    # on add-fact, and only outside the context of the Carousel. So applies
+    # to dob-add commands, but not to dob-import.
     click.option(
         '-y', '--yes', is_flag=True,
         help=_('Save conflicts automatically, otherwise ask for confirmation.'),
     ),
+]
+
+
+def cmd_options_fact_add(func):
+    for option in reversed(_cmd_options_fact_add):
+        func = option(func)
+    return func
+
+
+# ***
+# *** [IMPORT FACTS/EDIT FACT] Shared Options.
+# ***
+
+_cmd_options_fact_nocarousel = [
+    # (lb): This is similar to dob-add's --edit, except the default is reversed.
+    # - On dob-add, default is to not run Carousel; but on dob-import, it is.
+    click.option(
+        '-c', '--no-carousel', is_flag=True,
+        help=_('Save the new Facts immediately and exit. (Do not run the Carousel.)'),
+    ),
+]
+
+
+def cmd_options_fact_nocarousel(func):
+    for option in reversed(_cmd_options_fact_nocarousel):
+        func = option(func)
+    return func
+
+
+# ***
+# *** [ADD FACT/IMPORT FACT(S)] Shared Options.
+# ***
+
+_cmd_options_fact_dryable = [
+    # (lb): The --dry option is not super useful if you have your store under
+    # git control, because you can easily revert any changes; or if you setup a
+    # test store under /tmp (i.e., `export XDG_DATA_HOME=/tmp/xxx/.local/share`).
+    # It's really just more code to test!
+    # MAYBE/2019-02-01: Remove the --dry option, and save a unittest?
     click.option(
         '--dry', is_flag=True,
         help=_('Dry run: do not make changes.'),
@@ -196,8 +248,8 @@ _cmd_options_insert = [
 ]
 
 
-def cmd_options_insert(func):
-    for option in reversed(_cmd_options_insert):
+def cmd_options_fact_dryable(func):
+    for option in reversed(_cmd_options_fact_dryable):
         func = option(func)
     return func
 
@@ -331,7 +383,22 @@ class OptionWithDynamicHelp(click.Option):
 # ***
 
 _cmd_options_edit_item = [
+    # User can indicate specific item to edit via its PK, otherwise default to latest.
+    # FIXME/BACKLOG/2019-01-31: Could allow user to specify datetime instead of PK,
+    #   e.g., `dob edit 2019-01-31` could bring up Fact at Noon on specific day (or midnight).
     click.argument('key', nargs=-1, type=int),
+    # (lb): User can specify specific Fact PK, a positive integer, or user
+    # can specify an index relative to the last Fact, e.g., `dob edit -1`
+    # (or even `dob edit -2`, though anything other than `dob edit -1` seems
+    # useless, i.e., would a user ever really run `dob edit -5`?). In any case,
+    # because the negative relative index starts with the dash '-' character,
+    # Click will complain if it parses the argument as an option, e.g.,
+    #   $ dob edit -1
+    #   Error: no such option: -1
+    # The user can double-dash to tell Click to stop option processing, e.g.,
+    #   $ dob edit -- -1
+    # The latter is somewhat clunky, so we can make '-1' an option.
+    # Note that this doesn't solve the issue for -2, -3, etc., but really, who cares.
     click.option(
         '-1', 'latest_1', is_flag=True,
         help=_('Edit most recently saved item.'),
