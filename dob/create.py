@@ -87,8 +87,7 @@ def add_fact(
 
     Args:
         factoid (text_type): ``factoid`` detailing Fact to be added.
-            See elsewhere for the factoid format. At a minimum, the
-            string must must specify an Activity name.
+            See elsewhere for the factoid format.
 
         time_hint (text_type, optional): One of:
             'verify_none': Do not expect to find any time encoded in factoid.
