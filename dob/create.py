@@ -73,6 +73,8 @@ __all__ = [
 ]
 
 
+# ***
+
 def add_fact(
     controller,
     factoid,
@@ -212,6 +214,8 @@ def mend_facts_confirm_and_save_maybe(
 
     return _mend_facts_confirm_and_save_maybe()
 
+
+# ***
 
 def mend_fact_timey_wimey(controller, fact, time_hint, other_edits={}):
     """"""
@@ -445,6 +449,10 @@ def save_facts_maybe(controller, new_facts, conflicts, ignore_pks, dry):
             if not dry:
                 new_and_edited += save_fact(controller, edited_fact, dry)
                 if 'stopped' in edited_fact.dirty_reasons:
+                    # This'll happen on one-off dob-to/dob-at/etc., but it
+                    # will not happen on dob-import, e.g., if dob-import
+                    # closes ongoing fact, it'll be saved normally, and it
+                    # will not be passed herein as part of conflicts.
                     echo_ongoing_completed(controller, edited_fact)
             else:
                 click.echo(original.friendly_diff(edited_fact))
