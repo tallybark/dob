@@ -183,18 +183,16 @@ def cmd_options_factoid(func):
 _cmd_options_insert = [
     click.option(
         '-a', '--ask', is_flag=True,
-        help=_(
-            'Ask for tags, and activity@category.'
-            ' Useful if tab complete unhelpful because whitespace.'
-        ),
+        help=_('Awesome Prompt for tags, and activity@category.'),
     ),
     click.option(
         '-y', '--yes', is_flag=True,
         help=_('Save conflicts automatically, otherwise ask for confirmation.'),
     ),
-    # (lb): Not declaring a one-char alias; the full name option,
-    #   --dry, is only three chars, and easy to remember.
-    click.option('--dry', is_flag=True, help=_('Dry run: do not make changes.')),
+    click.option(
+        '--dry', is_flag=True,
+        help=_('Dry run: do not make changes.'),
+    ),
 ]
 
 
