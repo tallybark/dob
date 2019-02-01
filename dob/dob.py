@@ -748,9 +748,19 @@ def edit_fact_by_key(ctx, controller, *args, key, no_carousel, **kwargs):
             keys.append(arg_key)
         # See also if user specified '-1', '-2', etc.
         for kwg_key in kwargs.keys():
-            match = re.match(r'^latest_(\d+)$', kwg_key)
+            match = re.match(r'^(latest_(\d+))$', kwg_key)
             if match is not None:
-                keys.append(-1 * int(match.groups()[0]))
+                # Check whether enabled (True) or not.
+                if kwargs[match.groups()[0]]:
+                    to_last_index = -1 * int(match.groups()[1])
+                    keys.append(to_last_index)
+        # (lb): If no keys, dob will display docs, e.g.,
+        #   `dob edit` same as `dob edit --help`.
+        # But we could also default to last Fact, seems
+        # like friendlier behavior. So
+        #   `dob edit` same as `dob edit -1` (or even `dob edit fact -1`).
+        if not keys:
+            keys = [-1]
         return keys
 
     def process_edit_command(keys):
