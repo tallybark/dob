@@ -166,6 +166,10 @@ class ClientDefaults(object):
         pass
 
     @property
+    def carousel_centered(self):
+        return False
+
+    @property
     def carousel_lexer(self):
         return ''
 
@@ -350,6 +354,9 @@ def get_separate_configs(config, nark_preset=None, dob_preset=None):
                 config, dob_preset, ClientDefaults, 'Client', keyname,
             )
 
+        def get_carousel_centered():
+            return client_config_or_default_boolean('carousel_centered')
+
         def get_carousel_lexer():
             return client_config_or_default('carousel_lexer')
 
@@ -402,6 +409,7 @@ def get_separate_configs(config, nark_preset=None, dob_preset=None):
             return client_config_or_default_boolean('term_paging')
 
         return {
+            'carousel_centered': get_carousel_centered(),
             'carousel_lexer': get_carousel_lexer(),
             'devmode': get_devmode(),
             'editor_suffix': get_editor_suffix(),
@@ -649,6 +657,7 @@ def fresh_config():
     def set_defaults_client(config):
         client = ClientDefaults()
         config.add_section('Client')
+        config.set('Client', 'carousel_centered', client.carousel_centered)
         config.set('Client', 'carousel_lexer', client.carousel_lexer)
         config.set('Client', 'devmode', str(client.devmode))
         config.set('Client', 'editor_suffix', client.editor_suffix)
