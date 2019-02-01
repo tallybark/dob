@@ -753,7 +753,10 @@ def import_facts(
                 time_hint = 'verify_both'
 
             conflicts = mend_facts_times(
-                controller, fact, time_hint=time_hint, skip_store=not could_be_more,
+                controller,
+                fact,
+                time_hint=time_hint,
+                skip_store=not could_be_more,
             )
             assert not fact.deleted  # Only on squash, which shouldn't happen.
 
