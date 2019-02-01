@@ -709,6 +709,10 @@ def edit_group(ctx, controller, *args, **kwargs):
     if ctx.invoked_subcommand:
         return None
 
+    # (lb): 2019-01-31: Default `dob edit` behavior is same as `dob edit fact -1`.
+    # - Intention was to someday have `dob edit activity`, `dob edit tag`, etc.,
+    #   but that feature so far not implemented, and likely to be named different,
+    #   anyway. (So maybe `dob edit fact` can just be `dob edit`; for now, both!)
     return edit_fact_by_key(ctx, controller, *args, **kwargs)
 
 
