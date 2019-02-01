@@ -127,7 +127,7 @@ def add_fact(
 
     # Make a new Fact from the command line input.
     new_fact = must_create_fact_from_factoid(
-        controller, factoid, time_hint, ask,
+        controller, factoid, time_hint,
     )
 
     # If there's an ongoing Fact, we might extend or squash it.
@@ -292,11 +292,11 @@ def mend_fact_timey_wimey(controller, fact, time_hint, other_edits={}):
 # ***
 
 def must_create_fact_from_factoid(
-    controller, factoid, time_hint, ask,
+    controller, factoid, time_hint,
 ):
 
     def _must_create_fact_from_factoid(
-        controller, factoid, time_hint, ask,
+        controller, factoid, time_hint,
     ):
         separators = must_prepare_factoid_item_separators(controller)
         use_hint = reduce_time_hint(time_hint)
@@ -343,7 +343,7 @@ def must_create_fact_from_factoid(
 
     # ***
 
-    return _must_create_fact_from_factoid(controller, factoid, time_hint, ask)
+    return _must_create_fact_from_factoid(controller, factoid, time_hint)
 
 
 # ***
