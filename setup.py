@@ -10,6 +10,7 @@ Packaging instruction for setup tools.
 import os
 import re
 import sys  # Not used herein, but by dob/__init__.py, which we exec.
+
 from gettext import gettext as _  # Because exec(init_py): noqa: EXXX
 from io import open
 
@@ -42,8 +43,10 @@ requirements = [
     #  Stolen from: https://github.com/click-contrib/click-aliases
     #  Released at: https://github.com/hotoffthehamster/click-alias
     'click-alias >= 0.1.0a1',
-    # Enable Click color support (we don't use colorama directly).
-    #  http://click.pocoo.org/5/utils/#ansi-colors
+    # Enable Click color support (we don't use colorama directly, but it does),
+    #  "on Windows, this ... is only available if colorama is installed".
+    #  https://click.palletsprojects.com/en/5.x/utils/#ansi-colors
+    #  https://pypi.org/project/colorama/
     'colorama',
     # Python 2 configparser backport.
     #  https://docs.python.org/3/library/configparser.html
@@ -52,6 +55,7 @@ requirements = [
     #  https://python-future.org/
     'future',
     # Vocabulary word pluralizer.
+    #  https://github.com/ixmatus/inflector
     'Inflector',
     # https://github.com/hjson/hjson-py
     'hjson',
