@@ -67,8 +67,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'dob'
-copyright = '2015, Eric Goller'
-author = 'Eric Goller'
+copyright = '2018-9, HotOffThe Hamster'
+author = 'HotOffThe Hamster'
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -252,7 +252,7 @@ latex_elements = {
 latex_documents = [
     ('index', 'dob.tex',
      u'dob Documentation',
-     u'Eric Goller', 'manual'),
+     u'HotOffThe Hamster', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at
@@ -283,7 +283,7 @@ latex_documents = [
 man_pages = [
     ('index', 'dob',
      u'dob Documentation',
-     [u'Eric Goller'], 1)
+     [u'HotOffThe Hamster'], 1)
 ]
 
 # If true, show URL addresses after external links.
