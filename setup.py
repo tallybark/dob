@@ -48,6 +48,9 @@ requirements = [
     #  https://click.palletsprojects.com/en/5.x/utils/#ansi-colors
     #  https://pypi.org/project/colorama/
     'colorama',
+    # "Very simple Python library for color and formatting in terminal."
+    #  https://gitlab.com/dslackw/colored
+    'colored',
     # Python 2 configparser backport.
     #  https://docs.python.org/3/library/configparser.html
     'configparser >= 3.5.0b2',
