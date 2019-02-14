@@ -28,8 +28,8 @@ click.disable_unicode_literals_warning = True
 __all__ = [
     'cmd_options_factoid',
     'cmd_options_fact_add',
-    'cmd_options_fact_import',
-    'cmd_options_fact_insert',
+    'cmd_options_fact_dryable',
+    'cmd_options_fact_nocarousel',
     'cmd_options_limit_offset',
     'cmd_options_list_activitied',
     'cmd_options_list_categoried',
@@ -42,6 +42,9 @@ __all__ = [
     'postprocess_options_list_categoried',
     'postprocess_options_table_bunce',
     'OptionWithDynamicHelp',
+    # Private:
+    #   '_postprocess_options_table_bunce_order_to_sort_col',
+    #   '_postprocess_options_table_bunce_asc_desc_to_sort_order',
 ]
 
 
@@ -385,7 +388,8 @@ class OptionWithDynamicHelp(click.Option):
 _cmd_options_edit_item = [
     # User can indicate specific item to edit via its PK, otherwise default to latest.
     # FIXME/BACKLOG/2019-01-31: Could allow user to specify datetime instead of PK,
-    #   e.g., `dob edit 2019-01-31` could bring up Fact at Noon on specific day (or midnight).
+    #   e.g., `dob edit 2019-01-31` could bring up Fact at Noon on specific day (or
+    #   midnight).
     click.argument('key', nargs=-1, type=int),
     # (lb): User can specify specific Fact PK, a positive integer, or user
     # can specify an index relative to the last Fact, e.g., `dob edit -1`

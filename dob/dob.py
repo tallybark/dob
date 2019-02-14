@@ -890,7 +890,16 @@ def transcode_export(
 @induct_newbies
 @click.pass_context
 @post_processor
-def transcode_import(ctx, controller, filename, output, force, no_carousel, *args, **kwargs):
+def transcode_import(
+    ctx,
+    controller,
+    filename,
+    output,
+    force,
+    no_carousel,
+    *args,
+    **kwargs
+):
     """Import from file or STDIN (pipe)."""
     file_in = must_no_more_than_one_file(filename)
 
