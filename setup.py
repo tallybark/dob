@@ -9,9 +9,12 @@ Packaging instruction for setup tools.
 
 import os
 import re
-import sys  # Not used herein, but by dob/__init__.py, which we exec.
+# sys is not used herein, but by dob/__init__.py, which we exec.
+# F401 'sys' imported but unused
+import sys  # noqa: F401
 
-from gettext import gettext as _  # Because exec(init_py): noqa: EXXX
+# Because exec(init_py), silence linter.
+from gettext import gettext as _  # noqa: F401
 from io import open
 
 try:
@@ -144,8 +147,9 @@ def import_business_vars(package_dir):
     init_py = top_level_package_file_read(pckpath)
     source = top_level_package_file_strip_imports(init_py)
     exec(source)
-    cfg = { key: val for (key, val) in locals().items() if key.startswith('__') }
+    cfg = {key: val for (key, val) in locals().items() if key.startswith('__')}
     return cfg
+
 
 # Import variables from nark/__init__.py,
 # without triggering that files' imports.
