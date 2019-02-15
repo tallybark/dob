@@ -74,25 +74,25 @@ help:
 clean: clean-build clean-pyc clean-test
 
 clean-build:
-	rm -fr build/
-	rm -fr dist/
-	rm -fr .eggs/
-	find . -name '*.egg-info' -exec rm -fr {} +
-	find . -name '*.egg' -exec rm -f {} +
+	/bin/rm -fr build/
+	/bin/rm -fr dist/
+	/bin/rm -fr .eggs/
+	find . -name '*.egg-info' -exec /bin/rm -fr {} +
+	find . -name '*.egg' -exec /bin/rm -f {} +
 
 clean-pyc:
-	find . -name '*.pyc' -exec rm -f {} +
-	find . -name '*.pyo' -exec rm -f {} +
-	find . -name '*~' -exec rm -f {} +
-	find . -name '__pycache__' -exec rm -fr {} +
+	find . -name '*.pyc' -exec /bin/rm -f {} +
+	find . -name '*.pyo' -exec /bin/rm -f {} +
+	find . -name '*~' -exec /bin/rm -f {} +
+	find . -name '__pycache__' -exec /bin/rm -fr {} +
 
 clean-docs:
 	$(MAKE) -C docs clean BUILDDIR=$(BUILDDIR)
 
 clean-test:
-	rm -fr .tox/
-	rm -f .coverage
-	rm -fr htmlcov/
+	/bin/rm -fr .tox/
+	/bin/rm -f .coverage
+	/bin/rm -fr htmlcov/
 
 develop:
 	pip install -U pip setuptools wheel
@@ -135,8 +135,8 @@ quickfix:
 	sed -r "s#^(.* .*):([0-9]+):#\1∷\2:#" -i .make.out
 
 docs:
-	rm -f docs/dob.rst
-	rm -f docs/modules.rst
+	/bin/rm -f docs/dob.rst
+	/bin/rm -f docs/modules.rst
 	sphinx-apidoc -o docs/ dob
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
