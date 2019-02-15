@@ -100,11 +100,12 @@ develop:
 	pip install -U -r requirements/dev.pip
 
 lint:
-	flake8 dob tests
+	flake8 setup.py dob/ tests/
 
 test: test-local quickfix
 
 test-local:
+	@echo "Use the PYTEST_ADDOPTS environment variable to add extra command line options."
 	py.test $(TEST_ARGS) tests/ | tee .make.out
 
 test-all:
@@ -134,7 +135,7 @@ quickfix:
 	sed -r "s#^(.* .*):([0-9]+):#\1∷\2:#" -i .make.out
 
 docs:
-	rm -f docs/hamster_cli.rst
+	rm -f docs/dob.rst
 	rm -f docs/modules.rst
 	sphinx-apidoc -o docs/ dob
 	$(MAKE) -C docs clean
@@ -143,6 +144,16 @@ docs:
 
 isort:
 	isort --recursive setup.py dob/ tests/
+	# DX: End files with blank line.
+	git ls-files | while read file; do \
+		if [ -n "$$(tail -n1 $$file)" ]; then \
+			echo "Blanking: $$file"; \
+			echo >> $$file; \
+		else \
+			echo "DecentOk: $$file"; \
+		fi \
+	done
+	@echo "ça va"
 
 servedocs: docs
 	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
