@@ -15,7 +15,8 @@ from gettext import gettext as _  # Because exec(init_py): noqa: EXXX
 from io import open
 
 try:
-    # from setuptools import setup, find_packages
+    # See below: We could instead use find_packages, but instead hardcode,
+    #   from setuptools import setup, find_packages
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
@@ -170,7 +171,8 @@ setup(
     url=cfg['__projurl__'],
     description=cfg['__briefly__'],
     long_description=long_description,
-    # packages=find_packages(),
+    # Alternatively, ask setuptools to figure out the package name(s):
+    #   packages=find_packages(),
     packages=['dob', ],
     package_dir={'dob': 'dob'},
     install_requires=requirements,
