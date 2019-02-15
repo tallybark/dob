@@ -17,6 +17,8 @@
 
 from __future__ import absolute_import, unicode_literals
 
+import click
+
 from future.utils import python_2_unicode_compatible
 from six import text_type
 
@@ -132,7 +134,7 @@ class FactsDiff(object):
                 self_val, other_val, truncate=truncate, beautify=beautify,
             )
         elif truncate:
-            self_val = format_value_truncate(self_val)
+            self_val = self.format_value_truncate(self_val)
             self_val = self.format_prepare(self_val)
             other_val = self.format_prepare(other_val)
         attr_diff = self.diff_line_assemble(self_val, other_val, name)
@@ -152,8 +154,8 @@ class FactsDiff(object):
         if self_val != other_val:
             differ = True
         if truncate:
-            self_val = format_value_truncate(self_val)
-            other_val = format_value_truncate(other_val)
+            self_val = self.format_value_truncate(self_val)
+            other_val = self.format_value_truncate(other_val)
         if beautify is not None:
             self_val, other_val = beautify(self_val, other_val)
             if self_val != other_val:
@@ -170,6 +172,13 @@ class FactsDiff(object):
         if not self.formatted or not isinstance(some_val, text_type):
             return some_val
         return [('', some_val)]
+
+    def format_value_truncate(self, val):
+        # MAGIC_NUMBER: (lb): A third of the terminal (1 / 3.).
+        # MAYBE/2019-02-15: Should have Carousel tells us width.
+        term_width = click.get_terminal_size()[0]
+        trunc_width = int(term_width * (1 / 3.))
+        return format_value_truncate(val, trunc_width)
 
     # ***
 
