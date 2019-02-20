@@ -565,12 +565,12 @@ def get_separate_configs(config, nark_preset=None, dob_preset=None):
 
 def get_config_instance():
     """
-    Return a SafeConfigParser instance.
+    Return a ConfigParser instance.
 
     If we cannot find an existing config file, create a new one.
 
     Returns:
-        SafeConfigParser: Either the config loaded from an existing file, or
+        ConfigParser: Either the config loaded from an existing file, or
             default config from a new config file that this function creates.
     """
     def _get_config_instance():
@@ -587,7 +587,7 @@ def get_config_instance():
         return prepare_config(duplicates_ok=True)
 
     def prepare_config(duplicates_ok):
-        config = configparser.SafeConfigParser(strict=not duplicates_ok)
+        config = configparser.ConfigParser(strict=not duplicates_ok)
         configfile_path = get_config_path()
         if config.read(configfile_path):
             return config, True
@@ -623,14 +623,14 @@ def fresh_config():
     Create a default config. Caller is responsible for saving config file.
 
     Returns:
-        SafeConfigParser: Fresh config configured with default,
+        ConfigParser: Fresh config configured with default,
             not yet written to file.
     """
     # [FIXME]
     # This may be useful to turn into a proper command, so users can restore to
     # factory settings easily.
     def _fresh_config():
-        config = configparser.SafeConfigParser()
+        config = configparser.ConfigParser()
         set_defaults_backend(config)
         set_defaults_client(config)
         return config
