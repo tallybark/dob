@@ -16,11 +16,14 @@
 # along with 'dob'.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Fixtures available in our tests.
+Fixtures available to the tests/.
 
-In general fixtures shoudl return a single instance. If a fixture is a factory its name should
-reflect that. Fixtures that are parametrized should be suffixed with ``_parametrized`` to indicate
-the potentially increased costs to it.
+- In general, fixtures should return a single instance.
+
+- If a fixture is a factory, its name should reflect that.
+
+- A fixture that is parametrized should be suffixed with
+  ``_parametrized`` to imply it has increased complexity.
 """
 
 from __future__ import absolute_import, unicode_literals
@@ -29,12 +32,12 @@ import codecs
 import datetime
 import fauxfactory
 import os
-import pickle as pickle
 import pytest
+import tempfile
 # Once we drop py2 support, we can use the builtin again but unicode support
 # under python 2 is practicly non existing and manual encoding is not easily
 # possible.
-from backports.configparser import SafeConfigParser
+from backports.configparser import ConfigParser
 from click.testing import CliRunner
 from pytest_factoryboy import register
 from six import text_type
@@ -73,22 +76,55 @@ def appdirs(mocker, tmpdir):
         return directory
 
     dob.AppDirs = mocker.MagicMock()
-    dob.AppDirs.user_config_dir = ensure_directory_exists(os.path.join(
-        tmpdir.mkdir('config').strpath, 'dob/'))
-    dob.AppDirs.user_data_dir = ensure_directory_exists(os.path.join(
-        tmpdir.mkdir('data').strpath, 'dob/'))
-    dob.AppDirs.user_cache_dir = ensure_directory_exists(os.path.join(
-        tmpdir.mkdir('cache').strpath, 'dob/'))
-    dob.AppDirs.user_log_dir = ensure_directory_exists(os.path.join(
-        tmpdir.mkdir('log').strpath, 'dob/'))
+    dob.AppDirs.user_config_dir = ensure_directory_exists(
+        os.path.join(tmpdir.mkdir('config').strpath, 'dob/'),
+    )
+    dob.AppDirs.user_data_dir = ensure_directory_exists(
+        os.path.join(tmpdir.mkdir('data').strpath, 'dob/'),
+    )
+    dob.AppDirs.user_cache_dir = ensure_directory_exists(
+        os.path.join(tmpdir.mkdir('cache').strpath, 'dob/'),
+    )
+    dob.AppDirs.user_log_dir = ensure_directory_exists(
+        os.path.join(tmpdir.mkdir('log').strpath, 'dob/'),
+    )
     return dob.AppDirs
 
 
 @pytest.fixture
-def runner(appdirs, get_config_file):
+def runner(appdirs, get_config_file, tmpdir):
     """Provide a convenient fixture to simulate execution of (sub-) commands."""
-    def runner(args=[], **kwargs):
-        return CliRunner().invoke(dob.run, args, **kwargs)
+    def runner(args=[], keep_paths=False, **kwargs):
+        # Override environments that AppDirs (thankfully) hooks. Ref:
+        #   ~/.virtualenvs/dob/lib/python3.6/site-packages/appdirs.py
+
+        # Override paths: (1) if caller running multiple command test
+        # (keep_paths=True); or (2) if user wants theirs (DOB_KEEP_PATHS).
+        if keep_paths or os.environ.get('DOB_KEEP_PATHS', False):
+            XDG_CONFIG_HOME = os.environ['XDG_CONFIG_HOME']
+            XDG_DATA_HOME = os.environ['XDG_DATA_HOME']
+        else:
+            path = tmpdir.strpath
+            XDG_CONFIG_HOME = '{}/.config'.format(path)
+            XDG_DATA_HOME = '{}/.local/share'.format(path)
+        os.environ['XDG_CONFIG_HOME'] = XDG_CONFIG_HOME
+        os.environ['XDG_DATA_HOME'] = XDG_DATA_HOME
+
+        env = {
+            'XDG_CONFIG_HOME': XDG_CONFIG_HOME,
+            'XDG_DATA_HOME': XDG_DATA_HOME,
+            # Do not overwrite ~/.cache/dob path, where dob.log lives,
+            # so DEV tail sees test output, too:
+            #   'XDG_CACHE_HOME': '{}/.cache'.format(path),
+            # It should not be necessary to set the state directory:
+            #   'XDG_STATE_HOME': '{}/.local/state'.format(path),
+            # AppDirs also checks 2 other environs, generally set
+            # to system paths, and also you'll find already existing
+            # for your user, probably:
+            #   'XDG_DATA_DIRS': '/usr/local/share' or '/usr/share',
+            #   'XDG_CONFIG_DIRS': '/etc/xdg',
+        }
+        return CliRunner().invoke(dob.run, args, env=env, **kwargs)
     return runner
 
 
@@ -107,15 +143,40 @@ def lib_config(tmpdir):
     type conversions.
     """
     return {
+        # FIXME/2019-02-20: (lb): Test with missing config values; I know, bugs!
+        # E.g., unset store, and I think dob topples.
+
         'store': 'sqlalchemy',
         'db_engine': 'sqlite',
         'db_path': ':memory:',
+        # MAYBE/2019-02-20: (lb): Support for other DBMS's wired, but not tested.
+        #   'db_host': '',
+        #   'db_port': '',
+        #   'db_name': '',
+        #   'db_user': '',
+        #   'db_password': '',
+
+        # 2019-02-20: (lb): Note that allow_momentaneous=False probably Bad Idea,
+        #                   especially for user upgrading from legacy hamster db.
+        'allow_momentaneous': True,
+
+        # MAYBE/2019-02-20: (lb): I don't day_start, so probably broke; needs tests.
+        #   'day_start': datetime.time(hour=0, minute=0, second=0).isoformat(),
+        #   'day_start': datetime.time(hour=5, minute=0, second=0).isoformat(),
+        'day_start': '',
+
+        # MAYBE/2019-02-20: (lb): Perhaps test min-delta, another feature I !use!
+        #   'fact_min_delta': '60',
+        'fact_min_delta': '0',
+
+        'lib_log_level': 'WARNING',
         'sql_log_level': 'WARNING',
-        'day_start': datetime.time(hour=5, minute=0, second=0),
-        #'fact_min_delta': 0,
-        'fact_min_delta': 60,
+
+        # FIXME/2019-02-20: (lb): Implement tzawareness/tz_aware/timezone sanity.
         'tz_aware': False,
-        'default_tzinfo': '',  # 'America/Menominee'
+        # FIXME/2019-02-20: (lb): Needs testing, e.g.,
+        #   'default_tzinfo': 'America/Menominee',
+        'default_tzinfo': '',
     }
 
 
@@ -128,56 +189,118 @@ def client_config(tmpdir):
     type conversions.
     """
     return {
-        'log_level': 10,
-        'log_console': False,
-        # Note that 'log_filename' is what's in the config; logfile_path is made.
-        'logfile_path': False,
-        #'logfile_path': os.path.join(tmpdir.mkdir('log2').strpath, 'dob.log'),
+        # FIXME/2019-02-20: (lb): Test with missing config values; I know, bugs!
+
+        # FIXME/2019-02-20: (lb): Clarify: Use bool, or string? True, or 'True'?
+        # 'carousel_centered': '',
+        'carousel_centered': 'True',
+
+        'carousel_lexer': '',
+
+        # Devmode would probably be deadly under test, as it sets a trace trap.
+        'devmode': False,
+
+        'editor_suffix': '',
+
+        # The default export path is '', i.e., local directory. Use /tmp instead.
+        # 'export_path': '',  # Default.
         'export_path': os.path.join(tmpdir.mkdir('export').strpath, 'export'),
+
+        'fifo_dir': '',
+
+        # Disable color, otherwise tests will have to look for color codes.
+        'log_color': False,
+
+        # Don't log to console, otherwise tests have to deal with that noise.
+        # 'log_console': True,  # Default.
+        'log_console': False,
+
+# ???
+        # Note that 'log_filename' is what's in the config; logfile_path is made.
+        # 2019-01-16: I think previous comment incorrect. log_filename used, not logfile_path...
+#        'logfile_path': 'dob.log',
+#        'logfile_path': False,
+#        #'logfile_path': os.path.join(tmpdir.mkdir('log2').strpath, 'dob.log'),
+        #'log_filename': 'dob.log',
+        #'logfile_path': '',
+        # 2019-02-20 12:05: Should we even touch it?
+        #'logfile_path': '',
+
+        # The default log filename does not need to be changed.
+        # 'log_filename': 'dob.log',  # Default.
+
+        #'cli_log_level': 'WARNING',  # Default.
+        # 2019-02-20 11:15: I need to see where py.test of Carousel is hanging!
+        'cli_log_level': 'DEBUG',  # Default.
+
+        'separators': '',  # [,:\n]
+
+        'show_greeting': False,
+
+        'styling': '',
+
         'term_color': False,
         'term_paging': False,
-        'separators': '',  # [,:\n]
-        'show_greeting': False,
     }
 
 
 @pytest.fixture
 def config_instance(tmpdir, faker):
-    """Provide a (dynamicly generated) SafeConfigParser instance."""
+    """Provide a (dynamicly generated) ConfigParser instance."""
     def generate_config(**kwargs):
-            config = SafeConfigParser()
+            config = ConfigParser()
             # Backend
             config.add_section('Backend')
+
             config.set('Backend', 'store', kwargs.get('store', 'sqlalchemy'))
-            config.set('Backend', 'fact_min_delta', kwargs.get('fact_min_delta', '60'))
-            #config.set('Backend', 'fact_min_delta', kwargs.get('fact_min_delta', '0'))
             config.set('Backend', 'db_engine', kwargs.get('db_engine', 'sqlite'))
             config.set('Backend', 'db_path', kwargs.get(
                 'db_path', os.path.join(tmpdir.strpath, 'hamster_db.sqlite'))
             )
             config.set('Backend', 'db_host', kwargs.get('db_host', ''))
-            config.set('Backend', 'db_name', kwargs.get('db_name', ''))
             config.set('Backend', 'db_port', kwargs.get('db_port', ''))
+            config.set('Backend', 'db_name', kwargs.get('db_name', ''))
             config.set('Backend', 'db_user', kwargs.get('db_user', '')),
             config.set('Backend', 'db_password', kwargs.get('db_password', ''))
+
+            # (lb): Need to always support momentaneous, because legacy data bugs.
+            # config.set('Backend', 'allow_momentaneous', 'False')
+            config.set('Backend', 'allow_momentaneous', 'True')
+
+            # config.set('Backend', 'day_start', kwargs.get('day_start', ''))
             config.set('Backend', 'day_start', kwargs.get('day_start', '00:00:00'))
+
+            config.set('Backend', 'fact_min_delta', kwargs.get('fact_min_delta', '60'))
+            # config.set('Backend', 'fact_min_delta', kwargs.get('fact_min_delta', '0'))
+
+            config.set('Backend', 'lib_log_level', kwargs.get('lib_log_level', 'WARNING'))
             config.set('Backend', 'sql_log_level', kwargs.get('sql_log_level', 'WARNING'))
+
             config.set('Backend', 'tz_aware', 'False')
-            config.set('Backend', 'default_tzinfo', '')  # America/Menominee
+            config.set('Backend', 'default_tzinfo', '')
+            # FIXME/2019-02-20: (lb): Fix timezones. And parameterize, e.g.,
+            #  config.set('Backend', 'default_tzinfo', 'America/Menominee')
 
             # Client
             config.add_section('Client')
-            config.set('Client', 'log_level', kwargs.get('log_level', 'debug'))
+            # config.set('Client', 'carousel_centered', '')
+            # config.set('Client', 'carousel_lexer', '')
+            # config.set('Client', 'devmode', '')
+            # config.set('Client', 'editor_suffix', '')
+            config.set('Client', 'export_path', '')
+            # config.set('Client', 'fifo_dir', '')
+            # config.set('Client', 'log_color', 'False')
             config.set('Client', 'log_console', kwargs.get('log_console', '0'))
-            # The log_filename is used to make logfile_path.
+            # The log_filename is used to make logfile_path, which we don't need to set.
             config.set(
                 'Client', 'log_filename', kwargs.get('log_filename', faker.file_name())
             )
-            config.set('Client', 'export_path', '')
-            config.set('Client', 'term_color', 'True')
-            config.set('Client', 'term_paging', 'False')
+            config.set('Client', 'cli_log_level', kwargs.get('cli_log_level', 'debug'))
             config.set('Client', 'separators', '')  # [,:\n]
             config.set('Client', 'show_greeting', 'False')
+            # config.set('Client', 'styling', '')
+            config.set('Client', 'term_color', 'True')
+            config.set('Client', 'term_paging', 'False')
             return config
 
     return generate_config
@@ -235,18 +358,11 @@ def db_port(request):
 
 
 @pytest.fixture
-def tmp_fact(controller_with_logging, fact):
+def ongoing_fact(controller_with_logging, fact):
     """Fixture that ensures there is a ``ongoing fact`` file present at the expected place."""
     fact.end = None
     fact = controller_with_logging.facts.save(fact)
     return fact
-
-
-@pytest.fixture
-def invalid_tmp_fact(tmpdir, client_config):
-    """Fixture to provide a *ongoing fact* file that contains an invalid object instance."""
-    with open(client_config['tmp_filename'], 'wb') as fobj:
-        pickle.dump(None, fobj)
 
 
 def prepare_controller(lib_config, client_config):
@@ -283,54 +399,34 @@ def controller_with_logging(lib_config, client_config):
     # 18:00 time, '2015-12-12 18:00', is not mocked in the first two tests,
     # but then it is in the third test!! So confused!
     (None, None, '', {
-        'start': None,
-        'end': None,
-# NEED?
-        'limit': '',
-        'offset': '',
-        'sort_order': 'desc',
+        'since': None,
+        'until': None,
     }),
     ('2015-12-12 18:00', '2015-12-12 19:30', '', {
-        'start': datetime.datetime(2015, 12, 12, 18, 0, 0),
-        'end': datetime.datetime(2015, 12, 12, 19, 30, 0),
-# NEED?
-        'limit': '',
-        'offset': '',
-        'sort_order': 'desc',
+        'since': datetime.datetime(2015, 12, 12, 18, 0, 0),
+        'until': datetime.datetime(2015, 12, 12, 19, 30, 0),
     }),
     ('2015-12-12 18:00', '2015-12-12 19:30', '', {
-        'start': datetime.datetime(2015, 12, 12, 18, 0, 0),
-        'end': datetime.datetime(2015, 12, 12, 19, 30, 0),
-# NEED?
-        'limit': '',
-        'offset': '',
-        'sort_order': 'desc',
+        'since': datetime.datetime(2015, 12, 12, 18, 0, 0),
+        'until': datetime.datetime(2015, 12, 12, 19, 30, 0),
     }),
     ('2015-12-12 18:00', '', '', {
-        'start': freezegun.api.FakeDatetime(2015, 12, 12, 18, 0, 0),
-        'end': '',
-# NEED?
-        'limit': '',
-        'offset': '',
-        'sort_order': 'desc',
+        # (lb): Note sure diff btw. FakeDatetime and datetime.
+        # 'since': freezegun.api.FakeDatetime(2015, 12, 12, 18, 0, 0),
+        'since': datetime.datetime(2015, 12, 12, 18, 0, 0),
+        'until': None,  # `not until` becomes None, so '' => None.
     }),
     ('2015-12-12', '', '', {
-        'start': freezegun.api.FakeDate(2015, 12, 12),
-        'end': '',
-# NEED?
-        'limit': '',
-        'offset': '',
-        'sort_order': 'desc',
+        # 'since': freezegun.api.FakeDatetime(2015, 12, 12, 0, 0, 0),
+        'since': datetime.datetime(2015, 12, 12, 0, 0, 0),
+        'until': None,  # `not until` becomes None, so '' => None.
     }),
     ('13:00', '', '', {
-        'start': datetime.time(13, 0),
-        'end': '',
-# NEED?
-        'limit': '',
-        'offset': '',
-        'sort_order': 'desc',
+        'since': datetime.datetime(2015, 12, 12, 13, 0, 0),
+        'until': None,  # `not until` becomes None, so '' => None.
     }),
 ])
 def search_parameter_parametrized(request):
     """Provide a parametrized set of arguments for the ``search`` command."""
     return request.param
+

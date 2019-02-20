@@ -17,6 +17,7 @@
 
 from __future__ import absolute_import, unicode_literals
 
+import appdirs
 import datetime
 import fauxfactory
 import logging
@@ -25,80 +26,100 @@ import pytest
 # Once we drop py2 support, we can use the builtin again but unicode support
 # under python 2 is practicly non existing and manual encoding is not easily
 # possible.
-from backports.configparser import SafeConfigParser
+from backports.configparser import ConfigParser
 from click import ClickException
 from freezegun import freeze_time
+from unittest import mock
 
 import nark
+from nark.helpers import logging as logging_helpers
 
-# FIXME: All refs to dob... (2018-06-08: From 5/13. What did I mean??)
 from dob import __appname__, __version__, dob
-from dob import create, details, search, transcode
+from dob import create, details, transcode
+from dob.help_strings import NO_ACTIVE_FACT_HELP, NOTHING_TO_STOP_HELP
 from dob.helpers import ascii_table
-#import cmd_config
-#import cmds_list
-#import cmds_usage
 from dob import cmd_config
 from dob import cmds_list
 from dob import cmds_usage
+from dob.cmds_list.fact import search_facts
 
 from . import truncate_to_whole_seconds
-from .cmds_list.fact import search_facts
 
 class TestSearchTerm(object):
     """Unit tests for search command."""
 
     @freeze_time('2015-12-12 18:00')
     def test_search(self, controller, mocker, fact, search_parameter_parametrized):
-        """Ensure that search parameters get passed on to apropiate backend function."""
-        start, end, description, expectation = search_parameter_parametrized
+        """Ensure that search parameters are passed to appropriate backend function."""
+        since, until, description, expectation = search_parameter_parametrized
         controller.facts.get_all = mocker.MagicMock(return_value=[fact])
-# FIXME: search.search_facts => cmds_list.fact.list_facts
-#        search.search_facts(controller, start, end, description=description)
-# FIXME: , description=description ...
-#           was description part of develop, or scienificsteve?
-        search_facts(controller, start, end)
+        facts = search_facts(controller, since=since, until=until)
         controller.facts.get_all.assert_called_with(**expectation)
+        # See: nark's test_get_all_various_since_and_until_times
+        assert controller.facts.get_all.called
+        assert controller.facts.get_all.call_args[1] == {
+            'since': expectation['since'],
+            'until': expectation['until'],
+        }
 
 
-class TestStart(object):
+class TestAddFact(object):
     """Unit test related to starting a new fact."""
 
     @freeze_time('2015-12-25 18:00')
     @pytest.mark.parametrize(
-        ('raw_fact', 'start', 'end', 'expectation'),
+        ('raw_fact', 'time_hint', 'expectation'),
         [
-            ('foo@bar', '2015-12-12 13:00', '2015-12-12 16:30', {
+            # Use clock-to-clock format, the date inferred from now; with actegory.
+            ('13:00 to 16:30: foo@bar', 'verify_both', {
+                'activity': 'foo',
+                'category': 'bar',
+                'start': datetime.datetime(2015, 12, 25, 13, 0, 0),
+                'end': datetime.datetime(2015, 12, 25, 16, 30, 0),
+                'tags': [],
+            }),
+            # Use datetime-to-datetime format, with actegory.
+            ('2015-12-12 13:00 to 2015-12-12 16:30: foo@bar', 'verify_both', {
                 'activity': 'foo',
                 'category': 'bar',
                 'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
                 'end': datetime.datetime(2015, 12, 12, 16, 30, 0),
                 'tags': [],
             }),
-            ('10:00 - 18:00 foo@bar', '2015-12-12 13:00', '', {
+            # The end date is inferred from start date.
+            ('2015-12-12 13:00 - 18:00 foo@bar', 'verify_both', {
+                'activity': 'foo',
+                'category': 'bar',
+                'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
+                'end': datetime.datetime(2015, 12, 12, 18, 00, 0),
+                'tags': [],
+            }),
+            # actegory spanning day (straddles) midnight) and spanning multiple days.
+            ('2015-12-12 13:00 - 2015-12-25 18:00 foo@bar', 'verify_both', {
                 'activity': 'foo',
                 'category': 'bar',
                 'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
                 'end': datetime.datetime(2015, 12, 25, 18, 00, 0),
                 'tags': [],
             }),
-            # 'ongoing facts
-            ('foo@bar', '2015-12-12 13:00', '', {
+            # Create open/ongoing/un-ended fact.
+            ('2015-12-12 13:00 foo@bar', 'verify_start', {
                 'activity': 'foo',
                 'category': 'bar',
                 'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
                 'end': None,
                 'tags': [],
             }),
-            ('11:00 foo@bar', '2015-12-12 13:00', '', {
+            # Create ongoing fact starting at right now.
+            ('foo@bar', 'verify_none', {
                 'activity': 'foo',
                 'category': 'bar',
-                'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
+                'start': datetime.datetime(2015, 12, 25, 18, 0, 0),
                 'end': None,
                 'tags': [],
             }),
             # Tags.
-            ('11:00 foo@bar #precious #hashish, i like ike', '2015-12-12 13:00', '', {
+            ('2015-12-12 13:00 foo@bar: #precious #hashish, i like ike', 'verify_start', {
                 'activity': 'foo',
                 'category': 'bar',
                 'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
@@ -106,87 +127,62 @@ class TestStart(object):
                 'tags': ['precious', 'hashish'],
                 'description': 'i like ike',
             }),
-            # FIXME: Should quotes work? Containing the "#hash char"?
-            (
-                '11:00 foo@bar #just walk away "#one two three", i like ike',
-                '2015-12-12 13:00',
-                '',
-                {
-                    'activity': 'foo',
-                    'category': 'bar',
-                    'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
-                    'end': None,
-                    'tags': ['just walk away "#one two three"'],
-                    'description': 'i like ike',
-                },
-            ),
-            # FIXME: Should quotes work? Inside the #"hash char"?
-            (
-                '11:00 foo@bar #"one two three" #just walk away, i like ike',
-                '2015-12-12 13:00',
-                '',
-                {
-                    'activity': 'foo',
-                    'category': 'bar',
-                    'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
-                    'end': None,
-                    # FIXME: (lb): Should we really scrub quotes? What it user wants quotes??
-                    #'tags': ['just walk away', 'one two three'],
-                    'tags': ['just walk away', '"one two three"'],
-                    'description': 'i like ike',
-                },
-            ),
-            # Test '#' in description, elsewhere, after command, etc.
-            (
-                '11:00 foo@bar", i like ike #punk president, yas! 12:59',
-                '2015-12-12 13:00',
-                '',
-                {
-                    'activity': 'foo',
-                    'category': 'bar"',
-                    'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
-                    'end': None,
-                    'tags': [],
-                    'description': 'i like ike #punk president, yas! 12:59',
-                },
-            ),
-            ('11:00 foo@bar #this#is#one#helluva#tag, foo bar', '2015-12-12 13:00', '', {
+            # Multiple Tags are identified by a clean leading delimiter character.
+            ('2015-12-12 13:00 foo@bar, #just walk away "#not a tag", blah', 'verify_start', {
                 'activity': 'foo',
                 'category': 'bar',
                 'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
                 'end': None,
-                'tags': ['this#is#one#helluva#tag'],
-                'description': 'foo bar',
+                'tags': ['just walk away "#not a tag"'],
+                'description': 'blah',
             }),
+            # Alternative tag delimiter; and quotes are just consumed as part of tag.
+            ('2015-12-12 13:00 foo@bar, #just walk away @"totes a tag", blah', 'verify_start', {
+                'activity': 'foo',
+                'category': 'bar',
+                'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
+                'end': None,
+                'tags': ['just walk away', '"totes a tag"'],
+                'description': 'blah',
+            }),
+            # Test '#' in description, elsewhere, after command, etc.
+            (
+                '2015-12-12 13:00 baz@bat", #tag1, #tag2 tags cannot come #too late, aha!'
+                    ' Time is also ignored at end: 12:59',
+                'verify_start',
+                {
+                    'activity': 'baz',
+                    'category': 'bat"',
+                    'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
+                    'end': None,
+                    'tags': ['tag1'],
+                    'description': '#tag2 tags cannot come #too late, aha! Time is also ignored at end: 12:59',
+                },
+            ),
         ],
     )
-    def test_start_add_new_fact(
+    def test_add_new_fact(
         self,
         controller_with_logging,
         mocker,
         raw_fact,
-        start,
-        end,
+        time_hint,
         expectation,
     ):
         """
-        Test that inpul validation and assignment of start/endtime works is done as expected.
+        Test that input validation and assignment of start/end time(s) works as expected.
 
         To test just this function -- and the parametrize, above -- try:
 
           workon dob
           cdproject
-          py.test --pdb -vv -k test_start_add_new_fact tests/
+          py.test --pdb -vv -k test_add_new_fact tests/
 
         """
         controller = controller_with_logging
         controller.facts.save = mocker.MagicMock()
 
-
-# 2018-06-08 11:56: Urmmmmm... I deprecated start_fact, or kinda did,
-# I used a question mark....
-#        create.start_fact(controller, raw_fact, start, end)
-        create.addfact(controller, raw_fact 'verify_both')
+        create.add_fact(controller, raw_fact, time_hint=time_hint, use_carousel=False)
         assert controller.facts.save.called
         args, kwargs = controller.facts.save.call_args
         fact = args[0]
@@ -199,14 +195,16 @@ class TestStart(object):
         if tagnames:
             tagnames.sort()
             expecting_tags = ['#{}'.format(name) for name in tagnames]
-            expecting_tags = ' {}'.format(' '.join(expecting_tags))
+            expecting_tags = '{}'.format(' '.join(expecting_tags))
         assert fact.tagnames() == expecting_tags
+        expect_description = expectation.get('description', None)
+        assert fact.description == expect_description
 
 
 class TestStop(object):
     """Unit test concerning the stop command."""
 
-    def test_stop_existing_tmp_fact(self, tmp_fact, controller_with_logging, mocker):
+    def test_stop_existing_ongoing_fact(self, ongoing_fact, controller_with_logging, mocker):
         """Make sure stoping an ongoing fact works as intended."""
         # 2018-05-05: (lb): How long have these tests been broken?
         #
@@ -219,10 +217,9 @@ class TestStop(object):
         #   py.test and mocking, so I can only hope I'm doing this
         #   correctly!)
         #
-        # Here's the original code:
+        # Here's the original code (w/ stop_current_fact renamed from stop_ongoing_fact):
         #
-# FIXME: stop_tmp_fact => stop_current_fact
-        #   controller_with_logging.facts.stop_tmp_fact = mocker.MagicMock()
+        #   controller_with_logging.facts.stop_current_fact = mocker.MagicMock()
         #
         # And here's what I changed to make this test succeed:
         mockfact = mocker.MagicMock()
@@ -231,43 +228,37 @@ class TestStop(object):
         mocktime = mocker.MagicMock(return_value="%Y-%m-%d %H:%M")
         mockfact.start.strftime = mocktime
         mockfact.end.strftime = mocktime
-# FIXME: stop_tmp_fact => stop_current_fact
-        controller_with_logging.facts.stop_tmp_fact = mocker.MagicMock(return_value=mockfact)
-
+        controller_with_logging.facts.stop_current_fact = mocker.MagicMock(return_value=mockfact)
         create.stop_fact(controller_with_logging)
-# FIXME: stop_tmp_fact => stop_current_fact
-        assert controller_with_logging.facts.stop_tmp_fact.called
+        assert controller_with_logging.facts.stop_current_fact.called
 
-    def test_stop_no_existing_tmp_fact(self, controller_with_logging, capsys):
+    def test_stop_no_existing_ongoing_fact(self, controller_with_logging, capsys):
         """Make sure that stop without actually an ongoing fact leads to an error."""
         controller = controller_with_logging
-        with pytest.raises(ClickException):
+        with pytest.raises(SystemExit):
             create.stop_fact(controller)
-            out, err = capsys.readouterr()
-            assert 'Unable to continue' in err
+            assert False  # Unreachable.
 
 
 class TestCancel(object):
     """Unit tests related to cancelation of an ongoing fact."""
 
-    def test_cancel_existing_tmp_fact(self, tmp_fact, controller_with_logging, mocker,
-            capsys):
+    def test_cancel_existing_ongoing_fact(
+        self, ongoing_fact, controller_with_logging, mocker, capsys,
+    ):
         """Test cancelation in case there is an ongoing fact."""
         controller = controller_with_logging
-# FIXME/2018-06-08: Renamed/Reworked: cancel_tmp_fact => cancel_current_fact
-        controller.facts.cancel_tmp_fact = mocker.MagicMock(return_value=None)
+        controller.facts.cancel_current_fact = mocker.MagicMock(return_value=ongoing_fact)
         create.cancel_fact(controller)
         out, err = capsys.readouterr()
-        assert controller.facts.cancel_tmp_fact.called
-        assert 'canceled' in out
+        assert controller.facts.cancel_current_fact.called
+        assert out.startswith('Cancelled: ')
 
-    def test_cancel_no_existing_tmp_fact(self, controller_with_logging, capsys):
+    def test_cancel_no_existing_ongoing_fact(self, controller_with_logging, capsys):
         """Test cancelation in case there is no actual ongoing fact."""
         with pytest.raises(ClickException):
-# FIXME/2018-06-08: Renamed/Reworked: cancel_tmp_fact => cancel_current_fact
             create.cancel_fact(controller_with_logging)
-            out, err = capsys.readouterr()
-            assert 'Nothing tracked right now' in err
+            assert False  # Unreachable.
 
 
 class TestExport(object):
@@ -277,64 +268,64 @@ class TestExport(object):
         """Make sure that passing an invalid format exits prematurely."""
         controller = controller_with_logging
         with pytest.raises(ClickException):
-            transcode.export_facts(controller, format, None, None)
+            transcode.export_facts(controller, format)
 
     def test_csv(self, controller, controller_with_logging, mocker):
         """Make sure that a valid format returns the apropiate writer class."""
         nark.reports.CSVWriter = mocker.MagicMock()
-        transcode.export_facts(controller, 'csv', None, None)
+        transcode.export_facts(controller, 'csv')
         assert nark.reports.CSVWriter.called
 
     def test_tsv(self, controller, controller_with_logging, mocker):
         """Make sure that a valid format returns the apropiate writer class."""
         nark.reports.TSVWriter = mocker.MagicMock()
-        transcode.export_facts(controller, 'tsv', None, None)
+        transcode.export_facts(controller, 'tsv')
         assert nark.reports.TSVWriter.called
 
     def test_ical(self, controller, controller_with_logging, mocker):
         """Make sure that a valid format returns the apropiate writer class."""
         nark.reports.ICALWriter = mocker.MagicMock()
-        transcode.export_facts(controller, 'ical', None, None)
+        transcode.export_facts(controller, 'ical')
         assert nark.reports.ICALWriter.called
 
     def test_xml(self, controller, controller_with_logging, mocker):
         """Make sure that passing 'xml' as format parameter returns the apropiate writer class."""
         nark.reports.XMLWriter = mocker.MagicMock()
-        transcode.export_facts(controller, 'xml', None, None)
+        transcode.export_facts(controller, 'xml')
         assert nark.reports.XMLWriter.called
 
-    def test_with_start(self, controller, controller_with_logging, tmpdir, mocker):
+    def test_with_since(self, controller, controller_with_logging, tmpdir, mocker):
         """Make sure that passing a end date is passed to the fact gathering method."""
         controller.facts.get_all = mocker.MagicMock()
         path = os.path.join(tmpdir.mkdir('report').strpath, 'report.csv')
         nark.reports.CSVWriter = mocker.MagicMock(
             return_value=nark.reports.CSVWriter(path)
         )
-        start = fauxfactory.gen_datetime()
+        since = fauxfactory.gen_datetime()
         # Get rid of fractions of a second.
-        start = truncate_to_whole_seconds(start)
-        transcode.export_facts(controller, 'csv', start.strftime('%Y-%m-%d %H:%M'), None)
+        since = truncate_to_whole_seconds(since)
+        transcode.export_facts(controller, 'csv', since=since.strftime('%Y-%m-%d %H:%M'))
         args, kwargs = controller.facts.get_all.call_args
-        assert kwargs['start'] == start
+        assert kwargs['since'] == since
 
-    def test_with_end(self, controller, controller_with_logging, tmpdir, mocker):
-        """Make sure that passing a end date is passed to the fact gathering method."""
+    def test_with_until(self, controller, controller_with_logging, tmpdir, mocker):
+        """Make sure that passing a until date is passed to the fact gathering method."""
         controller.facts.get_all = mocker.MagicMock()
         path = os.path.join(tmpdir.mkdir('report').strpath, 'report.csv')
         nark.reports.CSVWriter = mocker.MagicMock(
             return_value=nark.reports.CSVWriter(path)
         )
-        end = fauxfactory.gen_datetime()
-        end = truncate_to_whole_seconds(end)
-        transcode.export_facts(controller, 'csv', None, end.strftime('%Y-%m-%d %H:%M'))
+        until = fauxfactory.gen_datetime()
+        until = truncate_to_whole_seconds(until)
+        transcode.export_facts(controller, 'csv', until=until.strftime('%Y-%m-%d %H:%M'))
         args, kwargs = controller.facts.get_all.call_args
-        assert kwargs['end'] == end
+        assert kwargs['until'] == until
 
     def test_with_filename(self, controller, controller_with_logging, tmpdir, mocker):
         """Make sure that a valid format returns the apropiate writer class."""
         path = os.path.join(tmpdir.ensure_dir('export').strpath, 'export.csv')
         nark.reports.CSVWriter = mocker.MagicMock()
-        transcode.export_facts(controller, 'csv', None, None, filename=path)
+        transcode.export_facts(controller, 'csv', file_out=path)
         assert nark.reports.CSVWriter.called
 
 
@@ -354,67 +345,95 @@ class TestCategories(object):
 class TestCurrent(object):
     """Unittest for dealing with 'ongoing facts'."""
 
-#    def test_tmp_fact(self, controller, tmp_fact, controller_with_logging, capsys, fact, mocker):
-#        """Make sure the current fact is displayed if there is one."""
-#        controller = controller_with_logging
-## FIXME: (lb): get_tmp_fact is replaced with get_current_fact...
-#        controller.facts.get_tmp_fact = mocker.MagicMock(return_value=fact)
-#        cmds_list.fact.echo_ongoing_fact(controller)
-#        out, err = capsys.readouterr()
-#        assert controller.facts.get_tmp_fact
-#        assert str(fact) in out
-
-    def test_no_tmp_fact(self, controller_with_logging, capsys):
+    def test_no_ongoing_fact(self, controller_with_logging, capsys):
         """Make sure we display proper feedback if there is no current 'ongoing fact."""
         controller = controller_with_logging
-        with pytest.raises(ClickException):
+        with pytest.raises(SystemExit):
             cmds_list.fact.echo_ongoing_fact(controller)
-            out, err = capsys.readouterr()
-# FIXME: Use snapshot here.
-            assert 'There seems no be no activity beeing tracked right now' in err
+            assert False  # Unreachable.
 
 
 class TestActivities(object):
-    """Unittests for the ``activities`` command."""
+    """Unit tests for the ``activities`` command."""
 
-    def test_activities_no_category(self, controller, activity, mocker, capsys):
+    def test_list_activities_no_category(self, controller, activity, mocker, capsys):
         """Make sure command works if activities do not have a category associated."""
         activity.category = None
         controller.activities.get_all = mocker.MagicMock(
-            return_value=[activity])
-#        mocker.patch('dob.dob.tabulate')
-#        dob.tabulate = mocker.MagicMock(
-#            return_value='{}, {}'.format(activity.name, None))
-        mocker.patch('dob.ascii_table.tabulate')
-        ascii_table.tabulate = mocker.MagicMock(
-            return_value='{}, {}'.format(activity.name, None))
+            return_value=[activity]
+        )
+        ascii_table.tabulate.tabulate = mocker.MagicMock(
+            return_value='{}, {}'.format(activity.name, None)
+        )
         cmds_list.activity.list_activities(controller, table_type='tabulate')
         out, err = capsys.readouterr()
-        assert activity.name in out
-#        assert dob.tabulate.call_args[0] == [(activity.name, None)]
-        assert ascii_table.tabulate.call_args[0] == [(activity.name, None)]
+        assert out.startswith(activity.name)
+        assert ascii_table.tabulate.tabulate.call_args[0] == ([[activity.name, None]],)
 
-    def test_activities_with_category(self, controller, activity, mocker,
-            capsys):
+    def test_list_activities_with_category(
+        self, controller, activity, mocker, capsys,
+    ):
         """Make sure activity name and category are displayed if present."""
         controller.activities.get_all = mocker.MagicMock(
-            return_value=[activity])
+            return_value=[activity]
+        )
         cmds_list.activity.list_activities(controller, '')
         out, err = capsys.readouterr()
         assert activity.name in out
         assert activity.category.name in out
 
-    def test_activities_with_search_term(self, controller, activity, mocker,
-            capsys):
+    def test_list_activities_with_search_term(
+            self, controller, activity, mocker, capsys,
+        ):
         """Make sure the search term is passed on."""
         controller.activities.get_all = mocker.MagicMock(
-            return_value=[activity])
-        cmds_list.activity.list_activities(controller, 'foobar')
+            return_value=[activity]
+        )
+        cmds_list.activity.list_activities(
+            controller, filter_category=activity.category.name,
+        )
         out, err = capsys.readouterr()
         assert controller.activities.get_all.called
-        controller.activities.get_all.assert_called_with(search_term='foobar')
+        controller.activities.get_all.assert_called_with(
+            category=activity.category,
+        )
         assert activity.name in out
         assert activity.category.name in out
+
+    def test_list_activities_with_search_term(
+            self, controller, activity, mocker, capsys,
+        ):
+        """Make sure the search term is passed on."""
+        controller.activities.get_all = mocker.MagicMock(
+            return_value=[activity]
+        )
+
+        cmds_list.activity.list_activities(
+            controller, search_term=activity.category.name,
+        )
+        out, err = capsys.readouterr()
+        assert controller.activities.get_all.called
+        controller.activities.get_all.assert_called_with(
+            category=False, search_term=activity.category.name,
+        )
+        assert activity.name in out
+        assert activity.category.name in out
+
+    def test_list_activities_with_category_miss(
+            self, controller, activity, mocker, capsys,
+        ):
+        """Make sure the search term is passed on."""
+        category_miss = activity.category.name + '_test'
+        controller.activities.get_all = mocker.MagicMock(
+            return_value=[activity]
+        )
+        with pytest.raises(KeyError):
+            cmds_list.activity.list_activities(
+                controller, filter_category=category_miss,
+            )
+            assert False  # Unreachable.
+        out, err = capsys.readouterr()
+        assert not controller.activities.get_all.called
 
 
 class TestDetails(object):
@@ -422,11 +441,19 @@ class TestDetails(object):
 
     def test_details_general_data_is_shown(self, controller, capsys):
         """Make sure user recieves the desired output."""
-        details.app_details(controller)
+        controller.setup_tty_color(use_color=False)
+        details.echo_app_details(controller)
         out, err = capsys.readouterr()
-        strings = (__appname__, __version__, 'Configuration', 'Logfile', 'Reports')
-        for string in strings:
-            assert string in out
+        startswiths = (
+            'You are running {} version {}'.format(__appname__, __version__),
+            'Configuration file at: ',
+            'Plugins directory at: ',
+            'Logfile stored at: ',
+            'Reports exported to: ',
+            'Using sqlite on database: :memory:',
+        )
+        for idx, line in enumerate(out.splitlines()):
+            assert line.startswith(startswiths[idx])
 
     def test_details_sqlite(self, controller, appdirs, mocker, capsys):
         """Make sure database details for sqlite are shown properly."""
@@ -434,10 +461,11 @@ class TestDetails(object):
         engine, path = 'sqlite', appdirs.user_data_dir
         controller.config['db_engine'] = engine
         controller.config['db_path'] = path
-        details.app_details(controller)
+        details.echo_app_details(controller)
         out, err = capsys.readouterr()
         for item in (engine, path):
             assert item in out
+        assert out.splitlines()[-1] == 'Using {} on database: {}'.format(engine, path)
 
     def test_details_non_sqlite(self, controller, capsys, db_port, db_host, db_name,
             db_user, db_password, mocker):
@@ -454,7 +482,7 @@ class TestDetails(object):
         controller.config['db_user'] = db_user
         controller.config['db_password'] = db_password
         controller.config['db_port'] = db_port
-        details.app_details(controller)
+        details.echo_app_details(controller)
         out, err = capsys.readouterr()
         for item in ('postgres', db_host, db_name, db_user):
             assert item in out
@@ -470,9 +498,9 @@ class TestLicense(object):
         """Make sure the license text is actually displayed."""
         dob._license()
         out, err = capsys.readouterr()
-        assert "'dob' is free software" in out
-        assert "GNU General Public License" in out
-        assert "version 3" in out
+        #assert "'dob' is free software" in out
+        assert out.startswith("GNU GENERAL PUBLIC LICENSE")
+        assert "Version 3, 29 June 2007" in out
 
 
 class TestSetupLogging(object):
@@ -484,9 +512,15 @@ class TestSetupLogging(object):
         """
         controller.setup_logging()
         assert controller.lib_logger.level == (
-            controller.client_config['log_level'])
+            logging_helpers.resolve_log_level(
+                controller.config['lib_log_level']
+            )[0]
+        )
         assert controller.client_logger.level == (
-            controller.client_config['log_level'])
+            logging_helpers.resolve_log_level(
+                controller.client_config['cli_log_level']
+            )[0]
+        )
 
     def test_setup_logging_log_console_true(self, controller):
         """
@@ -496,15 +530,22 @@ class TestSetupLogging(object):
         controller.setup_logging()
         assert isinstance(controller.client_logger.handlers[0],
             logging.StreamHandler)
+        assert isinstance(controller.client_logger.handlers[1],
+            logging.FileHandler)
         assert isinstance(controller.lib_logger.handlers[0],
             logging.StreamHandler)
+        assert isinstance(controller.lib_logger.handlers[1],
+            logging.FileHandler)
+        assert len(controller.client_logger.handlers) == 2
+        assert len(controller.lib_logger.handlers) == 2
         assert controller.client_logger.handlers[0].formatter
 
     def test_setup_logging_no_logging(self, controller):
         """Make sure that if no logging enabled, our loggers don't have any handlers."""
         controller.setup_logging()
-        assert controller.lib_logger.handlers == []
-        assert controller.client_logger.handlers == []
+        # Default loggers are set up in ~/.cache/<app>/log/<app>.log
+        assert len(controller.lib_logger.handlers) == 1
+        assert len(controller.client_logger.handlers) == 1
 
     def test_setup_logging_log_file_true(self, controller, appdirs):
         """
@@ -528,46 +569,31 @@ class TestGetConfig(object):
         """
         Make sure *string loglevels* translates to their respective integers properly.
         """
-
-        backend, client = cmd_config.get_config(
+        backend, client = cmd_config.get_separate_configs(
             config_instance(log_level=log_level)
         )
-        assert client['log_level'] == 10
+        assert client['cli_log_level'] == 10
 
-    @pytest.mark.parametrize('log_level', ['foobar'])
-    def test_log_levels_invalid(self, log_level, config_instance):
+    @pytest.mark.parametrize('cli_log_level', ['foobar'])
+    def test_log_levels_invalid(self, cli_log_level, config_instance, capsys):
         """Test that invalid *string loglevels* raise ``ValueError``."""
-        with pytest.raises(ValueError):
-            backend, client = cmd_config.get_config(
-                config_instance(log_level=log_level)
+        with pytest.raises(SystemExit):
+            backend, client = cmd_config.get_separate_configs(
+                config_instance(cli_log_level=cli_log_level)
             )
-
-#    @pytest.mark.parametrize('day_start', ['05:00:00'])
-#    def test_day_start_valid(self, config_instance, day_start):
-#        """Test that ``day_start`` string translate to proper ``datetime.time`` instances."""
-#        backend, client = cmd_config.get_config(config_instance(
-#            day_start=day_start)
-#        )
-#        assert backend['day_start'] == datetime.datetime.strptime(
-#            '05:00:00', '%H:%M:%S').time()
-
-#    @pytest.mark.parametrize('day_start', ['foobar'])
-#    def test_day_start_invalid(self, config_instance, day_start):
-#        """Test that invalid ``day_start`` strings raises ``ValueError``."""
-#        with pytest.raises(ValueError):
-#            backend, client = cmd_config.get_config(
-#                config_instance(day_start=day_start)
-#            )
+        out, err = capsys.readouterr()
+        assert out == ''
+        assert err.startswith('Unrecognized log level')
 
     def test_invalid_store(self, config_instance):
         """Make sure that encountering an unsupportet store will raise an exception."""
         with pytest.raises(ValueError):
-            backend, client = cmd_config.get_config(config_instance(store='foobar'))
+            backend, client = cmd_config.get_separate_configs(config_instance(store='foobar'))
 
     def test_non_sqlite(self, config_instance):
         """Make sure that passing a store other than 'sqlalchemy' raises exception."""
         config_instance = config_instance(db_engine='postgres')
-        backend, client = cmd_config.get_config(config_instance)
+        backend, client = cmd_config.get_separate_configs(config_instance)
         assert backend['db_host'] == config_instance.get('Backend', 'db_host')
         assert backend['db_port'] == config_instance.get('Backend', 'db_port')
         assert backend['db_name'] == config_instance.get('Backend', 'db_name')
@@ -577,27 +603,34 @@ class TestGetConfig(object):
 
 class TestGetConfigInstance(object):
     def test_no_file_present(self, appdirs, mocker):
-##        mocker.patch('dob.dob._write_config_file')
-#        mocker.patch('dob.cmd_config.write_config_file')
-        mocker.patch('dob.cmd_config.fresh_config')
+        # In lieu of testing from completely vanilla account, ensure config file does
+        # not exist (which probably exists for your user at ~/.config/dob/dob.conf).
+        # NOTE: AppDirs is a module-scope object with immutable attributes, so we
+        # need to mock the entire object (i.e., cannot just patch attribute itself).
+        app_dirs_mock = mock.Mock()
+        app_dirs_mock.configure_mock(user_config_dir='/XXX')
+        # Mock other attributes so that we do not have to mock other fcns, e.g.,
+        #   mocker.patch('dob.cmd_config.fresh_config')
+        # i.e., go for more coverage!
+        app_dirs_mock.configure_mock(user_data_dir='/XXX')
+        mocker.patch.object(cmd_config, 'AppDirs', app_dirs_mock)
+        config, preexists = cmd_config.get_config_instance()
+        assert len(list(config.items())) > 0
+        assert preexists is False
 
-        cmd_config.get_config_instance()
-#        assert cmd_config.write_config_file.called
-        assert cmd_config.fresh_config.called
-
-    def test_file_present(self, config_instance, config_file, mocker):
+    def test_file_present(self, config_instance):
         """Make sure we try parsing a found config file."""
-        result = cmd_config.get_config_instance()
-        assert result.get('Backend', 'store') == config_instance().get('Backend', 'store')
+        config, preexists = cmd_config.get_config_instance()
+        # I.e., 'sqlalchemy' == 'sqlalchemy'
+        assert config.get('Backend', 'store') == config_instance().get('Backend', 'store')
+        assert isinstance(config_instance(), type(config))
+        assert config_instance() is not config
 
     def test_get_config_path(self, appdirs, mocker):
         """Make sure the config target path is constructed to our expectations."""
-##        mocker.patch('dob.dob._write_config_file')
-#        mocker.patch('dob.cmd_config.write_config_file')
         mocker.patch('dob.cmd_config.fresh_config')
-        cmd_config.get_config_instance()
+        config, preexists = cmd_config.get_config_instance()
         expectation = os.path.join(appdirs.user_config_dir, 'dob.conf')
-#        assert cmd_config.write_config_file.called_with(expectation)
         assert cmd_config.fresh_config.called_with(expectation)
 
 
@@ -615,169 +648,140 @@ class TestGenerateTable(object):
 
 
 class TestWriteConfigFile(object):
-    def test_file_is_written(self, filepath):
+    def test_file_is_written(self, filepath, config_instance):
         """Make sure the file is written. Content is not checked, this is ConfigParsers job."""
-#        cmd_config.write_config_file(filepath)
-        cmd_config.fresh_config(filepath)
+        cmd_config.store_config(config_instance(), filepath)
         assert os.path.lexists(filepath)
 
-    def test_return_config_instance(self, filepath):
-        """Make sure we return a ``SafeConfigParser`` instance."""
-#        result = cmd_config.write_config_file(filepath)
-        result = cmd_config.fresh_config(filepath)
-        assert isinstance(result, SafeConfigParser)
-
-    def test_non_existing_path(self, tmpdir, filename):
-        """Make sure that the path-parents are created ifnot present."""
-        filepath = os.path.join(tmpdir.strpath, 'foobar')
+    def test_non_existing_path(self, tmpdir, filename, config_instance):
+        """Make sure that the path-parents are created if not present."""
+        filepath = os.path.join(tmpdir.strpath, filename)
         assert os.path.lexists(filepath) is False
-#        cmd_config.write_config_file(filepath)
-        cmd_config.fresh_config(filepath)
+        cmd_config.store_config(config_instance(), filepath)
         assert os.path.lexists(filepath)
 
 
 class TestDobAppDirs(object):
-    """Make sure that our custom AppDirs works as intended."""
+    """AppDirs tests."""
 
-    def test_user_data_dir_returns_directoy(self, tmpdir, mocker):
+    def _test_app_dir_returns_directoy(self, app_dirname, tmpdir):
         """Make sure method returns directory."""
         path = tmpdir.strpath
-#        mocker.patch('dob.dob.appdirs.user_data_dir', return_value=path)
-#        appdir = dob.DobAppDirs('dob')
-        mocker.patch('dob.cmd_config.appdirs.user_data_dir', return_value=path)
-        appdir = cmd_config.DobAppDirs('dob')
-        assert appdir.user_data_dir == path
+        with mock.patch(
+            'appdirs.{}'.format(app_dirname),
+            new_callable=mock.PropertyMock,
+        ) as mock_app_dir:
+            mock_app_dir.return_value = path
+            appdir = cmd_config.DobAppDirs('dob')
+            assert getattr(appdir, app_dirname) == path
+            mock_app_dir.assert_called_once()
 
-    @pytest.mark.parametrize('create', [True, False])
-    def test_user_data_dir_creates_file(self, tmpdir, mocker, create, faker):
+    def _test_app_dir_creates_file(self, app_dirname, create, tmpdir, faker):
         """Make sure that path creation depends on ``create`` attribute."""
         path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
-#        mocker.patch('dob.dob.appdirs.user_data_dir', return_value=path)
-#        appdir = dob.DobAppDirs('dob')
-        mocker.patch('dob.cmd_config.appdirs.user_data_dir', return_value=path)
-        appdir = cmd_config.DobAppDirs('dob')
-        appdir.create = create
-        assert os.path.exists(appdir.user_data_dir) is create
+        # We want NarkAppDirs's call to appdirs.XXX_dir to return our /tmp path.
+        # (lb): Note that mocker (from pytest-mock) merely takes care of teardown,
+        #   which is also accomplished with your simply use with-mock, as follows.
+        with mock.patch(
+            'appdirs.{}'.format(app_dirname),
+            new_callable=mock.PropertyMock,
+            return_value=path,
+        ) as mock_app_dir:
+            appdir = cmd_config.DobAppDirs('dob')
+            appdir.create = create
+            # DEVS: Weird: If this assert fires and you're running `py.test --pdb`, entering
+            # e.g., `appdir.user_data_dir` at the pdb prompt shows the non-mocked value!
+            # But if you capture the value first and print it, it's correct!
+            # So in code you'd have:
+            #   show_actual = appdir.user_data_dir
+            # And in pdb you'd type:
+            #   (pdb) show_actual
+            #   '/tmp/pytest-of-user/pytest-1142/test_user_data_dir_creates_fil0/relationship/'
+            #   (pdb) appdir.user_data_dir
+            #   '/home/user/.local/share/dob'
+            assert os.path.exists(getattr(appdir, app_dirname)) is create
+            mock_app_dir.assert_called_once()
 
-    def test_site_data_dir_returns_directoy(self, tmpdir, mocker):
+    # ***
+
+    def test_user_data_dir_returns_directoy(self, tmpdir):
         """Make sure method returns directory."""
-        path = tmpdir.strpath
-#        mocker.patch('dob.dob.appdirs.site_data_dir', return_value=path)
-#        appdir = dob.DobAppDirs('dob')
-        mocker.patch('dob.cmd_config.appdirs.site_data_dir', return_value=path)
-        appdir = cmd_config.DobAppDirs('dob')
-        assert appdir.site_data_dir == path
+        self._test_app_dir_returns_directoy('user_data_dir', tmpdir)
 
     @pytest.mark.parametrize('create', [True, False])
-    def test_site_data_dir_creates_file(self, tmpdir, mocker, create, faker):
+    def test_user_data_dir_creates_file(self, tmpdir, faker, create):
         """Make sure that path creation depends on ``create`` attribute."""
-        path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
-#        mocker.patch('dob.dob.appdirs.site_data_dir', return_value=path)
-#        appdir = dob.DobAppDirs('dob')
-        mocker.patch('dob.cmd_config.appdirs.site_data_dir', return_value=path)
-        appdir = cmd_config.DobAppDirs('dob')
-        appdir.create = create
-        assert os.path.exists(appdir.site_data_dir) is create
+        self._test_app_dir_creates_file('user_data_dir', create, tmpdir, faker)
 
-    def test_user_config_dir_returns_directoy(self, tmpdir, mocker):
+    # ---
+
+    def test_site_data_dir_returns_directoy(self, tmpdir):
         """Make sure method returns directory."""
-        path = tmpdir.strpath
-#        mocker.patch('dob.dob.appdirs.user_config_dir', return_value=path)
-#        appdir = dob.DobAppDirs('dob')
-        mocker.patch('dob.cmd_config.appdirs.user_config_dir', return_value=path)
-        appdir = cmd_config.DobAppDirs('dob')
-        assert appdir.user_config_dir == path
+        self._test_app_dir_returns_directoy('site_data_dir', tmpdir)
 
     @pytest.mark.parametrize('create', [True, False])
-    def test_user_config_dir_creates_file(self, tmpdir, mocker, create, faker):
+    def test_site_data_dir_creates_file(self, tmpdir, faker, create):
         """Make sure that path creation depends on ``create`` attribute."""
-        path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
-#        mocker.patch('dob.dob.appdirs.user_config_dir', return_value=path)
-#        appdir = dob.DobAppDirs('dob')
-        mocker.patch('dob.cmd_config.appdirs.user_config_dir', return_value=path)
-        appdir = cmd_config.DobAppDirs('dob')
-        appdir.create = create
-        assert os.path.exists(appdir.user_config_dir) is create
+        self._test_app_dir_creates_file('site_data_dir', create, tmpdir, faker)
 
-    def test_site_config_dir_returns_directoy(self, tmpdir, mocker):
+    # ---
+
+    def test_user_config_dir_returns_directoy(self, tmpdir):
         """Make sure method returns directory."""
-        path = tmpdir.strpath
-#        mocker.patch('dob.dob.appdirs.site_config_dir', return_value=path)
-#        appdir = dob.DobAppDirs('dob')
-        mocker.patch('dob.cmd_config.appdirs.site_config_dir', return_value=path)
-        appdir = cmd_config.DobAppDirs('dob')
-        assert appdir.site_config_dir == path
+        self._test_app_dir_returns_directoy('user_config_dir', tmpdir)
 
     @pytest.mark.parametrize('create', [True, False])
-    def test_site_config_dir_creates_file(self, tmpdir, mocker, create, faker):
+    def test_user_config_dir_creates_file(self, tmpdir, faker, create):
         """Make sure that path creation depends on ``create`` attribute."""
-        path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
-#        mocker.patch('dob.dob.appdirs.site_config_dir', return_value=path)
-#        appdir = dob.DobAppDirs('dob')
-        mocker.patch('dob.cmd_config.appdirs.site_config_dir', return_value=path)
-        appdir = cmd_config.DobAppDirs('dob')
-        appdir.create = create
-        assert os.path.exists(appdir.site_config_dir) is create
+        self._test_app_dir_creates_file('user_config_dir', create, tmpdir, faker)
 
-    def test_user_cache_dir_returns_directoy(self, tmpdir, mocker):
+    # ---
+
+    def test_site_config_dir_returns_directoy(self, tmpdir):
         """Make sure method returns directory."""
-        path = tmpdir.strpath
-#        mocker.patch('dob.dob.appdirs.user_cache_dir', return_value=path)
-#        appdir = dob.DobAppDirs('dob')
-        mocker.patch('dob.cmd_config.appdirs.user_cache_dir', return_value=path)
-        appdir = cmd_config.DobAppDirs('dob')
-        assert appdir.user_cache_dir == path
+        self._test_app_dir_returns_directoy('site_config_dir', tmpdir)
 
     @pytest.mark.parametrize('create', [True, False])
-    def test_user_cache_dir_creates_file(self, tmpdir, mocker, create, faker):
+    def test_site_config_dir_creates_file(self, tmpdir, faker, create):
         """Make sure that path creation depends on ``create`` attribute."""
-        path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
-#        mocker.patch('dob.dob.appdirs.user_cache_dir', return_value=path)
-#        appdir = dob.DobAppDirs('dob')
-        mocker.patch('dob.cmd_config.appdirs.user_cache_dir', return_value=path)
-        appdir = cmd_config.DobAppDirs('dob')
-        appdir.create = create
-        assert os.path.exists(appdir.user_cache_dir) is create
+        self._test_app_dir_creates_file('site_config_dir', create, tmpdir, faker)
 
-    def test_user_log_dir_returns_directoy(self, tmpdir, mocker):
+    # ---
+
+    def test_user_cache_dir_returns_directoy(self, tmpdir):
         """Make sure method returns directory."""
-        path = tmpdir.strpath
-#        mocker.patch('dob.dob.appdirs.user_log_dir', return_value=path)
-#        appdir = dob.DobAppDirs('dob')
-        mocker.patch('dob.cmd_config.appdirs.user_log_dir', return_value=path)
-        appdir = cmd_config.DobAppDirs('dob')
-        assert appdir.user_log_dir == path
+        self._test_app_dir_returns_directoy('user_cache_dir', tmpdir)
 
     @pytest.mark.parametrize('create', [True, False])
-    def test_user_log_dir_creates_file(self, tmpdir, mocker, create, faker):
+    def test_user_cache_dir_creates_file(self, tmpdir, faker, create):
         """Make sure that path creation depends on ``create`` attribute."""
-        path = os.path.join(tmpdir.strpath, '{}/'.format(faker.word()))
-#        mocker.patch('dob.dob.appdirs.user_log_dir', return_value=path)
-#        appdir = dob.DobAppDirs('dob')
-        mocker.patch('dob.cmd_config.appdirs.user_log_dir', return_value=path)
-        appdir = cmd_config.DobAppDirs('dob')
-        appdir.create = create
-        assert os.path.exists(appdir.user_log_dir) is create
+        self._test_app_dir_creates_file('user_cache_dir', create, tmpdir, faker)
+
+    # ---
+
+    def test_user_log_dir_returns_directoy(self, tmpdir):
+        """Make sure method returns directory."""
+        self._test_app_dir_returns_directoy('user_log_dir', tmpdir)
+
+    @pytest.mark.parametrize('create', [True, False])
+    def test_user_log_dir_creates_file(self, tmpdir, faker, create):
+        """Make sure that path creation depends on ``create`` attribute."""
+        self._test_app_dir_creates_file('user_log_dir', create, tmpdir, faker)
 
 
 class TestShowGreeting(object):
     """Make shure our greeting function behaves as expected."""
 
-    def test_shows_welcome(self, capsys):
-        """Make sure we welcome our users properly."""
-        dob._show_greeting()
-        out, err = capsys.readouterr()
-        assert "Welcome to 'dob'" in out
-
     def test_shows_copyright(self, capsys):
         """Make sure we show basic copyright information."""
-        dob._show_greeting()
+        dob.echo_copyright()
         out, err = capsys.readouterr()
         assert "Copyright" in out
 
     def test_shows_license(self, capsys):
         """Make sure we display a brief reference to the license."""
-        dob._show_greeting()
+        dob.echo_license()
         out, err = capsys.readouterr()
-        assert "GPL3" in out
-        assert "'license' command" in out
+        assert 'GNU GENERAL PUBLIC LICENSE' in out
+        assert 'Version 3' in out
+

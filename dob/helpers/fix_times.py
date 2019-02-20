@@ -830,16 +830,6 @@ def insert_forcefully(controller, fact, squash_sep=''):
         conflicts = [conflict] if conflict else []
         return conflicts
 
-    # MAYBE/SIMPLIFY/2019-01-22: Merge this code into must_complete_times?
-    #   FIXME: Redundant (see must_complete_times). Can probably remove this?
-    #          Or consolidate with must_complete_times...
-    #
-    # FIXME/2018-08-23 00:50: Is this comment even valid anymore?
-    #    # FIXME/2018-05-12: (lb): insert_forcefully does not respect tmp_fact!
-    #    #   if 'dob-to', and tmp fact, then start now, and end tmp_fact.
-    #    #   if 'dob-from', and tmp fact, then either close tmp at now,
-    #    #     or at from time, or complain (add to conflicts) if overlapped.
-
     def set_start_per_antecedent(facts, fact):
         assert fact.start is None
 
