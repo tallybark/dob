@@ -2,18 +2,5 @@
 
 -r ./docs.pip
 -r ./test.pip
-
-bumpversion==0.5.3
-# FIXME/2018-06-13: (lb): I think I need to use explicit versions in
-#   requirements file dependencies, right? In any case, this still works:
-flake8
-# FIXME/2018-06-13: (lb): Disable ipython, which requires PPT v1, and blocks v2.0.0.
-#   Als, I'm not sure if the project actually uses ipython. I'm guessing the original
-#   author uses ipython, and its inclusion here is just a convenience for them.
-#   Also: I tried ipython==6.4.0, but that still requires PPT v1.
-# Probably not needed:
-#   ipython==4.2.0
-twine
-watchdog==0.8.3
-wheel==0.29.0
+-r ./release.pip
 
