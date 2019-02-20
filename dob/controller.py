@@ -309,6 +309,8 @@ class Controller(NarkControl):
         """Setup logging for the lib_logger as well as client specific logging."""
         self.client_logger = logging.getLogger('dob')
         loggers = self.get_loggers()
+        for logger in loggers:
+            logger.handlers = []
         # Clear existing Handlers, and set the level.
         # MAYBE: Allow user to specify different levels for different loggers.
         cli_log_level_name = self.client_config['cli_log_level']

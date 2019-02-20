@@ -716,14 +716,14 @@ def prompt_and_save(
         # before app exit can anecdotally avoid issue. And by "anecdotal" I mean
         # not necessarily guaranteed, so not a proper solution (and not even a
         # proper "kludge" by more stringent standards)).
-        carousel.whoa_nellie()
+        carousel and carousel.whoa_nellie()
         return ready_facts
 
     # ***
 
     def prompt_all(backup_f):
         if not use_carousel:
-            return True
+            return (edit_facts or []) + (orig_facts or []), None
 
         backup_callback = write_facts_file(backup_f, rule, dry)
 
