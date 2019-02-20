@@ -201,7 +201,7 @@ setup(
     packages=['dob', ],
     package_dir={'dob': 'dob'},
     install_requires=requirements,
-    license="GPL3",
+    license='GPLv3',
     zip_safe=False,
     keywords=cfg['__keywords__'],
     classifiers=[
