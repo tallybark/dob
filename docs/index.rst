@@ -1,28 +1,16 @@
-.. dob documentation master file, created by
-   sphinx-quickstart on Tue Jul  9 22:26:36 2013.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Welcome to dob, documented!
-===========================
-
-Contents:
-
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
+   :hidden:
 
-   readme
    installation
    usage
-   API reference <modules>
-   contributing
-   authors
-   history
+   concepts
 
-Indices and tables
-==================
+   API Reference <modules>
+   Help Us Improve <contributing>
+   Code of Conduct <code-of-conduct>
+   Developer Credits <authors>
+   Project History <history>
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. include:: ../README.rst
 
