@@ -39,9 +39,7 @@ from gettext import gettext as _  # noqa: F401
 from io import open
 
 try:
-    # See below: We could instead use find_packages, but instead hardcode,
-    #   from setuptools import setup, find_packages
-    from setuptools import setup
+    from setuptools import setup, find_packages
 except ImportError:
     from distutils.core import setup
 
@@ -197,9 +195,9 @@ setup(
     description=cfg['__briefly__'],
     long_description=long_description,
     long_description_content_type="text/x-rst",
-    # Alternatively, ask setuptools to figure out the package name(s):
-    #   packages=find_packages(),
-    packages=['dob', ],
+    # Ask setuptools to figure out package name(s). It'll include subdirs, e.g.,
+    #   ['dob', 'tests', 'dob.prompters', 'dob.styling', 'dob.cmds_list', ...]
+    packages=find_packages(),
     package_dir={'dob': 'dob'},
     install_requires=requirements,
     license='GPLv3',
