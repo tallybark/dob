@@ -26,7 +26,7 @@ import logging
 import os
 import sys
 
-from nark.control import HamsterControl
+from nark.control import NarkControl
 from nark.helpers import logging as logging_helpers
 from nark.helpers.colored import disable_colors, enable_colors
 
@@ -47,10 +47,10 @@ __all__ = [
 
 
 # ***
-# *** [CONTROLLER] HamsterControl Controller.
+# *** [CONTROLLER] NarkControl Controller.
 # ***
 
-class Controller(HamsterControl):
+class Controller(NarkControl):
     """
     A custom controller that adds config handling on top of its regular functionality.
     """
