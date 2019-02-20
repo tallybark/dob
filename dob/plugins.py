@@ -135,7 +135,7 @@ def install_plugin(package_module_path, package_plugin_name):
 
         https://github.com/hotoffthehamster/dob-plugin-example
 
-    and search PyPI for matching "dob-plugin-*" projects.
+    and search PyPI for matching "dob-plugin-\*" projects.
     """
     def _install_plugin():
         src_plugin = must_src_plugin_path()
