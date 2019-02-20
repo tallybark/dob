@@ -61,7 +61,7 @@ __keywords__ = ' '.join([
     'hamster',
     'fact',
 ])
-__BigName__ = 'Hamster Dobber'
+__BigName__ = 'dob'
 __libname__ = 'nark'
 __arg0name__ = os.path.basename(sys.argv[0])
 
