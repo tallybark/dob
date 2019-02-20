@@ -96,8 +96,8 @@ clean-test:
 
 develop:
 	pip install -U pip setuptools wheel
-	pip install --process-dependency-links -U -e .
 	pip install -U -r requirements/dev.pip
+	pip install -U -e .
 
 lint:
 	flake8 setup.py dob/ tests/
