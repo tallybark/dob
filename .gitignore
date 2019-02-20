@@ -1,63 +1,43 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-env/
+# Building/Packaging/Distributing.
 build/
-develop-eggs/
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
 *.egg-info/
-.installed.cfg
-*.egg
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+# Byte-compiled/Optimized Python and Library/DLL files.
+*.py[cod]
+__pycache__
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test files / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*,cover
-.hypothesis/
+# Testing and CI tasks.
 .pytest_cache/
+.tox
 
-# Translations
-*.mo
-*.pot
+# `make coverage-html` output
+.coverage
+htmlcov/
 
-# Django stuff:
-*.log
+# pytest-cov / coverage / https://codecov.io
+coverage.xml
 
-# Sphinx documentation
-docs/_build/
+# Sphinx
+docs/_build
+# After `make docs`:
+docs/modules.rst
 
-# PyBuilder
-target/
+
+# FIXME: CLEANUP:
+docs/dob.rst
+
+
+#docs/dob.backends.rst
+#docs/dob.backends.sqlalchemy.rst
+#docs/dob.helpers.rst
+# `make docs` Sphinx autodocs-generated.
+#docs/dob.backends.sqlalchemy.managers.rst
+#docs/dob.helpers.dev.rst
+#docs/dob.items.rst
+#docs/dob.managers.rst
+
+
 
 # In lieu of a personalizable, secondary Grep/Silver Searcher/RipGrep ignore,
 # like .gitignore's .git/info/exclude, the repo contains an .ignore.example.
@@ -65,4 +45,7 @@ target/
 
 # ‘quickfix’ make task for Vim development.
 .make.out
+
+# Translations
+*.mo
 
