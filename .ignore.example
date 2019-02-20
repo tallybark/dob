@@ -1,11 +1,25 @@
 # USAGE: `/bin/cp .ignore.example .ignore` and personalize.
-.coverage
 .git/
+
+dob*.egg-info/
+
 .pytest_cache/
 .tox/
-docs/_build
-dob*.egg-info/
+
+# `make coverage` generated file
+.coverage
+
+# `make coverage-html`
 htmlcov/
+
+# make dist
+build/
+dist/
+
+# make docs
+docs/_build
+
+# front end docs: man pages, and localized strings
 man/dob.1
 messages.pot
 
