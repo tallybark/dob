@@ -22,9 +22,9 @@ import click
 from future.utils import python_2_unicode_compatible
 from six import text_type
 
-from ..helpers.colored import attr, fg
-from ..helpers.objects import resolve_attr_or_method
-from ..helpers.strings import format_value_truncate
+from nark.helpers.colored import attr, fg
+from nark.helpers.objects import resolve_attr_or_method
+from nark.helpers.strings import format_value_truncate
 
 __all__ = (
     'FactsDiff',
