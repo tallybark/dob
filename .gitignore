@@ -18,26 +18,17 @@ htmlcov/
 # pytest-cov / coverage / https://codecov.io
 coverage.xml
 
-# Sphinx
+# Created by Sphinx on `make docs`:
 docs/_build
-# After `make docs`:
 docs/modules.rst
-
-
-# FIXME: CLEANUP:
 docs/dob.rst
-
-
-#docs/dob.backends.rst
-#docs/dob.backends.sqlalchemy.rst
-#docs/dob.helpers.rst
 # `make docs` Sphinx autodocs-generated.
-#docs/dob.backends.sqlalchemy.managers.rst
-#docs/dob.helpers.dev.rst
-#docs/dob.items.rst
-#docs/dob.managers.rst
-
-
+docs/dob.cmds_list.rst
+docs/dob.cmds_usage.rst
+docs/dob.helpers.rst
+docs/dob.prompters.rst
+docs/dob.styling.rst
+docs/dob.traverser.rst
 
 # In lieu of a personalizable, secondary Grep/Silver Searcher/RipGrep ignore,
 # like .gitignore's .git/info/exclude, the repo contains an .ignore.example.
