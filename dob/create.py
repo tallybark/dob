@@ -93,15 +93,15 @@ def add_fact(
             See elsewhere for the factoid format.
 
         time_hint (text_type, optional): One of:
-            'verify_none': Do not expect to find any time encoded in factoid.
-            'verify_both': Expect to find both start and end times.
-            'verify_start': Expect to find just one time, which is the start.
-            'verify_end': Expect to find just one time, which is the end.
-            'verify_then': Optional time is new start; and either extend
-                            ongoing fact to new start, or back-fill interval gap.
-            'verify_still': Optional time is new start; copy prev meta to new Fact;
-                            either extend ongoing fact, or back-fill interval gap.
-            'verify_after': No time spec. Start new Fact at time of previous end.
+            | 'verify_none': Do not expect to find any time encoded in factoid.
+            | 'verify_both': Expect to find both start and end times.
+            | 'verify_start': Expect to find just one time, which is the start.
+            | 'verify_end': Expect to find just one time, which is the end.
+            | 'verify_then': Optional time is new start; and either extend
+            ongoing fact to new start, or back-fill interval gap.
+            | 'verify_still': Optional time is new start; copy prev meta to new Fact;
+            either extend ongoing fact, or back-fill interval gap.
+            | 'verify_after': No time spec. Start new Fact at time of previous end.
 
         yes (bool, optional): If True, update other Facts changed by the new
             fact being added (affects other Facts' start/end/deleted attrs).
