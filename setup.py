@@ -90,8 +90,8 @@ requirements = [
     # Humanfriendly is one of the many table formatter choices.
     #  https://github.com/xolox/python-humanfriendly
     'humanfriendly',
-    # Human Friendly timedelta formatter, e.g., "1 day, 4 hours, 4 mins."
-    'human-friendly_pedantic-timedelta',
+    # Elapsed timedelta formatter, e.g., "1.25 days".
+    'human-friendly_pedantic-timedelta >= 0.0.6',
     # https://github.com/mnmelo/lazy_import
     'lazy_import',
     # The heart of Hamster. (Ye olde `hamster-lib`).
