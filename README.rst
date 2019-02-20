@@ -43,6 +43,15 @@ Install with |pip|_::
 For more options, read the
 `installation guide <https://dob.readthedocs.io/en/latest/installation.html>`__.
 
+.. NOTE:: Please be aware that |dob|_ is currently *alpha* software.
+
+          The application works well, but it has a few minor issues
+          that must be fixed before it can be truly released. And it
+          wouldn't hurt to write a few more tests and expand coverage.
+
+          In lieu of committing to a date that this software will be
+          out of alpha, let's just say, hopefully this year!
+
 =====
 Ethos
 =====
