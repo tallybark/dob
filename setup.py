@@ -196,6 +196,7 @@ setup(
     url=cfg['__projurl__'],
     description=cfg['__briefly__'],
     long_description=long_description,
+    long_description_content_type="text/x-rst",
     # Alternatively, ask setuptools to figure out the package name(s):
     #   packages=find_packages(),
     packages=['dob', ],
