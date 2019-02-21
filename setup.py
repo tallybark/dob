@@ -92,7 +92,8 @@ requirements = [
     # The heart of Hamster. (Ye olde `hamster-lib`).
     'nark',
     # Amazeballs prompt library.
-    'prompt-toolkit >= 2.0.0',
+    # FIXME/2019-02-21: Submit PR. Until then, whose fork?
+    'prompt-toolkit-dob >= 2.0.9',
     # For the Carousel Fact description lexer.
     #  http://pygments.org/
     'pygments',
