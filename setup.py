@@ -52,16 +52,7 @@ requirements = [
     'appdirs',
     # (lb): Click may be the best optparser of any language I've used.
     #  https://github.com/pallets/click
-    # FIXME: (lb): Click has not been PyPI'ed since January, 2017,
-    #        yet there's been a ton of activity since!
-    #        What I really want is the 'hidden' option, because
-    #        there's a built-in `--version` option, and then I
-    #        added the `-v` option, and I didn't want to pollute
-    #        the help with 2 mostly redundant version option lines.
-    #        So I forked Click, and published bleeding edge code!
-    #        Now `dob` truly is Alpha software!!
-    #  'Click',
-    'click--hotoffthehamster',
+    'click >= 7.0',
     # Indispensable aliases support for Click.
     #  Stolen from: https://github.com/click-contrib/click-aliases
     #  Released at: https://github.com/hotoffthehamster/click-alias
