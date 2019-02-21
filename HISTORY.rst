@@ -10,7 +10,7 @@ History
 
 .. :changelog:
 
-3.0.0a30 (2019-02-19)
+3.0.0a31 (2019-02-21)
 =====================
 
 - Hamster Renascence: Total Metempsychosis.
