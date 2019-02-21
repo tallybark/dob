@@ -102,10 +102,28 @@ develop:
 lint:
 	flake8 setup.py dob/ tests/
 
-test: test-local quickfix
+test:
+	@echo "Use the PYTEST_ADDOPTS environment variable to add extra command line options."
+	py.test $(TEST_ARGS) tests/
+
+test-debug: test-local quickfix
 
 test-local:
-	@echo "Use the PYTEST_ADDOPTS environment variable to add extra command line options."
+	# (lb) The pipe to tee, `| tee`, masks the return code from py.test. I.e., on its own,
+	# `py.test | tee` will always return true (0), regardless of py.test's exit code. As
+	# such, don't run this task from Travis CI. Or, if you do, change shells and set pipefail.
+	# E.g., at the top of the file, include:
+	#     SHELL = /bin/bash -o pipefail
+	# And then if any command along the pipeline fails, the whole command fails.
+	# Note: Using `set -o` or testing PIPESTATUS did not succeed for me, e.g.,
+	#     SHELL = /bin/bash
+	#     test-local:
+	#       # Tried this; didn't work:
+	#       set -o pipefail
+	#       py.test | tee
+	#       # Tried this; didn't work:
+	#       py.test | tee; test ${PIPESTATUS[0]} = 0
+	#       # nor $${PIPESTATUS[0]}, $(...), or $$(...).
 	py.test $(TEST_ARGS) tests/ | tee .make.out
 
 test-all:
