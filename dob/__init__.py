@@ -59,7 +59,8 @@ def __resolve_vers__():
             # This is similar to a developer running, e.g.,
             #   python setup.py --version
             return setuptools_scm.get_version(root=pkg_dirname)
-    except ModuleNotFoundError:
+    except ImportError:
+        # ModuleNotFoundError added py3.6. Until then, ImportError.
         from pkg_resources import get_distribution, DistributionNotFound
         try:
             return get_distribution(__package_name__).version
