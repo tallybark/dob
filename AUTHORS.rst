@@ -75,9 +75,10 @@ Development Lead
 Patch and Pull Request Contributors
 -----------------------------------
 
-* `Stefan Mertl <https://github.com/scientificsteve>`_
-* `Martin Owens <https://github.com/doctormo>`_
+* `Felix Schwarz <felix.schwarz@oss.schwarz.eu>`_
 * `Jan Tojnar <https://github.com/jtojnar>`_
+* `Martin Owens <https://github.com/doctormo>`_
+* `Stefan Mertl <https://github.com/scientificsteve>`_
 
 Legacy Hamster (circa 2007 to 2016)
 ===================================
