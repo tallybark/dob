@@ -34,9 +34,9 @@ include pyproject.toml
 include setup.cfg
 include setup.py
 
-recursive-include requirements *.pip
+graft requirements
 
-recursive-include tests *
+graft tests
 
 # NOTE: While we do not have to explicitly exclude files (they will not be
 # packaged regardless), doing so means we do not have to add the filename
