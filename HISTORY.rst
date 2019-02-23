@@ -10,10 +10,21 @@ History
 
 .. :changelog:
 
-3.0.0a32 (2019-02-22)
+3.0.0a33 (2019-02-24)
 =====================
 
-- Hamster Renascence: Total Metempsychosis.
+* Hamster Renascence: Total Metempsychosis.
+* New ``dob edit`` command, a colorful, interactive, terminal-based editor,
+  i.e., Carousel Fact editor (though not *quite* a carousel, it doesn't wrap
+  from beginning back to end, more of a conveyor belt, but that doesn't have
+  quite the same image as a photo slideshow carousel).
+* Sped up load time for quicker factoid entering #profiling
+  (but who cares now that ``dob edit`` ).
+* Learn dob quickly with the new ``dob demo`` feature.
+* Modernized packaging infrastructure. Moved metadata to ``setup.cfg`` and
+  dumped ``bumpversion`` for git-tags-aware ``setuptools_scm`` versioning.
+* Setup HotOffThe Hamster CI accounts on Codecov, Travis CI, and ReadTheDocs.
+* Attached Code of Conduct to Developer Contract.
 
 3.0.0.beta.1 (2018-06-09)
 =========================
