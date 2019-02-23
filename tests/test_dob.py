@@ -212,7 +212,12 @@ class TestAddFact(object):
 class TestStop(object):
     """Unit test concerning the stop command."""
 
-    def test_stop_existing_ongoing_fact(self, ongoing_fact, controller_with_logging, mocker):
+    def test_stop_existing_ongoing_fact(
+        self,
+        ongoing_fact,
+        controller_with_logging,
+        mocker,
+    ):
         """Make sure stoping an ongoing fact works as intended."""
         # 2018-05-05: (lb): How long have these tests been broken?
         #
@@ -236,7 +241,8 @@ class TestStop(object):
         mocktime = mocker.MagicMock(return_value="%Y-%m-%d %H:%M")
         mockfact.start.strftime = mocktime
         mockfact.end.strftime = mocktime
-        controller_with_logging.facts.stop_current_fact = mocker.MagicMock(return_value=mockfact)
+        current_fact = mocker.MagicMock(return_value=mockfact)
+        controller_with_logging.facts.stop_current_fact = current_fact
         create.stop_fact(controller_with_logging)
         assert controller_with_logging.facts.stop_current_fact.called
 
@@ -256,7 +262,8 @@ class TestCancel(object):
     ):
         """Test cancelation in case there is an ongoing fact."""
         controller = controller_with_logging
-        controller.facts.cancel_current_fact = mocker.MagicMock(return_value=ongoing_fact)
+        current_fact = mocker.MagicMock(return_value=ongoing_fact)
+        controller.facts.cancel_current_fact = current_fact
         create.cancel_fact(controller)
         out, err = capsys.readouterr()
         assert controller.facts.cancel_current_fact.called
@@ -279,25 +286,25 @@ class TestExport(object):
             transcode.export_facts(controller, format)
 
     def test_csv(self, controller, controller_with_logging, mocker):
-        """Make sure that a valid format returns the apropiate writer class."""
+        """Make sure that a valid format returns the appropriate writer class."""
         nark.reports.CSVWriter = mocker.MagicMock()
         transcode.export_facts(controller, 'csv')
         assert nark.reports.CSVWriter.called
 
     def test_tsv(self, controller, controller_with_logging, mocker):
-        """Make sure that a valid format returns the apropiate writer class."""
+        """Make sure that a valid format returns the appropriate writer class."""
         nark.reports.TSVWriter = mocker.MagicMock()
         transcode.export_facts(controller, 'tsv')
         assert nark.reports.TSVWriter.called
 
     def test_ical(self, controller, controller_with_logging, mocker):
-        """Make sure that a valid format returns the apropiate writer class."""
+        """Make sure that a valid format returns the appropriate writer class."""
         nark.reports.ICALWriter = mocker.MagicMock()
         transcode.export_facts(controller, 'ical')
         assert nark.reports.ICALWriter.called
 
     def test_xml(self, controller, controller_with_logging, mocker):
-        """Make sure that passing 'xml' as format parameter returns the apropiate writer class."""
+        """Ensure passing 'xml' as format returns appropriate writer class."""
         nark.reports.XMLWriter = mocker.MagicMock()
         transcode.export_facts(controller, 'xml')
         assert nark.reports.XMLWriter.called
@@ -307,7 +314,7 @@ class TestExport(object):
         controller.facts.get_all = mocker.MagicMock()
         path = os.path.join(tmpdir.mkdir('report').strpath, 'report.csv')
         nark.reports.CSVWriter = mocker.MagicMock(
-            return_value=nark.reports.CSVWriter(path)
+            return_value=nark.reports.CSVWriter(path),
         )
         since = fauxfactory.gen_datetime()
         # Get rid of fractions of a second.
@@ -321,7 +328,7 @@ class TestExport(object):
         controller.facts.get_all = mocker.MagicMock()
         path = os.path.join(tmpdir.mkdir('report').strpath, 'report.csv')
         nark.reports.CSVWriter = mocker.MagicMock(
-            return_value=nark.reports.CSVWriter(path)
+            return_value=nark.reports.CSVWriter(path),
         )
         until = fauxfactory.gen_datetime()
         until = truncate_to_whole_seconds(until)
@@ -330,7 +337,7 @@ class TestExport(object):
         assert kwargs['until'] == until
 
     def test_with_filename(self, controller, controller_with_logging, tmpdir, mocker):
-        """Make sure that a valid format returns the apropiate writer class."""
+        """Make sure that a valid format returns the appropriate writer class."""
         path = os.path.join(tmpdir.ensure_dir('export').strpath, 'export.csv')
         nark.reports.CSVWriter = mocker.MagicMock()
         transcode.export_facts(controller, 'csv', file_out=path)
@@ -368,32 +375,35 @@ class TestActivities(object):
         """Make sure command works if activities do not have a category associated."""
         activity.category = None
         controller.activities.get_all = mocker.MagicMock(
-            return_value=[activity]
+            return_value=[activity],
         )
         ascii_table.tabulate.tabulate = mocker.MagicMock(
-            return_value='{}, {}'.format(activity.name, None)
+            return_value='{}, {}'.format(activity.name, None),
         )
         cmds_list.activity.list_activities(controller, table_type='tabulate')
         out, err = capsys.readouterr()
         assert out.startswith(activity.name)
         assert ascii_table.tabulate.tabulate.call_args[0] == ([[activity.name, None]],)
 
-    def test_list_activities_with_category(
+    def test_list_activities_no_filter(
         self, controller, activity, mocker, capsys,
     ):
         """Make sure activity name and category are displayed if present."""
         controller.activities.get_all = mocker.MagicMock(
-            return_value=[activity]
+            return_value=[activity],
         )
         cmds_list.activity.list_activities(controller, '')
         out, err = capsys.readouterr()
         assert activity.name in out
         assert activity.category.name in out
 
-    def test_list_activities_with_search_term(
-            self, controller, activity, mocker, capsys,
-        ):
+    def test_list_activities_using_category(
+        self, controller, activity, mocker, capsys,
+    ):
         """Make sure the search term is passed on."""
+        controller.categories.get_by_name = mocker.MagicMock(
+            return_value=activity.category,
+        )
         controller.activities.get_all = mocker.MagicMock(
             return_value=[activity]
         )
