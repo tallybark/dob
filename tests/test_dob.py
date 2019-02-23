@@ -27,24 +27,17 @@ from dob import (
     __resolve_vers__,
     cmd_config,
     cmds_list,
-    cmds_usage,
     create,
     details,
     dob,
     transcode
 )
 from dob.cmds_list.fact import search_facts
-from dob.help_strings import NO_ACTIVE_FACT_HELP, NOTHING_TO_STOP_HELP
 from dob.helpers import ascii_table
 
-import appdirs
 import fauxfactory
 import nark
 import pytest
-# Once we drop py2 support, we can use the builtin again but unicode support
-# under python 2 is practicly non existing and manual encoding is not easily
-# possible.
-from backports.configparser import ConfigParser
 from click import ClickException
 from freezegun import freeze_time
 from nark.helpers import logging as logging_helpers

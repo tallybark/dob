@@ -17,17 +17,19 @@
 
 from __future__ import absolute_import, unicode_literals
 
-import io
 import os
 import pty
 import sys
 from unittest.mock import Mock
 
-from dob.transcode import export_facts, import_facts
+from dob.transcode import import_facts
 
 import prompt_toolkit
 import pytest
-from prompt_toolkit.input.posix_utils import PosixStdinReader
+# Load PosixStdinReader, though we don't use it, otherwise:
+#   AttributeError: module 'prompt_toolkit.input' has no attribute 'posix_utils'
+# F401 'prompt_toolkit.input.posix_utils.PosixStdinReader' imported but unused
+from prompt_toolkit.input.posix_utils import PosixStdinReader  # noqa: F401
 
 IMPORT_PATH = './tests/fixtures/test-import-fixture.rst'
 """Path to the import file fixture, which is full of Factoids."""
