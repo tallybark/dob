@@ -2,6 +2,7 @@
 build/
 dist/
 *.egg-info/
+.eggs/
 
 # Byte-compiled/Optimized Python and Library/DLL files.
 *.py[cod]
@@ -21,12 +22,12 @@ coverage.xml
 # Created by Sphinx on `make docs`:
 docs/_build
 docs/modules.rst
-docs/dob.rst
 # `make docs` Sphinx autodocs-generated.
 docs/dob.cmds_list.rst
 docs/dob.cmds_usage.rst
 docs/dob.helpers.rst
 docs/dob.prompters.rst
+docs/dob.rst
 docs/dob.styling.rst
 docs/dob.traverser.rst
 
