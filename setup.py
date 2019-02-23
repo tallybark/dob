@@ -99,7 +99,7 @@ requirements = [
 
 setup(
     install_requires=requirements,
-    packages=find_packages(),
+    packages=find_packages(exclude=['tests*']),
     # Tell setuptools to determine the version
     # from the latest SCM (git) version tags.
     #
