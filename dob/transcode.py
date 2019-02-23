@@ -31,7 +31,7 @@ from nark import reports
 from nark.helpers.colored import fg, bg, attr
 from nark.helpers.parsing import parse_factoid
 
-from . import __appname__
+from . import __package_name__
 from .cmd_common import (
     barf_and_exit,
     echo_block_header,
@@ -267,7 +267,7 @@ def import_facts(
                 'For examples: `cat {{file}} | {appname} import`\n'
                 '          or: `{appname} import < {{file}})\n'
                 '          or: `{appname} import {{file}}'
-            ).format(appname=__appname__)
+            ).format(appname=__package_name__)
             click_echo(msg)
             sys.exit(1)
         return redirecting

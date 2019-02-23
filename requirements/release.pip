@@ -1,8 +1,8 @@
-bumpversion == 0.5.3
 check-manifest >= 0.37
 flake8 >= 3.7.5
 isort >= 4.3.4
 setuptools >= 38.6.0
+setuptools_scm
 #tox == 3.7.0
 tox == 3.0.0
 twine >= 1.11.0

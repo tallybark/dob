@@ -28,21 +28,9 @@ Refs:
   https://github.com/pypa/sampleproject
 """
 
-import os
-import re
-# sys is not used herein, but by dob/__init__.py, which we exec.
-# F401 'sys' imported but unused
-import sys  # noqa: F401
+from setuptools import find_packages, setup
 
-# Because exec(init_py), silence linter.
-from gettext import gettext as _  # noqa: F401
-from io import open
-
-try:
-    from setuptools import setup, find_packages
-except ImportError:
-    from distutils.core import setup
-
+# *** Package requirements.
 
 requirements = [
     # https://github.com/pytest-dev/apipkg
@@ -104,122 +92,30 @@ requirements = [
     'texttable',
 ]
 
+# *** Minimal setup() function -- Prefer using config where possible.
 
-# *** Boilerplate setuptools helper fcns.
-
-# Source values from the top-level {package}/__init__.py,
-# to avoid hardcoding herein.
-
-# (lb): I was inspired by PPT's get_version() to write this mess.
-# Thank you, PPT!
-
-def top_level_package_file_path(package_dir):
-    """Return path of {package}/__init__.py file, relative to this module."""
-    path = os.path.join(
-        os.path.dirname(__file__),
-        package_dir,
-        '__init__.py',
-    )
-    return path
-
-
-def top_level_package_file_read(path):
-    """Read the file at path, and decode as UTF-8."""
-    with open(path, 'rb') as init_f:
-        init_py = init_f.read().decode('utf-8')
-    return init_py
-
-
-def looks_like_app_code(line):
-    """Return True if the line looks like `key = ...`."""
-    matches = re.search("^\S+ = \S+", line)
-    return matches is not None
-
-
-def top_level_package_file_strip_imports(init_py):
-    """Stip passed array of leading entries not identified as `key = ...` code."""
-    # Expects comments, docstrings, and imports up top; ``key = val`` lines below.
-    culled = []
-    past_imports = False
-    for line in init_py.splitlines():
-        if not past_imports:
-            past_imports = looks_like_app_code(line)
-        if past_imports:
-            culled.append(line)
-    return "\n".join(culled)
-
-
-def import_business_vars(package_dir):
-    """Source the top-level __init__.py file, minus its import statements."""
-    pckpath = top_level_package_file_path(package_dir)
-    init_py = top_level_package_file_read(pckpath)
-    source = top_level_package_file_strip_imports(init_py)
-    exec(source)
-    cfg = {key: val for (key, val) in locals().items() if key.startswith('__')}
-    return cfg
-
-
-# Import variables from nark/__init__.py,
-# without triggering that files' imports.
-cfg = import_business_vars('dob')
-
-# *** Local file content.
-
-long_description = open(
-    os.path.join(
-        os.path.dirname(__file__),
-        'README.rst'
-    ),
-    encoding='utf-8',
-).read()
-
-# *** Package definition.
+# (lb): All settings are in setup.cfg, except identifying packages.
+# (We could find-packages from within setup.cfg, but it's convoluted.)
 
 setup(
-    name=cfg['__pipname__'],
-    version=cfg['__version__'],
-    author=cfg['__author__'],
-    author_email=cfg['__author_email__'],
-    url=cfg['__projurl__'],
-    description=cfg['__briefly__'],
-    long_description=long_description,
-    long_description_content_type="text/x-rst",
-    # Ask setuptools to figure out package name(s). It'll include subdirs, e.g.,
-    #   ['dob', 'tests', 'dob.prompters', 'dob.styling', 'dob.cmds_list', ...]
-    packages=find_packages(),
-    package_dir={'dob': 'dob'},
     install_requires=requirements,
-    license='GPLv3',
-    zip_safe=False,
-    keywords=cfg['__keywords__'],
-    classifiers=[
-        # FIXME/2018-06-13: Our goal (this Summer?): Production/Stable.
-        # 'Development Status :: 2 - Pre-Alpha',
-        'Development Status :: 3 - Alpha',
-        # 'Development Status :: 4 - Beta',
-        # 'Development Status :: 5 - Production/Stable',
-        'Environment :: Console',
-        'Intended Audience :: End Users/Desktop',
-        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-        'Natural Language :: English',
-        'Operating System :: OS Independent',
-        "Programming Language :: Python :: 2",
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python',
-        # 'Topic :: Artistic Software',
-        'Topic :: Office/Business :: News/Diary',
-        # 'Topic :: Religion',  # Because Hamster *is* is religion!
-        'Topic :: Text Processing',
-    ],
-    # <app>=<pkg>.<cls>.run
-    entry_points='''
-    [console_scripts]
-    dob=dob.dob:run
-    '''.strip()
+    packages=find_packages(),
+    # Tell setuptools to determine the version
+    # from the latest SCM (git) version tags.
+    #
+    # Without the following two lines, e.g.,
+    #   $ python setup.py --version
+    #   3.0.0a31
+    # But with 'em, e.g.,
+    #   $ python setup.py --version
+    #   3.0.0a32.dev3+g6f93d8c.d20190221
+    # Or, if the latest commit is tagged,
+    # and your working directory is clean,
+    # then the version reported (and, e.g.,
+    # used on make-dist) will be from tag.
+    # Ref:
+    #   https://github.com/pypa/setuptools_scm
+    setup_requires=['setuptools_scm'],
+    use_scm_version=True,
 )
 

@@ -25,8 +25,7 @@ import click
 import os
 from datetime import datetime
 
-from . import __arg0name__, __author__, __author_email__, __BigName__
-from . import __version__ as dob_version
+from . import __arg0name__, __author__, __author_email__, __package_name__, __resolve_vers__
 from .helpers import click_echo
 
 # Disable the python_2_unicode_compatible future import warning.
@@ -45,9 +44,9 @@ def echo_copyright():
     if cur_year != year_range:
         year_range = '2018-{}'.format(cur_year)
     gpl3_notice_2018 = [
-        '{app_name} {version}'.format(
-            app_name=__BigName__,
-            version=dob_version,
+        '{pkgname} {version}'.format(
+            pkgname=__package_name__,
+            version=__resolve_vers__(),
         ),
         '',
         'Copyright (C) {years} {author} <{email}>'.format(
@@ -86,7 +85,7 @@ General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """.strip()
-    license_txt = license.format(app_name=__BigName__)
+    license_txt = license.format(app_name=__package_name__)
     # MAYBE: (lb): Prefer the LICENSE file?
     # FIXME: LICENSE is probably not copied via pip-install.
     #        This will be good learning on installing non-package files.

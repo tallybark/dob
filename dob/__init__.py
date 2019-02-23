@@ -19,49 +19,52 @@
 
 from __future__ import absolute_import, unicode_literals
 
-from gettext import gettext as _
-
 import os
 import sys
 
-__all__ = [
+__all__ = (
+    '__arg0name__',
     '__author__',
     '__author_email__',
-    '__version__',
-    '__appname__',
-    '__pipname__',
-    '__briefly__',
-    '__projurl__',
-    '__keywords__',
-    '__BigName__',
-    '__libname__',
-    '__arg0name__',
-]
+    '__package_name__',
+    '__resolve_vers__',
+)
 
-
-# SYNC_UP: nark/__init__.py <=> dob/__init__.py
+# (lb): These are duplicated in setup.cfg:[metadata], but not sure how to DRY.
+#   Fortunately, they're not likely to change.
 __author__ = 'HotOffThe Hamster'
 __author_email__ = 'hotoffthehamster+dob@gmail.com'
-__version__ = '3.0.0a31'
-__appname__ = 'dob'
-__pipname__ = __appname__
-__briefly__ = _(
-    'journal and time tracker, supercharged for the terminal'
-)
-__projurl__ = 'https://github.com/hotoffthehamster/dob'
-__keywords__ = ' '.join([
-    'journal',
-    'diary',
-    'timesheet',
-    'timetrack',
-    'jrnl',
-    'rednotebook',
-    'todo.txt',
-    'prjct',
-    'hamster',
-    'fact',
-])
-__BigName__ = 'dob'
-__libname__ = 'nark'
+
+# (lb): Not sure if the package name is available at runtime. Seems kinda meta,
+# anyway, like, Who am I? I just want to avoid hard coding this string in docs.
+__package_name__ = 'dob'
 __arg0name__ = os.path.basename(sys.argv[0])
+
+
+def __resolve_vers__():
+    """Returns the installed package version, or '<none>'.
+
+    In lieu of always setting __version__ -- and always loading pkg_resources --
+    use a method to avoid incurring startup costs if the version is not needed.
+    """
+    try:
+        import setuptools_scm
+        # For whatever reason, relative_to does not work, (lb) thought it would.
+        #   return setuptools_scm.get_version(relative_to=__file__)
+        pkg_dirname = os.path.dirname(os.path.dirname(__file__))
+        # See if parent directory (of this file) contains .git/.
+        proj_git = os.path.join(pkg_dirname, '.git')
+        if os.path.exists(proj_git):
+            # Get version from setuptools_scm, and git tags.
+            # This is similar to a developer running, e.g.,
+            #   python setup.py --version
+            return setuptools_scm.get_version(root=pkg_dirname)
+    except ModuleNotFoundError:
+        from pkg_resources import get_distribution, DistributionNotFound
+        try:
+            return get_distribution(__package_name__).version
+        except DistributionNotFound:
+            return '<none>'
+    else:
+        return '<none>'
 

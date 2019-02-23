@@ -23,7 +23,7 @@ from gettext import gettext as _
 
 from nark.helpers.colored import fg, attr
 
-from . import __arg0name__, __BigName__
+from . import __arg0name__, __package_name__
 
 
 # ***
@@ -32,7 +32,7 @@ from . import __arg0name__, __BigName__
 
 RUN_HELP = _(
     """
-    {big_name} is a time tracker for the command line.
+    {appname} is a time tracker for the command line.
 
     You can use it to track how you spend your time as well as have it export your
     collected data into various output formats. Below you find a list of available
@@ -51,7 +51,7 @@ RUN_HELP = _(
 
 
 
-    """.strip().format(appname=__arg0name__, big_name=__BigName__)
+    """.strip().format(appname=__package_name__)
 )
 
 

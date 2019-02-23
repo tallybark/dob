@@ -24,8 +24,8 @@ import os
 from nark.helpers.colored import fg, attr
 from nark.items import Fact
 
-from . import __appname__ as dob_appname
-from . import __version__ as dob_version
+from . import __package_name__ as package_name_dob
+from . import __resolve_vers__ as resolve_vers_dob
 from .cmd_config import get_config_path, AppDirs
 from .helpers import ascii_art, click_echo, highlight_value
 from .plugins import ClickAliasablePluginGroup
@@ -53,8 +53,8 @@ def echo_app_details(controller, full=False):
         click_echo(_(
             "You are running {name} version {version}"
         ).format(
-            name=highlight_value(dob_appname),
-            version=highlight_value(dob_version),
+            name=highlight_value(package_name_dob),
+            version=highlight_value(resolve_vers_dob()),
         ))
 
     def echo_config_path():
@@ -168,8 +168,8 @@ def echo_app_environs(controller):
             click_echo('DOB_{}="{}"'.format(key.upper(), val))
 
     def environs_add_appname_ver():
-        environs['appname'] = dob_appname
-        environs['version'] = dob_version
+        environs['appname'] = package_name_dob
+        environs['version'] = resolve_vers_dob()
 
     def environs_add_config_path():
         environs['conf'] = get_config_path()

@@ -25,7 +25,7 @@ from functools import update_wrapper
 
 from nark.helpers.colored import fg, attr, colorize
 
-from . import __appname__
+from . import __arg0name__
 from . import migrate
 from .helpers import ascii_art, click_echo, dob_in_user_exit
 
@@ -74,7 +74,7 @@ def backend_integrity(func):
                 'Expected database to be same version as latest migration.'
                 ' {} != {}'
                 '\nTrying running `{} migrate up`'
-            ).format(db_version, latest_version, __appname__)
+            ).format(db_version, latest_version, __arg0name__)
             dob_in_user_exit(msg)
 
     # ***
@@ -98,7 +98,7 @@ def backend_integrity(func):
             'Found saved fact(s) without start time and/or end time.'
             '\nSee list of offending Facts above.'
             # MAYBE/2018-05-23 17:05: (lb): We could offer an easy way out, e.g.,
-            #   '\n\nTry, e.g.,\n\n  {} edit {} --end now'.format(__appname__, ...)
+            #   '\n\nTry, e.g.,\n\n  {} edit {} --end now'.format(__arg0name__, ...)
         )
         dob_in_user_exit(msg)
 

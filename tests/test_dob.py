@@ -34,7 +34,7 @@ from unittest import mock
 import nark
 from nark.helpers import logging as logging_helpers
 
-from dob import __appname__, __version__, dob
+from dob import __package_name__, __resolve_vers__, dob
 from dob import create, details, transcode
 from dob.help_strings import NO_ACTIVE_FACT_HELP, NOTHING_TO_STOP_HELP
 from dob.helpers import ascii_table
@@ -445,7 +445,9 @@ class TestDetails(object):
         details.echo_app_details(controller)
         out, err = capsys.readouterr()
         startswiths = (
-            'You are running {} version {}'.format(__appname__, __version__),
+            'You are running {} version {}'.format(
+                __package_name__, __resolve_vers__(),
+            ),
             'Configuration file at: ',
             'Plugins directory at: ',
             'Logfile stored at: ',

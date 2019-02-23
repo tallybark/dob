@@ -24,11 +24,11 @@ from gettext import gettext as _
 import click
 import sys
 
-from nark import __version__ as nark_version
+from nark import __package_name__ as package_name_nark
+from nark import __resolve_vers__ as resolve_vers_nark
 
-from . import __appname__ as dob_appname
-from . import __version__ as dob_version
-from . import __libname__ as nark_appname
+from . import __package_name__ as package_name_dob
+from . import __resolve_vers__ as resolve_vers_dob
 from . import help_strings
 from .controller import Controller
 from .copyright import echo_copyright
@@ -61,10 +61,10 @@ pass_controller = click.make_pass_decorator(Controller, ensure=True)
 
 def dob_versions():
     vers = '{} version {}\n{} version {}'.format(
-        dob_appname,
-        dob_version,
-        nark_appname,
-        nark_version,
+        package_name_dob,
+        resolve_vers_dob(),
+        package_name_nark,
+        resolve_vers_nark(),
     )
     return vers
 
