@@ -196,7 +196,7 @@ def fact_block_header(title, sep='━', full_width=False):
 # ***
 
 def hydrate_activity(controller, activity_name):
-    """Fetch a activity from the backend."""
+    """Fetch an activity from the back end."""
     activity = False
     if activity_name:
         # FIXME: (lb): This raises KeyError if no exact match found.

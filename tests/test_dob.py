@@ -127,36 +127,49 @@ class TestAddFact(object):
                 'tags': [],
             }),
             # Tags.
-            ('2015-12-12 13:00 foo@bar: #precious #hashish, i like ike', 'verify_start', {
-                'activity': 'foo',
-                'category': 'bar',
-                'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
-                'end': None,
-                'tags': ['precious', 'hashish'],
-                'description': 'i like ike',
-            }),
+            (
+                '2015-12-12 13:00 foo@bar: #precious #hashish, i like ike',
+                'verify_start',
+                {
+                    'activity': 'foo',
+                    'category': 'bar',
+                    'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
+                    'end': None,
+                    'tags': ['precious', 'hashish'],
+                    'description': 'i like ike',
+                },
+            ),
             # Multiple Tags are identified by a clean leading delimiter character.
-            ('2015-12-12 13:00 foo@bar, #just walk away "#not a tag", blah', 'verify_start', {
-                'activity': 'foo',
-                'category': 'bar',
-                'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
-                'end': None,
-                'tags': ['just walk away "#not a tag"'],
-                'description': 'blah',
-            }),
+            (
+                '2015-12-12 13:00 foo@bar, #just walk away "#not a tag", blah',
+                'verify_start',
+                {
+                    'activity': 'foo',
+                    'category': 'bar',
+                    'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
+                    'end': None,
+                    'tags': ['just walk away "#not a tag"'],
+                    'description': 'blah',
+                },
+            ),
             # Alternative tag delimiter; and quotes are just consumed as part of tag.
-            ('2015-12-12 13:00 foo@bar, #just walk away @"totes a tag", blah', 'verify_start', {
-                'activity': 'foo',
-                'category': 'bar',
-                'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
-                'end': None,
-                'tags': ['just walk away', '"totes a tag"'],
-                'description': 'blah',
-            }),
+            (
+                '2015-12-12 13:00 foo@bar, #just walk away @"totes a tag", blah',
+                'verify_start',
+                {
+                    'activity': 'foo',
+                    'category': 'bar',
+                    'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
+                    'end': None,
+                    'tags': ['just walk away', '"totes a tag"'],
+                    'description': 'blah',
+                },
+            ),
             # Test '#' in description, elsewhere, after command, etc.
             (
-                '2015-12-12 13:00 baz@bat", #tag1, #tag2 tags cannot come #too late, aha!'
-                    ' Time is also ignored at end: 12:59',
+                '2015-12-12 13:00 baz@bat",'
+                ' #tag1, #tag2 tags cannot come #too late, aha!'
+                ' Time is also ignored at end: 12:59',
                 'verify_start',
                 {
                     'activity': 'baz',
@@ -164,7 +177,8 @@ class TestAddFact(object):
                     'start': datetime.datetime(2015, 12, 12, 13, 0, 0),
                     'end': None,
                     'tags': ['tag1'],
-                    'description': '#tag2 tags cannot come #too late, aha! Time is also ignored at end: 12:59',
+                    'description': '#tag2 tags cannot come #too late, aha!'
+                                   ' Time is also ignored at end: 12:59',
                 },
             ),
         ],
@@ -405,7 +419,7 @@ class TestActivities(object):
             return_value=activity.category,
         )
         controller.activities.get_all = mocker.MagicMock(
-            return_value=[activity]
+            return_value=[activity],
         )
         cmds_list.activity.list_activities(
             controller, filter_category=activity.category.name,
@@ -419,13 +433,12 @@ class TestActivities(object):
         assert activity.category.name in out
 
     def test_list_activities_with_search_term(
-            self, controller, activity, mocker, capsys,
-        ):
+        self, controller, activity, mocker, capsys,
+    ):
         """Make sure the search term is passed on."""
         controller.activities.get_all = mocker.MagicMock(
-            return_value=[activity]
+            return_value=[activity],
         )
-
         cmds_list.activity.list_activities(
             controller, search_term=activity.category.name,
         )
@@ -438,12 +451,12 @@ class TestActivities(object):
         assert activity.category.name in out
 
     def test_list_activities_with_category_miss(
-            self, controller, activity, mocker, capsys,
-        ):
+        self, controller, activity, mocker, capsys,
+    ):
         """Make sure the search term is passed on."""
         category_miss = activity.category.name + '_test'
         controller.activities.get_all = mocker.MagicMock(
-            return_value=[activity]
+            return_value=[activity],
         )
         with pytest.raises(KeyError):
             cmds_list.activity.list_activities(
@@ -487,8 +500,17 @@ class TestDetails(object):
             assert item in out
         assert out.splitlines()[-1] == 'Using {} on database: {}'.format(engine, path)
 
-    def test_details_non_sqlite(self, controller, capsys, db_port, db_host, db_name,
-            db_user, db_password, mocker):
+    def test_details_non_sqlite(
+        self,
+        controller,
+        capsys,
+        db_port,
+        db_host,
+        db_name,
+        db_user,
+        db_password,
+        mocker,
+    ):
         """
         Make sure database details for non-sqlite are shown properly.
 
@@ -518,7 +540,6 @@ class TestLicense(object):
         """Make sure the license text is actually displayed."""
         dob._license()
         out, err = capsys.readouterr()
-        #assert "'dob' is free software" in out
         assert out.startswith("GNU GENERAL PUBLIC LICENSE")
         assert "Version 3, 29 June 2007" in out
 
@@ -543,19 +564,25 @@ class TestSetupLogging(object):
         )
 
     def test_setup_logging_log_console_true(self, controller):
-        """
-        Make sure that if console loggin is on lib and client logger have a streamhandler.
-        """
+        """Ensure if console logging, lib and client have streamhandlers."""
         controller.client_config['log_console'] = True
         controller.setup_logging()
-        assert isinstance(controller.client_logger.handlers[0],
-            logging.StreamHandler)
-        assert isinstance(controller.client_logger.handlers[1],
-            logging.FileHandler)
-        assert isinstance(controller.lib_logger.handlers[0],
-            logging.StreamHandler)
-        assert isinstance(controller.lib_logger.handlers[1],
-            logging.FileHandler)
+        assert isinstance(
+            controller.client_logger.handlers[0],
+            logging.StreamHandler,
+        )
+        assert isinstance(
+            controller.client_logger.handlers[1],
+            logging.FileHandler,
+        )
+        assert isinstance(
+            controller.lib_logger.handlers[0],
+            logging.StreamHandler,
+        )
+        assert isinstance(
+            controller.lib_logger.handlers[1],
+            logging.FileHandler,
+        )
         assert len(controller.client_logger.handlers) == 2
         assert len(controller.lib_logger.handlers) == 2
         assert controller.client_logger.handlers[0].formatter
@@ -575,10 +602,14 @@ class TestSetupLogging(object):
             appdirs.user_log_dir, 'foobar.log',
         )
         controller.setup_logging()
-        assert isinstance(controller.lib_logger.handlers[0],
-            logging.FileHandler)
-        assert isinstance(controller.client_logger.handlers[0],
-            logging.FileHandler)
+        assert isinstance(
+            controller.lib_logger.handlers[0],
+            logging.FileHandler,
+        )
+        assert isinstance(
+            controller.client_logger.handlers[0],
+            logging.FileHandler,
+        )
 
 
 class TestGetConfig(object):
@@ -608,7 +639,9 @@ class TestGetConfig(object):
     def test_invalid_store(self, config_instance):
         """Make sure that encountering an unsupportet store will raise an exception."""
         with pytest.raises(ValueError):
-            backend, client = cmd_config.get_separate_configs(config_instance(store='foobar'))
+            backend, client = cmd_config.get_separate_configs(
+                config_instance(store='foobar'),
+            )
 
     def test_non_sqlite(self, config_instance):
         """Make sure that passing a store other than 'sqlalchemy' raises exception."""
@@ -642,7 +675,9 @@ class TestGetConfigInstance(object):
         """Make sure we try parsing a found config file."""
         config, preexists = cmd_config.get_config_instance()
         # I.e., 'sqlalchemy' == 'sqlalchemy'
-        assert config.get('Backend', 'store') == config_instance().get('Backend', 'store')
+        assert (
+            config.get('Backend', 'store') == config_instance().get('Backend', 'store')
+        )
         assert isinstance(config_instance(), type(config))
         assert config_instance() is not config
 
@@ -669,7 +704,7 @@ class TestGenerateTable(object):
 
 class TestWriteConfigFile(object):
     def test_file_is_written(self, filepath, config_instance):
-        """Make sure the file is written. Content is not checked, this is ConfigParsers job."""
+        """Ensure file is written. Content not checked; that's ConfigParser's job."""
         cmd_config.store_config(config_instance(), filepath)
         assert os.path.lexists(filepath)
 
@@ -709,10 +744,10 @@ class TestDobAppDirs(object):
         ) as mock_app_dir:
             appdir = cmd_config.DobAppDirs('dob')
             appdir.create = create
-            # DEVS: Weird: If this assert fires and you're running `py.test --pdb`, entering
-            # e.g., `appdir.user_data_dir` at the pdb prompt shows the non-mocked value!
-            # But if you capture the value first and print it, it's correct!
-            # So in code you'd have:
+            # DEVS: Weird: If this assert fires and you're running `py.test --pdb`,
+            # entering e.g., `appdir.user_data_dir` at the pdb prompt shows the
+            # non-mocked value! But if you capture the value first and print it,
+            # it's correct! So in code you'd have:
             #   show_actual = appdir.user_data_dir
             # And in pdb you'd type:
             #   (pdb) show_actual

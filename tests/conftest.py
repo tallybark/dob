@@ -236,60 +236,64 @@ def client_config(tmpdir):
 def config_instance(tmpdir, faker):
     """Provide a (dynamicly generated) ConfigParser instance."""
     def generate_config(**kwargs):
-            config = ConfigParser()
-            # Backend
-            config.add_section('Backend')
+        config = ConfigParser()
+        # Backend
+        config.add_section('Backend')
 
-            config.set('Backend', 'store', kwargs.get('store', 'sqlalchemy'))
-            config.set('Backend', 'db_engine', kwargs.get('db_engine', 'sqlite'))
-            config.set('Backend', 'db_path', kwargs.get(
-                'db_path', os.path.join(tmpdir.strpath, 'hamster_db.sqlite'))
-            )
-            config.set('Backend', 'db_host', kwargs.get('db_host', ''))
-            config.set('Backend', 'db_port', kwargs.get('db_port', ''))
-            config.set('Backend', 'db_name', kwargs.get('db_name', ''))
-            config.set('Backend', 'db_user', kwargs.get('db_user', '')),
-            config.set('Backend', 'db_password', kwargs.get('db_password', ''))
+        config.set('Backend', 'store', kwargs.get('store', 'sqlalchemy'))
+        config.set('Backend', 'db_engine', kwargs.get('db_engine', 'sqlite'))
+        config.set('Backend', 'db_path', kwargs.get(
+            'db_path', os.path.join(tmpdir.strpath, 'hamster_db.sqlite'))
+        )
+        config.set('Backend', 'db_host', kwargs.get('db_host', ''))
+        config.set('Backend', 'db_port', kwargs.get('db_port', ''))
+        config.set('Backend', 'db_name', kwargs.get('db_name', ''))
+        config.set('Backend', 'db_user', kwargs.get('db_user', '')),
+        config.set('Backend', 'db_password', kwargs.get('db_password', ''))
 
-            # (lb): Need to always support momentaneous, because legacy data bugs.
-            # config.set('Backend', 'allow_momentaneous', 'False')
-            config.set('Backend', 'allow_momentaneous', 'True')
+        # (lb): Need to always support momentaneous, because legacy data bugs.
+        # config.set('Backend', 'allow_momentaneous', 'False')
+        config.set('Backend', 'allow_momentaneous', 'True')
 
-            # config.set('Backend', 'day_start', kwargs.get('day_start', ''))
-            config.set('Backend', 'day_start', kwargs.get('day_start', '00:00:00'))
+        # config.set('Backend', 'day_start', kwargs.get('day_start', ''))
+        config.set('Backend', 'day_start', kwargs.get('day_start', '00:00:00'))
 
-            config.set('Backend', 'fact_min_delta', kwargs.get('fact_min_delta', '60'))
-            # config.set('Backend', 'fact_min_delta', kwargs.get('fact_min_delta', '0'))
+        config.set('Backend', 'fact_min_delta', kwargs.get('fact_min_delta', '60'))
+        # config.set('Backend', 'fact_min_delta', kwargs.get('fact_min_delta', '0'))
 
-            config.set('Backend', 'lib_log_level', kwargs.get('lib_log_level', 'WARNING'))
-            config.set('Backend', 'sql_log_level', kwargs.get('sql_log_level', 'WARNING'))
+        config.set(
+            'Backend', 'lib_log_level', kwargs.get('lib_log_level', 'WARNING'),
+        )
+        config.set(
+            'Backend', 'sql_log_level', kwargs.get('sql_log_level', 'WARNING'),
+        )
 
-            config.set('Backend', 'tz_aware', 'False')
-            config.set('Backend', 'default_tzinfo', '')
-            # FIXME/2019-02-20: (lb): Fix timezones. And parameterize, e.g.,
-            #  config.set('Backend', 'default_tzinfo', 'America/Menominee')
+        config.set('Backend', 'tz_aware', 'False')
+        config.set('Backend', 'default_tzinfo', '')
+        # FIXME/2019-02-20: (lb): Fix timezones. And parameterize, e.g.,
+        #  config.set('Backend', 'default_tzinfo', 'America/Menominee')
 
-            # Client
-            config.add_section('Client')
-            # config.set('Client', 'carousel_centered', '')
-            # config.set('Client', 'carousel_lexer', '')
-            # config.set('Client', 'devmode', '')
-            # config.set('Client', 'editor_suffix', '')
-            config.set('Client', 'export_path', '')
-            # config.set('Client', 'fifo_dir', '')
-            # config.set('Client', 'log_color', 'False')
-            config.set('Client', 'log_console', kwargs.get('log_console', '0'))
-            # The log_filename is used to make logfile_path, which we don't need to set.
-            config.set(
-                'Client', 'log_filename', kwargs.get('log_filename', faker.file_name())
-            )
-            config.set('Client', 'cli_log_level', kwargs.get('cli_log_level', 'debug'))
-            config.set('Client', 'separators', '')  # [,:\n]
-            config.set('Client', 'show_greeting', 'False')
-            # config.set('Client', 'styling', '')
-            config.set('Client', 'term_color', 'True')
-            config.set('Client', 'term_paging', 'False')
-            return config
+        # Client
+        config.add_section('Client')
+        # config.set('Client', 'carousel_centered', '')
+        # config.set('Client', 'carousel_lexer', '')
+        # config.set('Client', 'devmode', '')
+        # config.set('Client', 'editor_suffix', '')
+        config.set('Client', 'export_path', '')
+        # config.set('Client', 'fifo_dir', '')
+        # config.set('Client', 'log_color', 'False')
+        config.set('Client', 'log_console', kwargs.get('log_console', '0'))
+        # The log_filename is used to make logfile_path, which we don't need to set.
+        config.set(
+            'Client', 'log_filename', kwargs.get('log_filename', faker.file_name())
+        )
+        config.set('Client', 'cli_log_level', kwargs.get('cli_log_level', 'debug'))
+        config.set('Client', 'separators', '')  # [,:\n]
+        config.set('Client', 'show_greeting', 'False')
+        # config.set('Client', 'styling', '')
+        config.set('Client', 'term_color', 'True')
+        config.set('Client', 'term_paging', 'False')
+        return config
 
     return generate_config
 
@@ -297,8 +301,8 @@ def config_instance(tmpdir, faker):
 @pytest.fixture
 def config_file(config_instance, appdirs):
     """Provide a config file store under our fake config dir."""
-    with codecs.open(os.path.join(appdirs.user_config_dir, 'dob.conf'),
-            'w', encoding='utf-8') as fobj:
+    conf_path = os.path.join(appdirs.user_config_dir, 'dob.conf')
+    with codecs.open(conf_path, 'w', encoding='utf-8') as fobj:
         config_instance().write(fobj)
 
 
@@ -307,8 +311,8 @@ def get_config_file(config_instance, appdirs):
     """Provide a dynamic config file store under our fake config dir."""
     def generate(**kwargs):
         instance = config_instance(**kwargs)
-        with codecs.open(os.path.join(appdirs.user_config_dir, 'dob.conf'),
-                'w', encoding='utf-8') as fobj:
+        conf_path = os.path.join(appdirs.user_config_dir, 'dob.conf')
+        with codecs.open(conf_path, 'w', encoding='utf-8') as fobj:
             instance.write(fobj)
         return instance
     return generate
@@ -347,7 +351,7 @@ def db_port(request):
 
 @pytest.fixture
 def ongoing_fact(controller_with_logging, fact):
-    """Fixture that ensures there is a ``ongoing fact`` file present at the expected place."""
+    """Fixture tests that ``ongoing fact`` can be saved to data store."""
     fact.end = None
     fact = controller_with_logging.facts.save(fact)
     return fact
