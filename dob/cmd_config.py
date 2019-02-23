@@ -657,7 +657,7 @@ def fresh_config():
     def set_defaults_client(config):
         client = ClientDefaults()
         config.add_section('Client')
-        config.set('Client', 'carousel_centered', client.carousel_centered)
+        config.set('Client', 'carousel_centered', str(client.carousel_centered))
         config.set('Client', 'carousel_lexer', client.carousel_lexer)
         config.set('Client', 'devmode', str(client.devmode))
         config.set('Client', 'editor_suffix', client.editor_suffix)
