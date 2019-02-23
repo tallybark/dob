@@ -215,21 +215,12 @@ def client_config(tmpdir):
         # 'log_console': True,  # Default.
         'log_console': False,
 
-# ???
-        # Note that 'log_filename' is what's in the config; logfile_path is made.
-        # 2019-01-16: I think previous comment incorrect. log_filename used, not logfile_path...
-#        'logfile_path': 'dob.log',
-#        'logfile_path': False,
-#        #'logfile_path': os.path.join(tmpdir.mkdir('log2').strpath, 'dob.log'),
-        #'log_filename': 'dob.log',
-        #'logfile_path': '',
-        # 2019-02-20 12:05: Should we even touch it?
-        #'logfile_path': '',
-
         # The default log filename does not need to be changed.
         # 'log_filename': 'dob.log',  # Default.
+        # See also:
+        #  'logfile_path': '',  # Generated value.
 
-        #'cli_log_level': 'WARNING',  # Default.
+        # 'cli_log_level': 'WARNING',  # Default.
         # 2019-02-20 11:15: I need to see where py.test of Carousel is hanging!
         'cli_log_level': 'DEBUG',  # Default.
 
