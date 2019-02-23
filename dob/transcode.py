@@ -214,7 +214,7 @@ def import_facts(
     def _import_facts():
         redirecting = must_specify_input(file_in)
         input_f = must_open_file(redirecting, file_in)
-        raw_facts = parse_facts_from_stream(input_f, ask, yes, dry)
+        raw_facts = parse_facts_from_stream(input_f)
         new_facts = must_hydrate_facts(raw_facts)
         conflicts = must_complete_times(controller, new_facts, progress=progress)
         controller.affirm(not conflicts)  # (lb): 2019-01-19: This happen?
@@ -279,7 +279,7 @@ def import_facts(
 
     # ***
 
-    def parse_facts_from_stream(input_f, ask, yes, dry):
+    def parse_facts_from_stream(input_f):
         # Track current empty line run count, to know when to check if line
         # starts a new Fact. Keep at -1 until we've seen the first fact.
         bl_count = -1
