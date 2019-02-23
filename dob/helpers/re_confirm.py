@@ -24,11 +24,11 @@ from prompt_toolkit.keys import Keys
 from prompt_toolkit.shortcuts import PromptSession
 from six import text_type
 
-__all__ = [
+__all__ = (
     'confirm',
     # Private:
     #  'create_confirm_session',
-]
+)
 
 # (lb): This is ripped from PPT's shortcuts/prompt.py
 

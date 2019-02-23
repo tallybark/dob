@@ -40,7 +40,7 @@ configparser = lazy_import.lazy_module('backports.configparser')
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
 
-__all__ = [
+__all__ = (
     'furnish_config',
     'get_appdirs_subdir_file_path',
     'get_config_path',
@@ -50,7 +50,7 @@ __all__ = [
     #  'get_config_instance',
     #  'get_separate_configs',
     #  'store_config',
-]
+)
 
 
 # ***

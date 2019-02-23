@@ -33,7 +33,7 @@ except ImportError:
     pass
 
 
-__all__ = [
+__all__ = (
     'hamster_artwork',
     'fingies_artwork',
     'fetch_asciis',
@@ -42,7 +42,7 @@ __all__ = [
     'infection_notice',
     'curly_quote',
     'curly_quotes',
-]
+)
 
 # (lb): Disable E501 line too long. Or, really,
 # ignore the whole file; that's the only choice.

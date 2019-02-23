@@ -33,10 +33,10 @@ from .cmd_config import AppDirs, get_appdirs_subdir_file_path
 from .helpers import dob_in_user_warning
 from .helpers.path import compile_and_eval_source
 
-__all__ = [
+__all__ = (
     'install_plugin',
     'ClickAliasablePluginGroup',
-]
+)
 
 
 class ClickAliasablePluginGroup(ClickAliasedGroup):

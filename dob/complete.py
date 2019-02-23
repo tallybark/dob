@@ -33,7 +33,7 @@ from nark.helpers.parsing import (
 )
 from nark.items.fact import Fact
 
-__all__ = ['tab_complete']
+__all__ = ('tab_complete', )
 
 
 TIME_HINT_MAP = {

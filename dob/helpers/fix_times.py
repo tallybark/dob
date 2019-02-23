@@ -33,7 +33,7 @@ from ..cmd_common import barf_and_exit, echo_block_header
 from ..cmds_list.fact import find_latest_fact
 from ..traverser.placeable_fact import PlaceableFact
 
-__all__ = [
+__all__ = (
     'mend_facts_times',
     'must_complete_times',
     'reduce_time_hint',
@@ -42,7 +42,7 @@ __all__ = [
     # Private:
     #   'insert_forcefully',
     #   'resolve_overlapping',
-]
+)
 
 
 DEFAULT_SQUASH_SEP = '\n\n--\n\n'

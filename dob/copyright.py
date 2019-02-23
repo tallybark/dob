@@ -38,10 +38,10 @@ from .helpers import click_echo
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
 
-__all__ = [
+__all__ = (
     'echo_copyright',
     'echo_license',
-]
+)
 
 
 def echo_copyright():

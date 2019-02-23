@@ -23,9 +23,9 @@ import click
 
 from . import click_echo
 
-__all__ = [
+__all__ = (
     'CrudeProgress',
-]
+)
 
 
 class CrudeProgress(object):

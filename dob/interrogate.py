@@ -26,10 +26,10 @@ from six import text_type
 # Lazy-load AwesomePrompt to save ~0.1 seconds when not needed.
 from . import prompters
 
-__all__ = [
+__all__ = (
     'ask_user_for_edits',
     'ask_edit_with_editor',
-]
+)
 
 
 # ***

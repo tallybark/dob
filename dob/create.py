@@ -56,7 +56,7 @@ from .helpers.path import compile_and_eval_source
 from .traverser import various_lexers, various_styles
 from .traverser.placeable_fact import PlaceableFact
 
-__all__ = [
+__all__ = (
     'add_fact',
     'cancel_fact',
     'mend_facts_confirm_and_save_maybe',
@@ -68,7 +68,7 @@ __all__ = [
     #   'must_confirm_fact_edits',
     #   'must_create_fact_from_factoid',
     #   'save_facts_maybe',
-]
+)
 
 
 # ***

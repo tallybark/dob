@@ -51,10 +51,10 @@ from .helpers.fix_times import (
 )
 from .traverser.placeable_fact import PlaceableFact
 
-__all__ = [
+__all__ = (
     'export_facts',
     'import_facts',
-]
+)
 
 
 def export_facts(

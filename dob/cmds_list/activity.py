@@ -22,7 +22,7 @@ from gettext import gettext as _
 from ..cmd_common import error_exit_no_results, hydrate_category
 from ..helpers.ascii_table import generate_table
 
-__all__ = ['list_activities']
+__all__ = ('list_activities', )
 
 
 def list_activities(

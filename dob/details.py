@@ -30,12 +30,12 @@ from .cmd_config import AppDirs, get_config_path
 from .helpers import ascii_art, click_echo, highlight_value
 from .plugins import ClickAliasablePluginGroup
 
-__all__ = [
+__all__ = (
     'echo_app_details',
     'echo_app_environs',
     'echo_data_stats',
     'hamster_time',
-]
+)
 
 
 def echo_app_details(controller, full=False):

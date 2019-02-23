@@ -26,7 +26,7 @@ import click
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
 
-__all__ = [
+__all__ = (
     'cmd_options_factoid',
     'cmd_options_fact_add',
     'cmd_options_fact_dryable',
@@ -46,7 +46,7 @@ __all__ = [
     # Private:
     #   '_postprocess_options_table_bunce_order_to_sort_col',
     #   '_postprocess_options_table_bunce_asc_desc_to_sort_order',
-]
+)
 
 
 # ***

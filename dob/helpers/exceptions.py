@@ -20,9 +20,9 @@ from __future__ import absolute_import, unicode_literals
 
 from functools import update_wrapper
 
-__all__ = [
+__all__ = (
     'catch_action_exception',
-]
+)
 
 
 def catch_action_exception(func):

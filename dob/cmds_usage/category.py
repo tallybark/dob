@@ -22,7 +22,7 @@ from gettext import gettext as _
 from . import generate_usage_table
 from ..cmd_common import error_exit_no_results
 
-__all__ = ['usage_categories']
+__all__ = ('usage_categories', )
 
 
 def usage_categories(

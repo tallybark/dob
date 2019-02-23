@@ -26,14 +26,14 @@ from gettext import gettext as _
 import click
 from nark.helpers.colored import attr, bg, coloring, colorize, fg
 
-__all__ = [
+__all__ = (
     'conflict_prefix',
     'dob_in_user_exit',
     'dob_in_user_warning',
     'echo_fact',
     'highlight_value',
     'prepare_log_msg',
-]
+)
 
 
 def click_echo(*args, **kwargs):

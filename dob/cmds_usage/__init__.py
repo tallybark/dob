@@ -25,7 +25,7 @@ from pedantic_timedelta import PedanticTimedelta
 
 from ..helpers.ascii_table import generate_table
 
-__all__ = ['generate_usage_table']
+__all__ = ('generate_usage_table', )
 
 
 def generate_usage_table(

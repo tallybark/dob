@@ -40,13 +40,13 @@ from .plugins import ClickAliasablePluginGroup
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
 
-__all__ = [
+__all__ = (
     'pass_controller',
     'dob_versions',
     'run',
     # Private:
     #  'CONTEXT_SETTINGS',
-]
+)
 
 
 # Profiling: Controller is made during Command.invoke via click.MultiCommand.invoke.

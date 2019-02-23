@@ -31,7 +31,7 @@ from . import __arg0name__, help_strings
 from .cmd_config import AppDirs
 from .helpers import click_echo, dob_in_user_exit, dob_in_user_warning, highlight_value
 
-__all__ = [
+__all__ = (
     'control',
     'downgrade',
     'upgrade',
@@ -43,7 +43,7 @@ __all__ = [
     #  '_barf_legacy_database',
     #  '_instruct_upgrade',
     #  '_upgrade_legacy_database_file',
-]
+)
 
 
 def control(controller):

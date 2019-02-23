@@ -40,9 +40,9 @@ from .traverser.placeable_fact import PlaceableFact
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
 
-__all__ = [
+__all__ = (
     'Controller',
-]
+)
 
 
 # ***

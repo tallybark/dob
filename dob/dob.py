@@ -78,7 +78,7 @@ from .transcode import export_facts, import_facts
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
 
-__all__ = [
+__all__ = (
     # 'version',
     # '_version',
     # 'license',
@@ -116,7 +116,7 @@ __all__ = [
     # 'migrate_downgrade',
     # 'migrate_upgrade',
     # 'migrate_version',
-]
+)
 
 
 @run.command(hidden=True, help=help_strings.HELP_HELP)

@@ -31,7 +31,7 @@ from ..help_strings import NO_ACTIVE_FACT_HELP
 from ..helpers import click_echo, dob_in_user_exit, dob_in_user_warning
 from ..helpers.ascii_table import generate_table, warn_if_truncated
 
-__all__ = [
+__all__ = (
     'echo_latest_ended',
     'echo_ongoing_fact',
     'echo_ongoing_or_ended',
@@ -43,7 +43,7 @@ __all__ = [
     # Private:
     #  'echo_most_recent',
     #  'echo_single_fact',
-]
+)
 
 
 # ***

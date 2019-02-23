@@ -37,7 +37,10 @@ format_pretty_table = lazy_import.lazy_callable(
     'humanfriendly.tables.format_pretty_table'
 )
 
-__all__ = ['generate_table', 'warn_if_truncated']
+__all__ = (
+    'generate_table',
+    'warn_if_truncated',
+)
 
 
 def generate_table(
