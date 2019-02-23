@@ -24,15 +24,15 @@ import traceback
 from io import open
 
 from gettext import gettext as _
-# FIXME: Move this to an intermediate carousel-managing class.
-#        (lb): That is, decouple PPT implementation from create.py?
-from prompt_toolkit.lexers import PygmentsLexer
 
 import click
 import pygments.lexers
 from inflector import English, Inflector
 from nark.helpers.colored import attr, fg
 from nark.helpers.parsing import ParserException
+# FIXME: Move this to an intermediate carousel-managing class.
+#        (lb): That is, decouple PPT implementation from create.py?
+from prompt_toolkit.lexers import PygmentsLexer
 
 from . import interrogate
 from .cmd_common import echo_block_header

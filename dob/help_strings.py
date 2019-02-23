@@ -25,7 +25,6 @@ from nark.helpers.colored import attr, fg
 
 from . import __arg0name__, __package_name__
 
-
 # ***
 # *** [BARE] Command help.
 # ***

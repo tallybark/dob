@@ -23,11 +23,11 @@ import pty
 import sys
 from unittest.mock import Mock
 
-import prompt_toolkit
 from dob.transcode import export_facts, import_facts
-from prompt_toolkit.input.posix_utils import PosixStdinReader
 
+import prompt_toolkit
 import pytest
+from prompt_toolkit.input.posix_utils import PosixStdinReader
 
 IMPORT_PATH = './tests/fixtures/test-import-fixture.rst'
 """Path to the import file fixture, which is full of Factoids."""
