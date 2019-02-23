@@ -19,13 +19,20 @@
 
 from __future__ import absolute_import, unicode_literals
 
-from gettext import gettext as _
-
-import click
 import os
 from datetime import datetime
 
-from . import __arg0name__, __author__, __author_email__, __package_name__, __resolve_vers__
+from gettext import gettext as _
+
+import click
+
+from . import (
+    __arg0name__,
+    __author__,
+    __author_email__,
+    __package_name__,
+    __resolve_vers__
+)
 from .helpers import click_echo
 
 # Disable the python_2_unicode_compatible future import warning.

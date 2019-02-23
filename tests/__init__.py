@@ -21,7 +21,6 @@ from __future__ import absolute_import, unicode_literals
 
 import datetime
 
-
 __all__ = [
     'truncate_to_whole_seconds',
 ]

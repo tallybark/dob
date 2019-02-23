@@ -17,15 +17,15 @@
 
 from __future__ import absolute_import, unicode_literals
 
-from gettext import gettext as _
-
-import click
 import datetime
-import lazy_import
 import logging
 import os
 import sys
 
+from gettext import gettext as _
+
+import click
+import lazy_import
 import nark
 from nark.helpers.app_dirs import NarkAppDirs
 

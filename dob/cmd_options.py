@@ -17,10 +17,11 @@
 
 from __future__ import absolute_import, unicode_literals
 
+import inspect
+
 from gettext import gettext as _
 
 import click
-import inspect
 
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True

@@ -19,13 +19,15 @@
 
 from __future__ import absolute_import, unicode_literals
 
+import sys
+
 from gettext import gettext as _
 
 import click
-import sys
-
 from nark import __package_name__ as package_name_nark
 from nark import __resolve_vers__ as resolve_vers_nark
+# FIXME: PROFILING
+from nark.helpers.dev.profiling import profile_elapsed, timefunct
 
 from . import __package_name__ as package_name_dob
 from . import __resolve_vers__ as resolve_vers_dob
@@ -34,9 +36,6 @@ from .controller import Controller
 from .copyright import echo_copyright
 from .helpers import click_echo
 from .plugins import ClickAliasablePluginGroup
-
-# FIXME: PROFILING
-from nark.helpers.dev.profiling import profile_elapsed, timefunct
 
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
@@ -169,5 +168,4 @@ def run(ctx, controller, v, verbose, verboser, color):
     # Shim to the private run() functions.
 
     _run(ctx, controller, show_version=v)
-
 

@@ -19,25 +19,23 @@
 
 from __future__ import absolute_import, unicode_literals
 
-from gettext import gettext as _
-
 # FIXME: PROFILING
 from nark.helpers.dev.profiling import profile_elapsed
 # FIXME: PROFILING
 # E402 module level import not at top of file
 profile_elapsed('To dob:   _top')  # noqa: E402
 
-import click
 import os
 import re
 import sys
-from click_alias import ClickAliasedGroup
 from functools import update_wrapper
 
-from . import cmd_options
-from . import help_strings
-from . import migrate
-from . import update
+from click_alias import ClickAliasedGroup
+from gettext import gettext as _
+
+import click
+
+from . import cmd_options, help_strings, migrate, update
 from .cmd_common import (
     induct_newbies,
     insist_germinated,
@@ -45,10 +43,12 @@ from .cmd_common import (
     post_processor
 )
 from .cmd_options import (
-    cmd_options_factoid,
+    OptionWithDynamicHelp,
+    cmd_options_edit_item,
     cmd_options_fact_add,
     cmd_options_fact_dryable,
     cmd_options_fact_nocarousel,
+    cmd_options_factoid,
     cmd_options_limit_offset,
     cmd_options_list_activitied,
     cmd_options_list_categoried,
@@ -56,15 +56,13 @@ from .cmd_options import (
     cmd_options_search,
     cmd_options_table_bunce,
     cmd_options_usage,
-    cmd_options_edit_item,
-    postprocess_options_table_bunce,
-    OptionWithDynamicHelp
+    postprocess_options_table_bunce
 )
 from .cmds_list import activity as list_activity
 from .cmds_list import category as list_category
 from .cmds_list import fact as list_fact
 from .cmds_list import tag as list_tag
-from .cmds_list.fact import echo_ongoing_fact, echo_latest_ended, echo_ongoing_or_ended
+from .cmds_list.fact import echo_latest_ended, echo_ongoing_fact, echo_ongoing_or_ended
 from .cmds_usage import activity as usage_activity
 from .cmds_usage import category as usage_category
 from .cmds_usage import tag as usage_tag

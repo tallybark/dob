@@ -19,13 +19,12 @@
 
 from __future__ import absolute_import, unicode_literals
 
+import sys
+
 from gettext import gettext as _
 
 import click
-import sys
-
-from nark.helpers.colored import coloring, colorize, bg, fg, attr
-
+from nark.helpers.colored import attr, bg, coloring, colorize, fg
 
 __all__ = [
     'conflict_prefix',

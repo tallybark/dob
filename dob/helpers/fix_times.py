@@ -17,25 +17,16 @@
 
 from __future__ import absolute_import, unicode_literals
 
+from datetime import datetime, timedelta
+
 from gettext import gettext as _
 
 import click
-from datetime import datetime, timedelta
-from six import text_type
-
 from nark.helpers import fact_time
-from nark.helpers.fact_time import (
-    datetime_from_clock_after,
-    datetime_from_clock_prior
-)
-from nark.helpers.facts_fit import (
-    antecedent_fact,
-    subsequent_fact
-)
-from nark.helpers.parse_time import (
-    parse_clock_time,
-    parse_relative_minutes
-)
+from nark.helpers.fact_time import datetime_from_clock_after, datetime_from_clock_prior
+from nark.helpers.facts_fit import antecedent_fact, subsequent_fact
+from nark.helpers.parse_time import parse_clock_time, parse_relative_minutes
+from six import text_type
 
 from . import click_echo, conflict_prefix, prepare_log_msg
 from ..cmd_common import barf_and_exit, echo_block_header

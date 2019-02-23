@@ -19,21 +19,20 @@
 
 from __future__ import absolute_import, unicode_literals
 
-from gettext import gettext as _
-
-import click
 import logging
 import os
 import sys
 
+from gettext import gettext as _
+
+import click
 from nark.control import NarkControl
 from nark.helpers import logging as logging_helpers
 from nark.helpers.colored import disable_colors, enable_colors
 
-from . import __arg0name__
-from . import help_strings
+from . import __arg0name__, help_strings
+from .cmd_config import furnish_config, get_config_path, replenish_config
 from .copyright import echo_copyright
-from .cmd_config import get_config_path, furnish_config, replenish_config
 from .helpers import click_echo, dob_in_user_exit, highlight_value
 from .migrate import upgrade_legacy_database_instructions
 from .traverser.placeable_fact import PlaceableFact

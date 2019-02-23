@@ -17,16 +17,16 @@
 
 from __future__ import absolute_import, unicode_literals
 
-from gettext import gettext as _
-
 import os
 
-from nark.helpers.colored import fg, attr
+from gettext import gettext as _
+
+from nark.helpers.colored import attr, fg
 from nark.items import Fact
 
 from . import __package_name__ as package_name_dob
 from . import __resolve_vers__ as resolve_vers_dob
-from .cmd_config import get_config_path, AppDirs
+from .cmd_config import AppDirs, get_config_path
 from .helpers import ascii_art, click_echo, highlight_value
 from .plugins import ClickAliasablePluginGroup
 

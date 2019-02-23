@@ -17,27 +17,26 @@
 
 from __future__ import absolute_import, unicode_literals
 
-from gettext import gettext as _
-
-import click
 import glob
 import json
 import os
-import pygments.lexers
 import traceback
-from inflector import Inflector, English
 from io import open
 
+from gettext import gettext as _
 # FIXME: Move this to an intermediate carousel-managing class.
 #        (lb): That is, decouple PPT implementation from create.py?
 from prompt_toolkit.lexers import PygmentsLexer
 
-from nark.helpers.colored import fg, attr
+import click
+import pygments.lexers
+from inflector import English, Inflector
+from nark.helpers.colored import attr, fg
 from nark.helpers.parsing import ParserException
 
 from . import interrogate
 from .cmd_common import echo_block_header
-from .cmd_config import get_appdirs_subdir_file_path, AppDirs
+from .cmd_config import AppDirs, get_appdirs_subdir_file_path
 from .help_strings import NOTHING_TO_STOP_HELP
 from .helpers import (
     click_echo,
@@ -54,8 +53,7 @@ from .helpers.fix_times import (
     unite_and_stretch
 )
 from .helpers.path import compile_and_eval_source
-from .traverser import various_lexers
-from .traverser import various_styles
+from .traverser import various_lexers, various_styles
 from .traverser.placeable_fact import PlaceableFact
 
 __all__ = [

@@ -17,26 +17,19 @@
 
 from __future__ import absolute_import, unicode_literals
 
-from gettext import gettext as _
-
 import os
 import shutil
 import sys
 
-import nark
-from nark.helpers.colored import fg, attr
+from gettext import gettext as _
 
-from . import __arg0name__
-from . import help_strings
+import nark
+from nark.helpers.colored import attr, fg
+
+from . import __arg0name__, help_strings
 # Profiling: load AppDirs: ~ 0.011 secs.
 from .cmd_config import AppDirs
-from .helpers import (
-    click_echo,
-    dob_in_user_exit,
-    dob_in_user_warning,
-    highlight_value
-)
-
+from .helpers import click_echo, dob_in_user_exit, dob_in_user_warning, highlight_value
 
 __all__ = [
     'control',

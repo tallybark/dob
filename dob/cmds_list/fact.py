@@ -17,12 +17,12 @@
 
 from __future__ import absolute_import, unicode_literals
 
-from gettext import gettext as _
-
-import click
 import sys
 from collections import namedtuple
 
+from gettext import gettext as _
+
+import click
 from nark.helpers.colored import colorize
 from nark.helpers.parse_time import parse_dated
 
@@ -30,7 +30,6 @@ from ..cmd_common import error_exit_no_results, hydrate_activity, hydrate_catego
 from ..help_strings import NO_ACTIVE_FACT_HELP
 from ..helpers import click_echo, dob_in_user_exit, dob_in_user_warning
 from ..helpers.ascii_table import generate_table, warn_if_truncated
-
 
 __all__ = [
     'echo_latest_ended',

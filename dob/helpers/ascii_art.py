@@ -17,11 +17,13 @@
 
 from __future__ import absolute_import, unicode_literals
 
+import os
+import random
+
 from gettext import gettext as _
 
 import click
-import os
-import random
+from nark.helpers.colored import attr, bg, fg
 from six import text_type
 
 try:
@@ -30,7 +32,6 @@ try:
 except ImportError:
     pass
 
-from nark.helpers.colored import fg, bg, attr
 
 __all__ = [
     'hamster_artwork',

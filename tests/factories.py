@@ -21,10 +21,7 @@ import datetime
 
 import factory
 import faker
-
-from nark.items import Activity
-from nark.items import Category
-from nark.items import Fact
+from nark.items import Activity, Category, Fact
 
 
 class CategoryFactory(factory.Factory):

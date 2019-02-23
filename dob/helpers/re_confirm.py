@@ -18,12 +18,12 @@
 
 from __future__ import absolute_import, unicode_literals
 
-from six import text_type
-
 from prompt_toolkit.formatted_text import merge_formatted_text
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.keys import Keys
 from prompt_toolkit.shortcuts import PromptSession
+
+from six import text_type
 
 __all__ = [
     'confirm',

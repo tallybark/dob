@@ -17,10 +17,10 @@
 
 from __future__ import absolute_import, unicode_literals
 
-from gettext import gettext as _
-
 import os
 from io import open
+
+from gettext import gettext as _
 
 from . import dob_in_user_warning
 

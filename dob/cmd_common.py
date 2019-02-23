@@ -17,16 +17,15 @@
 
 from __future__ import absolute_import, unicode_literals
 
-from gettext import gettext as _
-
-import click
 import sys
 from functools import update_wrapper
 
-from nark.helpers.colored import fg, attr, colorize
+from gettext import gettext as _
 
-from . import __arg0name__
-from . import migrate
+import click
+from nark.helpers.colored import attr, colorize, fg
+
+from . import __arg0name__, migrate
 from .helpers import ascii_art, click_echo, dob_in_user_exit
 
 __all__ = [

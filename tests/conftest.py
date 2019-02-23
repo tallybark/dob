@@ -30,10 +30,16 @@ from __future__ import absolute_import, unicode_literals
 
 import codecs
 import datetime
-import fauxfactory
 import os
-import pytest
 import tempfile
+
+import dob.dob as dob
+from dob.controller import Controller
+
+import fauxfactory
+import freezegun
+import nark
+import pytest
 # Once we drop py2 support, we can use the builtin again but unicode support
 # under python 2 is practicly non existing and manual encoding is not easily
 # possible.
@@ -41,12 +47,6 @@ from backports.configparser import ConfigParser
 from click.testing import CliRunner
 from pytest_factoryboy import register
 from six import text_type
-import freezegun
-
-import nark
-
-import dob.dob as dob
-from dob.controller import Controller
 
 from . import factories
 

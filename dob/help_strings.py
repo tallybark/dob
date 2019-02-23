@@ -21,7 +21,7 @@ from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
-from nark.helpers.colored import fg, attr
+from nark.helpers.colored import attr, fg
 
 from . import __arg0name__, __package_name__
 

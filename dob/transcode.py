@@ -19,16 +19,16 @@
 
 from __future__ import absolute_import, unicode_literals
 
+import copy
+import re
+import sys
+from datetime import datetime, time, timedelta
+
 from gettext import gettext as _
 
 import click
-import copy
-from datetime import datetime, time, timedelta
-import re
-import sys
-
 from nark import reports
-from nark.helpers.colored import fg, bg, attr
+from nark.helpers.colored import attr, bg, fg
 from nark.helpers.parsing import parse_factoid
 
 from . import __package_name__
@@ -40,18 +40,14 @@ from .cmd_common import (
 )
 from .cmds_list.fact import search_facts
 from .create import prompt_and_save
-from .helpers import (
-    click_echo,
-    highlight_value,
-    prepare_log_msg
-)
+from .helpers import click_echo, highlight_value, prepare_log_msg
 from .helpers.crude_progress import CrudeProgress
 from .helpers.fix_times import (
+    DEFAULT_SQUASH_SEP,
     mend_facts_times,
     must_complete_times,
     reduce_time_hint,
-    then_extend_fact,
-    DEFAULT_SQUASH_SEP
+    then_extend_fact
 )
 from .traverser.placeable_fact import PlaceableFact
 
