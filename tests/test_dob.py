@@ -60,7 +60,8 @@ class TestSearchTerm(object):
         """Ensure that search parameters are passed to appropriate backend function."""
         since, until, description, expectation = search_parameter_parametrized
         controller.facts.get_all = mocker.MagicMock(return_value=[fact])
-        facts = search_facts(controller, since=since, until=until)
+        # F841 local variable '_facts' is assigned to but never used
+        _facts = search_facts(controller, since=since, until=until)  # noqa: F841
         controller.facts.get_all.assert_called_with(**expectation)
         # See: nark's test_get_all_various_since_and_until_times
         assert controller.facts.get_all.called
