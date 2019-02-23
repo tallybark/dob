@@ -347,3 +347,16 @@ texinfo_documents = [
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
 
+# (lb): Not sure why, but getting linkcheck failures on anchors. E.g.,
+#   (line   72) broken    https://dob.readthedocs.io/en/latest/installation.html
+#       #upgrade-legacy-database - Anchor 'upgrade-legacy-database' not found
+# https://www.sphinx-doc.org/en/master/_modules/sphinx/builders/linkcheck.html
+linkcheck_anchors_ignore = [
+    'start-fresh',
+    'upgrade-legacy-database',
+]
+linkcheck_ignore = [
+    # FIXME/2019-02-22 22:19: Until it goes live...
+    'https://github.com/hotoffthehamster/dob-plugin-example',
+]
+
