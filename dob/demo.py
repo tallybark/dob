@@ -130,13 +130,17 @@ class DemoFactGenerator(object):
             activity=self.acts['demo@welcome'],
             #tags=['dob-life', 'welcome',],
             tags=['hello, dobber!',],
-            description=_(
-                'Welcome to the dob demo!\n\n'
-                'Want to learn the basics of dob? Then follow along!\n\n'
-                '* To quit at any time, press the "q" key.\n\n'
-                "Let's get started! You're looking at the last, final Fact.\n\n"
-                '* Press the "g" key twice ("gg") to go to the first Fact.'
-            ),
+            description=_('''
+Welcome to the dob demo!
+
+Do you want to learn the basics of dob? Then follow along!
+
+* To quit at any time, press the "q" key.
+
+Let‘s get started! You‘re looking at the last, final Fact.
+
+* Press the "g" key twice ("gg") to go to the first Fact.
+            '''.strip()),  # noqa: E501
         )
         return demo_fact
 
@@ -148,13 +152,17 @@ class DemoFactGenerator(object):
             end=until_time,
             activity=self.acts['demo@welcome'],
             tags=['first-fact',],
-            description=_(
-                'Congratulations, you made it to the first Fact in the demo!\n\n'
-                'The "gg" command takes you to the first Fact in your database.\n\n'
-                'The "G" command (uppercase), similarly, takes you to the last Fact.\n\n'
-                '* Press "G" now to try it, then press "gg" to return here.\n\n'
-                '* To continue, press the "k" key to advance to the next Fact.'
-            ),
+            description=_('''
+Congratulations, you made it to the first Fact in the demo!
+
+The "gg" command takes you to the first Fact in your database.
+
+The "G" command (uppercase), similarly, takes you to the last Fact.
+
+* Press "G" now to try it, then press "gg" to return here.
+
+* To continue, press the "k" key to advance to the next Fact.
+            '''.strip()),  # noqa: E501
         )
         return demo_fact
 
@@ -164,13 +172,17 @@ class DemoFactGenerator(object):
             end=prev_fact.end + timedelta(minutes=66),
             activity=self.acts['demo@welcome'],
             tags=['learning fast',],
-            description=_(
-                "You're learning fast!\n\n"
-                'To go backward one Fact, press the "j" key.\n\n'
-                '* Press "j" now to try it, then press "k" to return here.\n\n'
-                'You can also use the left and right arrow keys to change Facts.\n\n'
-                '* To continue, press the right arrow key "→" to advance one Fact.'
-            ),
+            description=_('''
+You're learning fast!
+
+To go backward one Fact, press the "j" key.
+
+* Press "j" now to try it, then press "k" to return here.
+
+You can also use the left and right arrow keys to change Facts.
+
+* To continue, press the right arrow key "→" to advance one Fact.
+            '''.strip()),  # noqa: E501
         )
         return demo_fact
 
@@ -179,14 +191,72 @@ class DemoFactGenerator(object):
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=12),
             activity=self.acts['demo@intermediate'],
-            #tags=['',],
-            description=_(
-                "Wow! You can sure get around dob now!\n\n"
-                'You can also navigate dob by jumping Facts one day at a time.\n\n'
-                '* Press (uppercase) "K" to jump to the Fact 1 day from now.\n\n'
-                '  Return to this entry with (uppercase) "J".\n\n'
-                '* Then press (lowercase) "k" (or "→") to keep reading the demo.'
-            ),
+            tags=['choose your own demo #3',],
+            description=_('''
+Wow! You can sure get around dob now!
+
+You can also navigate dob by jumping Facts one day at a time.
+
+* Press (uppercase) "K" to jump to the Fact 1 day from now.
+
+  Return to this entry with (uppercase) "J".
+
+* Then press (lowercase) "k" (or "→") to keep reading the demo.
+            '''.strip()),  # noqa: E501
+        )
+        return demo_fact
+
+    def demo_fact_03(self, prev_fact):
+        demo_fact = PlaceableFact(
+            start=prev_fact.end,
+            end=prev_fact.end + timedelta(hours=9),
+            activity=self.acts['demo@intermediate'],
+            tags=['choose your own demo #5', ],
+            # E501 line too long (✗✗✗ > 89 characters)
+            description=_('''
+You‘ve become a pro at navigating between Facts!
+
+Now let‘s learn about navigating the *description*, which is what you‘re reading.
+
+You can move the cursor using -- surprise! -- the up and down arrow keys!
+
+* Press and hold the down arrow key "↓" until the cursor scrolls down the window.
+
+  You should eventually see more text.
+
+
+
+
+Hi! You made it!!
+
+You can use the up "↑" arrow key, naturally, to move the cursor up.
+
+And you can use a three-button mouse wheel to scroll the description, too.
+
+To scroll by the pageful, use the Page Up and Page Down keys ("PgUp" and "PgDn").
+
+* Press "PgUp" a few times and then "PgDn" back here to try for yourself.
+
+To jump to the very beginning of the description, use "Home".
+
+To jump to the very end, use "End".
+
+* To keep reading the demo, press "End" now.
+
+
+
+
+
+
+
+
+This is the end of the description!
+
+* To keep learning, jump one day -- press "K" -- because you‘ve read the next Fact.
+
+  Hint: Look at the status bar below this text and you‘ll see
+  the "Fact ID #4" change to "Fact ID #6" after pressing "K".
+            '''.strip()),  # noqa: E501
         )
         return demo_fact
 
@@ -195,13 +265,27 @@ class DemoFactGenerator(object):
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=6),
             activity=self.acts['demo@intermediate'],
-            #tags=['',],
-            description=_(
-                'Did you just press "K" to jump forward one day? Congrats!\n\n'
-                'Bonus Feature: If you press and hold "K", dob will start jumping by weeks.\n\n'
-                'To continue the demo, jump back one day to the last entry you read.\n\n'
-                '* Press "J" to jump back one day to continue the demo.'
-            ),
+            tags=['choose your own demo #4',],
+            description=_('''
+Did you just press "K" to jump forward one day? Congrats!
+
+Bonus Feature: If you press and hold "K", dob will start jumping by weeks.
+
+To continue the demo, jump back one day to the last entry you read.
+
+* Press "J" to jump back one day to continue the demo.
+            '''.strip()),  # noqa: E501
+        )
+        return demo_fact
+
+    def demo_fact_05(self, prev_fact):
+        demo_fact = PlaceableFact(
+            start=prev_fact.end,
+            end=prev_fact.end + timedelta(hours=18),
+            activity=self.acts['demo@intermediate'],
+            tags=['choose your own demo #6',],
+            description=_('''
+            '''.strip()),  # noqa: E501
         )
         return demo_fact
 
