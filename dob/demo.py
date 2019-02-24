@@ -80,8 +80,8 @@ class DemoFactGenerator(object):
     """"""
     def __init__(self, controller):
         self.controller = controller
-        self.last_fact_pk = -1
         self.create_actegories()
+        self.populate_facts()
 
     # ***
 
@@ -102,10 +102,24 @@ class DemoFactGenerator(object):
     # ***
 
     def demo_facts(self):
+        for demo_fact in self._demo_facts:
+            yield demo_fact
+
+    def populate_facts(self):
+        self._demo_facts = []
+        prev_fact = None
         for name in list(filter(lambda name: name.startswith('demo_fact_'), dir(self))):
-            yield getattr(self, name)()
+            demo_fact = getattr(self, name)(prev_fact)
+            self._demo_facts.append(demo_fact)
+            prev_fact = demo_fact
 
     # ***
+
+    def demo_fact_00(self, _prev_fact):
+        return self.first_fact()
+
+    def demo_fact_99(self, _prev_fact):
+        return self.final_fact()
 
     def final_fact(self):
         demo_fact = PlaceableFact(
@@ -142,12 +156,21 @@ class DemoFactGenerator(object):
         )
         return demo_fact
 
-    def demo_fact_00(self):
-        return self.first_fact()
-
-    def demo_fact_99(self):
-        return self.final_fact()
-
+    def demo_fact_01(self, prev_fact):
+        demo_fact = PlaceableFact(
+            activity=self.acts['demo@welcome'],
+            start=prev_fact.end,
+            end=prev_fact.end + timedelta(minutes=66),
+            description=_(
+                "You're learning fast!\n\n"
+                'To go backward one Fact, press the "j" key.\n\n'
+                '* Press "j" now to try it, then press "k" to return here.\n\n'
+                'You can also use the left and right arrow keys to change Facts.\n\n'
+                '* To continune, press the right arrow key "→" to advance one Fact.'
+            ),
+            tags=['learning fast',],
+        )
+        return demo_fact
 
 # ***
 
