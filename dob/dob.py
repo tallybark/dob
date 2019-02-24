@@ -242,7 +242,7 @@ def init_config_and_store(controller):
 
 @run.group('config', cls=ClickAliasedGroup, help=help_strings.CONFIG_GROUP_HELP)
 @click.pass_context
-def config_group(controller):
+def config_group(ctx):
     """Base `config` group command run prior to any of the dob-config commands."""
     pass
 
@@ -264,7 +264,7 @@ def config_create(controller, force):
 
 @run.group('store', cls=ClickAliasedGroup, help=help_strings.STORE_GROUP_HELP)
 @click.pass_context
-def store_group(controller):
+def store_group(ctx):
     """Base `store` group command run prior to dob-store commands."""
     pass
 
