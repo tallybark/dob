@@ -34,7 +34,6 @@ __all__ = (
 
 # ***
 
-
 def ask_user_for_edits(
     controller,
     fact,
