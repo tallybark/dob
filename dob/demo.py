@@ -23,7 +23,11 @@ import tempfile
 from datetime import timedelta
 from functools import update_wrapper
 
+from gettext import gettext as _
+
 from nark.items.activity import Activity
+from nark.items.category import Category
+from nark.items.tag import Tag
 
 from .cmd_config import AppDirs
 from .create import prompt_and_save
@@ -54,9 +58,16 @@ def demo_config(func):
 def demo_dob(controller):
     def _demo_dob():
         genator = DemoFactGenerator(controller)
+        demo_facts = []
+        # Save the facts to the temp. db., otherwise Carousel
+        # won't quit on simple 'q', but will prompt user to save.
+        for demo_fact in genator.demo_facts():
+            saved_fact = controller.facts.save(demo_fact)
+            demo_facts.append(saved_fact)
+
         _saved_facts = prompt_and_save(
             controller,
-            edit_facts=[genator.first_fact(), ],
+            edit_facts=demo_facts,
             use_carousel=True,
             yes=False,
             dry=False,
@@ -70,19 +81,65 @@ class DemoFactGenerator(object):
     def __init__(self, controller):
         self.controller = controller
         self.last_fact_pk = -1
+        self.create_actegories()
+
+    # ***
+
+    def create_actegories(self):
+        self.create_categories()
+        self.create_activities()
+
+    def create_categories(self):
+        self.cats = {
+            'welcome': Category(name=_('Welcome')),
+        }
+
+    def create_activities(self):
+        self.acts = {
+            'demo@welcome': Activity(name=_('Demo'), category=self.cats['welcome']),
+        }
+
+    # ***
+
+    def demo_facts(self):
+        yield self.first_fact()
+        yield self.final_fact()
+
+    # ***
 
     def first_fact(self):
-        activity = Activity(name='')
-        since_time = self.controller.now - timedelta(hours=1)
+        since_time = self.controller.now - timedelta(days=14)
+        until_time = since_time + timedelta(minutes=90)
         demo_fact = PlaceableFact(
-            pk=self.last_fact_pk,
-            activity=activity,
+            activity=self.acts['demo@welcome'],
             start=since_time,
-            end=None,
+            end=until_time,
+            description=_(
+                'Congratulations, you made it to the first Fact in the demo!\n\n'
+                'The "gg" command takes you to the first Fact in your database.\n\n'
+                'The "G" command, similarly, takes you to the last Fact.\n\n'
+                '- Press "G" now to try it, then press "gg" to return here.'
+                '- To continue, press the "k" key to advance to the next Fact.'
+            ),
+            tags=['first-fact',],
         )
-        self.last_fact_pk -= 1
         return demo_fact
 
+    def final_fact(self):
+        demo_fact = PlaceableFact(
+            activity=self.acts['demo@welcome'],
+            start=self.controller.now - timedelta(hours=1),
+            end=None,
+            description=_(
+                'Welcome to the dob demo!\n\n'
+                'Want to learn the basics of dob? Then follow along!\n\n'
+                '- To quit at any time, press the "q" key.\n\n'
+                "Let's get started!\n\n"
+                '- Press the "g" key twice to go to the first Fact.'
+            ),
+            tags=['hello, dobber!',],
+        )
+        return demo_fact
 
 # ***
 
