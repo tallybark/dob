@@ -20,8 +20,8 @@ Create the config and database, and run the interactive editor:
 Upgrade Hamster
 ---------------
 
-If you've been using Legacy Hamster, upgrade your existing database,
-and then run the interactive editor:
+If you've been using Legacy Hamster, you can upgrade your
+existing database, and then run the interactive editor:
 
 .. code-block:: Bash
 
@@ -32,7 +32,7 @@ and then run the interactive editor:
 More Help
 ---------
 
-|dob|_ recognizes your standard CLI flags, such as ``--help``:
+|dob|_ recognizes standard CLI flags, such as ``--help``:
 
 .. code-block:: Bash
 
