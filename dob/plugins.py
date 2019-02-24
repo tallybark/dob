@@ -24,10 +24,10 @@ import os
 import shutil
 import sys
 
-from click_alias import ClickAliasedGroup
 from gettext import gettext as _
 
 import click
+from click_alias import ClickAliasedGroup
 
 from .cmd_config import AppDirs, get_appdirs_subdir_file_path
 from .helpers import dob_in_user_warning
