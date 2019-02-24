@@ -92,10 +92,12 @@ class DemoFactGenerator(object):
     def create_categories(self):
         self.cats = {
             'welcome': Category(name=_('Welcome')),
+            'intermediate': Category(name=_('Intermediate Skills')),
         }
 
     def create_activities(self):
         self.acts = {
+            'demo@intermediate': Activity(name=_('Demo'), category=self.cats['intermediate']),
             'demo@welcome': Activity(name=_('Demo'), category=self.cats['welcome']),
         }
 
@@ -123,9 +125,11 @@ class DemoFactGenerator(object):
 
     def final_fact(self):
         demo_fact = PlaceableFact(
-            activity=self.acts['demo@welcome'],
             start=self.controller.now - timedelta(hours=1),
             end=None,
+            activity=self.acts['demo@welcome'],
+            #tags=['dob-life', 'welcome',],
+            tags=['hello, dobber!',],
             description=_(
                 'Welcome to the dob demo!\n\n'
                 'Want to learn the basics of dob? Then follow along!\n\n'
@@ -133,8 +137,6 @@ class DemoFactGenerator(object):
                 "Let's get started! You're looking at the last, final Fact.\n\n"
                 '* Press the "g" key twice ("gg") to go to the first Fact.'
             ),
-            #tags=['dob-life', 'welcome',],
-            tags=['hello, dobber!',],
         )
         return demo_fact
 
@@ -142,35 +144,67 @@ class DemoFactGenerator(object):
         since_time = self.controller.now - timedelta(days=14)
         until_time = since_time + timedelta(minutes=90)
         demo_fact = PlaceableFact(
-            activity=self.acts['demo@welcome'],
             start=since_time,
             end=until_time,
+            activity=self.acts['demo@welcome'],
+            tags=['first-fact',],
             description=_(
                 'Congratulations, you made it to the first Fact in the demo!\n\n'
                 'The "gg" command takes you to the first Fact in your database.\n\n'
-                'The "G" command, similarly, takes you to the last Fact.\n\n'
+                'The "G" command (uppercase), similarly, takes you to the last Fact.\n\n'
                 '* Press "G" now to try it, then press "gg" to return here.\n\n'
                 '* To continue, press the "k" key to advance to the next Fact.'
             ),
-            tags=['first-fact',],
         )
         return demo_fact
 
     def demo_fact_01(self, prev_fact):
         demo_fact = PlaceableFact(
-            activity=self.acts['demo@welcome'],
             start=prev_fact.end,
             end=prev_fact.end + timedelta(minutes=66),
+            activity=self.acts['demo@welcome'],
+            tags=['learning fast',],
             description=_(
                 "You're learning fast!\n\n"
                 'To go backward one Fact, press the "j" key.\n\n'
                 '* Press "j" now to try it, then press "k" to return here.\n\n'
                 'You can also use the left and right arrow keys to change Facts.\n\n'
-                '* To continune, press the right arrow key "→" to advance one Fact.'
+                '* To continue, press the right arrow key "→" to advance one Fact.'
             ),
-            tags=['learning fast',],
         )
         return demo_fact
+
+    def demo_fact_02(self, prev_fact):
+        demo_fact = PlaceableFact(
+            start=prev_fact.end,
+            end=prev_fact.end + timedelta(hours=12),
+            activity=self.acts['demo@intermediate'],
+            #tags=['',],
+            description=_(
+                "Wow! You can sure get around dob now!\n\n"
+                'You can also navigate dob by jumping Facts one day at a time.\n\n'
+                '* Press (uppercase) "K" to jump to the Fact 1 day from now.\n\n'
+                '  Return to this entry with (uppercase) "J".\n\n'
+                '* Then press (lowercase) "k" (or "→") to keep reading the demo.'
+            ),
+        )
+        return demo_fact
+
+    def demo_fact_04(self, prev_fact):
+        demo_fact = PlaceableFact(
+            start=prev_fact.end,
+            end=prev_fact.end + timedelta(hours=6),
+            activity=self.acts['demo@intermediate'],
+            #tags=['',],
+            description=_(
+                'Did you just press "K" to jump forward one day? Congrats!\n\n'
+                'Bonus Feature: If you press and hold "K", dob will start jumping by weeks.\n\n'
+                'To continue the demo, jump back one day to the last entry you read.\n\n'
+                '* Press "J" to jump back one day to continue the demo.'
+            ),
+        )
+        return demo_fact
+
 
 # ***
 
