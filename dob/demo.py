@@ -18,7 +18,6 @@
 
 from __future__ import absolute_import, unicode_literals
 
-import os
 import tempfile
 from datetime import timedelta
 from functools import update_wrapper
@@ -27,9 +26,7 @@ from gettext import gettext as _
 
 from nark.items.activity import Activity
 from nark.items.category import Category
-from nark.items.tag import Tag
 
-from .cmd_config import AppDirs
 from .create import prompt_and_save
 from .traverser.placeable_fact import PlaceableFact
 
@@ -65,7 +62,8 @@ def demo_dob(controller):
             saved_fact = controller.facts.save(demo_fact)
             demo_facts.append(saved_fact)
 
-        _saved_facts = prompt_and_save(
+        # F841 local variable '...' is assigned to but never used
+        _saved_facts = prompt_and_save(  # noqa: F841
             controller,
             edit_facts=demo_facts,
             use_carousel=True,
@@ -97,8 +95,12 @@ class DemoFactGenerator(object):
 
     def create_activities(self):
         self.acts = {
-            'demo@intermediate': Activity(name=_('Demo'), category=self.cats['intermediate']),
-            'demo@welcome': Activity(name=_('Demo'), category=self.cats['welcome']),
+            'demo@intermediate': Activity(
+                name=_('Demo'), category=self.cats['intermediate'],
+            ),
+            'demo@welcome': Activity(
+                name=_('Demo'), category=self.cats['welcome'],
+            ),
         }
 
     # ***
@@ -128,8 +130,8 @@ class DemoFactGenerator(object):
             start=self.controller.now - timedelta(hours=1),
             end=None,
             activity=self.acts['demo@welcome'],
-            #tags=['dob-life', 'welcome',],
-            tags=['hello, dobber!',],
+            # tags=['dob-life', 'welcome', ],
+            tags=['hello, dobber!', ],
             description=_('''
 Welcome to the dob demo!
 
@@ -151,7 +153,7 @@ Let’s get started! You’re looking at the last, final Fact.
             start=since_time,
             end=until_time,
             activity=self.acts['demo@welcome'],
-            tags=['first-fact',],
+            tags=['first-fact', ],
             description=_('''
 Congratulations, you made it to the first Fact in the demo!
 
@@ -175,7 +177,7 @@ The "G" command (uppercase), similarly, takes you to the last Fact.
             start=prev_fact.end,
             end=prev_fact.end + timedelta(minutes=66),
             activity=self.acts['demo@welcome'],
-            tags=['learning fast',],
+            tags=['learning fast', ],
             description=_('''
 You're learning fast!
 
@@ -195,7 +197,7 @@ You can also use the left and right arrow keys to change Facts.
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=12),
             activity=self.acts['demo@intermediate'],
-            tags=['choose your own demo #3',],
+            tags=['choose your own demo #3', ],
             description=_('''
 Wow! You can sure get around dob now!
 
@@ -269,7 +271,7 @@ This is the end of the description!
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=6),
             activity=self.acts['demo@intermediate'],
-            tags=['choose your own demo #4',],
+            tags=['choose your own demo #4', ],
             description=_('''
 Did you just press "K" to jump forward one day? Congrats!
 
@@ -287,7 +289,7 @@ To continue the demo, jump back one day, to the last entry you read.
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=18),
             activity=self.acts['demo@intermediate'],
-            tags=['choose your own demo #6',],
+            tags=['choose your own demo #6', ],
             description=_('''
 Before we can learn how to create and edit Facts, there are a few more basics!
 
@@ -319,7 +321,7 @@ Gaps
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=18),
             activity=self.acts['demo@intermediate'],
-            tags=['choose your own demo #7',],
+            tags=['choose your own demo #7', ],
             description=_('''
 Gap Facts
 ---------
@@ -366,7 +368,7 @@ To see a Gap Fact for real, the next Fact in the demo starts 17 minutes later, a
             start=since_time,
             end=since_time + timedelta(hours=6),
             activity=self.acts['demo@intermediate'],
-            tags=['After the Gap Fact #8',],
+            tags=['After the Gap Fact #8', ],
             description=_('''
 Gap Review
 ----------
@@ -385,7 +387,7 @@ Speaking of editing, let’s talk about that finally!
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=4.75),
             activity=self.acts['demo@intermediate'],
-            tags=['choose your own demo #9',],
+            tags=['choose your own demo #9', ],
             description=_('''
 Edit Time
 ---------
@@ -474,7 +476,7 @@ To read about editing the Description, Activity & Category, and Tags, move forwa
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=4.75),
             activity=self.acts['demo@intermediate'],
-            tags=['choose your own demo #10',],
+            tags=['choose your own demo #10', ],
             description=_('''
 Meta Edits
 ----------
@@ -525,7 +527,7 @@ Save
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=4.75),
             activity=self.acts['demo@intermediate'],
-            tags=['choose your own demo #11',],
+            tags=['choose your own demo #11', ],
             description=_('''
 Saving
 ------
@@ -553,7 +555,7 @@ Undo/Redo
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=4.75),
             activity=self.acts['demo@intermediate'],
-            tags=['choose your own demo #12',],
+            tags=['choose your own demo #12', ],
             description=_('''
 Undo/Redo
 ---------
@@ -587,7 +589,7 @@ The next Fact explains how copy and paste work in dob.
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=4.75),
             activity=self.acts['demo@intermediate'],
-            tags=['choose your own demo #13',],
+            tags=['choose your own demo #13', ],
             description=_('''
 Copy/Paste
 ----------
@@ -623,7 +625,7 @@ Split/Merge
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=4.75),
             activity=self.acts['demo@intermediate'],
-            tags=['choose your own demo #14',],
+            tags=['choose your own demo #14', ],
             description=_('''
 Split/Merge/Delete
 ------------------
