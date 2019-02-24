@@ -102,10 +102,27 @@ class DemoFactGenerator(object):
     # ***
 
     def demo_facts(self):
-        yield self.first_fact()
-        yield self.final_fact()
+        for name in list(filter(lambda name: name.startswith('demo_fact_'), dir(self))):
+            yield getattr(self, name)()
 
     # ***
+
+    def final_fact(self):
+        demo_fact = PlaceableFact(
+            activity=self.acts['demo@welcome'],
+            start=self.controller.now - timedelta(hours=1),
+            end=None,
+            description=_(
+                'Welcome to the dob demo!\n\n'
+                'Want to learn the basics of dob? Then follow along!\n\n'
+                '* To quit at any time, press the "q" key.\n\n'
+                "Let's get started! You're looking at the last, final Fact.\n\n"
+                '* Press the "g" key twice ("gg") to go to the first Fact.'
+            ),
+            #tags=['dob-life', 'welcome',],
+            tags=['hello, dobber!',],
+        )
+        return demo_fact
 
     def first_fact(self):
         since_time = self.controller.now - timedelta(days=14)
@@ -118,28 +135,19 @@ class DemoFactGenerator(object):
                 'Congratulations, you made it to the first Fact in the demo!\n\n'
                 'The "gg" command takes you to the first Fact in your database.\n\n'
                 'The "G" command, similarly, takes you to the last Fact.\n\n'
-                '- Press "G" now to try it, then press "gg" to return here.'
-                '- To continue, press the "k" key to advance to the next Fact.'
+                '* Press "G" now to try it, then press "gg" to return here.\n\n'
+                '* To continue, press the "k" key to advance to the next Fact.'
             ),
             tags=['first-fact',],
         )
         return demo_fact
 
-    def final_fact(self):
-        demo_fact = PlaceableFact(
-            activity=self.acts['demo@welcome'],
-            start=self.controller.now - timedelta(hours=1),
-            end=None,
-            description=_(
-                'Welcome to the dob demo!\n\n'
-                'Want to learn the basics of dob? Then follow along!\n\n'
-                '- To quit at any time, press the "q" key.\n\n'
-                "Let's get started!\n\n"
-                '- Press the "g" key twice to go to the first Fact.'
-            ),
-            tags=['hello, dobber!',],
-        )
-        return demo_fact
+    def demo_fact_00(self):
+        return self.first_fact()
+
+    def demo_fact_99(self):
+        return self.final_fact()
+
 
 # ***
 
