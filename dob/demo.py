@@ -166,6 +166,10 @@ The "G" command (uppercase), similarly, takes you to the last Fact.
         )
         return demo_fact
 
+    # (lb): My apologies, this could be a maintenance pain, the way
+    # I've named the methods, encoding their order therein. It's not
+    # going to be easy to move sections around!
+
     def demo_fact_01(self, prev_fact):
         demo_fact = PlaceableFact(
             start=prev_fact.end,
@@ -216,12 +220,11 @@ You can also navigate dob by jumping Facts one day at a time.
             description=_('''
 You‘ve become a pro at navigating between Facts!
 
-Now let‘s learn about navigating the *description*, which is what you‘re reading.
+Let‘s learn how to navigate the *description*, which is what you‘re reading.
 
-You can move the cursor using -- surprise! -- the up and down arrow keys!
+You can move the cursor using "h" and "l", or using the up and down arrow keys.
 
-* Press and hold either "h" or the down arrow key "↓"
-  until the cursor scrolls down the window.
+* Press and hold "l" or the down arrow key "↓" until the cursor scrolls down the window.
 
   You should eventually see more text.
 
@@ -230,11 +233,11 @@ You can move the cursor using -- surprise! -- the up and down arrow keys!
 
 Hi! You made it!!
 
-You can press "l" or the up "↑" arrow key, naturally, to move the cursor up.
+To move the cursor up, you can use either "h" or the up "↑" arrow key.
 
 And you can use a three-button mouse wheel to scroll the description, too.
 
-To scroll by the pageful, use the Page Up and Page Down keys ("PgUp" and "PgDn").
+To scroll by the pageful, you can use Page Up and Page Down ("PgUp" and "PgDn").
 
 * Press "PgUp" a few times and then "PgDn" back here to try for yourself.
 
@@ -270,9 +273,9 @@ This is the end of the description!
             description=_('''
 Did you just press "K" to jump forward one day? Congrats!
 
-Bonus Feature: If you press and hold "K", dob will start jumping by weeks.
+Bonus Feature: If you press and hold "K" (don't do it now), dob will start jumping by weeks.
 
-To continue the demo, jump back one day to the last entry you read.
+To continue the demo, jump back one day, to the last entry you read.
 
 * Press "J" to jump back one day to continue the demo.
             '''.strip()),  # noqa: E501
@@ -290,8 +293,8 @@ Before we can learn how to create and edit Facts, there are a few more basics!
 
 (And remember to scroll down, using the down arrow key "↓", or "PgDn".)
 
-Help
-----
+Immediate Help
+--------------
 
 You can access the help at any time by pressing the question mark "?" key.
 
@@ -305,6 +308,21 @@ You can access the help at any time by pressing the question mark "?" key.
 
 Gaps
 ----
+
+* Press "→" or "l" to learn about Gap Facts.
+            '''.strip()),  # noqa: E501
+        )
+        return demo_fact
+
+    def demo_fact_06(self, prev_fact):
+        demo_fact = PlaceableFact(
+            start=prev_fact.end,
+            end=prev_fact.end + timedelta(hours=18),
+            activity=self.acts['demo@intermediate'],
+            tags=['choose your own demo #7',],
+            description=_('''
+Gap Facts
+---------
 
 Each Fact has a *start time* and an *end time*.
 
@@ -324,52 +342,60 @@ If you want, you can edit and save a Gap Fact, and then it will be stored.
 
 But, if not, you can ignore the Gap Fact, and dob will not save it.
 
-Next
-----
+Example Gap
+-----------
 
 To see a Gap Fact for real, the next Fact in the demo starts 17 minutes later, after the end of this Fact.
 
-* To continue the demo, move 2 Facts forward: Press "k" (or "→") twice.
+* To continue the demo, move 2 Facts forward:
 
-  The next Fact is a Gap Fact, and is not technically part of the demo data.
+  - Press "k" (or "→") twice, but pause between presses to examine the Gap Fact.
 
-  - You‘ll notice that the Gap Fact has a special background color, sorta pink.
+    - The next Fact is a Gap Fact, and it is not technically part of the demo data.
 
-    You will also see that the status message, below this text, says “Gap Fact”.
-            '''.strip()),  # noqa: E501
-        )
-        return demo_fact
+    - You‘ll notice that the Gap Fact has a special background color, sorta pink.
 
-    def demo_fact_06(self, prev_fact):
-        since_time = prev_fact.end + timedelta(minutes=17)
-        demo_fact = PlaceableFact(
-            start=since_time,
-            end=since_time + timedelta(hours=6),
-            activity=self.acts['demo@intermediate'],
-            tags=['After the Gap Fact #7',],
-            description=_('''
-As stated in the last step of the demo, the previous Fact has a sorta pinkish background because it's a *Gap Fact*. It is considered a temporary placeholder unless you edit and save it.
-
-Speaking of editing, let‘s talk about that finally!
-
-* Press "k" to learn about editing.
+      You will also see that the status message, below this text, says “Gap Fact”.
             '''.strip()),  # noqa: E501
         )
         return demo_fact
 
     def demo_fact_07(self, prev_fact):
+        since_time = prev_fact.end + timedelta(minutes=17)
+        demo_fact = PlaceableFact(
+            start=since_time,
+            end=since_time + timedelta(hours=6),
+            activity=self.acts['demo@intermediate'],
+            tags=['After the Gap Fact #8',],
+            description=_('''
+Gap Review
+----------
+
+As stated in the last step of the demo, the previous Fact has a sorta pinkish background because it's a *Gap Fact*. It is considered a temporary placeholder unless you edit and save it.
+
+Speaking of editing, let‘s talk about that finally!
+
+* Press "k" (or "→") to learn how to edit Fact times.
+            '''.strip()),  # noqa: E501
+        )
+        return demo_fact
+
+    def demo_fact_08(self, prev_fact):
         demo_fact = PlaceableFact(
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=4.75),
             activity=self.acts['demo@intermediate'],
-            tags=['choose your own demo #8',],
+            tags=['choose your own demo #9',],
             description=_('''
-By moving the cursor, you can edit the start time and the end time of the current Fact.
+Edit Time
+---------
 
-Tabbing
--------
+To edit the start time or end time of the current Fact, move the cursor to the corresponding widget.
 
-To change the cursor between the description, the start time, and the end time, press "Tab".
+Tab Focus
+---------
+
+To move the cursor between the description, the start time, and the end time, press "Tab".
 
 * Press "Tab" three times now.
 
@@ -377,26 +403,36 @@ To change the cursor between the description, the start time, and the end time, 
 
 You can also press "Shift-Tab" to move the cursor in the reverse direction.
 
-Edit Times
+Send Focus
 ----------
 
 Instead of "Tab" or "Shift-Tab":
 
-* You can press "s" to move the cursor to the start time widget;
+* You can press "s" to send the cursor to the start time widget.
 
-  or you can press "e" to move the cursor to the end time widget.
+* You can press "e" to send the cursor to the end time widget.
 
-* When editing the start or end time, use the left and right arrow keys to move the cursor.
+* From within the start or end time widget, you can press "d" to send the cursor to the description, or content area.
 
-  Use the "Backspace" key to delete text, and use the number keys and punctuation to enter a new time.
+Manual Time
+-----------
+
+When the cursor is in the start or end time widget, you can edit the value as expected.
+
+* Use the left and right arrow keys to move the cursor back and forth across the time value.
+
+* Use the "Backspace" key to delete characters, and use the number keys and punctuation to enter a new time.
 
 * Press "Enter" (or "Tab" away) to apply the new time.
 
+Audit Time
+----------
+
 Note that changing the start or end time can affect surrounding Facts!
 
-* If you change the start time to an earlier time, dob may edit the Fact before, and change its end time to match the start time.
+* If you change the start time to an earlier time, dob may edit the Fact before, and might change its end time to match the start time.
 
-  Likewise for an edited end time, dob may edit the start time of the following Fact.
+  Likewise, for an edited end time, dob may edit the start time of the following Fact.
 
 * To protect the integrity of your data, dob will not let you specify a time that completely shadows any other Facts' time.
 
@@ -421,7 +457,7 @@ You can quickly edit time using "Shift", "Ctrl", and "Ctrl-Shift" modifiers with
 
 * Press "Ctrl-Shift-right" to increment both the start time and the end time by one minute.
 
-You can also press-and-hold to continuously increment or decrement by one minute and then more than one minute as you keep pressing.
+You can also press-and-hold to continuously increment or decrement by one minute intervals -- which grow longer than one minute as you keep holding.
 
 Fact Editing
 ------------
@@ -433,13 +469,16 @@ To read about editing the Description, Activity & Category, and Tags, move forwa
         )
         return demo_fact
 
-    def demo_fact_08(self, prev_fact):
+    def demo_fact_09(self, prev_fact):
         demo_fact = PlaceableFact(
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=4.75),
             activity=self.acts['demo@intermediate'],
-            tags=['choose your own demo #9',],
+            tags=['choose your own demo #10',],
             description=_('''
+Meta Edits
+----------
+
 Besides editing the start and end time, you can edit the
 Fact Description, the Activity & Category, and the Tags.
 
@@ -471,21 +510,22 @@ Fact Description, the Activity & Category, and the Tags.
   And you can sort the list of recommended tags in different ways,
   including by recently used, or by most used, etc., using the F-keys.
 
-  Read the help at the bottom of the display for more.
+  Read the help at the bottom of the tags display for more.
 
-Move forward 1 more Fact to learn about saving, and undo/redo.
+Save
+----
 
-* Press "k" (or "→") to finish the demo.
+* Press "k" (or "→") to learn how to save edits.
             '''.strip()),  # noqa: E501
         )
         return demo_fact
 
-    def demo_fact_09(self, prev_fact):
+    def demo_fact_10(self, prev_fact):
         demo_fact = PlaceableFact(
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=4.75),
             activity=self.acts['demo@intermediate'],
-            tags=['choose your own demo #10',],
+            tags=['choose your own demo #11',],
             description=_('''
 Saving
 ------
@@ -494,14 +534,31 @@ dob does not automatically save your edits.
 
 * To save changes you‘ve made, press "Ctrl-s".
 
-If you have any unsaved edits, the "q" shortcut to quit will no longer work.
+If you have any unsaved edits, the "q" shortcut to quit will not work.
 
-* You can force-quit using "Ctrl-Q" (uppercase), and dob will prompt you.
+* You can force-quit instead using "Ctrl-Q" (uppercase), and dob will prompt you to exit without saving.
+
+You can also press "u" repeatedly to undo all of your changes (and then "q" will work again).
 
 Undo/Redo
 ---------
 
-dob supports your typical undo and redo workflow, too.
+* Press "k" (or "→") to continue the demo and learn how to undo and redo.
+            '''.strip()),  # noqa: E501
+        )
+        return demo_fact
+
+    def demo_fact_11(self, prev_fact):
+        demo_fact = PlaceableFact(
+            start=prev_fact.end,
+            end=prev_fact.end + timedelta(hours=4.75),
+            activity=self.acts['demo@intermediate'],
+            tags=['choose your own demo #12',],
+            description=_('''
+Undo/Redo
+---------
+
+dob supports a typical undo and redo workflow.
 
 * Press "Ctrl-z" (or "u") to undo the last change.
 
@@ -513,6 +570,25 @@ dob supports your typical undo and redo workflow, too.
 
   (Note that the multitude of aliases is because parity with Vim.)
 
+If there are no more undos or redos, dob will display a message in the status bar.
+
+Ctrl-c/-v
+---------
+
+The next Fact explains how copy and paste work in dob.
+
+* Press "k" (or "→") to continue the demo.
+            '''.strip()),  # noqa: E501
+        )
+        return demo_fact
+
+    def demo_fact_12(self, prev_fact):
+        demo_fact = PlaceableFact(
+            start=prev_fact.end,
+            end=prev_fact.end + timedelta(hours=4.75),
+            activity=self.acts['demo@intermediate'],
+            tags=['choose your own demo #13',],
+            description=_('''
 Copy/Paste
 ----------
 
@@ -522,11 +598,11 @@ Copy/Paste
 
 * Press "Ctrl-x" instead to cut a Fact.
 
-  The original Fact (that you copied) will be removed when you paste it (and dob will show you an empty Gap Fact in the display).
+  The original Fact (that you copied) will be removed when you paste it (and dob will show you an empty Gap Fact in the display where the original Fact used to be).
 
-* If you want to just copy and paste parts of the Fact, it's easy:
+* If you want to copy and paste a smaller part of the Fact, it's easy:
 
-  * Press "A" followed by "Ctrl-c" to copy just the Activity & Category.
+  * Press "A" followed by "Ctrl-c" to copy the Activity & Category.
 
   * Press "T" followed by "Ctrl-c" to copy the current Fact's tags.
 
@@ -534,6 +610,21 @@ Copy/Paste
 
   Then paste like normal, using "Ctrl-v".
 
+Split/Merge
+-----------
+
+* Press "k" (or "→") to continue the demo.
+            '''.strip()),  # noqa: E501
+        )
+        return demo_fact
+
+    def demo_fact_13(self, prev_fact):
+        demo_fact = PlaceableFact(
+            start=prev_fact.end,
+            end=prev_fact.end + timedelta(hours=4.75),
+            activity=self.acts['demo@intermediate'],
+            tags=['choose your own demo #14',],
+            description=_('''
 Split/Merge/Delete
 ------------------
 
@@ -541,34 +632,80 @@ Split/Merge/Delete
 
   Then edit each Fact separately, including adjusting the times accordingly.
 
-* Press "Alt-e" to erase or delete the current Fact.
+* Press "Alt-e" to delete the current Fact.
 
   dob will remove the Fact and replace it in the display with a Gap Fact.
 
   When you save, the removed Fact will be marked deleted in the data store.
 
-* Press "Alt-m" to merge the current Fact with its neighbor.
+* Press "Alt-m" followed by "→" to merge the current Fact with the next Fact.
 
-More about dob
---------------
+  Press "Alt-m" followed by "←" to merge the current Fact with the prior Fact.
 
-To finish the demo, move forward 1 more Fact.
+Start using dob
+---------------
+
+To get up and running, read the next Fact.
+
+* Press "k" ("→") to learn how to dob yourself.
+            '''.strip()),  # noqa: E501
+        )
+        return demo_fact
+
+    def demo_fact_14(self, prev_fact):
+        demo_fact = PlaceableFact(
+            start=prev_fact.end,
+            end=prev_fact.end + timedelta(hours=4.75),
+            activity=self.acts['demo@intermediate'],
+            tags=['choose your own demo #15', ],
+            description=_('''
+Getting Started
+---------------
+
+The easiest way to start dobbin' is from scratch.
+
+Run the init command to create a config and a database:
+
+  $ dob init
+
+And then fire up the Carousel (whatever this interface is called that you're using):
+
+  $ dob edit
+
+If you'd like to upgrade from an existing Hamster database, that's easy, too:
+
+  $ dob init
+  $ legacy_db=~/.local/share/hamster-applet/hamster.db
+  $ dob store upgrade-legacy ${legacy_db}
+  $ dob edit
+
+You can always run this demo, even after setting up your own database.
+
+You're a pro!
+-------------
 
 * Press "k" ("→") to conclude the demo.
             '''.strip()),  # noqa: E501
         )
         return demo_fact
 
-    def demo_fact_10(self, prev_fact):
+    def demo_fact_15(self, prev_fact):
         demo_fact = PlaceableFact(
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=4.75),
             activity=self.acts['demo@intermediate'],
-            tags=['choose your own demo #11', 'end of the ride', ],
+            tags=['choose your own demo #16', 'end of the ride', ],
             description=_('''
-You made it!!
+You made it to the end of the demo!! -- But there's much more you can do with dob:
 
-There's obvious much more to dob -- upgrading from legacy Hamster; importing from raw text; exporting data; generating reports; finding and installing (and writing) plugins; sending to other APIs (e.g., JIRA) -- but this gives you the gist!
+  - Import Facts from raw text (collected while, say, on vacation).
+  - Generate reports (e.g., show time spent on each Activity).
+  - Find and install (and write your own) plugins.
+  - Export data to other APIs (e.g., upload time to JIRA at your job).
+
+This demo gives you the gist of dob. We hope you enjoyed it!!
+
+Happy dobbin!
             '''.strip()),  # noqa: E501
         )
         return demo_fact
