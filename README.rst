@@ -33,30 +33,44 @@ dob
 .. _pip: https://pip.pypa.io/en/stable/
 
 |dob|_ is an interactive, terminal-based time tracking application.
+
 It's got Vim-like navigation, robust filtering and searching
 capabilities, and a colorful, customizable interface.
 
-Install with |pip|_::
+Install with |pip|_:
 
-    pip3 install dob
+.. code-block:: sh
+
+    $ pip3 install dob
+
+Learn how dob works:
+
+.. code-block:: sh
+
+    $ dob demo
 
 For more options, read the
-`installation guide <https://dob.readthedocs.io/en/latest/installation.html>`__.
+`installation guide
+<https://dob.readthedocs.io/en/latest/installation.html>`__.
 
-.. NOTE:: Please be aware that |dob|_ is currently *alpha* software.
+**ALPHA ALERT!** |dob|_ is currently *alpha* software.
+A proper, stable release is forthcoming this year!
 
-          The application works well, but it has a few minor issues
-          that must be fixed before it can be truly released. And it
-          wouldn't hurt to write a few more tests and expand coverage.
+* You can currently install and `demo dob`_.
 
-          In lieu of committing to a date that this software will be
-          out of alpha, let's just say, hopefully this year!
+* You could even start using |dob|_ today, but the developers are
+  finishing a few features, and shoring up test coverage.
+
+  And we would not want you to get frustrated, or to file bugs for issues
+  we already plan to fix. So please be patient!
+
+  (You may see progress by fits and starts, but it'll happen.)
 
 =====
 Ethos
 =====
 
-|dob|_ is a developer's tool, or at least targeted to someone whose
+|dob|_ is a developer's tool, or at least targeted to someone who’s
 comfortable in the terminal.
 
 |dob|_ is perfect for the person who asks,
@@ -83,7 +97,6 @@ Features
 * Compatible with all current Python releases (3.5, 3.6, and 3.7).
 * Seamlessly integrates into your terminal-based workflow.
 * Naturally Unicode compatible -- spice up your notes!
-* Fully Timezone-aware -- don't lose time traveling!
 * Can migrate legacy Hamster databases (and fix integrity issues, too).
 * Excellent coverage (to give you comfort knowing your Facts are safe).
 * Well documented features -- at runtime, or on the command line.
@@ -104,16 +117,16 @@ Example
 Demo |dob|_
 -----------
 
-You can easily demo |dob|_ without configuring the database.
+You can easily demo |dob|_ after installing it.
 
 Run the ``demo`` command to load an interactive tutorial:
 
-.. code-block:: Bash
+.. code-block:: sh
 
-   $ dob demo
+    $ dob demo
 
 `Keep reading`__ to learn how to create an empty data store,
-or to import an existing database.
+or how to import an existing database.
 
 __ https://dob.readthedocs.io/en/latest/usage.html
 
