@@ -402,8 +402,10 @@ Or you can exclude tests using ``not``, e.g., ``-k 'not test_method'``.
 Note that ``readline`` functionality will not work from any breakpoint
 you encounter under ``make test``. (For example, pressing the Up arrow
 will print a control character sequence to the terminal, rather than
-showing the last command you ran.) If you want to interact with the code
-at runtime, run ``py.test`` instead (see next).
+showing the last command you ran.)
+
+* If you want to interact with the code at runtime,
+  run ``py.test`` directly (see next).
 
 If you'd like to break into a debugger when a test fails, run ``pytest``
 directly and have it start the interactive Python debugger on errors::
