@@ -137,7 +137,7 @@ Do you want to learn the basics of dob? Then follow along!
 
 * To quit at any time, press the "q" key.
 
-Let‘s get started! You‘re looking at the last, final Fact.
+Let’s get started! You’re looking at the last, final Fact.
 
 * Press the "g" key twice ("gg") to go to the first Fact.
             '''.strip()),  # noqa: E501
@@ -218,9 +218,9 @@ You can also navigate dob by jumping Facts one day at a time.
             tags=['choose your own demo #5', ],
             # E501 line too long (✗✗✗ > 89 characters)
             description=_('''
-You‘ve become a pro at navigating between Facts!
+You’ve become a pro at navigating between Facts!
 
-Let‘s learn how to navigate the *description*, which is what you‘re reading.
+Let’s learn how to navigate the *description*, which is what you’re reading.
 
 You can move the cursor using "h" and "l", or using the up and down arrow keys.
 
@@ -256,9 +256,9 @@ To jump to the very end, use "End".
 
 This is the end of the description!
 
-* To keep learning, jump one day -- press "K" -- because you‘ve read the next Fact.
+* To keep learning, jump one day -- press "K" -- because you’ve read the next Fact.
 
-  Hint: Look at the status bar below this text and you‘ll see
+  Hint: Look at the status bar below this text and you’ll see
   the "Fact ID #4" change to "Fact ID #6" after pressing "K".
             '''.strip()),  # noqa: E501
         )
@@ -353,7 +353,7 @@ To see a Gap Fact for real, the next Fact in the demo starts 17 minutes later, a
 
     - The next Fact is a Gap Fact, and it is not technically part of the demo data.
 
-    - You‘ll notice that the Gap Fact has a special background color, sorta pink.
+    - You’ll notice that the Gap Fact has a special background color, sorta pink.
 
       You will also see that the status message, below this text, says “Gap Fact”.
             '''.strip()),  # noqa: E501
@@ -373,7 +373,7 @@ Gap Review
 
 As stated in the last step of the demo, the previous Fact has a sorta pinkish background because it's a *Gap Fact*. It is considered a temporary placeholder unless you edit and save it.
 
-Speaking of editing, let‘s talk about that finally!
+Speaking of editing, let’s talk about that finally!
 
 * Press "k" (or "→") to learn how to edit Fact times.
             '''.strip()),  # noqa: E501
@@ -399,7 +399,7 @@ To move the cursor between the description, the start time, and the end time, pr
 
 * Press "Tab" three times now.
 
-  You‘ll move the cursor to the start time, to the end time, and then back here.
+  You’ll move the cursor to the start time, to the end time, and then back here.
 
 You can also press "Shift-Tab" to move the cursor in the reverse direction.
 
@@ -497,7 +497,7 @@ Fact Description, the Activity & Category, and the Tags.
 
   You can type a new ``activity@category``.
 
-  You can also choose from names you‘ve used on other Facts, and you can
+  You can also choose from names you’ve used on other Facts, and you can
   sort the drop down lists in various ways to make it easier to choose
   Activity and Category names.
 
@@ -532,7 +532,7 @@ Saving
 
 dob does not automatically save your edits.
 
-* To save changes you‘ve made, press "Ctrl-s".
+* To save changes you’ve made, press "Ctrl-s".
 
 If you have any unsaved edits, the "q" shortcut to quit will not work.
 

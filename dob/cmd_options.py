@@ -193,7 +193,7 @@ _cmd_options_fact_add = [
     ),
     click.option(
         '-d', '--edit-text', is_flag=True,
-        help=_('Edit description using user‘s preferred $EDITOR.'),
+        help=_('Edit description using user’s preferred $EDITOR.'),
     ),
     click.option(
         '-a', '--edit-meta', is_flag=True,
