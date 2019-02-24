@@ -69,6 +69,7 @@ from .cmds_usage import tag as usage_tag
 from .complete import tab_complete
 from .copyright import echo_copyright, echo_license
 from .create import add_fact, cancel_fact, stop_fact
+from .demo import demo_config, demo_dob
 from .details import echo_app_details, echo_app_environs, echo_data_stats
 from .helpers import click_echo, dob_in_user_exit, dob_in_user_warning
 from .migrate import upgrade_legacy_database_file
@@ -216,13 +217,12 @@ def debug(controller):
 # *** [DEMO] Command.
 # ***
 
-# FIXME: (lb): Move demo to a plugin!
-#
 @run.command('demo', help=help_strings.DEMO_HELP)
 @pass_controller
+@demo_config
 def demo_dob_and_nark(controller):
     """"""
-    raise NotImplementedError(_('FIXME: Implement `dob demo`'))
+    demo_dob(controller)
 
 
 # ***
