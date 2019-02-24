@@ -69,7 +69,7 @@ a beloved but aged time tracking application for
 
 Give |dob|_ a try, and you might like it.
 
-- You can `Import a legacy database`__ or `Start from scratch`__.
+- You can `Demo dob`_, `Import a legacy database`__, or `Start from scratch`__.
 
 __ https://dob.readthedocs.io/en/latest/installation.html#upgrade-legacy-database
 __ https://dob.readthedocs.io/en/latest/installation.html#start-fresh
@@ -83,6 +83,7 @@ Features
 * Compatible with all current Python releases (3.5, 3.6, and 3.7).
 * Seamlessly integrates into your terminal-based workflow.
 * Naturally Unicode compatible -- spice up your notes!
+* Fully Timezone-aware -- don't lose time traveling!
 * Can migrate legacy Hamster databases (and fix integrity issues, too).
 * Excellent coverage (to give you comfort knowing your Facts are safe).
 * Well documented features -- at runtime, or on the command line.
@@ -95,4 +96,24 @@ See how you can
 `contribute
 <https://dob.readthedocs.io/en/latest/contributing.html>`__
 to the project.
+
+=======
+Example
+=======
+
+Demo |dob|_
+-----------
+
+You can easily demo |dob|_ without configuring the database.
+
+Run the ``demo`` command to load an interactive tutorial:
+
+.. code-block:: Bash
+
+   $ dob demo
+
+`Keep reading`__ to learn how to create an empty data store,
+or to import an existing database.
+
+__ https://dob.readthedocs.io/en/latest/usage.html
 
