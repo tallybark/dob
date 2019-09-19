@@ -29,27 +29,27 @@ from . import __arg0name__, __package_name__
 # *** [BARE] Command help.
 # ***
 
+# Note that the text width is reformatted when displayed.
+
 RUN_HELP = _(
     """
     {appname} is a time tracker for the command line.
 
-    You can use it to track how you spend your time as well as have it export your
-    collected data into various output formats. Below you find a list of available
-    commands. If you call them with the '--help' option you will be shown details
-    on how to use the command and its supported arguments and parameters.
+    dob tracks how you spend your time, and dob can report and export
+    your data.
 
-    In general and as usual: if you want to pass any arguments or options that
-    contain whitespace, you will need to wrap them in quotation marks.
+    Call any of the commands below with the '--help' option to learn how
+    to use that command, and to see additional arguments and options.
 
-    Note: Global options (like -V and --color) must come before the command name.
+    Naturally, use quotation marks to pass any arguments that contain
+    whitespace or other special characters.
+
+    Global options (like -V and --color) must precede the command name.
 
     This program comes with ABSOLUTELY NO WARRANTY.
     This is free software, and you are welcome to
     redistribute it under certain conditions.
-    Run `hamster copyright` and `hamster license` for details.
-
-
-
+    Run `{appname} copyright` and `{appname} license` for details.
     """.strip().format(appname=__package_name__)
 )
 
