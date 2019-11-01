@@ -159,8 +159,10 @@ def install_plugin(package_module_path, package_plugin_name):
             appdirs_dir=AppDirs.user_config_dir,
         )
         if os.path.exists(dst_plugin):
-            print("The plugin is already installed!")
-            sys.exit(1)
+            print(_("The plugin is already installed!"))
+            # Not really an error to already be installed,
+            # so return not nonzero.
+            sys.exit(0)
         return dst_plugin
 
     def symlink_or_copy_plugin_or_die(src_plugin, dst_plugin):
