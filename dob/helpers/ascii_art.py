@@ -23,7 +23,7 @@ import random
 from gettext import gettext as _
 
 import click
-from nark.helpers.colored import attr, bg, fg
+from nark.helpers.emphasis import attr, bg, fg
 from six import text_type
 
 try:

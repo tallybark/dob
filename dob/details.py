@@ -21,7 +21,7 @@ import os
 
 from gettext import gettext as _
 
-from nark.helpers.colored import attr, fg
+from nark.helpers.emphasis import attr, fg
 from nark.items import Fact
 
 from . import __package_name__ as package_name_dob

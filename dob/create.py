@@ -28,7 +28,7 @@ from gettext import gettext as _
 import click
 import pygments.lexers
 from inflector import English, Inflector
-from nark.helpers.colored import attr, fg
+from nark.helpers.emphasis import attr, fg
 from nark.helpers.parsing import ParserException
 # FIXME: Move this to an intermediate carousel-managing class.
 #        (lb): That is, decouple PPT implementation from create.py?

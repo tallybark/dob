@@ -21,7 +21,7 @@ from gettext import gettext as _
 
 import click
 import lazy_import
-from nark.helpers.colored import attr
+from nark.helpers.emphasis import attr
 
 from . import click_echo
 

@@ -23,7 +23,7 @@ from collections import namedtuple
 from gettext import gettext as _
 
 import click
-from nark.helpers.colored import colorize
+from nark.helpers.emphasis import colorize
 from nark.helpers.parse_time import parse_dated
 
 from ..cmd_common import error_exit_no_results, hydrate_activity, hydrate_category

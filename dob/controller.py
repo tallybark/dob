@@ -28,7 +28,7 @@ from gettext import gettext as _
 import click
 from nark.control import NarkControl
 from nark.helpers import logging as logging_helpers
-from nark.helpers.colored import disable_colors, enable_colors
+from nark.helpers.emphasis import disable_colors, enable_colors
 
 from . import __arg0name__, help_strings
 from .cmd_config import furnish_config, get_config_path, replenish_config

@@ -19,7 +19,7 @@ from __future__ import absolute_import, unicode_literals
 
 import click
 from future.utils import python_2_unicode_compatible
-from nark.helpers.colored import attr, fg
+from nark.helpers.emphasis import attr, fg
 from nark.helpers.objects import resolve_attr_or_method
 from nark.helpers.strings import format_value_truncate
 from six import text_type
@@ -246,7 +246,7 @@ class FactsDiff(object):
                 fg('light_salmon_3b'),
                 other_val,
                 attr('reset'),
-                # (lb): What, colored has no italic option?
+                # (lb): What, emphasis has no italic option?
             ), self_val
         light_salmon_3b = 'D7875F'
         style = 'fg:#{} bold underline'.format(light_salmon_3b)

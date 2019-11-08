@@ -28,7 +28,7 @@ from gettext import gettext as _
 
 import click
 from nark import reports
-from nark.helpers.colored import attr, bg, fg
+from nark.helpers.emphasis import attr, bg, fg
 from nark.helpers.parsing import parse_factoid
 
 from . import __package_name__

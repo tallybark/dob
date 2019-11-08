@@ -24,7 +24,7 @@ import sys
 from gettext import gettext as _
 
 import nark
-from nark.helpers.colored import attr, fg
+from nark.helpers.emphasis import attr, fg
 
 from . import __arg0name__, help_strings
 # Profiling: load AppDirs: ~ 0.011 secs.
