@@ -35,14 +35,15 @@ from gettext import gettext as _
 
 import click
 
-from . import cmd_options, help_strings, migrate, update
+from . import help_strings, migrate, update
+from cmd_interface import cmd_options
 from .cmd_interface.cmd_common import (
     induct_newbies,
     insist_germinated,
     must_no_more_than_one_file,
     post_processor
 )
-from .cmd_options import (
+from .cmd_interface.cmd_options import (
     OptionWithDynamicHelp,
     cmd_options_edit_item,
     cmd_options_fact_add,
