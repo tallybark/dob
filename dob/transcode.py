@@ -32,7 +32,7 @@ from nark.helpers.emphasis import attr, bg, fg
 from nark.helpers.parsing import parse_factoid
 
 from . import __package_name__
-from .cmd_common import (
+from .cmd_interface.cmd_common import (
     barf_and_exit,
     echo_block_header,
     hydrate_activity,

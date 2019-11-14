@@ -29,7 +29,7 @@ from nark.helpers.parse_time import parse_clock_time, parse_relative_minutes
 from six import text_type
 
 from . import click_echo, conflict_prefix, prepare_log_msg
-from ..cmd_common import barf_and_exit, echo_block_header
+from ..cmd_interface.cmd_common import barf_and_exit, echo_block_header
 from ..cmds_list.fact import find_latest_fact
 from ..traverser.placeable_fact import PlaceableFact
 
