@@ -35,8 +35,8 @@ from gettext import gettext as _
 
 import click
 
-from . import help_strings, migrate, update
-from cmd_interface import cmd_options
+from . import migrate, update
+from .cmd_interface import cmd_options, help_strings
 from .cmd_interface.cmd_common import (
     induct_newbies,
     insist_germinated,

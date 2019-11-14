@@ -30,7 +30,8 @@ from nark.control import NarkControl
 from nark.helpers import logging as logging_helpers
 from nark.helpers.emphasis import disable_colors, enable_colors
 
-from . import __arg0name__, help_strings
+from . import __arg0name__
+from .cmd_interface import help_strings
 from .cmd_interface.cmd_config import furnish_config, get_config_path, replenish_config
 from .copyright import echo_copyright
 from .helpers import click_echo, dob_in_user_exit, highlight_value

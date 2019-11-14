@@ -26,7 +26,8 @@ from gettext import gettext as _
 import nark
 from nark.helpers.emphasis import attr, fg
 
-from . import __arg0name__, help_strings
+from . import __arg0name__
+from .cmd_interface import help_strings
 # Profiling: load AppDirs: ~ 0.011 secs.
 from .cmd_interface.cmd_config import AppDirs
 from .helpers import click_echo, dob_in_user_exit, dob_in_user_warning, highlight_value
