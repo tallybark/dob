@@ -27,8 +27,8 @@ from nark.items import Fact
 from . import __package_name__ as package_name_dob
 from . import __resolve_vers__ as resolve_vers_dob
 from .cmd_interface.cmd_config import AppDirs, get_config_path
+from .cmd_interface.plugins import ClickPluginGroup
 from .helpers import ascii_art, click_echo, highlight_value
-from .plugins import ClickPluginGroup
 
 __all__ = (
     'echo_app_details',

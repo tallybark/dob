@@ -24,7 +24,7 @@ from gettext import gettext as _
 import click
 from click_alias import ClickAliasedGroup
 
-from ..plugins import ClickPluginGroup
+from .plugins import ClickPluginGroup
 
 __all__ = (
     'ClickAliasableBunchyPluginGroup'
