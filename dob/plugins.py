@@ -27,7 +27,6 @@ import sys
 from gettext import gettext as _
 
 import click
-from click_alias import ClickAliasedGroup
 
 from .cmd_interface.cmd_config import AppDirs, get_appdirs_subdir_file_path
 from .helpers import dob_in_user_warning
@@ -35,14 +34,14 @@ from .helpers.path import compile_and_eval_source
 
 __all__ = (
     'install_plugin',
-    'ClickAliasablePluginGroup',
+    'ClickPluginGroup',
 )
 
 
-class ClickAliasablePluginGroup(ClickAliasedGroup):
+class ClickPluginGroup(click.Group):
 
     def __init__(self, *args, **kwargs):
-        super(ClickAliasablePluginGroup, self).__init__(*args, **kwargs)
+        super(ClickPluginGroup, self).__init__(*args, **kwargs)
         self.plugins_basepath = os.path.join(
             AppDirs.user_config_dir, 'plugins',
         )
@@ -58,7 +57,7 @@ class ClickAliasablePluginGroup(ClickAliasedGroup):
         set_names = set()
         for cmd in self.get_commands_from_plugins(name=None):
             set_names.add(cmd.name)
-        cmd_names = super(ClickAliasablePluginGroup, self).list_commands(ctx)
+        cmd_names = super(ClickPluginGroup, self).list_commands(ctx)
         return cmd_names
 
     def get_command(self, ctx, name):
@@ -68,12 +67,12 @@ class ClickAliasablePluginGroup(ClickAliasedGroup):
         #       click.MultiCommand.invoke. Just FYI. -(lb)
         # Call the get-commands func., which really just sources the plugins, so they
         # can tie into Click; then we can just call the base class implementation.
-        cmd = super(ClickAliasablePluginGroup, self).get_command(ctx, name)
+        cmd = super(ClickPluginGroup, self).get_command(ctx, name)
         if cmd is None:
             # (lb): Profiling: Loading plugins [2018-07-15: I have 3]: 0.139 secs.
             #       So only call if necessary.
             self.get_commands_from_plugins(name)
-            cmd = super(ClickAliasablePluginGroup, self).get_command(ctx, name)
+            cmd = super(ClickPluginGroup, self).get_command(ctx, name)
         return cmd
 
     def ensure_plugged_in(self):

@@ -32,10 +32,10 @@ from nark.helpers.dev.profiling import profile_elapsed, timefunct
 from . import __package_name__ as package_name_dob
 from . import __resolve_vers__ as resolve_vers_dob
 from .cmd_interface import help_strings
+from .cmd_interface.click_aliasable_bunchy_plugin import ClickAliasableBunchyPluginGroup
 from .controller import Controller
 from .copyright import echo_copyright
 from .helpers import click_echo
-from .plugins import ClickAliasablePluginGroup
 
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
@@ -82,7 +82,7 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
     # commands from user's, e.g., ~/.config/dob/plugins directory. That class
     # derives from an Aliasable group class, which empowers us to assign command
     # name aliases. That class, in turn, derives from Click's base Group class.
-    cls=ClickAliasablePluginGroup,
+    cls=ClickAliasableBunchyPluginGroup,
     invoke_without_command=True,
     help=help_strings.RUN_HELP,
     context_settings=CONTEXT_SETTINGS,

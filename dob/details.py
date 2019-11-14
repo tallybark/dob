@@ -28,7 +28,7 @@ from . import __package_name__ as package_name_dob
 from . import __resolve_vers__ as resolve_vers_dob
 from .cmd_interface.cmd_config import AppDirs, get_config_path
 from .helpers import ascii_art, click_echo, highlight_value
-from .plugins import ClickAliasablePluginGroup
+from .plugins import ClickPluginGroup
 
 __all__ = (
     'echo_app_details',
@@ -69,7 +69,7 @@ def echo_app_details(controller, full=False):
             "Plugins directory at: {}"
         ).format(
             # (lb): Such hack.
-            highlight_value(ClickAliasablePluginGroup().plugins_basepath),
+            highlight_value(ClickPluginGroup().plugins_basepath),
         ))
 
     def echo_logfile_path():
@@ -175,7 +175,7 @@ def echo_app_environs(controller):
         environs['conf'] = get_config_path()
 
     def environs_add_plugins_path():
-        environs['plugins'] = ClickAliasablePluginGroup().plugins_basepath
+        environs['plugins'] = ClickPluginGroup().plugins_basepath
 
     def environs_add_log_path():
         environs['log'] = controller.client_config['logfile_path']
