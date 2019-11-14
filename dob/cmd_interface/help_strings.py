@@ -23,7 +23,8 @@ from gettext import gettext as _
 
 from nark.helpers.emphasis import attr, fg
 
-from . import __arg0name__, __package_name__
+from .. import __arg0name__, __package_name__
+from ..helpers import highlight_value
 
 # ***
 # *** [BARE] Command help.

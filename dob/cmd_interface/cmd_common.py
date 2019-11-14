@@ -25,8 +25,8 @@ from gettext import gettext as _
 import click
 from nark.helpers.emphasis import attr, colorize, fg
 
-from . import __arg0name__, migrate
-from .helpers import ascii_art, click_echo, dob_in_user_exit
+from .. import __arg0name__, migrate
+from ..helpers import ascii_art, click_echo, dob_in_user_exit
 
 __all__ = (
     'barf_and_exit',
