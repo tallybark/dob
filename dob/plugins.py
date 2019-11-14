@@ -29,7 +29,7 @@ from gettext import gettext as _
 import click
 from click_alias import ClickAliasedGroup
 
-from .cmd_config import AppDirs, get_appdirs_subdir_file_path
+from .cmd_interface.cmd_config import AppDirs, get_appdirs_subdir_file_path
 from .helpers import dob_in_user_warning
 from .helpers.path import compile_and_eval_source
 

@@ -25,13 +25,13 @@ from unittest import mock
 from dob import (
     __package_name__,
     __resolve_vers__,
-    cmd_config,
     cmds_list,
     create,
     details,
     dob,
     transcode
 )
+from dob.cmd_interface import cmd_config
 from dob.cmds_list.fact import search_facts
 from dob.helpers import ascii_table
 

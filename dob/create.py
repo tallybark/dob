@@ -36,7 +36,7 @@ from prompt_toolkit.lexers import PygmentsLexer
 
 from . import interrogate
 from .cmd_interface.cmd_common import echo_block_header
-from .cmd_config import AppDirs, get_appdirs_subdir_file_path
+from .cmd_interface.cmd_config import AppDirs, get_appdirs_subdir_file_path
 from .help_strings import NOTHING_TO_STOP_HELP
 from .helpers import (
     click_echo,

@@ -28,7 +28,7 @@ from nark.helpers.emphasis import attr, fg
 
 from . import __arg0name__, help_strings
 # Profiling: load AppDirs: ~ 0.011 secs.
-from .cmd_config import AppDirs
+from .cmd_interface.cmd_config import AppDirs
 from .helpers import click_echo, dob_in_user_exit, dob_in_user_warning, highlight_value
 
 __all__ = (
