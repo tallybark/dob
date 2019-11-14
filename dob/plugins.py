@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with 'dob'.  If not, see <http://www.gnu.org/licenses/>.
 
-"""A time tracker for the command line. Utilizing the power of hamster! [nark]."""
+"""Click Group wrapper adds plugin support."""
 
 from __future__ import absolute_import, unicode_literals
 
@@ -54,7 +54,7 @@ class ClickAliasablePluginGroup(ClickAliasedGroup):
         return py_paths
 
     def list_commands(self, ctx):
-        """Called by click-alias to get list of commands."""
+        """Return list of commands."""
         set_names = set()
         for cmd in self.get_commands_from_plugins(name=None):
             set_names.add(cmd.name)

@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with 'dob'.  If not, see <http://www.gnu.org/licenses/>.
 
-"""A time tracker for the command line. Utilizing the power of hamster! [nark]."""
+"""Defines the main Click Group."""
 
 from __future__ import absolute_import, unicode_literals
 
