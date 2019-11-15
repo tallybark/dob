@@ -99,6 +99,7 @@ CONTEXT_SETTINGS = dict(
     # So tell Click not to process help upon sight, but to mark a flag.
     # Later, we'll look for help_option_spotted on the root context.
     help_option_fallthrough=True,
+    max_content_width=100,
 )
 
 
