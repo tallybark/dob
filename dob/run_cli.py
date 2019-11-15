@@ -115,7 +115,7 @@ CONTEXT_SETTINGS = dict(
     # name aliases. That class, in turn, derives from Click's base Group class.
     cls=ClickAliasableBunchyPluginGroup,
     invoke_without_command=True,
-    help=help_strings.RUN_HELP,
+    help=help_strings.RUN_HELP_OVERVIEW,
     context_settings=CONTEXT_SETTINGS,
 )
 @click.version_option(message=dob_versions())

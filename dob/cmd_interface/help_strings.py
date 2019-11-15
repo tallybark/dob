@@ -21,39 +21,62 @@ from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
-from nark.helpers.emphasis import attr, fg
+from nark.helpers.emphasis import attr, coloring, fg
 
 from .. import __arg0name__, __package_name__
 from ..helpers import highlight_value
+
+# Note that the help formatter removes single newlines and adjusts text width
+# when displayed, to a width determined by the terminal and max_content_width.
+
 
 # ***
 # *** [BARE] Command help.
 # ***
 
-# Note that the text width is reformatted when displayed.
 
-RUN_HELP = _(
-    """
-    {appname} is a time tracker for the command line.
+def RUN_HELP_OVERVIEW():
+    run_help = _(
+        """
+        {appname} is a time tracker for the command line.
 
-    dob tracks how you spend your time, and dob can report and export
-    your data.
+        - Try the demo to get acquainted with dob quickly,
 
-    Call any of the commands below with the '--help' option to learn how
-    to use that command, and to see additional arguments and options.
+          {codehi}{rawname} demo{reset}
 
-    Naturally, use quotation marks to pass any arguments that contain
-    whitespace or other special characters.
+        - Use {italic}--help{reset} after any command to learn more, e.g.,
 
-    Global options (like -V and --color) must precede the command name.
+          {codehi}{rawname} init --help{reset}
 
-    This program comes with ABSOLUTELY NO WARRANTY.
-    This is free software, and you are welcome to
-    redistribute it under certain conditions.
-    Run `{appname} copyright` and `{appname} license` for details.
-    """.strip().format(appname=__package_name__)
-)
+        - Put global options {italic}before{reset} the command name, e.g.,
 
+          {codehi}{rawname} --no-color details{reset}
+
+        - See how {rawname} can {italic}hack your life{reset} using plugins,
+
+          {codehi}{rawname} plugins avail{reset} [FIXME: No such cmd!]
+
+        - Some commands have aliases, shown in (parentheses) below, e.g.,
+
+          {codehi}{rawname} details{reset} {equalityop} {codehi}{rawname} info{reset}
+
+        - For code rights and legal info, review the {copyrt_sym} and {scroll_sym},
+
+          {codehi}{rawname} copyright{reset}
+
+          {codehi}{rawname} license{reset}
+        """.strip().format(
+            appname=highlight_value(__package_name__),
+            rawname=__package_name__,
+            codehi=(fg('turquoise_2') or ''),
+            reset=(attr('reset') or ''),
+            italic=attr('italic'),
+            equalityop=coloring() and '≡' or '==',
+            copyrt_sym=coloring() and '©' or 'copyright',
+            scroll_sym=coloring() and '📜' or 'license',
+        )
+    )
+    return run_help
 
 # ***
 # *** [HELP] Command help.
