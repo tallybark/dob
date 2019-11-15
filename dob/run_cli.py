@@ -118,7 +118,8 @@ CONTEXT_SETTINGS = dict(
     help=help_strings.RUN_HELP_OVERVIEW,
     context_settings=CONTEXT_SETTINGS,
 )
-@click.version_option(message=dob_versions())
+# (lb): Also include version to avoid RuntimeError, ha!
+@click.version_option(message=dob_versions(), version='')
 # (lb): Hide -v: version_option adds help for --version, so don't repeat ourselves.
 @click.option('-v', is_flag=True, help=help_strings.VERSION_HELP, hidden=True)
 # (lb): Note that universal --options must com before the sub command.
