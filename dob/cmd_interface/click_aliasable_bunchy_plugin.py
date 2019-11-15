@@ -24,6 +24,7 @@ from gettext import gettext as _
 import click
 from click_alias import ClickAliasedGroup
 
+from .cmd_common import help_header_format
 from .plugins import ClickPluginGroup
 
 __all__ = (
@@ -35,4 +36,8 @@ class ClickAliasableBunchyPluginGroup(ClickAliasedGroup, ClickPluginGroup):
 
     def __init__(self, *args, **kwargs):
         super(ClickAliasableBunchyPluginGroup, self).__init__(*args, **kwargs)
+
+    @property
+    def help_header_options(self):
+        return help_header_format(_('Global Options'))
 
