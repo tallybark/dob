@@ -69,11 +69,42 @@ def dob_versions():
 
 
 # ***
-# *** [BASE COMMAND GROUP] One Group to rule them all.
+# *** [CLICK ROOT CONTEXT] Twiddle default Context behavior.
 # ***
 
-CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
+CONTEXT_SETTINGS = dict(
+    # Tell Click to plumb the -h and --help options.
+    help_option_names=['-h', '--help'],
+    # But also tell Click not to invoke the help callback,
+    # which it would otherwise do immediately when it sees
+    # the help option.
+    #
+    # By default, Click processes help immediately when spotted.
+    #
+    # This has a few consequences:
+    #
+    # - If --help is seen before the subcommand in args, the run() method
+    #   below is not called, because Click handles the --help before invoking
+    #   the callback, and the Click help callback prints the help and exits.
+    #   As such, color and paging will not be setup properly for root help.
+    #   However, for subcommand help, our run() will be called, and then color
+    #   and paging will be setup properly for the subcommand help!
+    #
+    # - If the user wants help on a subcommand, Click forces them to specify
+    #   the --help option after the command, i.e., `dob --help command` would
+    #   normally print the same thing as `dob --help`. But we'd rather print
+    #   the help for the subcommand specified. (This also makes such obvious
+    #   commands like `dob help command` work as expected as well!)
+    #
+    # So tell Click not to process help upon sight, but to mark a flag.
+    # Later, we'll look for help_option_spotted on the root context.
+    help_option_fallthrough=True,
+)
 
+
+# ***
+# *** [BASE COMMAND GROUP] One Group to rule them all.
+# ***
 
 # (lb): Use invoke_without_command so `dob -v` works, otherwise Click's
 # Group (MultiCommand ancestor) does not allow it ('Missing command.').

@@ -39,6 +39,7 @@ __all__ = (
     'induct_newbies',
     'must_no_more_than_one_file',
     'post_processor',
+    'show_help_finally',
     # Private:
     #  'backend_integrity',
     #  'insist_germinated',
@@ -276,4 +277,23 @@ def help_header_format(text):
         reset=attr('reset'),
         optolon=not coloring() and ':' or '',
     )
+
+
+def show_help_finally(func):
+    """Click command callback decorator to show help if requested.
+    This changes the behavior of option parsing: The old behavior
+    of `dob --help command` would show the general help, i.e., it
+    would show the same help as `dob --help`. By telling Click to
+    cool it, we can show the help for the specified sub-command
+    instead, i.e., `dob --help command` will now show the help for
+    command."""
+
+    @click.pass_context
+    def check_help(ctx, *args, **kwargs):
+        if ctx.find_root().help_option_spotted:
+            click_echo(ctx.get_help())
+            ctx.exit()
+        func(*args, **kwargs)
+
+    return update_wrapper(check_help, func)
 
