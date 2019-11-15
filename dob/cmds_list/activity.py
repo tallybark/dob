@@ -19,7 +19,7 @@ from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
-from ..clickux.cmd_common import error_exit_no_results, hydrate_category
+from ..clickux.query_assist import error_exit_no_results, hydrate_category
 from ..helpers.ascii_table import generate_table
 
 __all__ = ('list_activities', )

@@ -34,7 +34,9 @@ from nark.helpers.parsing import parse_factoid
 from . import __package_name__
 from .clickux.cmd_common import (
     barf_and_exit,
-    echo_block_header,
+    echo_block_header
+)
+from .clickux.query_assist import (
     hydrate_activity,
     hydrate_category
 )

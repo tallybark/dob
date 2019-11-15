@@ -31,11 +31,8 @@ from ..helpers import ascii_art, click_echo, dob_in_user_exit
 __all__ = (
     'barf_and_exit',
     'echo_block_header',
-    'error_exit_no_results',
     'fact_block_header',
     'help_header_format',
-    'hydrate_activity',
-    'hydrate_category',
     'induct_newbies',
     'must_no_more_than_one_file',
     'post_processor',
@@ -197,34 +194,6 @@ def fact_block_header(title, sep='━', full_width=False):
 
 # ***
 
-def hydrate_activity(controller, activity_name):
-    """Fetch an activity from the back end."""
-    activity = False
-    if activity_name:
-        # FIXME: (lb): This raises KeyError if no exact match found.
-        #        We should at least gracefully exit,
-        #        if not do a fuzzy search.
-        result = controller.activities.get_by_name(activity_name)
-        activity = result if result else False
-    return activity
-
-
-# ***
-
-def hydrate_category(controller, category_name):
-    """Fetch a category from the backend."""
-    category = False
-    if category_name:
-        # FIXME: (lb): This raises KeyError if no exact match found.
-        #        We should at least gracefully exit,
-        #        if not do a fuzzy search.
-        result = controller.categories.get_by_name(category_name)
-        category = result if result else False
-    return category
-
-
-# ***
-
 def must_no_more_than_one_file(filename):
     # Because nargs=-1, the user could specify many files! E.g.,
     #
@@ -244,28 +213,6 @@ def must_no_more_than_one_file(filename):
         return filename[0]
     else:
         return None
-
-
-# ***
-
-def error_exit_no_results(item_type):
-    # MAYBE: (lb): Should we exit on error?
-    #              Print message but not error?
-    #              Print empty table?
-    #              Only print if no facts whatsoever,
-    #                as opposed to no facts matching query?
-    #        I'd say either print message on stderr and exit, or
-    #        print empty table on stdout, so that a tool in the
-    #        pipeline would only see empty string or empty table
-    #        on stdin, and never a message, so that post-processing
-    #        won't die on unexpected error message string.
-    msg = _('No {} were found for the specified query.').format(item_type)
-    # (lb): I sorta like the message, not table, on no results,
-    # because you can tell quicker that nothing was found. I.e.,
-    # when I see an empty tell, I spend a nanosecond scanning it
-    # for rows, because when I see table headers, I expect to see
-    # table rows! So I'm kinda liking printing a message, not table.
-    dob_in_user_exit(msg)
 
 
 # ***

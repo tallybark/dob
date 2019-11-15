@@ -20,7 +20,7 @@ from __future__ import absolute_import, unicode_literals
 from gettext import gettext as _
 
 from . import generate_usage_table
-from ..clickux.cmd_common import error_exit_no_results
+from ..clickux.query_assist import error_exit_no_results
 
 __all__ = ('usage_categories', )
 
