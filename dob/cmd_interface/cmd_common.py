@@ -23,7 +23,7 @@ from functools import update_wrapper
 from gettext import gettext as _
 
 import click
-from nark.helpers.emphasis import attr, colorize, fg
+from nark.helpers.emphasis import attr, coloring, colorize, fg
 
 from .. import __arg0name__, migrate
 from ..helpers import ascii_art, click_echo, dob_in_user_exit
@@ -33,6 +33,7 @@ __all__ = (
     'echo_block_header',
     'error_exit_no_results',
     'fact_block_header',
+    'help_header_format',
     'hydrate_activity',
     'hydrate_category',
     'induct_newbies',
@@ -264,4 +265,15 @@ def error_exit_no_results(item_type):
     # for rows, because when I see table headers, I expect to see
     # table rows! So I'm kinda liking printing a message, not table.
     dob_in_user_exit(msg)
+
+
+# ***
+
+def help_header_format(text):
+    return '{underlined}{text}{reset}{optolon}'.format(
+        underlined=attr('underlined'),
+        text=text,
+        reset=attr('reset'),
+        optolon=not coloring() and ':' or '',
+    )
 
