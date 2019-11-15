@@ -25,6 +25,7 @@ import click
 from click_alias import ClickAliasedGroup
 
 from .cmd_common import help_header_format
+from .click_bunch import ClickBunchyGroup
 from .plugins import ClickPluginGroup
 
 __all__ = (
@@ -32,7 +33,12 @@ __all__ = (
 )
 
 
-class ClickAliasableBunchyPluginGroup(ClickAliasedGroup, ClickPluginGroup):
+class ClickAliasableBunchyPluginGroup(
+    # ClickBunchyGroup comes first, because its format_commands shadows others'.
+    ClickBunchyGroup,
+    ClickAliasedGroup,
+    ClickPluginGroup,
+):
 
     def __init__(self, *args, **kwargs):
         super(ClickAliasableBunchyPluginGroup, self).__init__(*args, **kwargs)
