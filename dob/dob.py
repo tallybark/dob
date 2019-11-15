@@ -37,6 +37,15 @@ import click
 
 from . import migrate, update
 from .cmd_interface import cmd_options, help_strings
+from .cmd_interface.bunchy_help import (
+    cmd_bunch_group_introducing,
+    cmd_bunch_group_edit,
+    cmd_bunch_group_get_meta,
+    cmd_bunch_group_datastore,
+    cmd_bunch_group_dbms,
+    cmd_bunch_group_add_fact,
+    cmd_bunch_group_ongoing_fact
+)
 from .cmd_interface.cmd_common import (
     induct_newbies,
     insist_germinated,
@@ -159,6 +168,7 @@ def help(ctx, command=None):
 # *** [VERSION] Ye rote version command.
 # ***
 
+@cmd_bunch_group_get_meta
 @run.command(help=help_strings.VERSION_HELP)
 @show_help_finally
 def version():
@@ -191,10 +201,20 @@ def _license():
 # *** [COPYRIGHT] Command.
 # ***
 
-@run.command(aliases=['about'], help=_('View copyright information'))
+@cmd_bunch_group_get_meta
+@run.command(help=_('View copyright information.'))
 @show_help_finally
 @pass_controller
 def copyright(controller):
+    """Display copyright information.."""
+    echo_copyright()
+
+
+@cmd_bunch_group_get_meta
+@run.command(hidden=True, help=_("Alias of 'copyright' command."))
+@show_help_finally
+@pass_controller
+def about(controller):
     """Display copyright information.."""
     echo_copyright()
 
@@ -212,6 +232,7 @@ def copyright(controller):
 # See also similarly named commands that have generic meanings:
 #   dob details | dob info | dob show
 # i.e., details about what? info about what? showing what?
+@cmd_bunch_group_get_meta
 @run.command(aliases=['info'], help=help_strings.DETAILS_HELP)
 @show_help_finally
 @click.option('--tmi', '--full', is_flag=True, help=_('Show AppDirs paths, too.'))
@@ -225,6 +246,7 @@ def details(controller, tmi):
 # *** [ENVIRONS] Command [like details command, but shell-sourceable].
 # ***
 
+@cmd_bunch_group_get_meta
 @run.command(help=help_strings.ENVIRONS_HELP)
 @show_help_finally
 @pass_controller
@@ -237,6 +259,7 @@ def environs(controller):
 # *** [DEBUG] Dump ya on a prompt.
 # ***
 
+@cmd_bunch_group_get_meta
 @run.command(help=help_strings.DEBUG_HELP)
 @show_help_finally
 @pass_controller
@@ -251,6 +274,7 @@ def debug(controller):
 # *** [DEMO] Command.
 # ***
 
+@cmd_bunch_group_introducing
 @run.command('demo', help=help_strings.DEMO_HELP)
 @show_help_finally
 @pass_controller
@@ -264,6 +288,7 @@ def demo_dob_and_nark(controller):
 # *** [INIT] Command.
 # ***
 
+@cmd_bunch_group_introducing
 @run.command('init', help=help_strings.INIT_HELP)
 @show_help_finally
 @pass_controller
@@ -276,6 +301,8 @@ def init_config_and_store(controller):
 # *** [CONFIG] Commands.
 # ***
 
+
+@cmd_bunch_group_get_meta
 @run.group('config', cls=ClickAliasedGroup, help=help_strings.CONFIG_GROUP_HELP)
 @click.pass_context
 def config_group(ctx):
@@ -299,6 +326,7 @@ def config_create(controller, force):
 
 # See also: 'migrate' commands. The store commands are mostly for initial setup.
 
+@cmd_bunch_group_dbms
 @run.group('store', cls=ClickAliasedGroup, help=help_strings.STORE_GROUP_HELP)
 @click.pass_context
 def store_group(ctx):
@@ -350,6 +378,7 @@ def upgrade_legacy(ctx, controller, filename, force):
 # *** [STATS] Command.
 # ***
 
+@cmd_bunch_group_datastore
 @run.command('stats', help=help_strings.STATS_HELP)
 @show_help_finally
 @pass_controller
@@ -363,6 +392,7 @@ def nark_stats(controller):
 # *** [LIST] Commands.
 # ***
 
+@cmd_bunch_group_datastore
 # Use a command alias to avoid conflict with builtin of same name
 # (i.e., we cannot declare this function, `def list()`).
 @run.group('list', help=help_strings.LIST_GROUP_HELP)
@@ -496,6 +526,7 @@ def dob_list_facts(controller, *args, **kwargs):
     pass
 
 
+@cmd_bunch_group_datastore
 # MAYBE: Should we alias the command at dob-search?
 @run.command('search', help=help_strings.SEARCH_HELP)
 @show_help_finally
@@ -509,6 +540,7 @@ def search_facts(controller, *args, **kwargs):
 # *** [USAGE] Commands.
 # ***
 
+@cmd_bunch_group_datastore
 @run.group('usage', help=help_strings.USAGE_GROUP_HELP)
 @pass_controller
 @click.pass_context
@@ -613,6 +645,7 @@ def usage_facts(controller, *args, **kwargs):
 # *** [CURRENT-FACT] Commands: stop/cancel/current.
 # ***
 
+@cmd_bunch_group_ongoing_fact
 @run.command('stop', help=help_strings.STOP_HELP)
 @show_help_finally
 # FIXME/2018-08-26: Do we really want optional factoid argument for stop command?
@@ -628,6 +661,7 @@ def stop(ctx, controller, factoid):
     return stop_fact(controller)
 
 
+@cmd_bunch_group_ongoing_fact
 @run.command('cancel', help=help_strings.CANCEL_HELP)
 @show_help_finally
 @click.option(
@@ -643,6 +677,7 @@ def cancel(ctx, controller, force):
     return cancel_fact(controller, purge=force)
 
 
+@cmd_bunch_group_ongoing_fact
 @run.command('current', help=help_strings.CURRENT_HELP)
 @show_help_finally
 @pass_controller
@@ -652,6 +687,7 @@ def current(controller):
     echo_ongoing_fact(controller)
 
 
+@cmd_bunch_group_ongoing_fact
 @run.command('latest', aliases=['last'], help=help_strings.LATEST_HELP)
 @show_help_finally
 @pass_controller
@@ -661,6 +697,7 @@ def latest(controller):
     echo_latest_ended(controller)
 
 
+@cmd_bunch_group_ongoing_fact
 @run.command('show', help=help_strings.HELP_CMD_SHOW)
 @show_help_finally
 @pass_controller
@@ -691,15 +728,27 @@ def generate_add_fact_command(time_hint):
     return _generate_add_fact_command
 
 
-@run.command("on", aliases=["on:", "now", "now:"], help=help_strings.START_HELP_ON)
+@cmd_bunch_group_add_fact
+@run.command("on", aliases=["on:"], help=help_strings.START_HELP_ON)
 @show_help_finally
 @generate_add_fact_command("verify_none")
 def add_fact_on(controller, *args, **kwargs):
-    """Start or add a fact using the `on`/`now` directive."""
+    """Start or add a fact using the `on` directive."""
     assert(False)  # Not reachable, because generate_add_fact_command.
     pass
 
 
+@cmd_bunch_group_add_fact
+@run.command("now", aliases=["now:"], help=help_strings.START_HELP_NOW)
+@show_help_finally
+@generate_add_fact_command("verify_none")
+def add_fact_now(controller, *args, **kwargs):
+    """Start or add a fact using the `now` directive."""
+    assert(False)  # Not reachable, because generate_add_fact_command.
+    pass
+
+
+@cmd_bunch_group_add_fact
 @run.command("from", help=help_strings.START_HELP_FROM)
 @show_help_finally
 @generate_add_fact_command("verify_both")
@@ -709,6 +758,7 @@ def add_fact_from(controller, *args, **kwargs):
     pass
 
 
+@cmd_bunch_group_add_fact
 @run.command("at", aliases=["at:"], help=help_strings.START_HELP_AT)
 @show_help_finally
 @generate_add_fact_command("verify_start")
@@ -718,15 +768,27 @@ def add_fact_at(controller, *args, **kwargs):
     pass
 
 
-@run.command("to", aliases=["to:", "until", "until:"], help=help_strings.START_HELP_TO)
+@cmd_bunch_group_add_fact
+@run.command("to", aliases=["to:"], help=help_strings.START_HELP_TO)
 @show_help_finally
 @generate_add_fact_command("verify_end")
 def add_fact_to(controller, *args, **kwargs):
-    """Start or add a fact using the `to`/`until` directive."""
+    """Start or add a fact using the `to` directive."""
     assert(False)  # Not reachable, because generate_add_fact_command.
     pass
 
 
+@cmd_bunch_group_add_fact
+@run.command("until", aliases=["until:"], help=help_strings.START_HELP_UNTIL)
+@show_help_finally
+@generate_add_fact_command("verify_end")
+def add_fact_until(controller, *args, **kwargs):
+    """Start or add a fact using the `until` directive."""
+    assert(False)  # Not reachable, because generate_add_fact_command.
+    pass
+
+
+@cmd_bunch_group_add_fact
 @run.command("then", aliases=["then:"], help=help_strings.START_HELP_THEN)
 @show_help_finally
 @generate_add_fact_command("verify_then")
@@ -736,6 +798,7 @@ def add_fact_then(controller, *args, **kwargs):
     pass
 
 
+@cmd_bunch_group_add_fact
 @run.command("still", aliases=["still:"], help=help_strings.START_HELP_STILL)
 @show_help_finally
 @generate_add_fact_command("verify_still")
@@ -745,13 +808,8 @@ def add_fact_still(controller, *args, **kwargs):
     pass
 
 
-@run.command(
-    "after",
-    # (lb): Is "after"/"after:" good enough?
-    #       Is "next"/""next:" also useful?
-    aliases=["after:", "next", "next:", ],
-    help=help_strings.START_HELP_AFTER
-)
+@cmd_bunch_group_add_fact
+@run.command("after", aliases=["after:"], help=help_strings.START_HELP_AFTER)
 @show_help_finally
 @generate_add_fact_command("verify_after")
 def add_fact_after(controller, *args, **kwargs):
@@ -760,10 +818,22 @@ def add_fact_after(controller, *args, **kwargs):
     pass
 
 
+@cmd_bunch_group_add_fact
+@run.command("next", aliases=["next:"], help=help_strings.START_HELP_NEXT)
+@show_help_finally
+# Note that 'next' is really just an alias of 'after'.
+@generate_add_fact_command("verify_after")
+def add_fact_next(controller, *args, **kwargs):
+    """Start or add a fact using the `next` directive."""
+    assert(False)  # Not reachable, because generate_add_fact_command.
+    pass
+
+
 # ***
 # *** [EDIT] Command(s).
 # ***
 
+@cmd_bunch_group_edit
 @run.group('edit', help=help_strings.EDIT_GROUP_HELP, invoke_without_command=True)
 @cmd_options_edit_item
 @cmd_options_fact_nocarousel
@@ -869,6 +939,7 @@ def cmd_export_opt_output_default(controller):
         return _('(Dynamic)')
 
 
+@cmd_bunch_group_dbms
 @run.command('export', help=help_strings.EXPORT_HELP)
 @show_help_finally
 @click.option(
@@ -935,6 +1006,7 @@ def transcode_export(
 # *** [IMPORT] Command.
 # ***
 
+@cmd_bunch_group_dbms
 @run.command('import', help=help_strings.IMPORT_HELP)
 @show_help_finally
 @click.argument('filename', nargs=-1, type=click.File('r'))
@@ -1012,6 +1084,7 @@ def complete(controller):
 # *** [MIGRATE] Commands [database transformations].
 # ***
 
+@cmd_bunch_group_dbms
 @run.group('migrate', help=help_strings.MIGRATE_GROUP_HELP, invoke_without_command=True)
 @pass_controller
 @click.pass_context
