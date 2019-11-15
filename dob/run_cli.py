@@ -150,13 +150,13 @@ def run(ctx, controller, v, verbose, verboser, color):
         Setup up loggers.
         """
         profile_elapsed('To dob:    run')
-        _setup_tty_options(controller)
+        _setup_tty_options(ctx, controller)
         _run_handle_banner()
         _run_handle_version(show_version, ctx)
         _run_handle_without_command(ctx)
         controller.setup_logging(verbose, verboser)
 
-    def _setup_tty_options(controller):
+    def _setup_tty_options(ctx, controller):
         # If piping output, Disable color and paging.
         # MAYBE: (lb): What about allowing color for outputting to ANSI file? Meh.
         use_color = color
@@ -164,7 +164,7 @@ def run(ctx, controller, v, verbose, verboser, color):
             controller.client_config['term_paging'] = False
             controller.client_config['term_color'] = False
         _setup_tty_paging(controller)
-        _setup_tty_color(controller)
+        _setup_tty_color(ctx, controller)
 
     def _setup_tty_paging(controller):
         if controller.client_config['term_paging']:
@@ -172,9 +172,15 @@ def run(ctx, controller, v, verbose, verboser, color):
             #   For now, we just clear the screen...
             click.clear()
 
-    def _setup_tty_color(controller):
+    def _setup_tty_color(ctx, controller):
         use_color = color
         controller.setup_tty_color(use_color)
+        # We'll set the Click Context object's color attribute, too, but note
+        # that only Click's echo() method strips color based on that attribute;
+        # the format_help() methods do not scrub ANSI codes, so we still need
+        # to be color-aware ourselves. (So setting ctx.color here is more of a
+        # formality than something that actually does anything.)
+        ctx.color = color
 
     def _run_handle_banner():
         # (lb): I find the greeting annoying, and somewhat boastful.
