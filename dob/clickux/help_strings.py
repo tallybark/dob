@@ -44,9 +44,11 @@ def RUN_HELP_OVERVIEW():
 
           {codehi}{rawname} demo{reset}
 
-        - Use {italic}--help{reset} after any command to learn more, e.g.,
+        - Use {italic}help{reset} with any command to learn more, e.g.,
 
           {codehi}{rawname} init --help{reset}
+
+          {codehi}{rawname} help init{reset}
 
         - Put global options {italic}before{reset} the command name, e.g.,
 
