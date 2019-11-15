@@ -194,8 +194,12 @@ def run(ctx, controller, v, verbose, verboser, color):
             ctx.exit(0)
 
     def _run_handle_without_command(ctx):
-        if len(sys.argv) == 1:
-            # Because invoke_without_command, we have to check ourselves
+        # Because we set invoke_without_command, we have to check ourselves
+        # if invoked without any command, in which case show the help.
+        # Note this code originally, naively checked `if len(sys.argv) == 1`,
+        # but the context (which is always root when run() is invoked) knows
+        # if there's a subcommand specified, so check that attribute instead.
+        if ctx.invoked_subcommand is None:
             click_echo(ctx.get_help())
 
     # Shim to the private run() functions.
