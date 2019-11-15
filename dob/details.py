@@ -51,9 +51,9 @@ def echo_app_details(controller, full=False):
 
     def echo_name_version():
         click_echo(_(
-            "You are running {name} version {version}"
+            "You are running {appname} version {version}"
         ).format(
-            name=highlight_value(package_name_dob),
+            appname=highlight_value(package_name_dob),
             version=highlight_value(resolve_vers_dob()),
         ))
 
