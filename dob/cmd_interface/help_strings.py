@@ -147,7 +147,11 @@ DEBUG_HELP = _(
 
 DEMO_HELP = _(
     """
+    New to dob? Just installed it? {ital}Run this first!{reset}
     """
+).strip().format(
+    ital=attr('italic'),
+    reset=attr('reset'),
 )
 
 
@@ -292,6 +296,7 @@ CONFIG_CREATE_HELP = _(
 
 STORE_GROUP_HELP = _(
     """
+    FIXME
     """
 )
 
@@ -755,6 +760,13 @@ START_HELP_ON = _(
 )
 
 
+START_HELP_NOW = _(
+    """
+    Alias of 'on' command.
+    """
+)
+
+
 START_HELP_AT = _(
     """
     \b
@@ -788,8 +800,22 @@ START_HELP_AFTER = _(
 )
 
 
+START_HELP_NEXT = _(
+    """
+    Alias of 'after' command.
+    """
+)
+
+
 START_HELP_TO = _(
     """
+    """
+)
+
+
+START_HELP_UNTIL = _(
+    """
+    Alias of 'to' command.
     """
 )
 
