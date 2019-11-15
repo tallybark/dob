@@ -24,8 +24,8 @@ from gettext import gettext as _
 import click
 from click_alias import ClickAliasedGroup
 
+from .bunchy_group import ClickBunchyGroup
 from .cmd_common import help_header_format
-from .click_bunch import ClickBunchyGroup
 from .plugins import ClickPluginGroup
 
 __all__ = (
