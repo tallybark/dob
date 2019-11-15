@@ -47,8 +47,6 @@ from .clickux.bunchy_help import (
     cmd_bunch_group_ongoing_fact
 )
 from .clickux.cmd_common import (
-    induct_newbies,
-    insist_germinated,
     must_no_more_than_one_file,
     post_processor,
     show_help_finally
@@ -68,6 +66,10 @@ from .clickux.cmd_options import (
     cmd_options_table_bunce,
     cmd_options_usage,
     postprocess_options_table_bunce
+)
+from .clickux.induct_newbies import (
+    induct_newbies,
+    insist_germinated
 )
 from .cmds_list import activity as list_activity
 from .cmds_list import category as list_category
