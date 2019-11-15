@@ -35,9 +35,9 @@ from nark.helpers.parsing import ParserException
 from prompt_toolkit.lexers import PygmentsLexer
 
 from . import interrogate
-from .cmd_interface.cmd_common import echo_block_header
-from .cmd_interface.cmd_config import AppDirs, get_appdirs_subdir_file_path
-from .cmd_interface.help_strings import NOTHING_TO_STOP_HELP
+from .clickux.cmd_common import echo_block_header
+from .clickux.cmd_config import AppDirs, get_appdirs_subdir_file_path
+from .clickux.help_strings import NOTHING_TO_STOP_HELP
 from .helpers import (
     click_echo,
     dob_in_user_exit,

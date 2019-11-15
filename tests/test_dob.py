@@ -31,7 +31,7 @@ from dob import (
     dob,
     transcode
 )
-from dob.cmd_interface import cmd_config
+from dob.clickux import cmd_config
 from dob.cmds_list.fact import search_facts
 from dob.helpers import ascii_table
 

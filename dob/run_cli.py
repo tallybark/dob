@@ -31,8 +31,8 @@ from nark.helpers.dev.profiling import profile_elapsed, timefunct
 
 from . import __package_name__ as package_name_dob
 from . import __resolve_vers__ as resolve_vers_dob
-from .cmd_interface import help_strings
-from .cmd_interface.click_aliasable_bunchy_plugin import ClickAliasableBunchyPluginGroup
+from .clickux import help_strings
+from .clickux.click_aliasable_bunchy_plugin import ClickAliasableBunchyPluginGroup
 from .controller import Controller
 from .copyright import echo_copyright
 from .helpers import click_echo

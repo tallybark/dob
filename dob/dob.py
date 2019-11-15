@@ -36,8 +36,8 @@ from gettext import gettext as _
 import click
 
 from . import migrate, update
-from .cmd_interface import cmd_options, help_strings
-from .cmd_interface.bunchy_help import (
+from .clickux import cmd_options, help_strings
+from .clickux.bunchy_help import (
     cmd_bunch_group_introducing,
     cmd_bunch_group_edit,
     cmd_bunch_group_get_meta,
@@ -46,14 +46,14 @@ from .cmd_interface.bunchy_help import (
     cmd_bunch_group_add_fact,
     cmd_bunch_group_ongoing_fact
 )
-from .cmd_interface.cmd_common import (
+from .clickux.cmd_common import (
     induct_newbies,
     insist_germinated,
     must_no_more_than_one_file,
     post_processor,
     show_help_finally
 )
-from .cmd_interface.cmd_options import (
+from .clickux.cmd_options import (
     OptionWithDynamicHelp,
     cmd_options_edit_item,
     cmd_options_fact_add,
