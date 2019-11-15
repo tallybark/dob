@@ -26,7 +26,7 @@ from click_alias import ClickAliasedGroup
 
 from .bunchy_group import ClickBunchyGroup
 from .cmd_common import help_header_format
-from .plugins import ClickPluginGroup
+from .plugin_group import ClickPluginGroup
 
 __all__ = (
     'ClickAliasableBunchyPluginGroup'
