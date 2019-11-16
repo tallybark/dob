@@ -35,8 +35,8 @@ from nark.helpers.parsing import ParserException
 from prompt_toolkit.lexers import PygmentsLexer
 
 from . import interrogate
-from .clickux.cmd_common import echo_block_header
 from .clickux.cmd_config import AppDirs, get_appdirs_subdir_file_path
+from .clickux.echo_assist import echo_block_header
 from .clickux.help_strings import NOTHING_TO_STOP_HELP
 from .helpers import (
     click_echo,

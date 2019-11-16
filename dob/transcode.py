@@ -32,14 +32,8 @@ from nark.helpers.emphasis import attr, bg, fg
 from nark.helpers.parsing import parse_factoid
 
 from . import __package_name__
-from .clickux.cmd_common import (
-    barf_and_exit,
-    echo_block_header
-)
-from .clickux.query_assist import (
-    hydrate_activity,
-    hydrate_category
-)
+from .clickux.echo_assist import barf_and_exit, echo_block_header
+from .clickux.query_assist import hydrate_activity, hydrate_category
 from .cmds_list.fact import search_facts
 from .create import prompt_and_save
 from .helpers import click_echo, highlight_value, prepare_log_msg
