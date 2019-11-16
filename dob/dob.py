@@ -48,8 +48,7 @@ from .clickux.bunchy_help import (
 )
 from .clickux.cmd_common import (
     must_no_more_than_one_file,
-    post_processor,
-    show_help_finally
+    post_processor
 )
 from .clickux.cmd_options import (
     OptionWithDynamicHelp,
@@ -67,6 +66,7 @@ from .clickux.cmd_options import (
     cmd_options_usage,
     postprocess_options_table_bunce
 )
+from .clickux.help_detect import show_help_finally
 from .clickux.induct_newbies import (
     induct_newbies,
     insist_germinated
