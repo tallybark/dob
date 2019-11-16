@@ -24,13 +24,13 @@ from gettext import gettext as _
 import click
 from nark.helpers.emphasis import attr, colorize, fg
 
-from ..helpers import ascii_art, click_echo, dob_in_user_exit
+from ..helpers import ascii_art, click_echo
 
 __all__ = (
     'barf_and_exit',
     'echo_block_header',
-    'fact_block_header',
-    'must_no_more_than_one_file',
+    # PRIVATE:
+    # 'fact_block_header',
 )
 
 
@@ -81,27 +81,4 @@ def fact_block_header(title, sep='━', full_width=False):
         return horiz_rule
 
     return _fact_block_header()
-
-
-# ***
-
-def must_no_more_than_one_file(filename):
-    # Because nargs=-1, the user could specify many files! E.g.,
-    #
-    #   dob import file1 file2
-    #
-    # Also, click supports the magic STDIN identifier, `-`, e.g.,
-    #
-    #   dob import -
-    #
-    # will read from STDIN.
-    #
-    # (And `dob import - <file>` will open 2 streams!)
-    if len(filename) > 1:
-        msg = _('Please specify only one input, file or STDIN!')
-        dob_in_user_exit(msg)
-    elif filename:
-        return filename[0]
-    else:
-        return None
 

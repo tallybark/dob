@@ -36,7 +36,7 @@ from gettext import gettext as _
 import click
 
 from . import migrate, update
-from .clickux import cmd_options, help_strings
+from .clickux import help_strings
 from .clickux.bunchy_help import (
     cmd_bunch_group_introducing,
     cmd_bunch_group_edit,
@@ -46,7 +46,6 @@ from .clickux.bunchy_help import (
     cmd_bunch_group_add_fact,
     cmd_bunch_group_ongoing_fact
 )
-from .clickux.cmd_common import must_no_more_than_one_file
 from .clickux.cmd_options import (
     OptionWithDynamicHelp,
     cmd_options_edit_item,
@@ -61,8 +60,11 @@ from .clickux.cmd_options import (
     cmd_options_search,
     cmd_options_table_bunce,
     cmd_options_usage,
+    postprocess_options_list_activitied,
+    postprocess_options_list_categoried,
     postprocess_options_table_bunce
 )
+from .clickux.file_enforce import must_no_more_than_one_file
 from .clickux.help_detect import show_help_finally
 from .clickux.induct_newbies import induct_newbies, insist_germinated
 from .clickux.post_processor import post_processor
@@ -413,7 +415,7 @@ def list_group(ctx, controller):
 @induct_newbies
 def list_activities(controller, *args, usage=False, **kwargs):
     """List matching activities, filtered and sorted."""
-    category = cmd_options.postprocess_options_list_categoried(kwargs)
+    category = postprocess_options_list_categoried(kwargs)
     postprocess_options_table_bunce(kwargs)
     if usage:
         handler = usage_activity.usage_activities
@@ -464,8 +466,8 @@ def list_categories(controller, *args, usage=False, **kwargs):
 @induct_newbies
 def list_tags(controller, *args, usage=False, **kwargs):
     """List all tags, with filtering and sorting options."""
-    activity = cmd_options.postprocess_options_list_activitied(kwargs)
-    category = cmd_options.postprocess_options_list_categoried(kwargs)
+    activity = postprocess_options_list_activitied(kwargs)
+    category = postprocess_options_list_categoried(kwargs)
     postprocess_options_table_bunce(kwargs)
     if usage:
         handler = usage_tag.usage_tags
@@ -485,8 +487,8 @@ def list_tags(controller, *args, usage=False, **kwargs):
 def _list_facts(controller, *args, usage=False, **kwargs):
     """List matching facts, filtered and sorted."""
     """Fetch facts matching certain criteria."""
-    activity = cmd_options.postprocess_options_list_activitied(kwargs)
-    category = cmd_options.postprocess_options_list_categoried(kwargs)
+    activity = postprocess_options_list_activitied(kwargs)
+    category = postprocess_options_list_categoried(kwargs)
     postprocess_options_table_bunce(kwargs)
     # FIXME: (lb): Should probably impose limit by default
     #          (without, my terminal hangs for a long while).
@@ -558,7 +560,7 @@ def usage_group(ctx, controller):
 @induct_newbies
 def usage_activities(controller, *args, **kwargs):
     """List all activities. Provide optional filtering by name."""
-    category = cmd_options.postprocess_options_list_categoried(kwargs)
+    category = postprocess_options_list_categoried(kwargs)
     postprocess_options_table_bunce(kwargs)
     usage_activity.usage_activities(
         controller,
@@ -600,8 +602,8 @@ def usage_categories(controller, *args, **kwargs):
 @induct_newbies
 def usage_tags(controller, *args, **kwargs):
     """List all tags' usage counts, with filtering and sorting options."""
-    activity = cmd_options.postprocess_options_list_activitied(kwargs)
-    category = cmd_options.postprocess_options_list_categoried(kwargs)
+    activity = postprocess_options_list_activitied(kwargs)
+    category = postprocess_options_list_categoried(kwargs)
     postprocess_options_table_bunce(kwargs)
     usage_tag.usage_tags(
         controller,
@@ -625,8 +627,8 @@ def usage_tags(controller, *args, **kwargs):
 @induct_newbies
 def usage_facts(controller, *args, **kwargs):
     """List all tags' usage counts, with filtering and sorting options."""
-    activity = cmd_options.postprocess_options_list_activitied(kwargs)
-    category = cmd_options.postprocess_options_list_categoried(kwargs)
+    activity = postprocess_options_list_activitied(kwargs)
+    category = postprocess_options_list_categoried(kwargs)
     postprocess_options_table_bunce(kwargs)
     list_fact.list_facts(
         controller,
@@ -968,8 +970,8 @@ def transcode_export(
 ):
     """Export all facts of within a given timewindow to a file of specified format."""
     def _transcode_export():
-        activity = cmd_options.postprocess_options_list_activitied(kwargs)
-        category = cmd_options.postprocess_options_list_categoried(kwargs)
+        activity = postprocess_options_list_activitied(kwargs)
+        category = postprocess_options_list_categoried(kwargs)
         export_facts(
             controller,
             *args,
