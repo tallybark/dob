@@ -21,7 +21,7 @@ from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
-from .cmd_common import help_header_format
+from .help_header import help_header_format
 from ..run_cli import run
 
 __all__ = (

@@ -23,7 +23,7 @@ from functools import update_wrapper
 from gettext import gettext as _
 
 import click
-from nark.helpers.emphasis import attr, coloring, colorize, fg
+from nark.helpers.emphasis import attr, colorize, fg
 
 from ..helpers import ascii_art, click_echo, dob_in_user_exit
 
@@ -31,7 +31,6 @@ __all__ = (
     'barf_and_exit',
     'echo_block_header',
     'fact_block_header',
-    'help_header_format',
     'must_no_more_than_one_file',
     'post_processor',
 )
@@ -123,15 +122,4 @@ def must_no_more_than_one_file(filename):
         return filename[0]
     else:
         return None
-
-
-# ***
-
-def help_header_format(text):
-    return '{underlined}{text}{reset}{optolon}'.format(
-        underlined=attr('underlined'),
-        text=text,
-        reset=attr('reset'),
-        optolon=not coloring() and ':' or '',
-    )
 

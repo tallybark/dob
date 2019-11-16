@@ -15,35 +15,22 @@
 # You should have received a copy of the GNU General Public License
 # along with 'dob'.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Click Group wrapper combines all our custom classes."""
-
 from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
-import click
-from click_alias import ClickAliasedGroup
-
-from .bunchy_group import ClickBunchyGroup
-from .help_header import help_header_format
-from .plugin_group import ClickPluginGroup
+from nark.helpers.emphasis import attr, coloring
 
 __all__ = (
-    'ClickAliasableBunchyPluginGroup'
+    'help_header_format',
 )
 
 
-class ClickAliasableBunchyPluginGroup(
-    # ClickBunchyGroup comes first, because its format_commands shadows others'.
-    ClickBunchyGroup,
-    ClickAliasedGroup,
-    ClickPluginGroup,
-):
-
-    def __init__(self, *args, **kwargs):
-        super(ClickAliasableBunchyPluginGroup, self).__init__(*args, **kwargs)
-
-    @property
-    def help_header_options(self):
-        return help_header_format(_('Global Options'))
+def help_header_format(text):
+    return '{underlined}{text}{reset}{optolon}'.format(
+        underlined=attr('underlined'),
+        text=text,
+        reset=attr('reset'),
+        optolon=not coloring() and _(':') or '',
+    )
 
