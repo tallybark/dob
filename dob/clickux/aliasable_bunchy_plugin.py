@@ -64,7 +64,15 @@ class ClickAliasableBunchyPluginGroup(
 
     @property
     def help_header_options(self):
-        return help_header_format(_('Global Options'))
+        # (lb): Without having the caller pass us the ctx, so we can
+        # check ctx.parent is None to know if this is the root command
+        # or not, we can use our business knowledge to check the command
+        # name, which is 'run', the name of the root callback in run_cli.
+        # - I'd rather use ctx.parent is None, and not do a string compare,
+        #   but this is dirt cheap and easy squeeze y.
+        if self.name == 'run':
+            return help_header_format(_('Global Options'))
+        return help_header_format(_('Command Options'))
 
     def format_usage(self, ctx, formatter):
         """Writes the usage line into the formatter.
