@@ -32,7 +32,7 @@ from nark.helpers.dev.profiling import profile_elapsed, timefunct
 from . import __package_name__ as package_name_dob
 from . import __resolve_vers__ as resolve_vers_dob
 from .clickux import help_strings
-from .clickux.echo_assist import click_echo, set_paging
+from .clickux.echo_assist import click_echo, echo_exit, set_paging
 from .clickux.aliasable_bunchy_plugin import ClickAliasableBunchyPluginGroup
 from .controller import Controller
 from .copyright import echo_copyright
@@ -153,7 +153,7 @@ def run(ctx, controller, v, verbose, verboser, color, pager):
         profile_elapsed('To dob:    run')
         _setup_tty_options(ctx, controller)
         _run_handle_banner()
-        _run_handle_version(show_version, ctx)
+        _run_handle_version(ctx, show_version)
         _run_handle_without_command(ctx)
         controller.setup_logging(verbose, verboser)
 
@@ -197,10 +197,9 @@ def run(ctx, controller, v, verbose, verboser, color, pager):
         echo_copyright()
         click_echo()
 
-    def _run_handle_version(show_version, ctx):
+    def _run_handle_version(ctx, show_version):
         if show_version:
-            click_echo(dob_versions())
-            ctx.exit(0)
+            echo_exit(ctx, dob_versions())
 
     def _run_handle_without_command(ctx):
         # Because we set invoke_without_command, we have to check ourselves
@@ -209,7 +208,7 @@ def run(ctx, controller, v, verbose, verboser, color, pager):
         # but the context (which is always root when run() is invoked) knows
         # if there's a subcommand specified, so check that attribute instead.
         if ctx.invoked_subcommand is None:
-            click_echo(ctx.get_help())
+            echo_exit(ctx, ctx.get_help())
 
     # Shim to the private run() functions.
 

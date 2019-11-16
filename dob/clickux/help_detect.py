@@ -10,7 +10,7 @@ from functools import update_wrapper
 
 import click
 
-from .echo_assist import click_echo
+from .echo_assist import click_echo, echo_exit
 
 __all__ = (
     'show_help_finally',
@@ -45,8 +45,7 @@ def show_help_finally(func):
     @click.pass_context
     def check_help(ctx, *args, **kwargs):
         if ctx.find_root().help_option_spotted:
-            click_echo(ctx.get_help())
-            ctx.exit()
+            echo_exit(ctx, ctx.get_help())
         func(*args, **kwargs)
 
     return update_wrapper(check_help, func)
