@@ -24,6 +24,7 @@ from gettext import gettext as _
 from nark.helpers.emphasis import attr, coloring, fg
 
 from .. import __arg0name__, __package_name__
+from ..app_config import get_config_path
 from ..helpers import highlight_value
 
 # Note that the help formatter removes single newlines and adjusts text width
@@ -35,7 +36,7 @@ from ..helpers import highlight_value
 # ***
 
 
-def RUN_HELP_OVERVIEW():
+def RUN_HELP_OVERVIEW(ctx):
     run_help = _(
         """
         {appname} is a time tracker for the command line.
@@ -270,10 +271,33 @@ FIXME: Provide example commands.
 # *** [INIT] Command help.
 # ***
 
-INIT_HELP = _(
-    """
-    """
-)
+def INIT_HELP_OVERVIEW(ctx):
+    controller = ctx.obj
+    init_help = _(
+        """
+        Ensures that the user config and data store exists.
+
+        - Unless it exists, init will create a default configuration at:
+
+            {get_config_path}
+
+        - Unless it exists, init will create an empty database file at:
+
+            {cfg_db_path}
+
+        The config influences other runtime values you can see by running:
+
+            {codehi}{rawname} details{reset}
+
+        """.format(
+            get_config_path=highlight_value(get_config_path()),
+            cfg_db_path=highlight_value(controller.config['db_path']),
+            rawname=__package_name__,
+            codehi=(fg('turquoise_2') or ''),
+            reset=(attr('reset') or ''),
+        )
+    )
+    return init_help
 
 
 # ***

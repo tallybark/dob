@@ -298,7 +298,7 @@ def demo_dob_and_nark(controller):
 # ***
 
 @cmd_bunch_group_introducing
-@run.command('init', help=help_strings.INIT_HELP)
+@run.command('init', help=help_strings.INIT_HELP_OVERVIEW)
 @show_help_finally
 @flush_pager
 @pass_controller

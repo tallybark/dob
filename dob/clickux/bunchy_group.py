@@ -66,7 +66,7 @@ class ClickBunchyGroup(click.Group):
             commands, col_max = self.format_commands_fetch(ctx, tup[0])
             section_header = callable(tup[0]) and tup[0]() or tup[0]
             self.format_commands_write(
-                commands, formatter, section_header, col_min=col_max
+                commands, ctx, formatter, section_header, col_min=col_max
             )
 
     # Override Click's MultiCommand implementation.
