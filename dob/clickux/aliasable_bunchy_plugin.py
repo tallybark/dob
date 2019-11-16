@@ -36,7 +36,8 @@ __all__ = (
 
 
 class ClickAliasableBunchyPluginGroup(
-    # ClickBunchyGroup comes first, because its format_commands shadows others'.
+    # ClickBunchyGroup comes first, because
+    # its format_commands shadows others'.
     ClickBunchyGroup,
     ClickAliasedGroup,
     ClickPluginGroup,
@@ -44,6 +45,12 @@ class ClickAliasableBunchyPluginGroup(
 
     def __init__(self, *args, **kwargs):
         super(ClickAliasableBunchyPluginGroup, self).__init__(*args, **kwargs)
+
+    def command(self, *args, **kwargs):
+        # And awaaaaaay we hack!
+        # Ensure that all subcommand classes are also this class.
+        kwargs.setdefault('cls', self.__class__)
+        return super(ClickAliasableBunchyPluginGroup, self).command(*args, **kwargs)
 
     @property
     def help_header_options(self):
