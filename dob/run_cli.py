@@ -174,8 +174,6 @@ def run(ctx, controller, v, verbose, verboser, color, pager):
             # so fallback to what's in the user config.
             use_pager = controller.client_config['term_paging']
         set_paging(use_pager)
-        if use_pager:
-            click.clear()
 
     def _setup_tty_color(ctx, controller):
         use_color = color
