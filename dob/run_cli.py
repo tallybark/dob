@@ -32,6 +32,7 @@ from nark.helpers.dev.profiling import profile_elapsed, timefunct
 from . import __package_name__ as package_name_dob
 from . import __resolve_vers__ as resolve_vers_dob
 from .clickux import help_strings
+from .clickux.echo_assist import set_paging
 from .clickux.aliasable_bunchy_plugin import ClickAliasableBunchyPluginGroup
 from .controller import Controller
 from .copyright import echo_copyright
@@ -167,9 +168,9 @@ def run(ctx, controller, v, verbose, verboser, color):
         _setup_tty_color(ctx, controller)
 
     def _setup_tty_paging(controller):
-        if controller.client_config['term_paging']:
-            # FIXME/2018-04-22: (lb): Implement term_paging? Add --paging option?
-            #   For now, we just clear the screen...
+        enable_pager = controller.client_config['term_paging']
+        set_paging(enable_pager)
+        if enable_pager:
             click.clear()
 
     def _setup_tty_color(ctx, controller):

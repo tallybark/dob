@@ -27,11 +27,41 @@ from nark.helpers.emphasis import attr, colorize, fg
 from ..helpers import ascii_art, click_echo
 
 __all__ = (
+    'disable_paging',
+    'enable_paging',
+    'paging',
+    'set_paging',
+    #
     'barf_and_exit',
     'echo_block_header',
     # PRIVATE:
     # 'fact_block_header',
 )
+
+
+# ***
+
+this = sys.modules[__name__]
+
+this.PAGER_ON = False
+
+
+def disable_paging():
+    this.PAGER_ON = False
+
+
+def enable_paging():
+    this.PAGER_ON = True
+
+
+def paging():
+    return this.PAGER_ON
+
+
+def set_paging(new_paging):
+    was_paging = this.PAGER_ON
+    this.PAGER_ON = new_paging
+    return was_paging
 
 
 # ***
