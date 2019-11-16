@@ -64,7 +64,7 @@ from .clickux.cmd_options import (
     postprocess_options_list_categoried,
     postprocess_options_table_bunce
 )
-from .clickux.echo_assist import click_echo
+from .clickux.echo_assist import click_echo, flush_pager
 from .clickux.file_enforce import must_no_more_than_one_file
 from .clickux.help_detect import show_help_finally
 from .clickux.induct_newbies import induct_newbies, insist_germinated
@@ -133,6 +133,7 @@ __all__ = (
 
 @run.command(hidden=True, help=help_strings.HELP_HELP)
 @show_help_finally
+@flush_pager
 @click.pass_context
 @click.argument('command', nargs=-1)
 def help(ctx, command=None):
@@ -171,6 +172,7 @@ def help(ctx, command=None):
 @cmd_bunch_group_get_meta
 @run.command(help=help_strings.VERSION_HELP)
 @show_help_finally
+@flush_pager
 def version():
     """Show version information."""
     _version()
@@ -187,6 +189,7 @@ def _version():
 
 @run.command(hidden=True, help=help_strings.LICENSE_HELP)
 @show_help_finally
+@flush_pager
 def license():
     """Show license information."""
     _license()
@@ -204,6 +207,7 @@ def _license():
 @cmd_bunch_group_get_meta
 @run.command(help=_('View copyright information.'))
 @show_help_finally
+@flush_pager
 @pass_controller
 def copyright(controller):
     """Display copyright information.."""
@@ -213,6 +217,7 @@ def copyright(controller):
 @cmd_bunch_group_get_meta
 @run.command(hidden=True, help=_("Alias of 'copyright' command."))
 @show_help_finally
+@flush_pager
 @pass_controller
 def about(controller):
     """Display copyright information.."""
@@ -235,6 +240,7 @@ def about(controller):
 @cmd_bunch_group_get_meta
 @run.command(aliases=['info'], help=help_strings.DETAILS_HELP)
 @show_help_finally
+@flush_pager
 @click.option('--tmi', '--full', is_flag=True, help=_('Show AppDirs paths, too.'))
 @pass_controller
 def details(controller, tmi):
@@ -249,6 +255,7 @@ def details(controller, tmi):
 @cmd_bunch_group_get_meta
 @run.command(help=help_strings.ENVIRONS_HELP)
 @show_help_finally
+@flush_pager
 @pass_controller
 def environs(controller):
     """List shell-sourceable details about the runtime environment."""
@@ -262,6 +269,7 @@ def environs(controller):
 @cmd_bunch_group_get_meta
 @run.command(help=help_strings.DEBUG_HELP)
 @show_help_finally
+@flush_pager
 @pass_controller
 def debug(controller):
     """Break!"""
@@ -277,6 +285,7 @@ def debug(controller):
 @cmd_bunch_group_introducing
 @run.command('demo', help=help_strings.DEMO_HELP)
 @show_help_finally
+@flush_pager
 @pass_controller
 @demo_config
 def demo_dob_and_nark(controller):
@@ -291,6 +300,7 @@ def demo_dob_and_nark(controller):
 @cmd_bunch_group_introducing
 @run.command('init', help=help_strings.INIT_HELP)
 @show_help_finally
+@flush_pager
 @pass_controller
 def init_config_and_store(controller):
     """"""
@@ -312,6 +322,7 @@ def config_group(ctx):
 
 @config_group.command('create', aliases=['new'], help=help_strings.CONFIG_CREATE_HELP)
 @show_help_finally
+@flush_pager
 @click.option('-f', '--force', is_flag=True,
               help=_('If specified, overwrite config file if is exists'))
 @pass_controller
@@ -336,6 +347,7 @@ def store_group(ctx):
 
 @store_group.command('create', aliases=['new'], help=help_strings.STORE_CREATE_HELP)
 @show_help_finally
+@flush_pager
 @click.option('-f', '--force', is_flag=True,
               help=_('If specified, recreate data store if is exists'))
 @pass_controller
@@ -346,6 +358,7 @@ def store_create(controller, force):
 
 @store_group.command('path', help=help_strings.STORE_PATH_HELP)
 @show_help_finally
+@flush_pager
 @pass_controller
 def store_path(controller):
     """"""
@@ -354,6 +367,7 @@ def store_path(controller):
 
 @store_group.command('url', help=help_strings.STORE_URL_HELP)
 @show_help_finally
+@flush_pager
 @pass_controller
 def store_url(controller):
     """"""
@@ -362,6 +376,7 @@ def store_url(controller):
 
 @store_group.command('upgrade-legacy', help=help_strings.STORE_UPGRADE_LEGACY_HELP)
 @show_help_finally
+@flush_pager
 @click.argument('filename', nargs=-1, type=click.File('r'))
 @click.option('-f', '--force', is_flag=True,
               help=_('If specified, overwrite data store if is exists'))
@@ -381,6 +396,7 @@ def upgrade_legacy(ctx, controller, filename, force):
 @cmd_bunch_group_datastore
 @run.command('stats', help=help_strings.STATS_HELP)
 @show_help_finally
+@flush_pager
 @pass_controller
 @induct_newbies
 def nark_stats(controller):
@@ -407,6 +423,7 @@ def list_group(ctx, controller):
 
 @list_group.command('activities', help=help_strings.LIST_ACTIVITIES_HELP)
 @show_help_finally
+@flush_pager
 @cmd_options_search
 @cmd_options_list_categoried
 @cmd_options_usage
@@ -434,6 +451,7 @@ def list_activities(controller, *args, usage=False, **kwargs):
 
 @list_group.command('categories', help=help_strings.LIST_CATEGORIES_HELP)
 @show_help_finally
+@flush_pager
 @cmd_options_usage
 @cmd_options_table_bunce
 @cmd_options_limit_offset
@@ -457,6 +475,7 @@ def list_categories(controller, *args, usage=False, **kwargs):
 
 @list_group.command('tags', help=help_strings.LIST_TAGS_HELP)
 @show_help_finally
+@flush_pager
 @cmd_options_search
 @cmd_options_list_activitied
 @cmd_options_list_categoried
@@ -520,6 +539,7 @@ def generate_list_facts_command(func):
 
 @list_group.command('facts', help=help_strings.LIST_FACTS_HELP)
 @show_help_finally
+@flush_pager
 @generate_list_facts_command
 def dob_list_facts(controller, *args, **kwargs):
     assert(False)  # Not reachable, because generate_list_facts_command.
@@ -530,6 +550,7 @@ def dob_list_facts(controller, *args, **kwargs):
 # MAYBE: Should we alias the command at dob-search?
 @run.command('search', help=help_strings.SEARCH_HELP)
 @show_help_finally
+@flush_pager
 @generate_list_facts_command
 def search_facts(controller, *args, **kwargs):
     assert(False)  # Not reachable, because generate_list_facts_command.
@@ -553,6 +574,7 @@ def usage_group(ctx, controller):
 
 @usage_group.command('activities', help=help_strings.USAGE_ACTIVITIES_HELP)
 @show_help_finally
+@flush_pager
 @cmd_options_search
 @cmd_options_list_categoried
 @cmd_options_table_bunce
@@ -575,6 +597,7 @@ def usage_activities(controller, *args, **kwargs):
 
 @usage_group.command('categories', help=help_strings.USAGE_CATEGORIES_HELP)
 @show_help_finally
+@flush_pager
 @cmd_options_search
 @cmd_options_table_bunce
 @cmd_options_limit_offset
@@ -594,6 +617,7 @@ def usage_categories(controller, *args, **kwargs):
 
 @usage_group.command('tags', help=help_strings.USAGE_TAGS_HELP)
 @show_help_finally
+@flush_pager
 @cmd_options_search
 @cmd_options_list_activitied
 @cmd_options_list_categoried
@@ -619,6 +643,7 @@ def usage_tags(controller, *args, **kwargs):
 
 @usage_group.command('facts', help=help_strings.USAGE_FACTS_HELP)
 @show_help_finally
+@flush_pager
 @cmd_options_search
 @cmd_options_list_activitied
 @cmd_options_list_categoried
@@ -648,6 +673,7 @@ def usage_facts(controller, *args, **kwargs):
 @cmd_bunch_group_ongoing_fact
 @run.command('stop', help=help_strings.STOP_HELP)
 @show_help_finally
+@flush_pager
 # FIXME/2018-08-26: Do we really want optional factoid argument for stop command?
 #   What happens if user specifies factoid on stop?
 @cmd_options_factoid
@@ -664,6 +690,7 @@ def stop(ctx, controller, factoid):
 @cmd_bunch_group_ongoing_fact
 @run.command('cancel', help=help_strings.CANCEL_HELP)
 @show_help_finally
+@flush_pager
 @click.option(
     '-f', '--force', '--purge', is_flag=True,
     help=_('Completely delete fact, rather than just marking deleted.'),
@@ -680,6 +707,7 @@ def cancel(ctx, controller, force):
 @cmd_bunch_group_ongoing_fact
 @run.command('current', help=help_strings.CURRENT_HELP)
 @show_help_finally
+@flush_pager
 @pass_controller
 @induct_newbies
 def current(controller):
@@ -690,6 +718,7 @@ def current(controller):
 @cmd_bunch_group_ongoing_fact
 @run.command('latest', aliases=['last'], help=help_strings.LATEST_HELP)
 @show_help_finally
+@flush_pager
 @pass_controller
 @induct_newbies
 def latest(controller):
@@ -700,6 +729,7 @@ def latest(controller):
 @cmd_bunch_group_ongoing_fact
 @run.command('show', help=help_strings.HELP_CMD_SHOW)
 @show_help_finally
+@flush_pager
 @pass_controller
 @induct_newbies
 def show(controller):
@@ -731,6 +761,7 @@ def generate_add_fact_command(time_hint):
 @cmd_bunch_group_add_fact
 @run.command("on", aliases=["on:"], help=help_strings.START_HELP_ON)
 @show_help_finally
+@flush_pager
 @generate_add_fact_command("verify_none")
 def add_fact_on(controller, *args, **kwargs):
     """Start or add a fact using the `on` directive."""
@@ -741,6 +772,7 @@ def add_fact_on(controller, *args, **kwargs):
 @cmd_bunch_group_add_fact
 @run.command("now", aliases=["now:"], help=help_strings.START_HELP_NOW)
 @show_help_finally
+@flush_pager
 @generate_add_fact_command("verify_none")
 def add_fact_now(controller, *args, **kwargs):
     """Start or add a fact using the `now` directive."""
@@ -751,6 +783,7 @@ def add_fact_now(controller, *args, **kwargs):
 @cmd_bunch_group_add_fact
 @run.command("from", help=help_strings.START_HELP_FROM)
 @show_help_finally
+@flush_pager
 @generate_add_fact_command("verify_both")
 def add_fact_from(controller, *args, **kwargs):
     """Add a fact using the `from ... to/until` directive."""
@@ -761,6 +794,7 @@ def add_fact_from(controller, *args, **kwargs):
 @cmd_bunch_group_add_fact
 @run.command("at", aliases=["at:"], help=help_strings.START_HELP_AT)
 @show_help_finally
+@flush_pager
 @generate_add_fact_command("verify_start")
 def add_fact_at(controller, *args, **kwargs):
     """Start or add a fact using the `at` directive."""
@@ -771,6 +805,7 @@ def add_fact_at(controller, *args, **kwargs):
 @cmd_bunch_group_add_fact
 @run.command("to", aliases=["to:"], help=help_strings.START_HELP_TO)
 @show_help_finally
+@flush_pager
 @generate_add_fact_command("verify_end")
 def add_fact_to(controller, *args, **kwargs):
     """Start or add a fact using the `to` directive."""
@@ -781,6 +816,7 @@ def add_fact_to(controller, *args, **kwargs):
 @cmd_bunch_group_add_fact
 @run.command("until", aliases=["until:"], help=help_strings.START_HELP_UNTIL)
 @show_help_finally
+@flush_pager
 @generate_add_fact_command("verify_end")
 def add_fact_until(controller, *args, **kwargs):
     """Start or add a fact using the `until` directive."""
@@ -791,6 +827,7 @@ def add_fact_until(controller, *args, **kwargs):
 @cmd_bunch_group_add_fact
 @run.command("then", aliases=["then:"], help=help_strings.START_HELP_THEN)
 @show_help_finally
+@flush_pager
 @generate_add_fact_command("verify_then")
 def add_fact_then(controller, *args, **kwargs):
     """Start or add a fact using the `then` directive."""
@@ -801,6 +838,7 @@ def add_fact_then(controller, *args, **kwargs):
 @cmd_bunch_group_add_fact
 @run.command("still", aliases=["still:"], help=help_strings.START_HELP_STILL)
 @show_help_finally
+@flush_pager
 @generate_add_fact_command("verify_still")
 def add_fact_still(controller, *args, **kwargs):
     """Start or add a fact using the `still` directive."""
@@ -811,6 +849,7 @@ def add_fact_still(controller, *args, **kwargs):
 @cmd_bunch_group_add_fact
 @run.command("after", aliases=["after:"], help=help_strings.START_HELP_AFTER)
 @show_help_finally
+@flush_pager
 @generate_add_fact_command("verify_after")
 def add_fact_after(controller, *args, **kwargs):
     """Start or add a fact using the `after` directive."""
@@ -821,6 +860,7 @@ def add_fact_after(controller, *args, **kwargs):
 @cmd_bunch_group_add_fact
 @run.command("next", aliases=["next:"], help=help_strings.START_HELP_NEXT)
 @show_help_finally
+@flush_pager
 # Note that 'next' is really just an alias of 'after'.
 @generate_add_fact_command("verify_after")
 def add_fact_next(controller, *args, **kwargs):
@@ -857,6 +897,7 @@ def edit_group(ctx, controller, *args, **kwargs):
 
 @edit_group.command('fact', help=help_strings.EDIT_FACT_HELP)
 @show_help_finally
+@flush_pager
 @cmd_options_edit_item
 @cmd_options_fact_nocarousel
 @pass_controller
@@ -942,6 +983,7 @@ def cmd_export_opt_output_default(controller):
 @cmd_bunch_group_dbms
 @run.command('export', help=help_strings.EXPORT_HELP)
 @show_help_finally
+@flush_pager
 @click.option(
     '-o', '--output',
     cls=OptionWithDynamicHelp,
@@ -1009,6 +1051,7 @@ def transcode_export(
 @cmd_bunch_group_dbms
 @run.command('import', help=help_strings.IMPORT_HELP)
 @show_help_finally
+@flush_pager
 @click.argument('filename', nargs=-1, type=click.File('r'))
 @click.option('-o', '--output', type=click.File('w', lazy=True),
               help=_('If specified, write to output file rather than saving'))
@@ -1072,6 +1115,7 @@ def transcode_import(
 #          https://github.com/pallets/click/pull/500
 @run.command('complete', hidden=True, help=help_strings.COMPLETE_HELP)
 @show_help_finally
+@flush_pager
 @pass_controller
 @induct_newbies
 def complete(controller):
@@ -1096,6 +1140,7 @@ def migrate_group(ctx, controller):
 
 @migrate_group.command('control', help=help_strings.MIGRATE_CONTROL_HELP)
 @show_help_finally
+@flush_pager
 @pass_controller
 @insist_germinated
 def migrate_control(controller):
@@ -1105,6 +1150,7 @@ def migrate_control(controller):
 
 @migrate_group.command('down', help=help_strings.MIGRATE_DOWN_HELP)
 @show_help_finally
+@flush_pager
 @pass_controller
 @insist_germinated
 def migrate_downgrade(controller):
@@ -1114,6 +1160,7 @@ def migrate_downgrade(controller):
 
 @migrate_group.command('up', help=help_strings.MIGRATE_UP_HELP)
 @show_help_finally
+@flush_pager
 @pass_controller
 @insist_germinated
 def migrate_upgrade(controller):
@@ -1123,6 +1170,7 @@ def migrate_upgrade(controller):
 
 @migrate_group.command('version', help=help_strings.MIGRATE_VERSION_HELP)
 @show_help_finally
+@flush_pager
 @pass_controller
 @insist_germinated
 def migrate_version(controller):

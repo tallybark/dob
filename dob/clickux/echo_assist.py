@@ -17,6 +17,7 @@
 
 from __future__ import absolute_import, unicode_literals
 
+from functools import update_wrapper
 import sys
 
 from gettext import gettext as _
@@ -35,6 +36,7 @@ __all__ = (
     'barf_and_exit',
     'click_echo',
     'echo_block_header',
+    'flush_pager',
     # PRIVATE:
     # 'fact_block_header',
 )
@@ -45,6 +47,9 @@ __all__ = (
 this = sys.modules[__name__]
 
 this.PAGER_ON = False
+
+# (lb): This module-scope global makes me feel somewhat icky.
+this.PAGER_CACHE = []
 
 
 def disable_paging():
@@ -67,13 +72,27 @@ def set_paging(new_paging):
 
 # ***
 
-def click_echo(*args, **kwargs):
+def click_echo(message=None, **kwargs):
     if coloring():
         kwargs['color'] = True
     if not paging():
-        click.echo(*args, **kwargs)
+        click.echo(message, **kwargs)
     else:
-        click.echo_via_pager(*args, **kwargs)
+        # Collect echoes and show at end, otherwise every call
+        # to echo_via_pager results in one pager session, and
+        # user has to click 'q' to see each line of output!
+        this.PAGER_CACHE.append(message)
+
+# ***
+
+def flush_pager(func):
+    def flush_echo(*args, **kwargs):
+        func(*args, **kwargs)
+        if paging():
+            click.echo_via_pager(u'\n'.join(this.PAGER_CACHE))
+            this.PAGER_CACHE = []
+
+    return update_wrapper(flush_echo, func)
 
 
 # ***
