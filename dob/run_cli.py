@@ -130,13 +130,14 @@ CONTEXT_SETTINGS = dict(
 @click.option('-V', '--verbose', is_flag=True, help=_('Be chatty. (-VV for more.)'))
 @click.option('-VV', '--verboser', is_flag=True, help=_('Be chattier.'), hidden=True)
 @click.option('--color/--no-color', '-C', default=None, help=_('Color, or plain.'))
+@click.option('--pager/--no-pager', '-P', default=None, help=_('Pager, or splat.'))
 # Profiling: pass_controller appears to take ~ ¼ seconds.
 @timefunct('run: create Controller [_get_store]')
 @pass_controller
 @click.pass_context
 # NOTE: @click.group transforms this func. definition into a callback that
 #       we use as a decorator for the top-level commands (see: @run.command).
-def run(ctx, controller, v, verbose, verboser, color):
+def run(ctx, controller, v, verbose, verboser, color, pager):
     """General context run right before any of the commands."""
 
     def _run(ctx, controller, show_version):
@@ -167,9 +168,13 @@ def run(ctx, controller, v, verbose, verboser, color):
         _setup_tty_color(ctx, controller)
 
     def _setup_tty_paging(controller):
-        enable_pager = controller.client_config['term_paging']
-        set_paging(enable_pager)
-        if enable_pager:
+        use_pager = pager
+        if use_pager is None:
+            # None if --pager nor --no-pager specified,
+            # so fallback to what's in the user config.
+            use_pager = controller.client_config['term_paging']
+        set_paging(use_pager)
+        if use_pager:
             click.clear()
 
     def _setup_tty_color(ctx, controller):
