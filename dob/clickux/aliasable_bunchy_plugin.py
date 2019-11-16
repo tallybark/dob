@@ -50,6 +50,16 @@ class ClickAliasableBunchyPluginGroup(
         # And awaaaaaay we hack!
         # Ensure that all subcommand classes are also this class.
         kwargs.setdefault('cls', self.__class__)
+        # So that Click does not complain `Error: Missing command.` when all
+        # we want is a little `dob command --help`, always assume
+        # invoke_without_command... which is funny, because some commands
+        # you can invoke without a command by dropping the option, e.g.,
+        # `dob init` works just fine, but `dob init --help` elicits the
+        # missing-command complaint from Click. In any case dob.py already
+        # wires commands to display help or not as appropriate depending how
+        # they're called, e.g., `dob init` runs the init action, but `dob migrate`
+        # prints the help for the dob-migrate group of commands.
+        kwargs.setdefault('invoke_without_command', True)
         return super(ClickAliasableBunchyPluginGroup, self).command(*args, **kwargs)
 
     @property
