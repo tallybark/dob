@@ -18,7 +18,6 @@
 from __future__ import absolute_import, unicode_literals
 
 import sys
-from functools import update_wrapper
 
 from gettext import gettext as _
 
@@ -32,24 +31,7 @@ __all__ = (
     'echo_block_header',
     'fact_block_header',
     'must_no_more_than_one_file',
-    'post_processor',
 )
-
-
-# ***
-
-def post_processor(func):
-    """
-    """
-
-    def wrapper(ctx, controller, *args, **kwargs):
-        # Ensure that plugins are loaded, which may have functions
-        # decorated with @Controller.post_processor.
-        ctx.parent.command.ensure_plugged_in()
-        facts = func(ctx, controller, *args, **kwargs)
-        controller.post_process(controller, facts, show_plugin_error=None)
-
-    return update_wrapper(wrapper, func)
 
 
 # ***

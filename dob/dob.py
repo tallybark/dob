@@ -46,10 +46,7 @@ from .clickux.bunchy_help import (
     cmd_bunch_group_add_fact,
     cmd_bunch_group_ongoing_fact
 )
-from .clickux.cmd_common import (
-    must_no_more_than_one_file,
-    post_processor
-)
+from .clickux.cmd_common import must_no_more_than_one_file
 from .clickux.cmd_options import (
     OptionWithDynamicHelp,
     cmd_options_edit_item,
@@ -67,10 +64,8 @@ from .clickux.cmd_options import (
     postprocess_options_table_bunce
 )
 from .clickux.help_detect import show_help_finally
-from .clickux.induct_newbies import (
-    induct_newbies,
-    insist_germinated
-)
+from .clickux.induct_newbies import induct_newbies, insist_germinated
+from .clickux.post_processor import post_processor
 from .cmds_list import activity as list_activity
 from .cmds_list import category as list_category
 from .cmds_list import fact as list_fact
