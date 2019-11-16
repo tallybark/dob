@@ -70,7 +70,10 @@ def set_paging(new_paging):
 def click_echo(*args, **kwargs):
     if coloring():
         kwargs['color'] = True
-    click.echo(*args, **kwargs)
+    if not paging():
+        click.echo(*args, **kwargs)
+    else:
+        click.echo_via_pager(*args, **kwargs)
 
 
 # ***
