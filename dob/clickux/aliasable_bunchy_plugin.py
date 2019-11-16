@@ -21,8 +21,10 @@ from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
-import click
+from click.core import Argument, Option
 from click_alias import ClickAliasedGroup
+
+from nark.helpers.emphasis import attr
 
 from .bunchy_group import ClickBunchyGroup
 from .help_header import help_header_format
@@ -46,4 +48,56 @@ class ClickAliasableBunchyPluginGroup(
     @property
     def help_header_options(self):
         return help_header_format(_('Global Options'))
+
+    def format_usage(self, ctx, formatter):
+        """Writes the usage line into the formatter.
+
+        This is a low-level method called by :meth:`get_usage`.
+
+        Overriden by dob to emphasize with _underline_ and **bold**.
+        """
+        prog = '{bold}{prog}{reset}'.format(
+            bold=attr('bold'),
+            prog=ctx.command_path,
+            reset=attr('reset'),
+        )
+        #
+        pieces = self.collect_usage_pieces(ctx)
+        args = '{bold}{args}{reset}'.format(
+            bold=attr('bold'),
+            args=' '.join(pieces),
+            reset=attr('reset'),
+        )
+        #
+        prefix = '{underlined}{usage}{reset}: '.format(
+            underlined=attr('underlined'),
+            usage=_('Usage'),
+            reset=attr('reset'),
+        )
+        #
+        formatter.write_usage(prog, args, prefix=prefix)
+
+    def collect_usage_pieces(self, *args, **kwargs):
+        """Show '[OPTIONS]' in usage unless command takes none."""
+        # MAYBE/2019-11-15: Move this up into Click. Seems legit.
+        n_args = 0
+        n_opts = 0
+        for param in self.params:
+            if isinstance(param, Argument):
+                n_args += 1
+            elif isinstance(param, Option):
+                n_opts += 1
+        #if n_args:
+        #    self.subcommand_metavar = '[ARGS]...'
+        #else:
+        #    self.subcommand_metavar = ''
+        # (lb): I think each argument we add will add its own usage piece.
+        self.subcommand_metavar = ''
+        if n_opts:
+            self.options_metavar = '[OPTIONS]'
+        else:
+            self.options_metavar = ''
+        return super(
+            ClickAliasableBunchyPluginGroup, self
+        ).collect_usage_pieces(*args, **kwargs)
 
