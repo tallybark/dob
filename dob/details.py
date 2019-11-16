@@ -26,7 +26,7 @@ from nark.items import Fact
 
 from . import __package_name__ as package_name_dob
 from . import __resolve_vers__ as resolve_vers_dob
-from .clickux.cmd_config import AppDirs, get_config_path
+from .app_config import AppDirs, get_config_path
 from .clickux.plugin_group import ClickPluginGroup
 from .helpers import ascii_art, click_echo, highlight_value
 

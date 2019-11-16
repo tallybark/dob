@@ -29,7 +29,7 @@ import lazy_import
 import nark
 from nark.helpers.app_dirs import NarkAppDirs
 
-from ..helpers import dob_in_user_exit, dob_in_user_warning
+from .helpers import dob_in_user_exit, dob_in_user_warning
 
 # Profiling: load backports: ~ 0.006 secs.
 # LATER: Drop Py2 support, then switch from backports to builtin configparser.

@@ -31,8 +31,8 @@ from nark.helpers import logging as logging_helpers
 from nark.helpers.emphasis import disable_colors, enable_colors
 
 from . import __arg0name__
+from .app_config import furnish_config, get_config_path, replenish_config
 from .clickux import help_strings
-from .clickux.cmd_config import furnish_config, get_config_path, replenish_config
 from .copyright import echo_copyright
 from .helpers import click_echo, dob_in_user_exit, highlight_value
 from .migrate import upgrade_legacy_database_instructions

@@ -31,7 +31,7 @@ from dob import (
     dob,
     transcode
 )
-from dob.clickux import cmd_config
+from dob.clickux import app_config
 from dob.cmds_list.fact import search_facts
 from dob.helpers import ascii_table
 
@@ -613,7 +613,7 @@ class TestGetConfig(object):
         """
         Make sure *string loglevels* translates to their respective integers properly.
         """
-        backend, client = cmd_config.get_separate_configs(
+        backend, client = app_config.get_separate_configs(
             config_instance(log_level=log_level)
         )
         assert client['cli_log_level'] == 10
@@ -622,7 +622,7 @@ class TestGetConfig(object):
     def test_log_levels_invalid(self, cli_log_level, config_instance, capsys):
         """Test that invalid *string loglevels* raise ``ValueError``."""
         with pytest.raises(SystemExit):
-            backend, client = cmd_config.get_separate_configs(
+            backend, client = app_config.get_separate_configs(
                 config_instance(cli_log_level=cli_log_level)
             )
         out, err = capsys.readouterr()
@@ -632,14 +632,14 @@ class TestGetConfig(object):
     def test_invalid_store(self, config_instance):
         """Make sure that encountering an unsupportet store will raise an exception."""
         with pytest.raises(ValueError):
-            backend, client = cmd_config.get_separate_configs(
+            backend, client = app_config.get_separate_configs(
                 config_instance(store='foobar'),
             )
 
     def test_non_sqlite(self, config_instance):
         """Make sure that passing a store other than 'sqlalchemy' raises exception."""
         config_instance = config_instance(db_engine='postgres')
-        backend, client = cmd_config.get_separate_configs(config_instance)
+        backend, client = app_config.get_separate_configs(config_instance)
         assert backend['db_host'] == config_instance.get('Backend', 'db_host')
         assert backend['db_port'] == config_instance.get('Backend', 'db_port')
         assert backend['db_name'] == config_instance.get('Backend', 'db_name')
@@ -656,17 +656,17 @@ class TestGetConfigInstance(object):
         app_dirs_mock = mock.Mock()
         app_dirs_mock.configure_mock(user_config_dir='/XXX')
         # Mock other attributes so that we do not have to mock other fcns, e.g.,
-        #   mocker.patch('dob.cmd_config.fresh_config')
+        #   mocker.patch('dob.app_config.fresh_config')
         # i.e., go for more coverage!
         app_dirs_mock.configure_mock(user_data_dir='/XXX')
-        mocker.patch.object(cmd_config, 'AppDirs', app_dirs_mock)
-        config, preexists = cmd_config.get_config_instance()
+        mocker.patch.object(app_config, 'AppDirs', app_dirs_mock)
+        config, preexists = app_config.get_config_instance()
         assert len(list(config.items())) > 0
         assert preexists is False
 
     def test_file_present(self, config_instance):
         """Make sure we try parsing a found config file."""
-        config, preexists = cmd_config.get_config_instance()
+        config, preexists = app_config.get_config_instance()
         # I.e., 'sqlalchemy' == 'sqlalchemy'
         assert (
             config.get('Backend', 'store') == config_instance().get('Backend', 'store')
@@ -676,10 +676,10 @@ class TestGetConfigInstance(object):
 
     def test_get_config_path(self, appdirs, mocker):
         """Make sure the config target path is constructed to our expectations."""
-        mocker.patch('dob.cmd_config.fresh_config')
-        config, preexists = cmd_config.get_config_instance()
+        mocker.patch('dob.app_config.fresh_config')
+        config, preexists = app_config.get_config_instance()
         expectation = os.path.join(appdirs.user_config_dir, 'dob.conf')
-        assert cmd_config.fresh_config.called_with(expectation)
+        assert app_config.fresh_config.called_with(expectation)
 
 
 class TestGenerateTable(object):
@@ -698,14 +698,14 @@ class TestGenerateTable(object):
 class TestWriteConfigFile(object):
     def test_file_is_written(self, filepath, config_instance):
         """Ensure file is written. Content not checked; that's ConfigParser's job."""
-        cmd_config.store_config(config_instance(), filepath)
+        app_config.store_config(config_instance(), filepath)
         assert os.path.lexists(filepath)
 
     def test_non_existing_path(self, tmpdir, filename, config_instance):
         """Make sure that the path-parents are created if not present."""
         filepath = os.path.join(tmpdir.strpath, filename)
         assert os.path.lexists(filepath) is False
-        cmd_config.store_config(config_instance(), filepath)
+        app_config.store_config(config_instance(), filepath)
         assert os.path.lexists(filepath)
 
 
@@ -720,7 +720,7 @@ class TestDobAppDirs(object):
             new_callable=mock.PropertyMock,
         ) as mock_app_dir:
             mock_app_dir.return_value = path
-            appdir = cmd_config.DobAppDirs('dob')
+            appdir = app_config.DobAppDirs('dob')
             assert getattr(appdir, app_dirname) == path
             # (lb): Guh. After py3.5 dropped, we could simplify this to:
             #   mock_app_dir.assert_called_once()
@@ -739,7 +739,7 @@ class TestDobAppDirs(object):
             new_callable=mock.PropertyMock,
             return_value=path,
         ) as mock_app_dir:
-            appdir = cmd_config.DobAppDirs('dob')
+            appdir = app_config.DobAppDirs('dob')
             appdir.create = create
             # DEVS: Weird: If this assert fires and you're running `py.test --pdb`,
             # entering e.g., `appdir.user_data_dir` at the pdb prompt shows the
