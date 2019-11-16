@@ -24,7 +24,7 @@ import sys
 from gettext import gettext as _
 
 import click
-from nark.helpers.emphasis import attr, bg, coloring, colorize, fg
+from nark.helpers.emphasis import attr, bg, colorize, fg
 
 __all__ = (
     'conflict_prefix',
@@ -34,12 +34,6 @@ __all__ = (
     'highlight_value',
     'prepare_log_msg',
 )
-
-
-def click_echo(*args, **kwargs):
-    if coloring():
-        kwargs['color'] = True
-    click.echo(*args, **kwargs)
 
 
 def dob_in_user_exit(msg):

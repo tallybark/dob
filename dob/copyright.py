@@ -33,7 +33,7 @@ from . import (
     __package_name__,
     __resolve_vers__
 )
-from .helpers import click_echo
+from .clickux.echo_assist import click_echo
 
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True

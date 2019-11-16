@@ -28,8 +28,8 @@ from nark.helpers.facts_fit import antecedent_fact, subsequent_fact
 from nark.helpers.parse_time import parse_clock_time, parse_relative_minutes
 from six import text_type
 
-from . import click_echo, conflict_prefix, prepare_log_msg
-from ..clickux.echo_assist import barf_and_exit, echo_block_header
+from . import conflict_prefix, prepare_log_msg
+from ..clickux.echo_assist import barf_and_exit, click_echo, echo_block_header
 from ..cmds_list.fact import find_latest_fact
 from ..traverser.placeable_fact import PlaceableFact
 

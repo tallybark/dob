@@ -33,8 +33,9 @@ from nark.helpers.emphasis import disable_colors, enable_colors
 from . import __arg0name__
 from .app_config import furnish_config, get_config_path, replenish_config
 from .clickux import help_strings
+from .clickux.echo_assist import click_echo
 from .copyright import echo_copyright
-from .helpers import click_echo, dob_in_user_exit, highlight_value
+from .helpers import dob_in_user_exit, highlight_value
 from .migrate import upgrade_legacy_database_instructions
 from .traverser.placeable_fact import PlaceableFact
 

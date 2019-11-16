@@ -36,10 +36,9 @@ from prompt_toolkit.lexers import PygmentsLexer
 
 from . import interrogate
 from .app_config import AppDirs, get_appdirs_subdir_file_path
-from .clickux.echo_assist import echo_block_header
+from .clickux.echo_assist import click_echo, echo_block_header
 from .clickux.help_strings import NOTHING_TO_STOP_HELP
 from .helpers import (
-    click_echo,
     dob_in_user_exit,
     dob_in_user_warning,
     echo_fact,

@@ -10,7 +10,7 @@ from functools import update_wrapper
 
 import click
 
-from ..helpers import click_echo
+from .echo_assist import click_echo
 
 __all__ = (
     'show_help_finally',

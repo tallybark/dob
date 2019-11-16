@@ -21,8 +21,9 @@ from functools import update_wrapper
 
 from gettext import gettext as _
 
+from .echo_assist import click_echo
 from .. import __arg0name__, migrate
-from ..helpers import click_echo, dob_in_user_exit
+from ..helpers import dob_in_user_exit
 
 __all__ = (
     'induct_newbies',

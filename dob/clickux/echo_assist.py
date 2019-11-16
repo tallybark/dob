@@ -22,9 +22,9 @@ import sys
 from gettext import gettext as _
 
 import click
-from nark.helpers.emphasis import attr, colorize, fg
+from nark.helpers.emphasis import attr, coloring, colorize, fg
 
-from ..helpers import ascii_art, click_echo
+from ..helpers import ascii_art
 
 __all__ = (
     'disable_paging',
@@ -33,6 +33,7 @@ __all__ = (
     'set_paging',
     #
     'barf_and_exit',
+    'click_echo',
     'echo_block_header',
     # PRIVATE:
     # 'fact_block_header',
@@ -62,6 +63,14 @@ def set_paging(new_paging):
     was_paging = this.PAGER_ON
     this.PAGER_ON = new_paging
     return was_paging
+
+
+# ***
+
+def click_echo(*args, **kwargs):
+    if coloring():
+        kwargs['color'] = True
+    click.echo(*args, **kwargs)
 
 
 # ***

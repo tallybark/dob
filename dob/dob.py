@@ -64,6 +64,7 @@ from .clickux.cmd_options import (
     postprocess_options_list_categoried,
     postprocess_options_table_bunce
 )
+from .clickux.echo_assist import click_echo
 from .clickux.file_enforce import must_no_more_than_one_file
 from .clickux.help_detect import show_help_finally
 from .clickux.induct_newbies import induct_newbies, insist_germinated
@@ -81,7 +82,7 @@ from .copyright import echo_copyright, echo_license
 from .create import add_fact, cancel_fact, stop_fact
 from .demo import demo_config, demo_dob
 from .details import echo_app_details, echo_app_environs, echo_data_stats
-from .helpers import click_echo, dob_in_user_exit, dob_in_user_warning
+from .helpers import dob_in_user_exit, dob_in_user_warning
 from .migrate import upgrade_legacy_database_file
 from .run_cli import dob_versions, pass_controller, run
 from .transcode import export_facts, import_facts

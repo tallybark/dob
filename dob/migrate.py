@@ -30,7 +30,8 @@ from . import __arg0name__
 # Profiling: load AppDirs: ~ 0.011 secs.
 from .app_config import AppDirs
 from .clickux import help_strings
-from .helpers import click_echo, dob_in_user_exit, dob_in_user_warning, highlight_value
+from .clickux.echo_assist import click_echo
+from .helpers import dob_in_user_exit, dob_in_user_warning, highlight_value
 
 __all__ = (
     'control',

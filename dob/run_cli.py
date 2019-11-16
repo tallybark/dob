@@ -32,11 +32,10 @@ from nark.helpers.dev.profiling import profile_elapsed, timefunct
 from . import __package_name__ as package_name_dob
 from . import __resolve_vers__ as resolve_vers_dob
 from .clickux import help_strings
-from .clickux.echo_assist import set_paging
+from .clickux.echo_assist import click_echo, set_paging
 from .clickux.aliasable_bunchy_plugin import ClickAliasableBunchyPluginGroup
 from .controller import Controller
 from .copyright import echo_copyright
-from .helpers import click_echo
 
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True

@@ -26,9 +26,10 @@ import click
 from nark.helpers.emphasis import colorize
 from nark.helpers.parse_time import parse_dated
 
+from ..clickux.echo_assist import click_echo
 from ..clickux.help_strings import NO_ACTIVE_FACT_HELP
 from ..clickux.query_assist import error_exit_no_results, hydrate_activity, hydrate_category
-from ..helpers import click_echo, dob_in_user_exit, dob_in_user_warning
+from ..helpers import dob_in_user_exit, dob_in_user_warning
 from ..helpers.ascii_table import generate_table, warn_if_truncated
 
 __all__ = (

@@ -21,7 +21,7 @@ from __future__ import absolute_import, unicode_literals
 
 import click
 
-from . import click_echo
+from ..clickux.echo_assist import click_echo
 
 __all__ = (
     'CrudeProgress',

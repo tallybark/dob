@@ -27,8 +27,9 @@ from nark.items import Fact
 from . import __package_name__ as package_name_dob
 from . import __resolve_vers__ as resolve_vers_dob
 from .app_config import AppDirs, get_config_path
+from .clickux.echo_assist import click_echo
 from .clickux.plugin_group import ClickPluginGroup
-from .helpers import ascii_art, click_echo, highlight_value
+from .helpers import ascii_art, highlight_value
 
 __all__ = (
     'echo_app_details',
