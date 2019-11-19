@@ -237,62 +237,62 @@ def config_instance(tmpdir, faker):
     """Provide a (dynamicly generated) ConfigParser instance."""
     def generate_config(**kwargs):
         config = ConfigParser()
-        # Backend
-        config.add_section('Backend')
+        # backend
+        config.add_section('backend')
 
-        config.set('Backend', 'store', kwargs.get('store', 'sqlalchemy'))
-        config.set('Backend', 'db_engine', kwargs.get('db_engine', 'sqlite'))
-        config.set('Backend', 'db_path', kwargs.get(
+        config.set('backend', 'store', kwargs.get('store', 'sqlalchemy'))
+        config.set('backend', 'db_engine', kwargs.get('db_engine', 'sqlite'))
+        config.set('backend', 'db_path', kwargs.get(
             'db_path', os.path.join(tmpdir.strpath, 'hamster_db.sqlite'))
         )
-        config.set('Backend', 'db_host', kwargs.get('db_host', ''))
-        config.set('Backend', 'db_port', kwargs.get('db_port', ''))
-        config.set('Backend', 'db_name', kwargs.get('db_name', ''))
-        config.set('Backend', 'db_user', kwargs.get('db_user', '')),
-        config.set('Backend', 'db_password', kwargs.get('db_password', ''))
+        config.set('backend', 'db_host', kwargs.get('db_host', ''))
+        config.set('backend', 'db_port', kwargs.get('db_port', ''))
+        config.set('backend', 'db_name', kwargs.get('db_name', ''))
+        config.set('backend', 'db_user', kwargs.get('db_user', '')),
+        config.set('backend', 'db_password', kwargs.get('db_password', ''))
 
         # (lb): Need to always support momentaneous, because legacy data bugs.
-        # config.set('Backend', 'allow_momentaneous', 'False')
-        config.set('Backend', 'allow_momentaneous', 'True')
+        # config.set('backend', 'allow_momentaneous', 'False')
+        config.set('backend', 'allow_momentaneous', 'True')
 
-        # config.set('Backend', 'day_start', kwargs.get('day_start', ''))
-        config.set('Backend', 'day_start', kwargs.get('day_start', '00:00:00'))
+        # config.set('backend', 'day_start', kwargs.get('day_start', ''))
+        config.set('backend', 'day_start', kwargs.get('day_start', '00:00:00'))
 
-        config.set('Backend', 'fact_min_delta', kwargs.get('fact_min_delta', '60'))
-        # config.set('Backend', 'fact_min_delta', kwargs.get('fact_min_delta', '0'))
+        config.set('backend', 'fact_min_delta', kwargs.get('fact_min_delta', '60'))
+        # config.set('backend', 'fact_min_delta', kwargs.get('fact_min_delta', '0'))
 
         config.set(
-            'Backend', 'lib_log_level', kwargs.get('lib_log_level', 'WARNING'),
+            'backend', 'lib_log_level', kwargs.get('lib_log_level', 'WARNING'),
         )
         config.set(
-            'Backend', 'sql_log_level', kwargs.get('sql_log_level', 'WARNING'),
+            'backend', 'sql_log_level', kwargs.get('sql_log_level', 'WARNING'),
         )
 
-        config.set('Backend', 'tz_aware', 'False')
-        config.set('Backend', 'default_tzinfo', '')
+        config.set('backend', 'tz_aware', 'False')
+        config.set('backend', 'default_tzinfo', '')
         # FIXME/2019-02-20: (lb): Fix timezones. And parameterize, e.g.,
-        #  config.set('Backend', 'default_tzinfo', 'America/Menominee')
+        #  config.set('backend', 'default_tzinfo', 'America/Menominee')
 
-        # Client
-        config.add_section('Client')
-        # config.set('Client', 'carousel_centered', '')
-        # config.set('Client', 'carousel_lexer', '')
-        # config.set('Client', 'devmode', '')
-        # config.set('Client', 'editor_suffix', '')
-        config.set('Client', 'export_path', '')
-        # config.set('Client', 'fifo_dir', '')
-        # config.set('Client', 'log_color', 'False')
-        config.set('Client', 'log_console', kwargs.get('log_console', '0'))
+        # client
+        config.add_section('client')
+        # config.set('client', 'carousel_centered', '')
+        # config.set('client', 'carousel_lexer', '')
+        # config.set('client', 'devmode', '')
+        # config.set('client', 'editor_suffix', '')
+        config.set('client', 'export_path', '')
+        # config.set('client', 'fifo_dir', '')
+        # config.set('client', 'log_color', 'False')
+        config.set('client', 'log_console', kwargs.get('log_console', '0'))
         # The log_filename is used to make logfile_path, which we don't need to set.
         config.set(
-            'Client', 'log_filename', kwargs.get('log_filename', faker.file_name())
+            'client', 'log_filename', kwargs.get('log_filename', faker.file_name())
         )
-        config.set('Client', 'cli_log_level', kwargs.get('cli_log_level', 'debug'))
-        config.set('Client', 'separators', '')  # [,:\n]
-        config.set('Client', 'show_greeting', 'False')
-        # config.set('Client', 'styling', '')
-        config.set('Client', 'term_color', 'True')
-        config.set('Client', 'term_paging', 'False')
+        config.set('client', 'cli_log_level', kwargs.get('cli_log_level', 'debug'))
+        config.set('client', 'separators', '')  # [,:\n]
+        config.set('client', 'show_greeting', 'False')
+        # config.set('client', 'styling', '')
+        config.set('client', 'term_color', 'True')
+        config.set('client', 'term_paging', 'False')
         return config
 
     return generate_config
