@@ -101,7 +101,7 @@ def write_config_obj(config_obj):
     def ensure_dirs(filename):
         # Avoid: FileNotFoundError: [Errno 2] No such file or directory: ....
         configfile_dir = os.path.dirname(filename)
-        if not os.path.lexists(configfile_dir):
+        if configfile_dir and not os.path.lexists(configfile_dir):
             os.makedirs(configfile_dir)
 
     return _write_config_obj()
