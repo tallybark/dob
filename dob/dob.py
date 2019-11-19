@@ -145,7 +145,7 @@ def _license():
 # ***
 
 @cmd_bunch_group_get_meta
-@run.command(help=_('View copyright information.'))
+@run.command(help=help_strings.COPYRIGHT_HELP)
 @show_help_finally
 @flush_pager
 @pass_controller

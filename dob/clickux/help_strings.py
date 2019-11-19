@@ -109,6 +109,16 @@ LICENSE_HELP = _(
 
 
 # ***
+# *** [LICENSE] Command help.
+# ***
+
+COPYRIGHT_HELP = _(
+    """Prints the software copyright."""
+)
+
+
+
+# ***
 # *** [DETAILS] Command help.
 # ***
 
