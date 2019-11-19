@@ -29,7 +29,6 @@ from . import __resolve_vers__ as resolve_vers_dob
 from .clickux.echo_assist import click_echo
 from .clickux.plugin_group import ClickPluginGroup
 from .config.app_dirs import AppDirs
-from .config.manage import get_config_path
 from .helpers import ascii_art, highlight_value
 
 __all__ = (
@@ -63,7 +62,7 @@ def echo_app_details(controller, full=False):
         click_echo(_(
             "Configuration file at: {}"
         ).format(
-            highlight_value(get_config_path()),
+            highlight_value(controller.configurable.config_path),
         ))
 
     def echo_plugins_basepath():
@@ -118,7 +117,7 @@ def echo_app_details(controller, full=False):
             return sqlalchemy_string
 
         def sqlalchemy_string_remote(engine):
-            port = controller.config.get('db_port', '')
+            port = controller.config['db_port']
             if port:
                 port = ':{}'.format(port)
             sqlalchemy_string = _(
@@ -174,7 +173,7 @@ def echo_app_environs(controller):
         environs['version'] = resolve_vers_dob()
 
     def environs_add_config_path():
-        environs['conf'] = get_config_path()
+        environs['conf'] = controller.configurable.config_path
 
     def environs_add_plugins_path():
         environs['plugins'] = ClickPluginGroup().plugins_basepath

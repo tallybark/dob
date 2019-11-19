@@ -24,7 +24,8 @@ from gettext import gettext as _
 from nark.helpers.emphasis import attr, coloring, fg
 
 from .. import __arg0name__, __package_name__
-from ..config.manage import get_config_path
+from ..config.manage import default_config_path
+from ..config.urable import ConfigUrable
 from ..helpers import highlight_value
 
 # Note that the help formatter removes single newlines and adjusts text width
@@ -80,6 +81,7 @@ def RUN_HELP_OVERVIEW(ctx):
         )
     )
     return run_help
+
 
 # ***
 # *** [HELP] Command help.
@@ -283,13 +285,13 @@ FIXME: Provide example commands.
 
 def INIT_HELP_OVERVIEW(ctx):
     controller = ctx.obj
-    init_help = _(
+    _help = _(
         """
         Ensures that the user config and data store exists.
 
         - Unless it exists, init will create a default configuration at:
 
-            {get_config_path}
+            {default_config_path}
 
         - Unless it exists, init will create an empty database file at:
 
@@ -300,28 +302,184 @@ def INIT_HELP_OVERVIEW(ctx):
             {codehi}{rawname} details{reset}
 
         """.format(
-            get_config_path=highlight_value(get_config_path()),
+            default_config_path=highlight_value(default_config_path()),
             cfg_db_path=highlight_value(controller.config['db_path']),
             rawname=__package_name__,
             codehi=(fg('turquoise_2') or ''),
             reset=(attr('reset') or ''),
         )
     )
-    return init_help
+    return _help
 
 
 # ***
 # *** [CONFIG] Commands help.
 # ***
 
-CONFIG_GROUP_HELP = _(
-    """
-    """
-)
+def CONFIG_GROUP_HELP(ctx):
+    controller = ctx.obj
+    _help = _(
+        """
+        Commands for managing user configurable values.
+
+        Some application behavior can be changed via config values.
+
+        Config values can be persisted across invocation in a config
+        file.
+
+        You can also specify config values at runtime on the command line,
+        or using environment variables.
+
+        {underlined}Config File Location{reset}
+
+        By default, {rawname} looks for a configuration file at:
+
+            {default_config_path}
+
+        - You can specify an alternative file location
+        using the {codehi}{envkey}{reset} environment value.
+
+          E.g., you could set the environment for just the command subshell like:
+
+          \b
+          {codehi}{envkey}=path/to/{rawname}.conf {rawname} COMMAND ...{reset}
+
+          or you could export the environment variable first and then invoke {rawname}:
+
+          \b
+          {codehi}export {envkey}=path/to/{rawname}.conf{reset}
+          {codehi}{rawname} COMMAND ...{reset}
+
+        - You can alternatively specify the configuration file location
+        using the {codehi}-C/--configfile{reset} global option, e.g.,
+        using shorthand:
+
+          \b
+          {codehi}{rawname} -C path/to/{rawname}.conf COMMAND ...{reset}
+
+          or using --option=value longhand:
+
+          \b
+          {codehi}{rawname} --configfile=path/to/{rawname}.conf COMMAND ...{reset}
+
+        {underlined}Config Value Precedence{reset}
+
+        - If no config value is specified for a setting, {rawname}
+        uses a default value.
+
+        - If a config value is found in the config value, that value
+        takes precedence over the default value.
+
+        - If a corresponding environment variable for the config value
+        is found, that value is preferred over the value from the file.
+
+          - The environment variable for each setting is formed from
+        a prefix, {codehi}DOB_CONFIG_{reset}, followed by the uppercase
+        section name and the uppercase setting name.
+
+          E.g., here's how to specify the db_engine setting using its
+        environment variable:
+
+          \b
+          {codehi}DOB_CONFIG_BACKEND_DB_ENGINE=sqlite {rawname} stats{reset}
+
+        - If a config value is specified via the command line, that value is
+        preferred over all other values.
+
+          - You can specify config values using the {codehi}-c/--config{reset}
+        option, e.g.,
+
+          \b
+          {codehi}{rawname} -c backend.db_engine=sqlite stats{reset}
+
+        {underlined}Config Command Overview{reset}
+
+          - You can edit the config file directly, or (better yet) you can
+        use the {codehi}dob set{reset} command to change its values.
+        E.g., to enable coloring whenever you use {rawname}, run:
+
+          \b
+          {codehi}{rawname} config set client term_color True{reset}
+
+          or omit the section name (because {rawname} is smart) and run instead:
+
+          \b
+          {codehi}{rawname} config set term_color True{reset}
+
+          - If you remove the config file, or if you delete values from it,
+        don't worry, {rawname} will use default values instead.
+
+          - You can recreate the config file (and overwrite the existing file)
+        with defaults by:
+
+          \b
+          {codehi}{rawname} create --force{reset}
+
+          - The best way to learn about all configurable settings is to
+        print the config table, which includes a helpful message for each
+        option:
+
+          \b
+          {codehi}{rawname} dump{reset}
+
+          - If you think your config file is missing values, you can
+        update it with missing settings by running (naturally) the
+        update command:
+
+          \b
+          {codehi}{rawname} update{reset}
+
+            - But you should not care about the contents of the config file
+        if you stick to using {codehi}{rawname} dump{reset} and
+        {codehi}{rawname} set{reset} commands.
+
+            - Although you might care about the config file contents if you'd
+        like to add comments to it, which is supported.
+        """.format(
+            underlined=attr('underlined'),
+            default_config_path=highlight_value(default_config_path()),
+            rawname=__package_name__,
+            envkey=ConfigUrable.DOB_CONFIGFILE_ENVKEY,
+            codehi=(fg('turquoise_2') or ''),
+            reset=(attr('reset') or ''),
+        )
+    )
+    return _help
 
 
 CONFIG_CREATE_HELP = _(
     """
+    Write a new configuration file populated with default values.
+
+    You can overwrite an existing configuration file using --force.
+    """
+)
+
+
+CONFIG_DUMP_HELP = _(
+    """
+    Print a list of configurable settings, including names, values, and help.
+    """
+)
+
+
+CONFIG_GET_HELP = _(
+    """
+    Print a configuration value from the config file.
+    """
+)
+
+
+CONFIG_SET_HELP = _(
+    """
+    Write a configuration value to the config file.
+    """
+)
+
+
+CONFIG_UPDATE_HELP = _(
+    """
+    Write missing configuration values to the config file.
     """
 )
 

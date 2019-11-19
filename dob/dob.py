@@ -58,6 +58,7 @@ from .clickux.cmd_options import (
     cmd_options_list_categoried,
     cmd_options_list_fact,
     cmd_options_search,
+    cmd_options_table_renderer,
     cmd_options_table_view,
     cmd_options_usage,
     postprocess_options_list_activitied,
@@ -79,6 +80,7 @@ from .cmds_usage import activity as usage_activity
 from .cmds_usage import category as usage_category
 from .cmds_usage import tag as usage_tag
 from .complete import tab_complete
+from .config.commands import echo_config_table, echo_config_value, write_config_value
 from .copyright import echo_copyright, echo_license
 from .create import add_fact, cancel_fact, stop_fact
 from .demo import demo_config, demo_dob
@@ -274,8 +276,10 @@ run_group_kwargs = {
 @click.pass_context
 def config_group(ctx):
     """Base `config` group command run prior to any of the dob-config commands."""
-    pass
+    pass  # The command group decorator prints help if no subcommand called.
 
+
+# *** [CONFIG] CREATE
 
 @config_group.command('create', aliases=['new'], help=help_strings.CONFIG_CREATE_HELP)
 @show_help_finally
@@ -286,6 +290,57 @@ def config_group(ctx):
 def config_create(controller, force):
     """"""
     controller.create_config(force)
+
+
+# *** [CONFIG] DUMP
+
+@config_group.command('dump', aliases=['list'], help=help_strings.CONFIG_DUMP_HELP)
+@show_help_finally
+@flush_pager
+@cmd_options_table_renderer
+@click.argument('section', nargs=1, default='')
+@click.argument('keyname', nargs=1, default='')
+@pass_controller
+def config_dump(controller, section='', keyname='', **kwargs):
+    """"""
+    echo_config_table(controller, section, keyname, **kwargs)
+
+
+# *** [CONFIG] GET
+
+@config_group.command('get', aliases=['read'], help=help_strings.CONFIG_GET_HELP)
+@show_help_finally
+@flush_pager
+@click.argument('parts', nargs=-1, metavar='[SECTION] KEYNAME VALUE')
+@pass_controller
+@click.pass_context
+def config_value_get(ctx, controller, parts):
+    """"""
+    echo_config_value(ctx, controller, parts)
+
+
+# *** [CONFIG] SET
+
+@config_group.command('set', aliases=['write'], help=help_strings.CONFIG_SET_HELP)
+@show_help_finally
+@flush_pager
+@click.argument('parts', nargs=-1, metavar='[SECTION] KEYNAME VALUE')
+@pass_controller
+@click.pass_context
+def config_value_set(ctx, controller, parts):
+    """"""
+    write_config_value(ctx, controller, parts)
+
+
+# *** [CONFIG] UPDATE
+
+@config_group.command('update', help=help_strings.CONFIG_UPDATE_HELP)
+@show_help_finally
+@flush_pager
+@pass_controller
+def config_update(controller):
+    """Write "missing" key values to the user configuration file."""
+    controller.round_out_config()
 
 
 # ***

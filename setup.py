@@ -50,9 +50,10 @@ requirements = [
     #  https://click.palletsprojects.com/en/5.x/utils/#ansi-colors
     #  https://pypi.org/project/colorama/
     'colorama',
-    # Python 2 configparser backport.
-    #  https://docs.python.org/3/library/configparser.html
-    'configparser >= 3.5.0b2',
+    # INI/config parser, even better (preserves comments and ordering).
+    #  https://github.com/DiffSK/configobj
+    #  https://configobj.readthedocs.io/en/latest/
+    'configobj >= 5.0.6',
     # Compatibility layer between Python 2 and Python 3.
     #  https://python-future.org/
     'future',

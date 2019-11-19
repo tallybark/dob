@@ -31,7 +31,7 @@ from dob import (
     dob,
     transcode
 )
-from dob.clickux import app_config
+from dob.config import manage
 from dob.cmds_list.fact import search_facts
 from dob.helpers import ascii_table
 
@@ -608,6 +608,8 @@ class TestSetupLogging(object):
 class TestGetConfig(object):
     """Make sure that turning a config instance into proper config dictionaries works."""
 
+# FIXME/2019-11-18 20:34: All the app_config are now wrong. See new dob.config.manage methods.
+
     @pytest.mark.parametrize('log_level', ['debug'])
     def test_log_levels_valid(self, log_level, config_instance):
         """
@@ -659,6 +661,7 @@ class TestGetConfigInstance(object):
         #   mocker.patch('dob.app_config.fresh_config')
         # i.e., go for more coverage!
         app_dirs_mock.configure_mock(user_data_dir='/XXX')
+# FIXME/2019-11-18 20:32: AppDirs was moved to config.app_dirs...
         mocker.patch.object(app_config, 'AppDirs', app_dirs_mock)
         config, preexists = app_config.get_config_instance()
         assert len(list(config.items())) > 0
@@ -674,7 +677,7 @@ class TestGetConfigInstance(object):
         assert isinstance(config_instance(), type(config))
         assert config_instance() is not config
 
-    def test_get_config_path(self, appdirs, mocker):
+    def test_config_path_getter(self, appdirs, mocker):
         """Make sure the config target path is constructed to our expectations."""
         mocker.patch('dob.app_config.fresh_config')
         config, preexists = app_config.get_config_instance()

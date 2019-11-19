@@ -224,7 +224,10 @@ def cmd_options_factoid(func):
 
 _cmd_options_fact_add = [
     click.option(
-        '-C', '--carousel', is_flag=True,
+        # 2019-11-19: (lb): This was '-C'/'--carousel', but now trying '-e',
+        # because -C/--configfile.
+        # - Also, -e/--edit seems more obvious here, especially b/c dob-edit.
+        '-e', '--edit', is_flag=True,
         help=_('Edit new Fact before saving, using Carousel and Awesome Prompt.'),
     ),
     click.option(
@@ -259,7 +262,10 @@ _cmd_options_fact_nocarousel = [
     # (lb): This is similar to dob-add's --edit, except the default is reversed.
     # - On dob-add, default is to not run Carousel; but on dob-import, it is.
     click.option(
-        '-c', '--no-carousel', is_flag=True,
+        # 2019-11-19: (lb): This was '-c', but now trying '-f', because -c/--config.
+        # - What's a good mnemonic? -f as in force-save? Or -f-orget about editing?
+        #   Oh, how 'bout this option makes it run -f[aster]?
+        '-f', '--no-carousel', is_flag=True,
         help=_('Save the new Facts immediately and exit. (Do not run the Carousel.)'),
     ),
 ]
@@ -326,7 +332,15 @@ def cmd_options_list_fact(func):
 
 _cmd_options_list_categoried = [
     click.option(
-        '-c', '--category',
+        # (lb): For years, had -c/--category for the list subcommands, but
+        # then I wanted to add -c/--config global option, which could work
+        # because how Click parses options. But that seems confusing.
+        # A -c/--config alternative could be -s/--setting?
+        # Or, if you think cateGory, and that a category is much like a group,
+        # then -g might seem like a reasonable shorthand for --cateGory.
+        # I'll keep my eye on this... maybe -s/--setting makes more sense...
+        # '-c', '--category',
+        '-g', '--category',
         help=_('Restrict results by matching category name'),
     ),
 ]

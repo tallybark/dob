@@ -23,107 +23,34 @@ from gettext import gettext as _
 
 from configobj import ConfigObj, DuplicateError
 
-from . import ConfigRoot
-from .app_dirs import AppDirs
 from ..helpers import dob_in_user_exit
 
+from .app_dirs import AppDirs
+
 __all__ = (
-    'get_config_path',
-    'load_config',
-    'reset_config',
-    'write_config',
-    # Private:
-    #  'default_config_obj',
-    #  'empty_config_obj',
+    'default_config_path',
+    'empty_config_obj',
+    'load_config_obj',
+    'write_config_obj',
 )
 
 
 # ***
+# ***
+# ***
 
-def get_config_path():
-    """Show general information upon client launch."""
+# ***
+
+def default_config_path():
     config_dir = AppDirs.user_config_dir
     config_filename = 'dob.conf'
-    return os.path.join(config_dir, config_filename)
+    configfile_path = os.path.join(config_dir, config_filename)
+    return configfile_path
 
 
 # ***
 
-def load_config():
-    """"""
-
-    def _load_config():
-        try:
-            config_obj = empty_config_obj()
-        except DuplicateError as err:
-            # (lb): The original (builtin) configparser would let you
-            # choose to error or not on duplicates, but the ConfigObj
-            # library (which is awesome in many ways) does not have
-            # such a feature (it's got a raise_errors that does not
-            # do the trick). Consequently, unless we code a way around
-            # this, we gotta die on duplicates. Sorry, User! Seems
-            # pretty lame. But also seems pretty unlikely.
-            exit_duplicates(str(err))
-
-        config_root = ConfigRoot.update_from_dict(config_obj)
-        # What's a reasonable expectation to see if the config file
-        # legitimately exists? Check that the file exists? Or parse it
-        # and verify one or more settings therein? Let's do the latter,
-        # seems more robust. We can check the `store` settings, seems
-        # like the most obvious setting to check. In any case, we do
-        # this just to tell the user if they need to create a config;
-        # the app will run just fine without a config file, because
-        # defaults!
-        try:
-            config_root.backend.store.value_from_config
-            preexists = True
-        except AttributeError:
-            preexists = False
-        return config_root, preexists
-
-    def exit_duplicates(err):
-        msg = _(
-            'ERROR: Your config file at “{}” has a duplicate setting: “{}”'
-        ).format(get_config_path(), str(err))
-        dob_in_user_exit(msg)
-
-    return _load_config()
-
-
-# ***
-
-def reset_config():
-    config_obj = default_config_obj()
-
-    # FIXME/2019-11-16 23:26: need to ensure path? not sure... TEST THIS
-    configfile_path = os.path.dirname(config_obj.filename)
-    if not os.path.lexists(configfile_path):
-        os.makedirs(configfile_path)
-
-    config_obj.write()
-
-    # Return path to caller so that can report it to user.
-    return config_obj, configfile_path
-
-
-# ***
-
-def write_config(setting):
-    config_obj = empty_config_obj()
-    # Fill in dict object using values previously set from config or newly set.
-    config_root = setting._find_root()
-    config_root.download_to_dict(config_obj, skip_unset=True)
-    config_obj.write()
-
-
-# ***
-# ***
-# ***
-
-# ***
-
-def empty_config_obj():
-    configfile_path = get_config_path()
+def empty_config_obj(configfile_path):
     config_obj = ConfigObj(
         configfile_path,
         write_empty_values=False,
@@ -137,9 +64,45 @@ def empty_config_obj():
 
 # ***
 
-def default_config_obj():
-    config_obj = empty_config_obj()
-    # Fill in dict object using Config defaults.
-    ConfigRoot.download_to_dict(config_obj, use_defaults=True)
-    return config_obj
+def load_config_obj(configfile_path):
+    """"""
+
+    def _load_config_obj():
+        try:
+            config_obj = empty_config_obj(configfile_path)
+        except DuplicateError as err:
+            # (lb): The original (builtin) configparser would let you
+            # choose to error or not on duplicates, but the ConfigObj
+            # library (which is awesome in many ways) does not have
+            # such a feature (it's got a raise_errors that does not
+            # do the trick). Consequently, unless we code a way around
+            # this, we gotta die on duplicates. Sorry, User! Seems
+            # pretty lame. But also seems pretty unlikely.
+            exit_duplicates(str(err))
+
+        return config_obj
+
+    def exit_duplicates(err):
+        msg = _(
+            'ERROR: Your config file at “{}” has a duplicate setting: “{}”'
+        ).format(configfile_path, str(err))
+        dob_in_user_exit(msg)
+
+    return _load_config_obj()
+
+
+# ***
+
+def write_config_obj(config_obj):
+    def _write_config_obj():
+        ensure_dirs(config_obj.filename)
+        config_obj.write()
+
+    def ensure_dirs(filename):
+        # Avoid: FileNotFoundError: [Errno 2] No such file or directory: ....
+        configfile_dir = os.path.dirname(filename)
+        if not os.path.lexists(configfile_dir):
+            os.makedirs(configfile_dir)
+
+    return _write_config_obj()
 

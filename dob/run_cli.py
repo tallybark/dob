@@ -19,9 +19,9 @@
 
 from __future__ import absolute_import, unicode_literals
 
-import sys
-
 from gettext import gettext as _
+
+import sys
 
 import click
 from nark import __package_name__ as package_name_nark
@@ -129,15 +129,18 @@ CONTEXT_SETTINGS = dict(
 #        OH! These have to come *before* the command??
 @click.option('-V', '--verbose', is_flag=True, help=_('Be chatty. (-VV for more.)'))
 @click.option('-VV', '--verboser', is_flag=True, help=_('Be chattier.'), hidden=True)
-@click.option('--color/--no-color', '-C', default=None, help=_('Color, or plain.'))
-@click.option('--pager/--no-pager', '-P', default=None, help=_('Pager, or splat.'))
+@click.option('-X', '--color/--no-color', default=None, help=_('Color, or plain.'))
+@click.option('-P', '--pager/--no-pager', default=None, help=_('Pager, or splat.'))
+@click.option('-c', '--config', multiple=True,
+              help=_('Override a single configuration setting.'))
+@click.option('-C', '--configfile', help=_('Override configuration file path.'))
 # Profiling: pass_controller appears to take ~ ¼ seconds.
 @timefunct('run: create Controller [_get_store]')
 @pass_controller
 @click.pass_context
 # NOTE: @click.group transforms this func. definition into a callback that
 #       we use as a decorator for the top-level commands (see: @run.command).
-def run(ctx, controller, v, verbose, verboser, color, pager):
+def run(ctx, controller, v, verbose, verboser, color, pager, config, configfile):
     """General context run right before any of the commands."""
 
     def _run(ctx, controller, show_version):
@@ -151,6 +154,7 @@ def run(ctx, controller, v, verbose, verboser, color, pager):
         Setup up loggers.
         """
         profile_elapsed('To dob:    run')
+        controller.ensure_config(configfile, *config)
         _setup_tty_options(ctx, controller)
         _run_handle_banner()
         _run_handle_version(ctx, show_version)

@@ -33,9 +33,7 @@ from nark.helpers.emphasis import disable_colors, enable_colors
 from . import __arg0name__
 from .clickux import help_strings
 from .clickux.echo_assist import click_echo
-from .config.manage import (
-    get_config_path, load_config, reset_config, write_config
-)
+from .config.urable import ConfigUrable
 from .copyright import echo_copyright
 from .helpers import dob_in_user_exit, highlight_value
 from .migrate import upgrade_legacy_database_instructions
@@ -60,13 +58,10 @@ class Controller(NarkControl):
 
     POST_PROCESSORS = []
 
-    def __init__(self, nark_preset=None, dob_preset=None):
+    def __init__(self):
         """Load backend and client configs, and instantiate controller."""
-        nark_config, dob_config, preexists = load_config(nark_preset, dob_preset)
-        self._adjust_log_level(nark_config)
-        super(Controller, self).__init__(nark_config)
-        self.client_config = dob_config
-        self.cfgfile_exists = preexists
+        super(Controller, self).__init__()
+        self.configurable = None
 
     @property
     def now(self):
@@ -95,7 +90,7 @@ class Controller(NarkControl):
 
     @property
     def is_germinated(self):
-        if self.cfgfile_exists and self.store_exists:
+        if self.configurable.cfgfile_exists and self.store_exists:
             return True
         return False
 
@@ -115,10 +110,10 @@ class Controller(NarkControl):
         """Assist user if config or database not present."""
         def _insist_germinated():
             store_exists = self.store_exists
-            if self.cfgfile_exists and store_exists:
+            if self.configurable.cfgfile_exists and store_exists:
                 self.standup_store()
                 return
-            if not self.cfgfile_exists and not store_exists:
+            if not self.configurable.cfgfile_exists and not store_exists:
                 help_newbie_onboard()
             else:
                 berate_user_files_unwell(store_exists)
@@ -134,7 +129,7 @@ class Controller(NarkControl):
             )
 
         def berate_user_files_unwell(store_exists):
-            if not self.cfgfile_exists:
+            if not self.configurable.cfgfile_exists:
                 oblige_user_create_config()
             if not store_exists:
                 oblige_user_create_store()
@@ -147,19 +142,37 @@ class Controller(NarkControl):
 
         _insist_germinated()
 
+    # ***
+
+    def ensure_config(self, configfile_path=None, *keyvals):
+        if self.configurable is not None:
+            return
+        self.configurable = ConfigUrable()
+        self.configurable.load_config(configfile_path)
+        self.configurable.inject_from_cli(*keyvals)
+        self.wire_configience()
+
     def create_config(self, force):
-        exists = os.path.exists(get_config_path())
-        if exists and not force:
-            dob_in_user_exit(_('Config file exists'))
-        nark_config, dob_config, file_path = reset_config()
-        self._adjust_log_level(nark_config)
-        self.config = nark_config
-        self.client_config = dob_config
-        click_echo(
-            _('Initialized default Dob configuration at {}').format(
-                highlight_value(file_path),
-            )
-        )
+        self.configurable.create_config(force=force)
+        self.wire_configience()
+
+    def round_out_config(self, force):
+        self.configurable.round_out_config()
+
+    def write_config(self, skip_unset=False):
+        self.configurable.write_config(skip_unset=skip_unset)
+
+    def wire_configience(self):
+        # MAYBE/2019-11-19: (lb) I might rename/rewire self.config, self.client_config.
+        # - These are for convenience.
+        self.config = self.configurable.config_root.backend
+        self.client_config = self.configurable.config_root.client
+
+        self.capture_config_lib(self.config)
+
+        self._adjust_log_level()
+
+    # ***
 
     def create_data_store(self, force):
         skip_standup = self.check_sqlite_store_ready()
@@ -185,7 +198,7 @@ class Controller(NarkControl):
             create_store_maybe()
 
         def create_config_maybe():
-            cfg_path = get_config_path()
+            cfg_path = self.configurable.config_path
             if not os.path.exists(cfg_path):
                 self.create_config(force=False)
             else:
@@ -213,7 +226,7 @@ class Controller(NarkControl):
 
         _create_config_and_store()
 
-    def _adjust_log_level(self, nark_config):
+    def _adjust_log_level(self):
         # *cough*hack!*cough*”
         # Because invoke_without_command, we allow command-less invocations.
         #   For one such invocation -- dob -v -- tell the store not to log.
@@ -231,7 +244,7 @@ class Controller(NarkControl):
         # FIXME/EXPLAIN/2019-01-22: (lb): What about other 2 loggers?
         #   lib_log_level
         #   cli_log_level
-        nark_config['sql_log_level'] = 'WARNING'
+        self.config.sql_log_level.value_from_forced = 'WARNING'
 
     def check_sqlite_store_ready(self):
         if self.config['db_engine'] != 'sqlite':
