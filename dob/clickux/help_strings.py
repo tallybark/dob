@@ -24,7 +24,7 @@ from gettext import gettext as _
 from nark.helpers.emphasis import attr, coloring, fg
 
 from .. import __arg0name__, __package_name__
-from ..app_config import get_config_path
+from ..config.manage import get_config_path
 from ..helpers import highlight_value
 
 # Note that the help formatter removes single newlines and adjusts text width

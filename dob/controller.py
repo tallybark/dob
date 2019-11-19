@@ -31,9 +31,9 @@ from nark.helpers import logging as logging_helpers
 from nark.helpers.emphasis import disable_colors, enable_colors
 
 from . import __arg0name__
-from .app_config import furnish_config, get_config_path, replenish_config
 from .clickux import help_strings
 from .clickux.echo_assist import click_echo
+from .config.manage import get_config_path, load_config, reset_config
 from .copyright import echo_copyright
 from .helpers import dob_in_user_exit, highlight_value
 from .migrate import upgrade_legacy_database_instructions
@@ -60,7 +60,7 @@ class Controller(NarkControl):
 
     def __init__(self, nark_preset=None, dob_preset=None):
         """Load backend and client configs, and instantiate controller."""
-        nark_config, dob_config, preexists = furnish_config(nark_preset, dob_preset)
+        nark_config, dob_config, preexists = load_config(nark_preset, dob_preset)
         self._adjust_log_level(nark_config)
         super(Controller, self).__init__(nark_config)
         self.client_config = dob_config
@@ -149,7 +149,7 @@ class Controller(NarkControl):
         exists = os.path.exists(get_config_path())
         if exists and not force:
             dob_in_user_exit(_('Config file exists'))
-        nark_config, dob_config, file_path = replenish_config()
+        nark_config, dob_config, file_path = reset_config()
         self._adjust_log_level(nark_config)
         self.config = nark_config
         self.client_config = dob_config

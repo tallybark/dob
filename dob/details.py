@@ -26,10 +26,10 @@ from nark.items import Fact
 
 from . import __package_name__ as package_name_dob
 from . import __resolve_vers__ as resolve_vers_dob
-from .app_config import get_config_path
 from .clickux.echo_assist import click_echo
 from .clickux.plugin_group import ClickPluginGroup
 from .config.app_dirs import AppDirs
+from .config.manage import get_config_path
 from .helpers import ascii_art, highlight_value
 
 __all__ = (
