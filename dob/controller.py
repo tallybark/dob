@@ -33,7 +33,9 @@ from nark.helpers.emphasis import disable_colors, enable_colors
 from . import __arg0name__
 from .clickux import help_strings
 from .clickux.echo_assist import click_echo
-from .config.manage import get_config_path, load_config, reset_config
+from .config.manage import (
+    get_config_path, load_config, reset_config, write_config
+)
 from .copyright import echo_copyright
 from .helpers import dob_in_user_exit, highlight_value
 from .migrate import upgrade_legacy_database_instructions
