@@ -131,9 +131,11 @@ CONTEXT_SETTINGS = dict(
 @click.option('-VV', '--verboser', is_flag=True, help=_('Be chattier.'), hidden=True)
 @click.option('-X', '--color/--no-color', default=None, help=_('Color, or plain.'))
 @click.option('-P', '--pager/--no-pager', default=None, help=_('Pager, or splat.'))
-@click.option('-c', '--config', multiple=True,
+@click.option('-c', '--config', multiple=True, metavar='KEY=VALUE',
               help=_('Override a single configuration setting.'))
-@click.option('-C', '--configfile', help=_('Override configuration file path.'))
+# (lb): We could use `type=click.File('r')` here. Or not.
+@click.option('-C', '--configfile', metavar='PATH',
+              help=_('Override configuration file path.'))
 # Profiling: pass_controller appears to take ~ ¼ seconds.
 @timefunct('run: create Controller [_get_store]')
 @pass_controller
@@ -154,7 +156,7 @@ def run(ctx, controller, v, verbose, verboser, color, pager, config, configfile)
         Setup up loggers.
         """
         profile_elapsed('To dob:    run')
-        controller.ensure_config(configfile, *config)
+        controller.ensure_config(ctx, configfile, *config)
         _setup_tty_options(ctx, controller)
         _run_handle_banner()
         _run_handle_version(ctx, show_version)

@@ -19,6 +19,7 @@
 
 from __future__ import absolute_import, unicode_literals
 
+import inspect
 import logging
 import os
 import sys
@@ -34,9 +35,7 @@ from . import __arg0name__
 from .clickux import help_strings
 from .clickux.echo_assist import click_echo
 from .config.urable import ConfigUrable
-from .copyright import echo_copyright
 from .helpers import dob_in_user_exit, highlight_value
-from .migrate import upgrade_legacy_database_instructions
 from .traverser.placeable_fact import PlaceableFact
 
 # Disable the python_2_unicode_compatible future import warning.
@@ -117,16 +116,11 @@ class Controller(NarkControl):
                 help_newbie_onboard()
             else:
                 berate_user_files_unwell(store_exists)
-            echo_copyright()
             sys.exit(1)
 
         def help_newbie_onboard():
-            click_echo(
-                help_strings.NEWBIE_HELP_ONBOARDING.format(
-                    legacy_help=upgrade_legacy_database_instructions(self),
-                ),
-                err=True,
-            )
+            message = help_strings.NEWBIE_HELP_ONBOARDING()
+            click_echo(inspect.cleandoc(message), err=True)
 
         def berate_user_files_unwell(store_exists):
             if not self.configurable.cfgfile_exists:
@@ -135,18 +129,22 @@ class Controller(NarkControl):
                 oblige_user_create_store()
 
         def oblige_user_create_config():
-            click_echo(help_strings.NEWBIE_HELP_CREATE_CONFIG, err=True)
+            cfg_path = self.configurable.config_path
+            message = help_strings.NEWBIE_HELP_CREATE_CONFIG(self.ctx, cfg_path)
+            click_echo(inspect.cleandoc(message), err=True)
 
         def oblige_user_create_store():
-            click_echo(help_strings.NEWBIE_HELP_CREATE_STORE, err=True)
+            message = help_strings.NEWBIE_HELP_CREATE_STORE(self.ctx)
+            click_echo(inspect.cleandoc(message), err=True)
 
         _insist_germinated()
 
     # ***
 
-    def ensure_config(self, configfile_path=None, *keyvals):
+    def ensure_config(self, ctx, configfile_path=None, *keyvals):
         if self.configurable is not None:
             return
+        self.ctx = ctx
         self.configurable = ConfigUrable()
         self.configurable.load_config(configfile_path)
         self.configurable.inject_from_cli(*keyvals)

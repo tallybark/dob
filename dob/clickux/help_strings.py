@@ -21,7 +21,7 @@ from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
-from nark.helpers.emphasis import attr, coloring, fg
+from nark.helpers.emphasis import attr, bg, coloring, fg
 
 from .. import __arg0name__, __package_name__
 from ..config.manage import default_config_path
@@ -38,7 +38,7 @@ from ..helpers import highlight_value
 
 
 def RUN_HELP_OVERVIEW(ctx):
-    run_help = _(
+    _help = _(
         """
         {appname} is a time tracker for the command line.
 
@@ -51,6 +51,8 @@ def RUN_HELP_OVERVIEW(ctx):
           {codehi}{rawname} init --help{reset}
 
           {codehi}{rawname} help init{reset}
+
+          {codehi}{rawname} edit -h{reset}
 
         - Put global options {italic}before{reset} the command name, e.g.,
 
@@ -80,7 +82,7 @@ def RUN_HELP_OVERVIEW(ctx):
             scroll_sym=coloring() and '📜' or 'license',
         )
     )
-    return run_help
+    return _help
 
 
 # ***
@@ -125,7 +127,7 @@ COPYRIGHT_HELP = _(
 # ***
 
 DETAILS_HELP = _(
-    """List details about the runtime environment."""
+    """Prints details about the runtime environment."""
 )
 
 
@@ -135,13 +137,13 @@ DETAILS_HELP = _(
 
 ENVIRONS_HELP = _(
     """
-    Like details command, but shell-sourceable.
+    Prints shell-sourceable details about the runtime environment.
 
     Useful for setting up shell scripting, e.g.,
 
        \b
        eval "$({} environs)"
-       echo $NARK_CONF
+       echo $DOB_CONF
     """.format(__arg0name__)
 )
 
@@ -160,32 +162,52 @@ DEBUG_HELP = _(
 # *** [DEMO] Command help.
 # ***
 
-DEMO_HELP = _(
+# Ha! This ANSI gets stripped. But not if we callback.
+# I wonder if because we set color off by default now,
+# then enable... or maybe because we set it at all -- I
+# just don't remember this being an issue last few days.
+# -2019-11-19 05:47.
+DEMO_HELP_XXX = _(
     """
-    New to dob? Just installed it? {ital}Run this first!{reset}
+    Teaches you how to {rawname} -- {ital}Run this first!{reset}
     """
 ).strip().format(
+    rawname=__package_name__,
     ital=attr('italic'),
     reset=attr('reset'),
 )
+def DEMO_HELP(ctx):
+    _help = _(
+        """
+        Teaches you how to {rawname} -- {ital}Run this first!{reset}
+        """
+    ).strip().format(
+        rawname=__package_name__,
+        ital=attr('italic'),
+        reset=attr('reset'),
+    )
+    return _help
 
 
 # ***
 # *** [INDUCTEE] help.
 # ***
 
-NEWBIE_HELP_WELCOME = _(
-    """
-{color}Welcome to dob!{reset}
-{color}==============={reset}
-    """
-).strip().format(
-    color=(fg('spring_green_2a') + attr('bold')),
-    # color=(fg('turquoise_4') + attr('bold')),
-    # color=(fg('magenta_2a') + attr('bold')),
-    # color=(fg('dark_orange_3b') + attr('bold')),
-    reset=attr('reset'),
-)
+def NEWBIE_HELP_WELCOME(ctx):
+    _help = _(
+        """
+        {color}┏━━━━━━━━━━━━━━━━━┓{reset}
+        {color}┃ Welcome to dob! ┃{reset}
+        {color}┗━━━━━━━━━━━━━━━━━┛{reset}
+        """
+    ).strip().format(
+        color=(fg('spring_green_2a') + attr('bold')),
+        # color=(fg('turquoise_4') + attr('bold')),
+        # color=(fg('magenta_2a') + attr('bold')),
+        # color=(fg('dark_orange_3b') + attr('bold')),
+        reset=attr('reset'),
+    )
+    return _help
 
 
 def section_heading(title):
@@ -205,78 +227,103 @@ def section_heading(title):
     )
 
 
-NEWBIE_HELP_ONBOARDING = _(
-    # If you have an existing Hamster database,
-    # we've got you covered!
-    """
-{banner}
+def NEWBIE_HELP_ONBOARDING(ctx):
+    _help = _(
+        """
+        {banner}
 
-Let's get you setup!
+        Let's get you setup!
 
-{init_title}
-{paragraph_color}
-To create a fresh, empty database, run:{reset}
+        {init_title}
+        {paragraph_color}
+        To create a fresh, empty database, run:{reset}
 
-  {cmd_color}{appname} init{reset}
+          {cmd_color}{appname} init{reset}
 
-{upgrade_title}
-{paragraph_color}
-To learn how to upgrade from a previous version (of dob, or hamster), run:{reset}
+        {upgrade_title}
+        {paragraph_color}
+        To learn how to upgrade from a previous version (of dob, or hamster), run:{reset}
 
-  {cmd_color}{appname} migrate{reset}
+          {cmd_color}{appname} migrate{reset}
 
-{demo_title}
-{paragraph_color}
-If you'd like to demo the application first with some example data, run:{reset}
+        {demo_title}
+        {paragraph_color}
+        If you'd like to demo the application first with some example data, run:{reset}
 
-  {cmd_color}{appname} demo{reset}
-"""
-).format(
-    appname=__arg0name__,
-    banner=NEWBIE_HELP_WELCOME,
-    upgrade_title=section_heading(_('Import existing facts')),
-    init_title=section_heading(_('Start from scratch')),
-    demo_title=section_heading(_('Demo Dob')),
-    # cmd_color=(fg('dodger_blue_1')),
-    cmd_color=fg('spring_green_2a'),
-    # paragraph_color=fg('grey_78'),
-    paragraph_color='',
-    reset=attr('reset'),
-)
-
-
-NEWBIE_HELP_CREATE_CONFIG = _(
-    """
-{banner}
-
-Where's you config file??
-
-FIXME: Provide example commands.
-
-    """
-).format(
-    # appname=__arg0name__,
-    banner=NEWBIE_HELP_WELCOME,
-    # cmd_color=(fg('spring_green_2a') + attr('bold')),
-    # reset=attr('reset'),
-)
+          {cmd_color}{appname} demo{reset}
+        """
+    ).format(
+        appname=__arg0name__,
+        banner=NEWBIE_HELP_WELCOME(ctx),
+        upgrade_title=section_heading(_('Import existing facts')),
+        init_title=section_heading(_('Start from scratch')),
+        demo_title=section_heading(_('Demo Dob')),
+        # cmd_color=(fg('dodger_blue_1')),
+        cmd_color=fg('spring_green_2a'),
+        # paragraph_color=fg('grey_78'),
+        paragraph_color='',
+        reset=attr('reset'),
+    )
+    return _help
 
 
-NEWBIE_HELP_CREATE_STORE = _(
-    """
-{banner}
+def NEWBIE_HELP_CREATE_CONFIG(ctx, cfg_path):
+    _help = _(
+        """
+        {errcol}ERROR: No config file found at: “{cfg_path}”{reset}
 
-Where's you database??
+        Where's your config file??
 
-FIXME: Provide example commands.
+        Verify and correct the configuration file path.
 
-    """
-).format(
-    # appname=__arg0name__,
-    banner=NEWBIE_HELP_WELCOME,
-    # mintgreen=(fg('spring_green_2a') + attr('bold')),
-    # reset=attr('reset'),
-)
+        The configuration file defaults to:
+
+            {default_config_path}
+
+        but you can override it using an environ:
+
+            {envkey}=PATH
+
+        or by specifying a global option:
+
+            -C/--configfile PATH
+
+        If you are certain the path is correct and you want to create
+        a new configuration file at the path specified, run init, e.g.,:
+
+            {rawname} -C "{cfg_path}" init
+        """
+    ).strip().format(
+        # FIXME/2019-11-19 14:42: Make wrapper for format() with some common colors defined.
+        # - Maybe change errors to white on red, like here,
+        #   but only for white on black terms (based on some setting?).
+        errcol=(bg('red_1') + attr('bold')),
+        reset=attr('reset'),
+        rawname=__package_name__,
+        cfg_path=cfg_path,
+        default_config_path=default_config_path(),
+        envkey=ConfigUrable.DOB_CONFIGFILE_ENVKEY,
+    )
+    return _help
+
+
+def NEWBIE_HELP_CREATE_STORE(ctx):
+    _help = _(
+        """
+        {banner}
+
+        Where's you database??
+
+        FIXME: Provide example commands.
+
+        """
+    ).strip().format(
+        # appname=__arg0name__,
+        banner=NEWBIE_HELP_WELCOME,
+        # mintgreen=(fg('spring_green_2a') + attr('bold')),
+        # reset=attr('reset'),
+    )
+    return _help
 
 
 # ***
@@ -287,7 +334,7 @@ def INIT_HELP_OVERVIEW(ctx):
     controller = ctx.obj
     _help = _(
         """
-        Ensures that the user config and data store exists.
+        Ensures that the config file and data store exist.
 
         - Unless it exists, init will create a default configuration at:
 
@@ -449,7 +496,7 @@ def CONFIG_GROUP_HELP(ctx):
 
 CONFIG_CREATE_HELP = _(
     """
-    Write a new configuration file populated with default values.
+    Writes a new configuration file populated with default values.
 
     You can overwrite an existing configuration file using --force.
     """
@@ -458,21 +505,21 @@ CONFIG_CREATE_HELP = _(
 
 CONFIG_DUMP_HELP = _(
     """
-    Print a list of configurable settings, including names, values, and help.
+    Prints a list of configurable settings, including names, values, and help.
     """
 )
 
 
 CONFIG_GET_HELP = _(
     """
-    Print a configuration value from the config file.
+    Prints a configuration value from the config file.
     """
 )
 
 
 CONFIG_SET_HELP = _(
     """
-    Write a configuration value to the config file.
+    Writes a configuration value to the config file.
     """
 )
 
@@ -490,25 +537,30 @@ CONFIG_UPDATE_HELP = _(
 
 STORE_GROUP_HELP = _(
     """
-    FIXME
+    Commands for managing the database file.
     """
 )
 
 
 STORE_CREATE_HELP = _(
     """
+    Creates an empty database file.
+
+    You can overwrite an existing database file using --force.
     """
 )
 
 
 STORE_PATH_HELP = _(
     """
+    Prints the database path.
     """
 )
 
 
 STORE_URL_HELP = _(
     """
+    Prints the database URL.
     """
 )
 
@@ -721,7 +773,7 @@ START_HELP = _(
 
 
 STOP_HELP = _(
-    """Stop tracking current fact saving the result."""
+    """Complete the *ongoing fact* at current time."""
 )
 
 
@@ -950,6 +1002,7 @@ START_HELP_COMMON = _(
 
 START_HELP_ON = _(
     """
+    Start a fact starting now.
     """
 )
 
@@ -1044,7 +1097,7 @@ EDIT_FACT_HELP = _(
 
 EXPORT_HELP = _(
     """
-    Export facts.
+    Exports facts and other interesting data you desire.
     """
 )
 
@@ -1053,9 +1106,18 @@ EXPORT_HELP = _(
 # *** [IMPORT] Command help.
 # ***
 
+# FIXME/2018-05-12: (lb): Document hamster-import more fully.
+# - This command is quite powerful, and it might be a good way
+# to demonstrate how all the dob-on/dob-after/etc. commands work.
 IMPORT_HELP = _(
     """
-# FIXME/2018-05-12: (lb): Document hamster-import.
+    Imports Facts from a text file using a natural syntax.
+
+    Useful if you cannot use dob for a while but can
+    maintain a text file. Or if you need to massage
+    data from another source into dob, it's easy to
+    prepare an import file that dob can read and use
+    to make Facts in the database.
     """
 )
 
@@ -1075,7 +1137,7 @@ COMPLETE_HELP = _(
 
 MIGRATE_GROUP_HELP = _(
     """
-    Perform database migrations.
+    Upgrade the database after installing a new major release.
     """
 )
 
