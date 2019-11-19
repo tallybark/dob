@@ -30,6 +30,7 @@ __all__ = (
     'get_appdirs_subdir_file_path',
 )
 
+
 # ***
 # *** `dob` AppDirs.
 # ***
