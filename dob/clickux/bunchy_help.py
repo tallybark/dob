@@ -41,32 +41,22 @@ __all__ = (
 # ***
 
 def help_header_introducing():
-    #return help_header_format(_('First time dobbers'))
     return help_header_format(_('Newbie Commands'))
 
 
 def help_header_edit():
-    #return help_header_format(_('Interactive application'))
     return help_header_format(_('Popular Commands'))
 
 
 def help_header_get_meta():
-    #return help_header_format(_('Dob Meta Commands'))
-    #return help_header_format(_('Dob Internals'))
-    #return help_header_format(_('Application Meta'))
-    #return help_header_format(_('Internal Commands'))
-    #return help_header_format(_('Meta Commands'))
-    #return help_header_format(_('Environment Commands'))
     return help_header_format(_('Runtime Commands'))
 
 
 def help_header_datastore():
-    #return help_header_format(_('Data Store Commands'))
     return help_header_format(_('Report Fact Commands'))
 
 
 def help_header_dbms():
-    #return help_header_format(_('Database Management'))
     return help_header_format(_('Database Commands'))
 
 
