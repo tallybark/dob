@@ -86,7 +86,7 @@ def RUN_HELP_OVERVIEW(ctx):
 # ***
 
 HELP_HELP = _(
-    """Show the help and exit."""
+    """Prints the help for the application or for the specified command."""
 )
 
 
@@ -95,7 +95,7 @@ HELP_HELP = _(
 # ***
 
 VERSION_HELP = _(
-    """Show the version and exit."""
+    """Prints the interface and library versions."""
 )
 
 
@@ -104,7 +104,7 @@ VERSION_HELP = _(
 # ***
 
 LICENSE_HELP = _(
-    """Show license information."""
+    """Prints the software license."""
 )
 
 
