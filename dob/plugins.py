@@ -25,7 +25,7 @@ import sys
 
 from gettext import gettext as _
 
-from .app_config import AppDirs, get_appdirs_subdir_file_path
+from .config.app_dirs import AppDirs, get_appdirs_subdir_file_path
 
 __all__ = (
     'install_plugin',

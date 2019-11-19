@@ -28,9 +28,9 @@ from nark.helpers.emphasis import attr, fg
 
 from . import __arg0name__
 # Profiling: load AppDirs: ~ 0.011 secs.
-from .app_config import AppDirs
 from .clickux import help_strings
 from .clickux.echo_assist import click_echo
+from .config.app_dirs import AppDirs
 from .helpers import dob_in_user_exit, dob_in_user_warning, highlight_value
 
 __all__ = (

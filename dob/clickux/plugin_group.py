@@ -26,7 +26,7 @@ from gettext import gettext as _
 
 import click
 
-from ..app_config import AppDirs
+from ..config.app_dirs import AppDirs
 from ..helpers import dob_in_user_warning
 from ..helpers.path import compile_and_eval_source
 

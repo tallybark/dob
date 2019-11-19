@@ -27,7 +27,6 @@ from gettext import gettext as _
 import click
 import lazy_import
 import nark
-from nark.helpers.app_dirs import NarkAppDirs
 
 from .helpers import dob_in_user_exit, dob_in_user_warning
 
@@ -42,7 +41,6 @@ click.disable_unicode_literals_warning = True
 
 __all__ = (
     'furnish_config',
-    'get_appdirs_subdir_file_path',
     'get_config_path',
     'replenish_config',
     # Private:
@@ -51,20 +49,6 @@ __all__ = (
     #  'get_separate_configs',
     #  'store_config',
 )
-
-
-# ***
-# *** `dob` AppDirs.
-# ***
-
-class DobAppDirs(NarkAppDirs):
-    """Custom class that ensure appdirs exist."""
-    def __init__(self, *args, **kwargs):
-        """Add create flag value to instance."""
-        super(DobAppDirs, self).__init__(*args, **kwargs)
-
-
-AppDirs = DobAppDirs('dob')
 
 
 # ***
@@ -686,36 +670,4 @@ def store_config(config, file_path):
         os.makedirs(configfile_path)
     with open(file_path, 'w') as fobj:
         config.write(fobj)
-
-
-# ***
-# *** Shim function: get_appdirs_subdir_file_path.
-# ***
-
-DEFAULT_APPDIRS_FILE_BASENAME_FMT = '{}'
-
-
-def get_appdirs_subdir_file_path(
-    file_basename,
-    dir_dirname,
-    appdirs_dir=AppDirs.user_cache_dir,
-    basename_fmt=DEFAULT_APPDIRS_FILE_BASENAME_FMT,
-):
-    """
-    Return the path to a file stored in a subdirectory of an AppDirs directory.
-    """
-    subdir_path = os.path.join(appdirs_dir, dir_dirname)
-    # (lb): So disrespectful! Totally accessing "hidden" method.
-    AppDirs._ensure_directory_exists(subdir_path)
-    full_path = os.path.join(subdir_path, basename_fmt.format(file_basename))
-    if os.path.exists(full_path) and not os.path.isfile(full_path):
-        msg = _(
-            '{} At:\n  {}'
-        ).format(
-            _('UNEXPECTED: target path exists but not a file!'),
-            full_path,
-        )
-        dob_in_user_warning(msg)
-        full_path = None
-    return full_path
 
