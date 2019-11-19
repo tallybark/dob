@@ -30,13 +30,13 @@ import re
 import sys
 from functools import update_wrapper
 
-from click_alias import ClickAliasedGroup
 from gettext import gettext as _
 
 import click
 
 from . import migrate, update
 from .clickux import help_strings
+from .clickux.aliasable_bunchy_plugin import ClickAliasableBunchyPluginGroup
 from .clickux.bunchy_help import (
     cmd_bunch_group_introducing,
     cmd_bunch_group_edit,
@@ -67,7 +67,7 @@ from .clickux.cmd_options import (
 from .clickux.echo_assist import click_echo, flush_pager
 from .clickux.file_enforce import must_no_more_than_one_file
 from .clickux.help_command import help_command_help
-from .clickux.help_detect import show_help_finally
+from .clickux.help_detect import show_help_finally, show_help_if_no_command
 from .clickux.induct_newbies import induct_newbies, insist_germinated
 from .clickux.post_processor import post_processor
 from .cmds_list import activity as list_activity
@@ -248,12 +248,28 @@ def init_config_and_store(controller):
 
 
 # ***
+# *** Shared Command Group settings.
+# ***
+
+run_group_kwargs = {
+    # Groups should also use our class override so that usage is proper,
+    # and other fancy features we add are part of group commands, too.
+    'cls': ClickAliasableBunchyPluginGroup,
+    # Ensure Click does not die on the -h/--help option, e.g.,
+    # `dob config -h` should show help, not show "Error: Missing command."
+    'invoke_without_command': True,
+}
+
+
+# ***
 # *** [CONFIG] Commands.
 # ***
 
-
 @cmd_bunch_group_get_meta
-@run.group('config', cls=ClickAliasedGroup, help=help_strings.CONFIG_GROUP_HELP)
+@run.group('config', help=help_strings.CONFIG_GROUP_HELP, **run_group_kwargs)
+@show_help_finally
+@show_help_if_no_command
+@flush_pager
 @click.pass_context
 def config_group(ctx):
     """Base `config` group command run prior to any of the dob-config commands."""
@@ -278,7 +294,10 @@ def config_create(controller, force):
 # See also: 'migrate' commands. The store commands are mostly for initial setup.
 
 @cmd_bunch_group_dbms
-@run.group('store', cls=ClickAliasedGroup, help=help_strings.STORE_GROUP_HELP)
+@run.group('store', help=help_strings.STORE_GROUP_HELP, **run_group_kwargs)
+@show_help_finally
+@show_help_if_no_command
+@flush_pager
 @click.pass_context
 def store_group(ctx):
     """Base `store` group command run prior to dob-store commands."""
@@ -351,7 +370,10 @@ def nark_stats(controller):
 @cmd_bunch_group_datastore
 # Use a command alias to avoid conflict with builtin of same name
 # (i.e., we cannot declare this function, `def list()`).
-@run.group('list', help=help_strings.LIST_GROUP_HELP)
+@run.group('list', help=help_strings.LIST_GROUP_HELP, **run_group_kwargs)
+@show_help_finally
+@show_help_if_no_command
+@flush_pager
 @pass_controller
 @click.pass_context
 def list_group(ctx, controller):
@@ -502,7 +524,10 @@ def search_facts(controller, *args, **kwargs):
 # ***
 
 @cmd_bunch_group_datastore
-@run.group('usage', help=help_strings.USAGE_GROUP_HELP)
+@run.group('usage', help=help_strings.USAGE_GROUP_HELP, **run_group_kwargs)
+@show_help_finally
+@show_help_if_no_command
+@flush_pager
 @pass_controller
 @click.pass_context
 def usage_group(ctx, controller):
@@ -814,7 +839,10 @@ def add_fact_next(controller, *args, **kwargs):
 # ***
 
 @cmd_bunch_group_edit
-@run.group('edit', help=help_strings.EDIT_GROUP_HELP, invoke_without_command=True)
+@run.group('edit', help=help_strings.EDIT_GROUP_HELP, **run_group_kwargs)
+@show_help_finally
+@show_help_if_no_command
+@flush_pager
 @cmd_options_edit_item
 @cmd_options_fact_nocarousel
 @pass_controller
@@ -1069,7 +1097,10 @@ def complete(controller):
 # ***
 
 @cmd_bunch_group_dbms
-@run.group('migrate', help=help_strings.MIGRATE_GROUP_HELP, invoke_without_command=True)
+@run.group('migrate', help=help_strings.MIGRATE_GROUP_HELP, **run_group_kwargs)
+@show_help_finally
+@show_help_if_no_command
+@flush_pager
 @pass_controller
 @click.pass_context
 def migrate_group(ctx, controller):
