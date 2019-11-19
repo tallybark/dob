@@ -640,11 +640,11 @@ class TestGetConfig(object):
         """Make sure that passing a store other than 'sqlalchemy' raises exception."""
         config_instance = config_instance(db_engine='postgres')
         backend, client = app_config.get_separate_configs(config_instance)
-        assert backend['db_host'] == config_instance.get('Backend', 'db_host')
-        assert backend['db_port'] == config_instance.get('Backend', 'db_port')
-        assert backend['db_name'] == config_instance.get('Backend', 'db_name')
-        assert backend['db_user'] == config_instance.get('Backend', 'db_user')
-        assert backend['db_password'] == config_instance.get('Backend', 'db_password')
+        assert backend['db_host'] == config_instance.get('backend', 'db_host')
+        assert backend['db_port'] == config_instance.get('backend', 'db_port')
+        assert backend['db_name'] == config_instance.get('backend', 'db_name')
+        assert backend['db_user'] == config_instance.get('backend', 'db_user')
+        assert backend['db_password'] == config_instance.get('backend', 'db_password')
 
 
 class TestGetConfigInstance(object):
@@ -669,7 +669,7 @@ class TestGetConfigInstance(object):
         config, preexists = app_config.get_config_instance()
         # I.e., 'sqlalchemy' == 'sqlalchemy'
         assert (
-            config.get('Backend', 'store') == config_instance().get('Backend', 'store')
+            config.get('backend', 'store') == config_instance().get('backend', 'store')
         )
         assert isinstance(config_instance(), type(config))
         assert config_instance() is not config
