@@ -13,6 +13,7 @@ from .echo_assist import click_echo, echo_exit
 
 __all__ = (
     'show_help_finally',
+    'show_help_if_no_command',
 )
 
 
@@ -48,4 +49,13 @@ def show_help_finally(func):
         func(*args, **kwargs)
 
     return update_wrapper(check_help, func)
+
+
+def show_help_if_no_command(func):
+    @click.pass_context
+    def show_help(ctx, *args, **kwargs):
+        if ctx.invoked_subcommand is None:
+            click_echo(ctx.command.get_help(ctx))
+        func(*args, **kwargs)
+    return update_wrapper(show_help, func)
 
