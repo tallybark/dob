@@ -66,6 +66,7 @@ from .clickux.cmd_options import (
 )
 from .clickux.echo_assist import click_echo, flush_pager
 from .clickux.file_enforce import must_no_more_than_one_file
+from .clickux.help_command import help_command_help
 from .clickux.help_detect import show_help_finally
 from .clickux.induct_newbies import induct_newbies, insist_germinated
 from .clickux.post_processor import post_processor
@@ -94,37 +95,14 @@ click.disable_unicode_literals_warning = True
 
 
 @run.command(hidden=True, help=help_strings.HELP_HELP)
-@show_help_finally
+# (lb): Should not need the help-finally decorator, but doesn't seem to hurt, either:
+#   @show_help_finally
 @flush_pager
 @click.pass_context
 @click.argument('command', nargs=-1)
 def help(ctx, command=None):
     """Show help."""
-    cmd = run
-    if not command:
-        # A simple `dob help`.
-        cmd = run
-        # The context is the 'help' command, which, if passed to
-        # cmd.get_help, shows usage a bit incorrectly, as:
-        #
-        #   Usage: dob help [OPTIONS] COMMAND [ARGS]...
-        #
-        # (note the "help"), so specify the parent (the root 'dob'
-        # command), so that usage gets printed more accurately as:
-        #
-        #   Usage: dob [OPTIONS] COMMAND [ARGS]...
-        cmd_ctx = ctx.parent
-    else:
-        # For help on a subcommand, i.e., `dob help command`,
-        # use the 'help' command to find the subcommand.
-        cmd = cmd.get_command(ctx, command[0])
-        # Make a temporary Context to print the help.
-        # (lb): This couples dob to Click more tightly than I'd
-        # like, but it also means I don't have to sell a lot of
-        # little design tweaks to the Click team.
-        args = []
-        cmd_ctx = cmd.make_context(cmd.name, args, parent=ctx.parent)
-    click_echo(cmd.get_help(cmd_ctx))
+    help_command_help(ctx, command)
 
 
 # ***
