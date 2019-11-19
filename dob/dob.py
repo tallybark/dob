@@ -66,7 +66,6 @@ from .clickux.cmd_options import (
     postprocess_options_table_options
 )
 from .clickux.echo_assist import click_echo, flush_pager
-from .clickux.file_enforce import must_no_more_than_one_file
 from .clickux.help_command import help_command_help
 from .clickux.help_detect import show_help_finally, show_help_if_no_command
 from .clickux.induct_newbies import induct_newbies, insist_germinated
@@ -392,16 +391,16 @@ def store_url(controller):
 @store_group.command('upgrade-legacy', help=help_strings.STORE_UPGRADE_LEGACY_HELP)
 @show_help_finally
 @flush_pager
-@click.argument('filename', nargs=-1, type=click.File('r'))
+@click.argument('filename', nargs=1, type=click.File('r'), required=False)
 @click.option('-f', '--force', is_flag=True,
               help=_('If specified, overwrite data store if is exists'))
 @pass_controller
 @click.pass_context
 @post_processor
-def upgrade_legacy(ctx, controller, filename, force):
+def upgrade_legacy(ctx, controller, force, filename=None):
     """Migrate a legacy "Hamster" database."""
-    file_in = must_no_more_than_one_file(filename)
-    return upgrade_legacy_database_file(ctx, controller, file_in, force)
+    # If filename is false, this method will raise.
+    return upgrade_legacy_database_file(ctx, controller, file_in=filename, force=force)
 
 
 # ***
@@ -1076,7 +1075,7 @@ def transcode_export(
 @run.command('import', help=help_strings.IMPORT_HELP)
 @show_help_finally
 @flush_pager
-@click.argument('filename', nargs=-1, type=click.File('r'))
+@click.argument('filename', nargs=1, type=click.File('r'), required=False)
 @click.option('-o', '--output', type=click.File('w', lazy=True),
               help=_('If specified, write to output file rather than saving'))
 @click.option('-f', '--force', is_flag=True,
@@ -1096,15 +1095,14 @@ def transcode_export(
 def transcode_import(
     ctx,
     controller,
-    filename,
     output,
     force,
     no_carousel,
+    filename=None,
     *args,
     **kwargs
 ):
     """Import from file or STDIN (pipe)."""
-    file_in = must_no_more_than_one_file(filename)
 
     # NOTE: You can get tricky and enter Facts LIVE! E.g.,
     #
@@ -1118,10 +1116,13 @@ def transcode_import(
         click_echo(msg)
         sys.exit(1)
 
+    # If filename smells False, import_facts will use sys.stdin.
+    # - FIXME/2019-11-19: Test not specifying file and see how it works on
+    # its own vs. piped, e.g., test `dob import` vs. `cat file | dob import`.
     return import_facts(
         controller,
         *args,
-        file_in=file_in,
+        file_in=filename,
         file_out=output,
         use_carousel=(not no_carousel),
         **kwargs
