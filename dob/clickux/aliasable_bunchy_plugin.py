@@ -113,10 +113,13 @@ class ClickAliasableBunchyPluginGroup(
             # added separately to the pieces collection.
         self.options_metavar = ''
         if n_opts:
-            self.options_metavar = '[OPTIONS]'
+            if self.name == 'run':
+                self.options_metavar = '[--GLOBAL-OPTIONS...]'
+            else:
+                self.options_metavar = '[--COMMAND-OPTIONS...]'
         self.subcommand_metavar = ''
         if self.commands:
-            self.subcommand_metavar = 'COMMAND [OPTIONS] [ARGS]...'
+            self.subcommand_metavar = 'COMMAND [--COMMAND-OPTIONS...] [ARGS...]'
         return super(
             ClickAliasableBunchyPluginGroup, self
         ).collect_usage_pieces(*args, **kwargs)
