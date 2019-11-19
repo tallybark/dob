@@ -90,45 +90,7 @@ from .transcode import export_facts, import_facts
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
 
-__all__ = (
-    # 'version',
-    # '_version',
-    # 'license',
-    # '_license',
-    # 'copyright',
-    # 'banner',  # 'dance',
-    # 'details',
-    # 'list_group',
-    # 'list_activities',
-    # 'list_categories',
-    # 'list_tags',
-    # 'list_facts',
-    # 'search',
-    # 'usage_group',
-    # 'usage_activities',
-    # 'usage_categories',
-    # 'usage_tags',
-    # 'stop',
-    # 'cancel',
-    # 'current',
-    # 'latest',
-    # 'add_fact_on',
-    # 'add_fact_at',
-    # 'add_fact_to',
-    # 'add_fact_then',
-    # 'add_fact_after',
-    # 'add_fact_from',
-    # 'edit_group',
-    # 'dob_edit_fact',
-    # 'transcode_export',
-    # 'transcode_import',
-    # 'complete',
-    # 'migrate_group',
-    # 'migrate_control',
-    # 'migrate_downgrade',
-    # 'migrate_upgrade',
-    # 'migrate_version',
-)
+# __all__ = ( ... )  # So many. Too tedious to list.
 
 
 @run.command(hidden=True, help=help_strings.HELP_HELP)
