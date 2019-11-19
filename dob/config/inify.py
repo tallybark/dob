@@ -232,6 +232,9 @@ class ConfigDecorator(Subscriptable):
         self._key_vals[ckv.name] = ckv
 
     def __getattr__(self, name):
+        return self._find_one_object(name)
+
+    def _find_one_object(self, name):
         objects = self._find_objects_named(name)
         if len(objects) > 1:
             dob_in_user_warning(
@@ -250,6 +253,9 @@ class ConfigDecorator(Subscriptable):
                 )
             )
             return super(ConfigDecorator, self).__getattribute__(name)
+
+    def __setitem__(self, name, value):
+        self._find_one_object(name).value = value
 
 
 # Note that Python invokes the decorator with the item being decorated. If
