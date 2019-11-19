@@ -460,25 +460,25 @@ def CONFIG_GROUP_HELP(ctx):
         with defaults by:
 
           \b
-          {codehi}{rawname} create --force{reset}
+          {codehi}{rawname} config create --force{reset}
 
           - The best way to learn about all configurable settings is to
         print the config table, which includes a helpful message for each
         option:
 
           \b
-          {codehi}{rawname} dump{reset}
+          {codehi}{rawname} config dump{reset}
 
           - If you think your config file is missing values, you can
         update it with missing settings by running (naturally) the
         update command:
 
           \b
-          {codehi}{rawname} update{reset}
+          {codehi}{rawname} config update{reset}
 
             - But you should not care about the contents of the config file
-        if you stick to using {codehi}{rawname} dump{reset} and
-        {codehi}{rawname} set{reset} commands.
+        if you stick to using {codehi}{rawname} config dump{reset} and
+        {codehi}{rawname} config set{reset} commands.
 
             - Although you might care about the config file contents if you'd
         like to add comments to it, which is supported.
