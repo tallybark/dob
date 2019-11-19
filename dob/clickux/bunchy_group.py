@@ -19,10 +19,6 @@
 
 from __future__ import absolute_import, unicode_literals
 
-from gettext import gettext as _
-
-import os
-
 import click
 from click._compat import term_len
 
@@ -35,8 +31,8 @@ class ClickBunchyGroup(click.Group):
 
     def __init__(self, *args, **kwargs):
         super(ClickBunchyGroup, self).__init__(*args, **kwargs)
-        self.group_bunchies = { None: set(), }
-        self.order_sortkeys = { None: 0, }
+        self.group_bunchies = {None: set()}
+        self.order_sortkeys = {None: 0}
 
     def add_command(self, cmd, name=None):
         self.group_bunchies[None].add(cmd.name)
@@ -60,7 +56,7 @@ class ClickBunchyGroup(click.Group):
         # Avoid list mutation when iterating and call list_commands now, so that
         # the plugins are sourced. (I.e., if a plugin calls add_to_bunch, it edits
         # group_bunchies, which should not (cannot) happen while under iteration.)
-        _ignored = self.list_commands(ctx)
+        _ignored = self.list_commands(ctx)  # noqa: F841 local var ... never used
 
         for tup in sorted(self.order_sortkeys.items(), key=lambda tup: tup[1]):
             commands, col_max = self.format_commands_fetch(ctx, tup[0])
@@ -78,11 +74,8 @@ class ClickBunchyGroup(click.Group):
             # GROUP-BUNCH: (lb): A little wonky. Seems least disruptive to code, though,
             # i.e., this is a lazy approach to solving group command bunching.
             if subcommand in self._commands:
-                #aliases = ','.join(sorted(self._commands[subcommand]))
                 aliases = '|'.join(sorted(self._commands[subcommand]))
-                #aliases = ', '.join(sorted(self._commands[subcommand]))
                 subcommand = '{0} ({1})'.format(subcommand, aliases)
-                #subcommand = '{0}|{1}'.format(subcommand, aliases)
             col_max = max(col_max, term_len(subcommand))
             # Note that this width does not account for color (ANSI codes).
             if cmd.name not in self.group_bunchies[bunchy_name]:
