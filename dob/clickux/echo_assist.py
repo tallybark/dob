@@ -145,11 +145,11 @@ def fact_block_header(title, sep='━', full_width=False):
 
 # ***
 
-def echo_exit(ctx, message):
+def echo_exit(ctx, message, exitcode=0):
     def _echo_exit(message):
         click_echo(message)
         _flush_pager()
-        ctx.exit(0)
+        ctx.exit(exitcode)
 
     def _flush_pager():
         # To get at the PAGER_CACHE, gotta go through the decorator.
