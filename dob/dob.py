@@ -94,7 +94,8 @@ click.disable_unicode_literals_warning = True
 # __all__ = ( ... )  # So many. Too tedious to list.
 
 
-@run.command(hidden=True, help=help_strings.HELP_HELP)
+@cmd_bunch_group_get_meta
+@run.command(help=help_strings.HELP_HELP)
 # (lb): Should not need the help-finally decorator, but doesn't seem to hurt, either:
 #   @show_help_finally
 @flush_pager
@@ -207,7 +208,7 @@ def environs(controller):
 # ***
 
 @cmd_bunch_group_get_meta
-@run.command(help=help_strings.DEBUG_HELP)
+@run.command(help=help_strings.DEBUG_HELP, hidden=True)
 @show_help_finally
 @flush_pager
 @pass_controller
