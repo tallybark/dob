@@ -58,11 +58,11 @@ from .clickux.cmd_options import (
     cmd_options_list_categoried,
     cmd_options_list_fact,
     cmd_options_search,
-    cmd_options_table_bunce,
+    cmd_options_table_view,
     cmd_options_usage,
     postprocess_options_list_activitied,
     postprocess_options_list_categoried,
-    postprocess_options_table_bunce
+    postprocess_options_table_options
 )
 from .clickux.echo_assist import click_echo, flush_pager
 from .clickux.file_enforce import must_no_more_than_one_file
@@ -427,14 +427,14 @@ def list_group(ctx, controller):
 @cmd_options_search
 @cmd_options_list_categoried
 @cmd_options_usage
-@cmd_options_table_bunce
+@cmd_options_table_view
 @cmd_options_limit_offset
 @pass_controller
 @induct_newbies
 def list_activities(controller, *args, usage=False, **kwargs):
     """List matching activities, filtered and sorted."""
     category = postprocess_options_list_categoried(kwargs)
-    postprocess_options_table_bunce(kwargs)
+    postprocess_options_table_options(kwargs)
     if usage:
         handler = usage_activity.usage_activities
     else:
@@ -453,13 +453,13 @@ def list_activities(controller, *args, usage=False, **kwargs):
 @show_help_finally
 @flush_pager
 @cmd_options_usage
-@cmd_options_table_bunce
+@cmd_options_table_view
 @cmd_options_limit_offset
 @pass_controller
 @induct_newbies
 def list_categories(controller, *args, usage=False, **kwargs):
     """List matching categories, filtered and sorted."""
-    postprocess_options_table_bunce(kwargs)
+    postprocess_options_table_options(kwargs)
     if usage:
         handler = usage_category.usage_categories
     else:
@@ -480,7 +480,7 @@ def list_categories(controller, *args, usage=False, **kwargs):
 @cmd_options_list_activitied
 @cmd_options_list_categoried
 @cmd_options_usage
-@cmd_options_table_bunce
+@cmd_options_table_view
 @cmd_options_limit_offset
 @pass_controller
 @induct_newbies
@@ -488,7 +488,7 @@ def list_tags(controller, *args, usage=False, **kwargs):
     """List all tags, with filtering and sorting options."""
     activity = postprocess_options_list_activitied(kwargs)
     category = postprocess_options_list_categoried(kwargs)
-    postprocess_options_table_bunce(kwargs)
+    postprocess_options_table_options(kwargs)
     if usage:
         handler = usage_tag.usage_tags
     else:
@@ -509,7 +509,7 @@ def _list_facts(controller, *args, usage=False, **kwargs):
     """Fetch facts matching certain criteria."""
     activity = postprocess_options_list_activitied(kwargs)
     category = postprocess_options_list_categoried(kwargs)
-    postprocess_options_table_bunce(kwargs)
+    postprocess_options_table_options(kwargs)
     # FIXME: (lb): Should probably impose limit by default
     #          (without, my terminal hangs for a long while).
     list_fact.list_facts(
@@ -527,7 +527,7 @@ def generate_list_facts_command(func):
     @cmd_options_list_activitied
     @cmd_options_list_categoried
     @cmd_options_usage
-    @cmd_options_table_bunce
+    @cmd_options_table_view
     @cmd_options_limit_offset
     @cmd_options_list_fact
     @pass_controller
@@ -577,14 +577,14 @@ def usage_group(ctx, controller):
 @flush_pager
 @cmd_options_search
 @cmd_options_list_categoried
-@cmd_options_table_bunce
+@cmd_options_table_view
 @cmd_options_limit_offset
 @pass_controller
 @induct_newbies
 def usage_activities(controller, *args, **kwargs):
     """List all activities. Provide optional filtering by name."""
     category = postprocess_options_list_categoried(kwargs)
-    postprocess_options_table_bunce(kwargs)
+    postprocess_options_table_options(kwargs)
     usage_activity.usage_activities(
         controller,
         *args,
@@ -599,13 +599,13 @@ def usage_activities(controller, *args, **kwargs):
 @show_help_finally
 @flush_pager
 @cmd_options_search
-@cmd_options_table_bunce
+@cmd_options_table_view
 @cmd_options_limit_offset
 @pass_controller
 @induct_newbies
 def usage_categories(controller, *args, **kwargs):
     """List all categories. Provide optional filtering by name."""
-    postprocess_options_table_bunce(kwargs)
+    postprocess_options_table_options(kwargs)
     usage_category.usage_categories(
         controller,
         *args,
@@ -621,7 +621,7 @@ def usage_categories(controller, *args, **kwargs):
 @cmd_options_search
 @cmd_options_list_activitied
 @cmd_options_list_categoried
-@cmd_options_table_bunce
+@cmd_options_table_view
 @cmd_options_limit_offset
 @pass_controller
 @induct_newbies
@@ -629,7 +629,7 @@ def usage_tags(controller, *args, **kwargs):
     """List all tags' usage counts, with filtering and sorting options."""
     activity = postprocess_options_list_activitied(kwargs)
     category = postprocess_options_list_categoried(kwargs)
-    postprocess_options_table_bunce(kwargs)
+    postprocess_options_table_options(kwargs)
     usage_tag.usage_tags(
         controller,
         *args,
@@ -647,7 +647,7 @@ def usage_tags(controller, *args, **kwargs):
 @cmd_options_search
 @cmd_options_list_activitied
 @cmd_options_list_categoried
-@cmd_options_table_bunce
+@cmd_options_table_view
 @cmd_options_limit_offset
 @pass_controller
 @induct_newbies
@@ -655,7 +655,7 @@ def usage_facts(controller, *args, **kwargs):
     """List all tags' usage counts, with filtering and sorting options."""
     activity = postprocess_options_list_activitied(kwargs)
     category = postprocess_options_list_categoried(kwargs)
-    postprocess_options_table_bunce(kwargs)
+    postprocess_options_table_options(kwargs)
     list_fact.list_facts(
         controller,
         *args,

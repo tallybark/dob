@@ -36,16 +36,16 @@ __all__ = (
     'cmd_options_list_categoried',
     'cmd_options_list_fact',
     'cmd_options_search',
-    'cmd_options_table_bunce',
+    'cmd_options_table_view',
     'cmd_options_usage',
     'cmd_options_edit_item',
     'postprocess_options_list_activitied',
     'postprocess_options_list_categoried',
-    'postprocess_options_table_bunce',
+    'postprocess_options_table_options',
     'OptionWithDynamicHelp',
     # Private:
-    #   '_postprocess_options_table_bunce_order_to_sort_col',
-    #   '_postprocess_options_table_bunce_asc_desc_to_sort_order',
+    #   '_postprocess_options_table_option_order_to_sort_col',
+    #   '_postprocess_options_table_options_asc_desc_to_sort_order',
 )
 
 
@@ -104,19 +104,43 @@ def cmd_options_limit_offset(func):
 
 
 # ***
-# *** [TABLE FANCY] Options.
+# *** [TABLE BASIC] Options.
 # ***
 
-_cmd_options_table_bunce = [
-    click.option(
-        '-t', '--truncate', is_flag=True,
-        help=_('Truncate long activity@category names.'),
-    ),
+_cmd_options_table_renderer = [
     click.option(
         '-T', '--table-type', default='friendly', show_default=True,
         type=click.Choice(['tabulate', 'texttable', 'friendly']),
         help=_('ASCII table formatter.'),
     ),
+]
+
+
+def cmd_options_table_renderer(func):
+    for option in reversed(_cmd_options_table_renderer):
+        func = option(func)
+    return func
+
+
+# ***
+# *** [TABLE FANCY] Options.
+# ***
+
+_cmd_options_table_truncols = [
+    click.option(
+        '-t', '--truncate', is_flag=True,
+        help=_('Truncate long activity@category names.'),
+    ),
+]
+
+
+def cmd_options_table_truncols(func):
+    for option in reversed(_cmd_options_table_truncols):
+        func = option(func)
+    return func
+
+
+_cmd_options_table_order = [
     click.option(
         '-A', '--asc', is_flag=True, default=None,
         help=_('Sort by ascending column value.'),
@@ -135,25 +159,37 @@ _cmd_options_table_bunce = [
 ]
 
 
-def cmd_options_table_bunce(func):
-    for option in reversed(_cmd_options_table_bunce):
+def cmd_options_table_order(func):
+    for option in reversed(_cmd_options_table_order):
         func = option(func)
     return func
 
 
-def postprocess_options_table_bunce(kwargs):
-    _postprocess_options_table_bunce_order_to_sort_col(kwargs)
-    _postprocess_options_table_bunce_asc_desc_to_sort_order(kwargs)
+# *** Combining last 3 table-related options into one convenient wrapper.
+
+def cmd_options_table_view(func):
+    for option in reversed(
+        _cmd_options_table_truncols
+        + _cmd_options_table_renderer
+        + _cmd_options_table_order
+    ):
+        func = option(func)
+    return func
 
 
-def _postprocess_options_table_bunce_order_to_sort_col(kwargs):
+def postprocess_options_table_options(kwargs):
+    _postprocess_options_table_option_order_to_sort_col(kwargs)
+    _postprocess_options_table_options_asc_desc_to_sort_order(kwargs)
+
+
+def _postprocess_options_table_option_order_to_sort_col(kwargs):
     kwargs['sort_col'] = kwargs['order']
     del kwargs['order']
     if not kwargs['sort_col']:
         del kwargs['sort_col']
 
 
-def _postprocess_options_table_bunce_asc_desc_to_sort_order(kwargs):
+def _postprocess_options_table_options_asc_desc_to_sort_order(kwargs):
     if kwargs['desc']:
         sort_order = 'desc'
     elif kwargs['asc']:
