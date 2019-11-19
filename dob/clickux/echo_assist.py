@@ -81,14 +81,14 @@ def click_echo(message=None, **kwargs):
         # Collect echoes and show at end, otherwise every call
         # to echo_via_pager results in one pager session, and
         # user has to click 'q' to see each line of output!
-        this.PAGER_CACHE.append(message)
+        this.PAGER_CACHE.append(message or '')
 
 # ***
 
 def flush_pager(func):
     def flush_echo(*args, **kwargs):
         func(*args, **kwargs)
-        if paging():
+        if paging() and this.PAGER_CACHE:
             click.echo_via_pager(u'\n'.join(this.PAGER_CACHE))
             this.PAGER_CACHE = []
 
