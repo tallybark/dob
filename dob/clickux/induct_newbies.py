@@ -21,7 +21,7 @@ from functools import update_wrapper
 
 from gettext import gettext as _
 
-from .echo_assist import click_echo
+from .echo_assist import click_echo, echo_block_header
 from .. import __arg0name__, migrate
 from ..helpers import dob_in_user_exit
 
