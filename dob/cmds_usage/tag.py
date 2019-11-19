@@ -19,8 +19,13 @@ from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
+from ..clickux.query_assist import (
+    error_exit_no_results,
+    hydrate_activity,
+    hydrate_category
+)
+
 from . import generate_usage_table
-from ..clickux.query_assist import error_exit_no_results, hydrate_activity, hydrate_category
 
 __all__ = ('usage_tags', )
 
