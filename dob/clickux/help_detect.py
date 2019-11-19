@@ -5,7 +5,6 @@
 
 from __future__ import absolute_import, unicode_literals
 
-import sys
 from functools import update_wrapper
 
 import click
