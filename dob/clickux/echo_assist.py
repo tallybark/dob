@@ -17,12 +17,11 @@
 
 from __future__ import absolute_import, unicode_literals
 
-from functools import update_wrapper
 import sys
-
-from gettext import gettext as _
+from functools import update_wrapper
 
 import click
+
 from nark.helpers.emphasis import attr, coloring, colorize, fg
 
 from ..helpers import ascii_art
@@ -83,6 +82,7 @@ def click_echo(message=None, **kwargs):
         # user has to click 'q' to see each line of output!
         this.PAGER_CACHE.append(message or '')
 
+
 # ***
 
 def flush_pager(func):
@@ -142,6 +142,7 @@ def fact_block_header(title, sep='━', full_width=False):
         return horiz_rule
 
     return _fact_block_header()
+
 
 # ***
 
