@@ -23,28 +23,100 @@ from gettext import gettext as _
 
 from nark.helpers.emphasis import attr, bg, coloring, fg
 
+
 from .. import __arg0name__, __package_name__
 from ..config.manage import default_config_path
 from ..config.urable import ConfigUrable
+from ..copyright import assemble_copyright
 from ..helpers import highlight_value
 
 # Note that the help formatter removes single newlines and adjusts text width
 # when displayed, to a width determined by the terminal and max_content_width.
 
 
+def common_format():
+    # (lb): Eh: This is a method because ENABLE_COLORS is False on startup,
+    # and fg and attr will return empty strings if called when module is
+    # sourced. So wait until help strings are built and it's known if color
+    # or not.
+    common_format = {
+        'appname': highlight_value(__package_name__),
+        'rawname': __package_name__,
+        'codehi': (fg('turquoise_2') or ''),
+        'reset': (attr('reset') or ''),
+        'italic': attr('italic'),
+    }
+    return common_format
+
+
 # ***
 # *** [BARE] Command help.
 # ***
 
-
-def RUN_HELP_OVERVIEW(ctx):
+def RUN_HELP_WHATIS():
     _help = _(
         """
         {appname} is a time tracker for the command line.
+        """.strip().format(**common_format())
+    )
+    return _help
 
+
+def RUN_HELP_TRYME():
+    _help = _(
+        """
         - Try the demo to get acquainted with dob quickly,
 
           {codehi}{rawname} demo{reset}
+        """.strip().format(**common_format())
+    )
+    return _help
+
+
+def RUN_HELP_HEADER():
+    _help = _(
+        """
+        {what_is}
+
+        {try_me}
+        """.strip().format(
+            what_is=RUN_HELP_WHATIS(),
+            try_me=RUN_HELP_TRYME(),
+            **common_format()
+        )
+    )
+    return _help
+
+
+def RUN_HELP_TLDR():
+    _help = _(
+        """
+        {what_is}
+
+        - To read lots more help, run the help command,
+
+          {codehi}{rawname} help{reset}
+
+        - To learn to dob quick and easy, try the demo,
+
+          {codehi}{rawname} demo{reset}
+
+        \b
+        {copyright}
+        """.strip().format(
+            what_is=RUN_HELP_WHATIS(),
+            try_me=RUN_HELP_TRYME(),
+            copyright='\b\n        '.join(assemble_copyright()),
+            **common_format()
+        )
+    )
+    return _help
+
+
+def RUN_HELP_COMPLETE():
+    _help = _(
+        """
+        {run_help_header}
 
         - Use {italic}help{reset} with any command to learn more, e.g.,
 
@@ -72,17 +144,26 @@ def RUN_HELP_OVERVIEW(ctx):
 
           {codehi}{rawname} license{reset}
         """.strip().format(
-            appname=highlight_value(__package_name__),
-            rawname=__package_name__,
-            codehi=(fg('turquoise_2') or ''),
-            reset=(attr('reset') or ''),
-            italic=attr('italic'),
+            run_help_header=RUN_HELP_HEADER(),
             equalityop=coloring() and '≡' or '==',
             copyrt_sym=coloring() and '©' or 'copyright',
             scroll_sym=coloring() and '📜' or 'license',
+            **common_format()
         )
     )
     return _help
+
+
+def RUN_HELP_OVERVIEW(ctx):
+    if (
+        (ctx.command.name == 'run')
+        and (
+            ctx.invoked_subcommand
+            or ctx.help_option_spotted
+        )
+    ):
+        return RUN_HELP_COMPLETE()
+    return RUN_HELP_TLDR()
 
 
 # ***
@@ -232,7 +313,7 @@ def NEWBIE_HELP_ONBOARDING(ctx):
         """
         {banner}
 
-        Let's get you setup!
+        Let’s get you setup!
 
         {init_title}
         {paragraph_color}
@@ -248,7 +329,7 @@ def NEWBIE_HELP_ONBOARDING(ctx):
 
         {demo_title}
         {paragraph_color}
-        If you'd like to demo the application first with some example data, run:{reset}
+        If you’d like to demo the application first with some example data, run:{reset}
 
           {cmd_color}{appname} demo{reset}
         """
@@ -566,7 +647,9 @@ STORE_URL_HELP = _(
 
 
 STORE_UPGRADE_LEGACY_HELP = _(
-    """Migrate a legacy "Hamster" database."""
+    """
+    Migrates a legacy “Hamster” database to dob.
+    """
 )
 
 
@@ -576,7 +659,7 @@ STORE_UPGRADE_LEGACY_HELP = _(
 
 STATS_HELP = _(
     """
-    List stats about your data store.
+    Prints stats about your data store.
     """
 )
 
@@ -587,14 +670,14 @@ STATS_HELP = _(
 
 LIST_GROUP_HELP = _(
     """
-    List facts, activities, categories, or tags.
+    Prints facts, activities, categories, or tags.
     """
 )
 
 
 LIST_ACTIVITIES_HELP = _(
     """
-    List all activities. Provide optional filtering by name.
+    Prints all activities. Provide optional filtering by name.
 
     Prints all matching activities one per line.
 
@@ -604,20 +687,22 @@ LIST_ACTIVITIES_HELP = _(
 
 
 LIST_CATEGORIES_HELP = _(
-    """List all existing categories, ordered by name."""
+    """
+    Prints all existing categories, ordered by name.
+    """
 )
 
 
 LIST_TAGS_HELP = _(
     """
-    List all tags.
+    Prints all tags.
     """
 )
 
 
 LIST_FACTS_HELP = _(
     """
-    List facts within a date range.
+    Prints facts within a date range.
 
     Matching facts will be printed in a tabular representation.
 
@@ -628,7 +713,7 @@ LIST_FACTS_HELP = _(
 
 SEARCH_HELP = _(
     """
-    Search facts matching given time range and search term.
+    Searches facts matching given time range and search term.
 
     'search_term': May be an arbitrary string that will be matched against
     existing facts activity names.
@@ -669,35 +754,35 @@ SEARCH_HELP = _(
 
 USAGE_GROUP_HELP = _(
     """
-    Show activity, category, or tag usage.
+    Shows activity, category, or tag usage.
     """
 )
 
 
 USAGE_ACTIVITIES_HELP = _(
     """
-    List all activities and their usage counts.
+    Prints all activities and their usage counts.
     """
 )
 
 
 USAGE_CATEGORIES_HELP = _(
     """
-    List all categories and their usage counts.
+    Prints all categories and their usage counts.
     """
 )
 
 
 USAGE_TAGS_HELP = _(
     """
-    List all tags by usage.
+    Prints all tags by usage.
     """
 )
 
 
 USAGE_FACTS_HELP = _(
     """
-    List all facts by usage.
+    Prints all facts by usage.
     """
 )
 
@@ -708,7 +793,7 @@ USAGE_FACTS_HELP = _(
 
 START_HELP = _(
     """
-    Start or add a fact.
+    Starts or adds a fact.
 
     If you add a fact without providing sufficient information about its end a
     *ongoing fact* will be created to capture you current work. Only one such
@@ -773,17 +858,17 @@ START_HELP = _(
 
 
 STOP_HELP = _(
-    """Complete the *ongoing fact* at current time."""
+    """Completes the *ongoing fact* at current time."""
 )
 
 
 CANCEL_HELP = _(
-    """Cancel *ongoing fact*. E.g stop it without storing in the backend."""
+    """Cancels *ongoing fact*. I.e., stop the Fact and discard it without saving."""
 )
 
 
 CURRENT_HELP = _(
-    """Display the current, open-ended, ongoing fact, if there is one."""
+    """Prints the current, open-ended, ongoing fact, if there is one."""
 )
 
 
@@ -799,12 +884,12 @@ NOTHING_TO_STOP_HELP = _(
 
 
 LATEST_HELP = _(
-    """Display the latest completed fact (i.e., with the latest end time)."""
+    """Prints the latest completed fact (i.e., with the latest end time)."""
 )
 
 
 HELP_CMD_SHOW = _(
-    """Display ongoing fact, or latest fact if there is no ongoing fact."""
+    """Prints the ongoing fact, or latest fact if there is no ongoing fact."""
 )
 
 
@@ -1002,7 +1087,7 @@ START_HELP_COMMON = _(
 
 START_HELP_ON = _(
     """
-    Start a fact starting now.
+    Starts a fact starting now.
     """
 )
 
@@ -1079,14 +1164,14 @@ START_HELP_FROM = _(
 
 EDIT_GROUP_HELP = _(
     """
-    Fire up the Carousel and edit Facts interactively.
+    Fires up the Carousel so you can edit Facts interactively.
     """
 )
 
 
 EDIT_FACT_HELP = _(
     """
-    Fire up the Carousel and edit Facts interactively.
+    Fires up the Carousel so you can edit Facts interactively.
     """
 )
 
@@ -1137,27 +1222,27 @@ COMPLETE_HELP = _(
 
 MIGRATE_GROUP_HELP = _(
     """
-    Upgrade the database after installing a new major release.
+    Upgrades the database after installing a new major release.
     """
 )
 
 
 MIGRATE_CONTROL_HELP = _(
-    """Mark a database as under version control."""
+    """Marks a database as under version control."""
 )
 
 
 MIGRATE_DOWN_HELP = _(
-    """Downgrade the database version by 1 script."""
+    """Downgrades the database version by 1 script."""
 )
 
 
 MIGRATE_UP_HELP = _(
-    """Upgrade the database version by 1 script."""
+    """Upgrades the database version by 1 script."""
 )
 
 
 MIGRATE_VERSION_HELP = _(
-    """Show the database migration version."""
+    """Shows the database migration version."""
 )
 

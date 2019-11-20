@@ -39,19 +39,20 @@ from .clickux.echo_assist import click_echo
 click.disable_unicode_literals_warning = True
 
 __all__ = (
+    'assemble_copyright',
     'echo_copyright',
     'echo_license',
 )
 
 
-def echo_copyright():
+def assemble_copyright():
     """Display a greeting message providing basic set of information."""
     cur_year = str(datetime.now().year)
     year_range = '2018'
     if cur_year != year_range:
         year_range = '2018-{}'.format(cur_year)
     gpl3_notice_2018 = [
-        '{pkgname} {version}'.format(
+        'This is {pkgname} v{version}.'.format(
             pkgname=__package_name__,
             version=__resolve_vers__(),
         ),
@@ -70,9 +71,14 @@ def echo_copyright():
         _('This program comes with ABSOLUTELY NO WARRANTY. This is free software,'),
         _('and you are welcome to redistribute it under certain conditions.'),
         _(''),
-        _('Run `{} license` for details.').format(__arg0name__),
+        _('Run `{} license` for your legal rights and responsibilities.').format(__arg0name__),
     ]
-    notice = gpl3_notice_2018
+    copy_notice = gpl3_notice_2018
+    return copy_notice
+
+
+def echo_copyright():
+    notice = assemble_copyright()
     for line in notice:
         click_echo(line)
 
