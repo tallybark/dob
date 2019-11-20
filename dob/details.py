@@ -185,7 +185,7 @@ def echo_app_environs(controller):
         environs['exports'] = controller.client_config['export_path']
 
     def environs_add_db_url():
-        environs['db_url'] = controller.store.get_db_url()
+        environs['db_url'] = controller.store.db_url
 
     def environs_add_db_path():
         if controller.config['db_path']:

@@ -74,7 +74,7 @@ class Controller(NarkControl):
 
     @property
     def data_store_url(self):
-        return self.store.get_db_url()
+        return self.store.db_url
 
     @property
     def sqlite_db_path(self):
@@ -99,7 +99,7 @@ class Controller(NarkControl):
         if self.config['db_engine'] == 'sqlite':
             return os.path.isfile(self.config['db_path'])
         else:
-            return bool(self.store.get_db_url())
+            return bool(self.store.db_url)
 
     def standup_store(self):
         self.store.fact_cls = PlaceableFact
@@ -287,7 +287,7 @@ class Controller(NarkControl):
             verb = _('already ready')
         click_echo(
             _('Dob database {verb} at {url}').format(
-                verb=verb, url=highlight_value(self.store.get_db_url()),
+                verb=verb, url=highlight_value(self.store.db_url),
             )
         )
 
