@@ -74,6 +74,11 @@ class ClickAliasableBunchyPluginGroup(
             return help_header_format(_('Global Options'))
         return help_header_format(_('Command Options'))
 
+    @property
+    def help_header_commands(self):
+        # click.core's behavior: return 'Commands:'
+        return help_header_format(_('Commands'))
+
     def format_usage(self, ctx, formatter):
         """Writes the usage line into the formatter.
 
