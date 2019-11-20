@@ -129,3 +129,17 @@ class ClickAliasableBunchyPluginGroup(
             ClickAliasableBunchyPluginGroup, self
         ).collect_usage_pieces(*args, **kwargs)
 
+    def format_help(self, ctx, formatter):
+        """Override Click.Command: shorter help for commandless root command action."""
+        self.format_usage(ctx, formatter)
+        self.format_help_text(ctx, formatter)
+        if (
+            (ctx.command.name == 'run')
+            and (ctx.invoked_subcommand is None)
+            and (not ctx.help_option_spotted)
+        ):
+            return
+        self.format_prolog(ctx, formatter)
+        self.format_options(ctx, formatter)
+        self.format_epilog(ctx, formatter)
+
