@@ -21,11 +21,9 @@ from __future__ import absolute_import, unicode_literals
 
 from gettext import gettext as _
 
-from click.core import Option
 from click_alias import ClickAliasedGroup
 
-from nark.helpers.emphasis import attr
-
+from .better_format_usage import ClickBetterUsageGroup
 from .bunchy_group import ClickBunchyGroup
 from .help_header import help_header_format
 from .plugin_group import ClickPluginGroup
@@ -41,6 +39,8 @@ class ClickAliasableBunchyPluginGroup(
     ClickBunchyGroup,
     ClickAliasedGroup,
     ClickPluginGroup,
+    # General click.Group overrides (to clean up help output).
+    ClickBetterUsageGroup,
 ):
 
     def __init__(self, *args, **kwargs):
@@ -78,75 +78,4 @@ class ClickAliasableBunchyPluginGroup(
     def help_header_commands(self):
         # click.core's behavior: return 'Commands:'
         return help_header_format(_('Commands'))
-
-    def format_usage(self, ctx, formatter):
-        """Writes the usage line into the formatter.
-
-        This is a low-level method called by :meth:`get_usage`.
-
-        Overriden by dob to emphasize with _underline_ and **bold**.
-        """
-        if self.name == 'run':
-            prog = ctx.command_path
-        else:
-            # command_path is, e.g., "dob init", but we want usage to
-            # appear like "dob [--GLOBAL-OPTIONS...] init.
-            parts = ctx.command_path.split(' ', 2)
-            prog = '{} [--GLOBAL-OPTIONS...] {}'.format(*parts)
-        prog = '{bold}{prog}{reset}'.format(
-            bold=attr('bold'),
-            prog=prog,
-            reset=attr('reset'),
-        )
-        #
-        pieces = self.collect_usage_pieces(ctx)
-        args = '{bold}{args}{reset}'.format(
-            bold=attr('bold'),
-            args=' '.join(pieces),
-            reset=attr('reset'),
-        )
-        #
-        prefix = '{underlined}{usage}{reset}: '.format(
-            underlined=attr('underlined'),
-            usage=_('Usage'),
-            reset=attr('reset'),
-        )
-        #
-        formatter.write_usage(prog, args, prefix=prefix)
-
-    def collect_usage_pieces(self, *args, **kwargs):
-        """Show '[OPTIONS]' in usage unless command takes none."""
-        # MAYBE/2019-11-15: Move this up into Click. Seems legit.
-        n_opts = 0
-        for param in self.params:
-            if isinstance(param, Option):
-                n_opts += 1
-            # (lb): Skip click.core.Argument objects, which are
-            # added separately to the pieces collection.
-        self.options_metavar = ''
-        if n_opts:
-            if self.name == 'run':
-                self.options_metavar = '[--GLOBAL-OPTIONS...]'
-            else:
-                self.options_metavar = '[--COMMAND-OPTIONS...]'
-        self.subcommand_metavar = ''
-        if self.commands:
-            self.subcommand_metavar = 'COMMAND [--COMMAND-OPTIONS...] [ARGS...]'
-        return super(
-            ClickAliasableBunchyPluginGroup, self
-        ).collect_usage_pieces(*args, **kwargs)
-
-    def format_help(self, ctx, formatter):
-        """Override Click.Command: shorter help for commandless root command action."""
-        self.format_usage(ctx, formatter)
-        self.format_help_text(ctx, formatter)
-        if (
-            (ctx.command.name == 'run')
-            and (ctx.invoked_subcommand is None)
-            and (not ctx.help_option_spotted)
-        ):
-            return
-        self.format_prolog(ctx, formatter)
-        self.format_options(ctx, formatter)
-        self.format_epilog(ctx, formatter)
 
