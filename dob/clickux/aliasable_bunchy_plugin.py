@@ -86,9 +86,16 @@ class ClickAliasableBunchyPluginGroup(
 
         Overriden by dob to emphasize with _underline_ and **bold**.
         """
+        if self.name == 'run':
+            prog = ctx.command_path
+        else:
+            # command_path is, e.g., "dob init", but we want usage to
+            # appear like "dob [--GLOBAL-OPTIONS...] init.
+            parts = ctx.command_path.split(' ', 2)
+            prog = '{} [--GLOBAL-OPTIONS...] {}'.format(*parts)
         prog = '{bold}{prog}{reset}'.format(
             bold=attr('bold'),
-            prog=ctx.command_path,
+            prog=prog,
             reset=attr('reset'),
         )
         #
