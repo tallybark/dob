@@ -24,8 +24,8 @@ from gettext import gettext as _
 from click_alias import ClickAliasedGroup
 
 from .better_format_usage import ClickBetterUsageGroup
+from .better_help_headers import ClickBetterHeadersGroup
 from .bunchy_group import ClickBunchyGroup
-from .help_header import help_header_format
 from .plugin_group import ClickPluginGroup
 
 __all__ = (
@@ -41,6 +41,7 @@ class ClickAliasableBunchyPluginGroup(
     ClickPluginGroup,
     # General click.Group overrides (to clean up help output).
     ClickBetterUsageGroup,
+    ClickBetterHeadersGroup,
 ):
 
     def __init__(self, *args, **kwargs):
@@ -61,21 +62,4 @@ class ClickAliasableBunchyPluginGroup(
         # prints the help for the dob-migrate group of commands.
         kwargs.setdefault('invoke_without_command', True)
         return super(ClickAliasableBunchyPluginGroup, self).command(*args, **kwargs)
-
-    @property
-    def help_header_options(self):
-        # (lb): Without having the caller pass us the ctx, so we can
-        # check ctx.parent is None to know if this is the root command
-        # or not, we can use our business knowledge to check the command
-        # name, which is 'run', the name of the root callback in run_cli.
-        # - I'd rather use ctx.parent is None, and not do a string compare,
-        #   but this is dirt cheap and easy squeeze y.
-        if self.name == 'run':
-            return help_header_format(_('Global Options'))
-        return help_header_format(_('Command Options'))
-
-    @property
-    def help_header_commands(self):
-        # click.core's behavior: return 'Commands:'
-        return help_header_format(_('Commands'))
 
