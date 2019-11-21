@@ -228,7 +228,7 @@ _cmd_options_fact_add = [
         # because -C/--configfile.
         # - Also, -e/--edit seems more obvious here, especially b/c dob-edit.
         '-e', '--edit', is_flag=True,
-        help=_('Edit new Fact before saving, using Carousel and Awesome Prompt.'),
+        help=_('Edit new Fact before saving, using Carousel, and Awesome Prompt.'),
     ),
     click.option(
         '-d', '--edit-text', is_flag=True,
