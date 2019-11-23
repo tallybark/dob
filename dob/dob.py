@@ -779,7 +779,8 @@ def add_fact_now(controller, *args, **kwargs):
 
 
 @cmd_bunch_group_add_fact
-@run.command("on", aliases=["on:"], help=help_strings.START_HELP_ON)
+@run.command("on", aliases=["on:"], help=help_strings.START_HELP_ON,
+             hidden=True)  # FIXME/2019-11-21: Remove aliases, but keep unique help.
 @show_help_finally
 @flush_pager
 @cmd_options_factoid_verify_none
@@ -827,7 +828,8 @@ def add_fact_to(controller, *args, **kwargs):
 
 
 @cmd_bunch_group_add_fact
-@run.command("until", aliases=["until:"], help=help_strings.START_HELP_UNTIL)
+@run.command("until", aliases=["until:"], help=help_strings.START_HELP_UNTIL,
+             hidden=True)  # FIXME/2019-11-21: Remove aliases... but I like "until"!
 @show_help_finally
 @flush_pager
 @cmd_options_factoid_verify_end
@@ -878,7 +880,8 @@ def add_fact_after(controller, *args, **kwargs):
 
 
 @cmd_bunch_group_add_fact
-@run.command("next", aliases=["next:"], help=help_strings.START_HELP_NEXT)
+@run.command("next", aliases=["next:"], help=help_strings.START_HELP_NEXT,
+             hidden=True)  # FIXME/2019-11-21: Remove aliases, but keep unique help.
 @show_help_finally
 @flush_pager
 # FIXME/2019-11-22: (lb): This right? (Because command is verify_after):
