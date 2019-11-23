@@ -22,7 +22,11 @@ from collections import namedtuple
 
 from gettext import gettext as _
 
+import ansiwrap
 import click
+from click.formatting import wrap_text
+from click._textwrap import TextWrapper
+
 from nark.helpers.emphasis import colorize
 from nark.helpers.parse_time import parse_dated
 
@@ -121,18 +125,31 @@ def find_oldest_fact(controller):
 
 # ***
 
+class AnsiWrapper(TextWrapper):
+
+    def __init__(self, *args, **kwargs):
+        super(AnsiWrapper, self).__init__(*args, **kwargs)
+
+    def fill(self, *args, **kwargs):
+        return ansiwrap.fill(*args, width=self.width, **kwargs)
+
+
 def echo_single_fact(controller, fact):
     colorful = controller.client_config['term_color']
     localize = controller.config['tz_aware']
-    click_echo(
-        fact.friendly_str(
-            shellify=False,
-            description_sep=': ',
-            localize=localize,
-            colorful=colorful,
-            show_elapsed=True,
-        )
+    friendly = fact.friendly_str(
+        shellify=False,
+        description_sep=': ',
+        localize=localize,
+        colorful=colorful,
+        show_elapsed=True,
     )
+    # Click's default wrap_text behavior uses Click TextWrapper class, which
+    # extends Python's textwrap.TextWrapper, which is not ANSI-aware. So we
+    # extent TextWrapper to redirect it to ansiwrap, which is ANSI-couth.
+    # FIXME/2019-11-22: (lb): Make this width CONFIGable.
+    wrapped = wrap_text(friendly, width=100, preserve_paragraphs=True, cls=AnsiWrapper)
+    click_echo(wrapped)
 
 
 # ***
