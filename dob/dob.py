@@ -36,6 +36,7 @@ import click
 
 from . import migrate, update
 from .clickux import help_strings
+from .clickux import help_string_add_fact
 from .clickux.aliasable_bunchy_plugin import ClickAliasableBunchyPluginGroup
 from .clickux.bunchy_help import (
     cmd_bunch_group_introducing,
