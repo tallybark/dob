@@ -66,7 +66,7 @@ def create_confirm_session(message, suffix=' (y/n) ', **kwargs):
         session.default_buffer.text = 'n'
         event.app.exit(result=False)
 
-    # (lb): 2018-06-17: Here's the workflow I'm think.
+    # (lb): 2018-06-17: Here's the workflow I'd think.
     #   First Ctrl-c: Break out of Application, and bring up quit-okay? prompt.
     #   Second Ctrl-c: Ignored (increment count from 0 to 1).
     #   Third Ctrl-c: Bingo! Really exit.
