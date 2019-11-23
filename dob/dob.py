@@ -892,25 +892,38 @@ def add_fact_next(controller, *args, **kwargs):
 
 
 # ***
-# *** [STOP] Command(s).
+# *** [START-STOP] Command(s).
 # ***
 
 
+# NOPE: @cmd_bunch_group_add_fact
+@cmd_bunch_group_ongoing_fact
+@run.command('start', help=help_strings.ADD_FACT_START)
+@show_help_finally
+@flush_pager
+@cmd_options_factoid_verify_none
+@generate_add_fact_command('verify_none')
+def add_fact_now(controller, *args, **kwargs):
+    """Start or add a fact using the `now` directive."""
+    assert(False)  # Not reachable, because generate_add_fact_command.
+    pass
+
+
+# NOPE: @cmd_bunch_group_add_fact
 @cmd_bunch_group_ongoing_fact
 @run.command('stop', help=help_strings.STOP_HELP)
 @show_help_finally
 @flush_pager
-# FIXME/2018-08-26: Do we really want optional factoid argument for stop command?
-#   What happens if user specifies factoid on stop?
-@cmd_options_factoid
-@pass_controller
-@induct_newbies
-@click.pass_context
-@post_processor
-def stop(ctx, controller, factoid):
-    """Stop tracking current fact (by setting its 'end')."""
-    # FIXME/BACKLOG/2019-01-22 22:57: Add factoid to end of ongoing fact.
-    return stop_fact(controller)
+@cmd_options_factoid_verify_end
+# (lb) verify_end is imprecise, because stop should always set end time
+# to now. At least if you're being pedantic. I just want to have a group
+# of latest-fact commands that's hopefully simpler to grok than the more
+# expansive group of add-fact commands.
+@generate_add_fact_command('verify_end')
+def stop(controller, *args, **kwargs):
+    """Complete the active fact (by setting its 'end')."""
+    assert(False)  # Not reachable, because generate_add_fact_command.
+    pass
 
 
 # ***
