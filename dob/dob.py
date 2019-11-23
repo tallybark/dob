@@ -693,25 +693,8 @@ def usage_facts(controller, *args, **kwargs):
 
 
 # ***
-# *** [CURRENT-FACT] Commands: stop/cancel/current.
+# *** [CURRENT-FACT] Commands: stop/cancel/current/latest/show.
 # ***
-
-@cmd_bunch_group_ongoing_fact
-@run.command('stop', help=help_strings.STOP_HELP)
-@show_help_finally
-@flush_pager
-# FIXME/2018-08-26: Do we really want optional factoid argument for stop command?
-#   What happens if user specifies factoid on stop?
-@cmd_options_factoid
-@pass_controller
-@induct_newbies
-@click.pass_context
-@post_processor
-def stop(ctx, controller, factoid):
-    """Stop tracking current fact (by setting its 'end')."""
-    # FIXME/BACKLOG/2019-01-22 22:57: Add factoid to end of ongoing fact.
-    return stop_fact(controller)
-
 
 @cmd_bunch_group_ongoing_fact
 @run.command('cancel', help=help_strings.CANCEL_HELP)
@@ -906,6 +889,28 @@ def add_fact_next(controller, *args, **kwargs):
     """Start or add a fact using the `next` directive."""
     assert(False)  # Not reachable, because generate_add_fact_command.
     pass
+
+
+# ***
+# *** [STOP] Command(s).
+# ***
+
+
+@cmd_bunch_group_ongoing_fact
+@run.command('stop', help=help_strings.STOP_HELP)
+@show_help_finally
+@flush_pager
+# FIXME/2018-08-26: Do we really want optional factoid argument for stop command?
+#   What happens if user specifies factoid on stop?
+@cmd_options_factoid
+@pass_controller
+@induct_newbies
+@click.pass_context
+@post_processor
+def stop(ctx, controller, factoid):
+    """Stop tracking current fact (by setting its 'end')."""
+    # FIXME/BACKLOG/2019-01-22 22:57: Add factoid to end of ongoing fact.
+    return stop_fact(controller)
 
 
 # ***
