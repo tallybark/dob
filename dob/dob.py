@@ -781,17 +781,6 @@ def generate_add_fact_command(time_hint):
 
 
 @cmd_bunch_group_add_fact
-@run.command("on", aliases=["on:"], help=help_strings.START_HELP_ON)
-@show_help_finally
-@flush_pager
-@generate_add_fact_command("verify_none")
-def add_fact_on(controller, *args, **kwargs):
-    """Start or add a fact using the `on` directive."""
-    assert(False)  # Not reachable, because generate_add_fact_command.
-    pass
-
-
-@cmd_bunch_group_add_fact
 @run.command("now", aliases=["now:"], help=help_strings.START_HELP_NOW)
 @show_help_finally
 @flush_pager
@@ -803,12 +792,12 @@ def add_fact_now(controller, *args, **kwargs):
 
 
 @cmd_bunch_group_add_fact
-@run.command("from", help=help_strings.START_HELP_FROM)
+@run.command("on", aliases=["on:"], help=help_strings.START_HELP_ON)
 @show_help_finally
 @flush_pager
-@generate_add_fact_command("verify_both")
-def add_fact_from(controller, *args, **kwargs):
-    """Add a fact using the `from ... to/until` directive."""
+@generate_add_fact_command("verify_none")
+def add_fact_on(controller, *args, **kwargs):
+    """Start or add a fact using the `on` directive."""
     assert(False)  # Not reachable, because generate_add_fact_command.
     pass
 
@@ -820,6 +809,17 @@ def add_fact_from(controller, *args, **kwargs):
 @generate_add_fact_command("verify_start")
 def add_fact_at(controller, *args, **kwargs):
     """Start or add a fact using the `at` directive."""
+    assert(False)  # Not reachable, because generate_add_fact_command.
+    pass
+
+
+@cmd_bunch_group_add_fact
+@run.command("from", help=help_strings.START_HELP_FROM)
+@show_help_finally
+@flush_pager
+@generate_add_fact_command("verify_both")
+def add_fact_from(controller, *args, **kwargs):
+    """Add a fact using the `from ... to/until` directive."""
     assert(False)  # Not reachable, because generate_add_fact_command.
     pass
 
