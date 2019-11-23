@@ -171,7 +171,9 @@ def RUN_HELP_OVERVIEW(ctx):
 # ***
 
 HELP_HELP = _(
-    """Prints the help for the application or for the specified command."""
+    """
+    Prints the help for the application or for the specified command.
+    """
 )
 
 
@@ -180,7 +182,9 @@ HELP_HELP = _(
 # ***
 
 VERSION_HELP = _(
-    """Prints the interface and library versions."""
+    """
+    Prints the interface and library versions.
+    """
 )
 
 
@@ -189,7 +193,9 @@ VERSION_HELP = _(
 # ***
 
 LICENSE_HELP = _(
-    """Prints the software license."""
+    """
+    Prints the software license.
+    """
 )
 
 
@@ -198,7 +204,9 @@ LICENSE_HELP = _(
 # ***
 
 COPYRIGHT_HELP = _(
-    """Prints the software copyright."""
+    """
+    Prints the software copyright.
+    """
 )
 
 
@@ -214,7 +222,9 @@ ABOUT_COMMAND_HELP = _(
 # ***
 
 DETAILS_HELP = _(
-    """Prints details about the runtime environment."""
+    """
+    Prints details about the runtime environment.
+    """
 )
 
 
@@ -304,8 +314,12 @@ def NEWBIE_HELP_WELCOME(ctx):
 
 
 def section_heading(title):
-    return """{color}{title}
-{line_color}{sep:{sep}<{len_title}}{reset}""".format(
+    return _(
+        """
+        {color}{title}
+        {line_color}{sep:{sep}<{len_title}}{reset}
+        """
+    ).strip().format(
         title=title,
         sep='-',
         len_title=len(title),
@@ -892,38 +906,52 @@ START_HELP = _(
 
 
 STOP_HELP = _(
-    """Completes the *ongoing fact* at current time."""
+    """
+    Completes the *ongoing fact* at current time.
+    """
 )
 
 
 CANCEL_HELP = _(
-    """Cancels *ongoing fact*. I.e., stop the Fact and discard it without saving."""
+    """
+    Cancels *ongoing fact*. I.e., stop the Fact and discard it without saving.
+    """
 )
 
 
 CURRENT_HELP = _(
-    """Prints the current, open-ended, ongoing fact, if there is one."""
+    """
+    Prints the current, open-ended, ongoing fact, if there is one.
+    """
 )
 
 
 NO_ACTIVE_FACT_HELP = _(
-    """No active fact. Try {}starting{} a new fact first."""
+    """
+    No active fact. Try {}starting{} a new fact first.
+    """
 ).format(attr('italic'), attr('res_italic'))
 
 
 NOTHING_TO_STOP_HELP = _(
     # """It doesn't look like there's any current Fact {}to{} stop."""
-    """Sorry, bud, there's no ongoing Fact {}to{} stop."""
+    """
+    Sorry, bud, there's no ongoing Fact {}to{} stop.
+    """
 ).format(attr('italic'), attr('res_italic'))
 
 
 LATEST_HELP = _(
-    """Prints the latest completed fact (i.e., with the latest end time)."""
+    """
+    Prints the latest completed fact (i.e., with the latest end time).
+    """
 )
 
 
 HELP_CMD_SHOW = _(
-    """Prints the ongoing fact, or latest fact if there is no ongoing fact."""
+    """
+    Prints the ongoing fact, or latest fact if there is no ongoing fact.
+    """
 )
 
 
@@ -1246,7 +1274,9 @@ IMPORT_HELP = _(
 # ***
 
 COMPLETE_HELP = _(
-    """Bash tab-completion helper."""
+    """
+    Bash tab-completion helper.
+    """
 )
 
 
@@ -1262,21 +1292,29 @@ MIGRATE_GROUP_HELP = _(
 
 
 MIGRATE_CONTROL_HELP = _(
-    """Marks a database as under version control."""
+    """
+    Marks a database as under version control.
+    """
 )
 
 
 MIGRATE_DOWN_HELP = _(
-    """Downgrades the database version by 1 script."""
+    """
+    Downgrades the database version by 1 script.
+    """
 )
 
 
 MIGRATE_UP_HELP = _(
-    """Upgrades the database version by 1 script."""
+    """
+    Upgrades the database version by 1 script.
+    """
 )
 
 
 MIGRATE_VERSION_HELP = _(
-    """Shows the database migration version."""
+    """
+    Shows the database migration version.
+    """
 )
 
