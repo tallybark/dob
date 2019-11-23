@@ -114,51 +114,71 @@ def add_fact(
         Nothing: If everything went alright. (Otherwise, will have exited.)
     """
 
-    # NOTE: factoid is an ordered tuple of args; e.g., sys.argv[2:], if
-    #       sys,argv[0] is the executable name, and sys.argv[1] is command.
-    #       Because dob is totes legit, it does not insist that the user
-    #       necessary quote anything on the command line, but it does not
-    #       insist not, either, so factoid might have just one element (a
-    #       string) containing all the information; or factoid might be a
-    #       list of strings that need to be parsed and reassembled (though
-    #       not necessarily in that order).
-    #
-    #         tl;dr: factoid is a tuple of 1+ strings that together specify the Fact.
+    def _add_fact():
+        new_fact = _create_fact()
+        new_fact_or_two, conflicts = _mend_times(new_fact)
+        edit_facts, orig_facts = _prepare_facts(new_fact_or_two)
+        edit_fact = _add_conflicts(conflicts, edit_facts, orig_facts)
+        _maybe_prompt_description(edit_fact)
+        _maybe_prompt_actegory(edit_fact)
+        saved_facts = _prompt_and_save(edit_facts, orig_facts)
+        return saved_facts
 
-    # Make a new Fact from the command line input.
-    new_fact = must_create_fact_from_factoid(
-        controller, factoid, time_hint,
-    )
+    def _create_fact():
+        # NOTE: factoid is an ordered tuple of args; e.g., sys.argv[2:], if
+        #       sys.argv[0] is the executable name, and sys.argv[1] is command.
+        #       Because dob is totes legit, it does not insist that the user
+        #       necessary quote anything on the command line, but it does not
+        #       insist not, either, so factoid might have just one element (a
+        #       string) containing all the information; or factoid might be a
+        #       list of strings that need to be parsed and reassembled (though
+        #       not necessarily in that order).
+        #
+        #         tl;dr: factoid is a tuple of 1+ strings that together specify the Fact.
 
-    # If there's an ongoing Fact, we might extend or squash it.
-    # Also, if the new Fact overlaps existing Facts, those Facts'
-    # times might be changed, and/or existing Facts might be deleted.
-    new_fact_or_two, conflicts = mend_fact_timey_wimey(
-        controller, new_fact, time_hint,
-    )
+        # Make a new Fact from the command line input.
+        new_fact = must_create_fact_from_factoid(
+            controller, factoid, time_hint,
+        )
+        return new_fact
 
-    edit_facts = []
-    orig_facts = []
-    new_fact_pk = -1
-    for new_fact in new_fact_or_two:
-        # If ongoing was squashed, edited_fact.pk > 0, else < 0.
-        # There might also be an extended filler gap Fact added.
-        if new_fact.pk is None:
-            new_fact.pk = new_fact_pk
-            new_fact_pk -= 1
-            edit_facts.append(new_fact)
-        else:
-            # The edited fact is in conflicts, and carousel will start on it.
-            assert new_fact.pk > 0
+    def _mend_times(new_fact):
+        # If there's an ongoing Fact, we might extend or squash it.
+        # Also, if the new Fact overlaps existing Facts, those Facts'
+        # times might be changed, and/or existing Facts might be deleted.
+        new_fact_or_two, conflicts = mend_fact_timey_wimey(
+            controller, new_fact, time_hint,
+        )
+        return new_fact_or_two, conflicts
 
-    for edited, original in conflicts:
-        edit_facts.append(edited)
-        # (lb): This is the only place orig_facts is not [edit_fact.copy(), ...].
-        orig_facts.append(original)
+    def _prepare_facts(new_fact_or_two):
+        edit_facts = []
+        orig_facts = []
+        new_fact_pk = -1
+        for new_fact in new_fact_or_two:
+            # If ongoing was squashed, edited_fact.pk > 0, else < 0.
+            # There might also be an extended filler gap Fact added.
+            if new_fact.pk is None:
+                new_fact.pk = new_fact_pk
+                new_fact_pk -= 1
+                edit_facts.append(new_fact)
+            else:
+                # The edited fact is in conflicts, and carousel will start on it.
+                assert new_fact.pk > 0
+        return edit_facts, orig_facts
 
-    edit_fact = edit_facts[0]
+    def _add_conflicts(conflicts, edit_facts, orig_facts):
+        for edited, original in conflicts:
+            edit_facts.append(edited)
+            # (lb): This is the only place orig_facts is not [edit_fact.copy(), ...].
+            orig_facts.append(original)
+        edit_fact = edit_facts[0]
+        return edit_fact
 
-    if edit_text:
+    def _maybe_prompt_description(edit_fact):
+        if not edit_text:
+            return
+
         # User wants to edit description first.
         interrogate.ask_user_for_edits(
             controller,
@@ -167,24 +187,28 @@ def add_fact(
             restrict_edit='description',
         )
 
-    if edit_meta:
+    def _maybe_prompt_actegory(edit_fact):
+        if not edit_meta:
+            return
+
         interrogate.ask_user_for_edits(
             controller,
             fact=edit_fact,
         )
 
-    saved_facts = prompt_and_save(
-        controller,
-        edit_facts,
-        orig_facts,
-        use_carousel=use_carousel,
-        yes=yes,
-        dry=dry,
-        progress=None,
-    )
+    def _prompt_and_save(edit_facts, orig_facts):
+        saved_facts = prompt_and_save(
+            controller,
+            edit_facts,
+            orig_facts,
+            use_carousel=use_carousel,
+            yes=yes,
+            dry=dry,
+            progress=None,
+        )
+        return saved_facts
 
-    return saved_facts
-
+    return _add_fact()
 
 # ***
 
