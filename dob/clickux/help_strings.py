@@ -73,6 +73,7 @@ def common_format():
         'bold': attr('bold'),
         'italic': attr('italic'),
         'underlined': attr('underlined'),
+        'wordhi': fg('chartreuse_3a'),
     }
     return common_format
 
