@@ -20,6 +20,7 @@ from __future__ import absolute_import, unicode_literals
 import glob
 import json
 import os
+import random
 import traceback
 from io import open
 
@@ -146,9 +147,16 @@ def add_fact(
         # If there's an ongoing Fact, we might extend or squash it.
         # Also, if the new Fact overlaps existing Facts, those Facts'
         # times might be changed, and/or existing Facts might be deleted.
-        new_fact_or_two, conflicts = mend_fact_timey_wimey(
-            controller, new_fact, time_hint,
-        )
+        try:
+            new_fact_or_two, conflicts = mend_fact_timey_wimey(
+                controller, new_fact, time_hint,
+            )
+        except ValueError as err:
+            # (lb): I'm very indecisive.
+            choices = [_("Not so fast!"), _("Cannawt!"), _("Unpossible!")]
+            msg = _('{} {}').format(random.choice(choices), err)
+            controller.client_logger.error(msg)
+            dob_in_user_exit(msg)
         return new_fact_or_two, conflicts
 
     def _prepare_facts(new_fact_or_two):

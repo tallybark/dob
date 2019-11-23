@@ -49,11 +49,14 @@ DEFAULT_SQUASH_SEP = '\n\n--\n\n'
 
 
 TIME_ERROR_ZEROTH_FACT_MUST_START = _(
-    'Please specify `start` for fact being added before time existed.'
+    'Please specify `start` for Fact being added before time existed.'
 )
 
+
 TIME_ERROR_FINALE_FACT_MUST_START = _(
-    'Please complete the latest fact or specify the new fact start time.'
+    'Complete active Fact,'
+    ' or specify a `start` time'
+    ' (you might need a different command).'
 )
 
 
