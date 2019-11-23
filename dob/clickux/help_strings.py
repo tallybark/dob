@@ -124,11 +124,13 @@ def RUN_HELP_TLDR():
 
         - To read lots more help, run the help command,
 
-          {codehi}{rawname} help{reset}
+         \b
+         {codehi}{rawname} help{reset}
 
         - To learn to dob quick and easy, try the demo,
 
-          {codehi}{rawname} demo{reset}
+         \b
+         {codehi}{rawname} demo{reset}
 
         \b
         {copyright}
@@ -201,7 +203,7 @@ def RUN_HELP_OVERVIEW(ctx):
 
 HELP_HELP = _(
     """
-    Prints the help for the application or for the specified command.
+    Prints help for the application or for the specified command.
     """
 )
 
@@ -286,6 +288,19 @@ ENVIRONS_HELP = _(
 
 DEBUG_HELP = _(
     """
+    Hidden command to break into a REPL prompt and poke around dob internals.
+
+    This command is mostly an example to show developers how to easily debug.
+
+    You'll probably want to just sprinkle your own breakpoints where you
+    need them, e.g.,
+
+      import sys, pdb; pdb.set_trace()
+
+    or, if you're breaking into code after something stole the input,
+    fix it first,
+
+      import os, pdb; os.system("stty sane"); pdb.set_trace()
     """
 )
 
@@ -294,20 +309,6 @@ DEBUG_HELP = _(
 # *** [DEMO] Command help.
 # ***
 
-# Ha! This ANSI gets stripped. But not if we callback.
-# I wonder if because we set color off by default now,
-# then enable... or maybe because we set it at all -- I
-# just don't remember this being an issue last few days.
-# -2019-11-19 05:47.
-DEMO_HELP_XXX = _(
-    """
-    Teaches you how to {rawname} -- {ital}Run this first!{reset}
-    """
-).strip().format(
-    rawname=__package_name__,
-    ital=attr('italic'),
-    reset=attr('reset'),
-)
 def DEMO_HELP(ctx):
     _help = _(
         """
@@ -341,12 +342,13 @@ def NEWBIE_HELP_WELCOME(ctx):
 def section_heading(title):
     return _(
         """
-        {color}{title}
+        {color}{title}{reset}
         {line_color}{sep:{sep}<{len_title}}{reset}
         """
     ).strip().format(
         title=title,
-        sep='-',
+        # sep='-',
+        sep='─',
         len_title=len(title),
         # color=fg('spring_green_2a'),
         # color=fg('dark_orange'),
@@ -360,6 +362,7 @@ def section_heading(title):
 
 
 def NEWBIE_HELP_ONBOARDING(ctx):
+    # NOTE: This help is not automatically formatted like other text.
     _help = _(
         """
         {banner}
@@ -367,22 +370,23 @@ def NEWBIE_HELP_ONBOARDING(ctx):
         Let’s get you setup!
 
         {init_title}
-        {paragraph_color}
-        To create a fresh, empty database, run:{reset}
+        To create a fresh, empty database, run:
 
           {cmd_color}{appname} init{reset}
 
         {upgrade_title}
-        {paragraph_color}
-        To learn how to upgrade from a previous version (of dob, or hamster), run:{reset}
+        To learn how to import data from a previous version
+        of dob, or to import from the old hamster app, run:
 
-          {cmd_color}{appname} migrate{reset}
+          {cmd_color}{appname} migrate -h{reset}
 
         {demo_title}
-        {paragraph_color}
-        If you’d like to demo the application first with some example data, run:{reset}
+        If you’d like to get your hands dirty, you can demo
+        the application with some example data that you can
+        follow as a walk-through. Run:
 
           {cmd_color}{appname} demo{reset}
+        \b
         """
     ).format(
         appname=__arg0name__,
@@ -390,10 +394,8 @@ def NEWBIE_HELP_ONBOARDING(ctx):
         upgrade_title=section_heading(_('Import existing facts')),
         init_title=section_heading(_('Start from scratch')),
         demo_title=section_heading(_('Demo Dob')),
-        # cmd_color=(fg('dodger_blue_1')),
+        help_title=section_heading(_('Such Help')),
         cmd_color=fg('spring_green_2a'),
-        # paragraph_color=fg('grey_78'),
-        paragraph_color='',
         **common_format(),
     )
     return _help
@@ -450,7 +452,7 @@ def NEWBIE_HELP_CREATE_STORE(ctx):
         """
     ).strip().format(
         # appname=__arg0name__,
-        banner=NEWBIE_HELP_WELCOME,
+        banner=NEWBIE_HELP_WELCOME(ctx),
         # mintgreen=(fg('spring_green_2a') + attr('bold')),
         # reset=attr('reset'),
         # **common_format()
@@ -464,25 +466,51 @@ def NEWBIE_HELP_CREATE_STORE(ctx):
 
 def INIT_HELP_OVERVIEW(ctx):
     controller = ctx.obj
+
+    _hint_sqlite = ''
+    if controller.config['db_engine'] == 'sqlite':
+        _hint_sqlite = _(
+            """
+        And if you know SQL, you can poke around the database file easily:
+
+         \b
+         {codehi}# Assuming sqlite3 is installed:{reset}
+         {codehi}sqlite3 {cfg_db_path}{reset}
+
+        But you'll probably just want to make sure you backup that file!
+            """.strip().format(
+                default_config_path=highlight_value(default_config_path()),
+                cfg_db_path=controller.config['db_path'],
+                **common_format()
+            )
+        )
+
     _help = _(
         """
-        Ensures that the config file and data store exist.
+        Creates a default configuration file, and an empty database.
 
         - Unless it exists, init will create a default configuration at:
 
-            {default_config_path}
+         \b
+         {default_config_path}
 
         - Unless it exists, init will create an empty database file at:
 
-            {cfg_db_path}
+         \b
+         {hlg_db_path}
 
-        The config influences other runtime values you can see by running:
+        After running init, you can see the contents of the config
+        file by opening it in a text editor, or, better yet, you can
+        dump it and get some more help with dob:
 
-            {codehi}{rawname} details{reset}
+         \b
+         {codehi}{rawname} config dump{reset}
 
-        """.format(
+        {_hint_sqlite}
+        """.strip().format(
             default_config_path=highlight_value(default_config_path()),
-            cfg_db_path=highlight_value(controller.config['db_path']),
+            hlg_db_path=highlight_value(controller.config['db_path']),
+            _hint_sqlite=_hint_sqlite,
             **common_format()
         )
     )
@@ -781,37 +809,16 @@ LIST_FACTS_HELP = _(
 
 SEARCH_HELP = _(
     """
-    Searches facts matching given time range and search term.
+    Finds facts matching a search term, time range and other options.
 
-    'search_term': May be an arbitrary string that will be matched against
-    existing facts activity names.
+    You may use the SEARCH_TERM to find Facts with descriptions
+    that contain the SEARCH_TERM.
 
-    'time_range': Limit returned facts to those starting within the given time
-    window.  This information may be specified in the following format:
-    '%Y-%m-%d %H:%M - %Y-%m-%d %H:%M'.
+    You may use the --since and --until options to restrict the
+    search to a specific time range.
 
-    {time_range_info}
-    \b
-    About time range formats:
-    You may omit any date and/or time portion of that format, in which case we
-    will complete the missing information as described further down.
-    Alternatively you can just pass start time offset from now in minutes such
-    as ' -XX' (where X are 'minutes before now) which will also apply our
-    'completion strategy' to the end time related values. Please note that you
-    if you specify a relative starting time you need to wrap it in quotation
-    marks as well as lead with a whitespace in front of the '-' sign.
-
-    \b
-    How missing date/time information is completed:
-        * Missing *start date* will fall back to 'today'.
-#FIXME: (lb): day_start is disabled by default (I never liked this weird legacy behavior)
-# new workflow is to start 'now', eh?
-#        * Missing *start time* will fall back to your configured 'day_start'
-#          setting.
-#        * Missing *end date* will be the day after today if 'day_start' is not
-#          '00:00', else it will be today.
-#        * Missing *end time* will be one second before your configured
-#          'day_start' value.
+    You may use the --activity and --category options to restrict
+    the search to specific activity and category names.
     """
 )
 
@@ -822,7 +829,7 @@ SEARCH_HELP = _(
 
 USAGE_GROUP_HELP = _(
     """
-    Shows activity, category, or tag usage.
+    Prints activity, category, or tag usage.
     """
 )
 
@@ -860,129 +867,212 @@ USAGE_FACTS_HELP = _(
 # ***
 
 STOP_HELP = _(
-    """
-    Completes the *ongoing fact* at current time.
-    """
+   # Not DRY: Copied from first line of ADD_FACT_THEN.
+   """
+   Stops active Fact, ending it now or at the time specified.
+   """
 )
 
 
 CANCEL_HELP = _(
     """
-    Cancels *ongoing fact*. I.e., stop the Fact and discard it without saving.
+    Discards the active Fact.
     """
 )
 
 
 CURRENT_HELP = _(
     """
-    Prints the current, open-ended, ongoing fact, if there is one.
+    Prints the active Fact, if there is one.
     """
 )
 
 
-NO_ACTIVE_FACT_HELP = _(
-    """
-    No active fact. Try {italic}starting{reset} a new fact first.
-    """
-).format(**common_format())
+def NO_ACTIVE_FACT_HELP(ctx):
+    _help = _(
+        """
+        No active Fact. Try {italic}starting{reset} a new Fact first.
+        """
+    ).strip().format(**common_format())
+    return _help
 
 
-NOTHING_TO_STOP_HELP = _(
-    # """It doesn't look like there's any current Fact {}to{} stop."""
-    """
-    Sorry, bud, there's no ongoing Fact {}to{} stop.
-    """
-).format(**common_format())
+def NOTHING_TO_STOP_HELP(ctx):
+    _help = _(
+        # It doesn't look like there's any current Fact {}to{} stop.
+        """
+        Sorry, bud, there's no active Fact {italic}to{reset} stop.
+        """
+    ).strip().format()
+    return _help
 
 
 LATEST_HELP = _(
     """
-    Prints the latest completed fact (i.e., with the latest end time).
+    Prints latest completed Fact (Fact with most recent end time).
     """
 )
 
 
 HELP_CMD_SHOW = _(
     """
-    Prints the ongoing fact, or latest fact if there is no ongoing fact.
+    Prints the active Fact if exists, otherwise the latest Fact.
     """
 )
 
 
 # ***
-# *** [CREATE-FACT] Commands help.
+# *** [ADD-FACT] Commands help.
 # ***
 
+def ADD_FACT_REFERRAL():
+    _help = _(
+        """
+        For more help on this and the other Add Fact commands, try
 
-START_HELP_ON = _(
+          {codehi}{rawname} --pager help add{reset}
+        """.strip().format(**common_format())
+    )
+    return _help
+
+
+# verify_none
+ADD_FACT_ON = _(
     """
-    Starts a fact starting now.
-    """
-)
-
-
-START_HELP_NOW = _(
-    """
-    Alias of 'on' command.
-    """
-)
-
-
-START_HELP_AT = _(
-    """
-    \b
-    Adds a fact beginning now, or at specified time.
-
-    \b
-    Might also stop the current ongoing fact if one exists and the
-    new fact starts after the current fact; or might change the stop
-    time of an existing fact if the two facts' time windows overlap.
-
-    {}
-    """
-).format(START_HELP_COMMON)
-
-
-START_HELP_THEN = _(
-    """
+    Aliases the 'now' command, e.g., `dob on act@gory #tag: Blah...`.
     """
 )
 
 
-START_HELP_STILL = _(
+# verify_none
+ADD_FACT_NOW = _(
+# FIXME/2019-11-22 04:06: I think "if nothing active" might be wrong.
     """
-    """
-)
-
-
-START_HELP_AFTER = _(
-    """
+    Starts a new Fact if nothing active, using time now.
     """
 )
 
 
-START_HELP_NEXT = _(
+# verify_none
+ADD_FACT_START = _(
+    # Not DRY: Copied from first line of ADD_FACT_AT.
     """
-    Alias of 'after' command.
-    """
-)
-
-
-START_HELP_TO = _(
-    """
+    Starts new Fact, beginning now or at the time specified.
     """
 )
 
 
-START_HELP_UNTIL = _(
+# verify_start
+def ADD_FACT_AT(ctx):
+    _help = _(
+        """
+        \b
+        Starts new Fact, beginning now or at the time specified.
+
+        \b
+        Might also stop the current ongoing fact if one exists and the
+        new fact starts after the current fact; or might change the stop
+        time of an existing fact if the two facts' time windows overlap.
+
+        {}
+        """
+    ).format(ADD_FACT_REFERRAL())
+    return _help
+
+
+# verify_then
+ADD_FACT_THEN = _(
     """
-    Alias of 'to' command.
+    Stops active Fact and Starts new, using now or time specified.
+
+    Ends active Fact and Starts new Fact, at now or offset.
+
+    Starts Fact, at time now or optional offset, ending active Fact.
+
+    Starts Fact, ending active Fact, using now or optional offset.
+
+    This is basically a shortcut for the at command, which requires a time
+    offset, e.g.,
+
+      {rawname} then Grinding beans for coffee.
+
+    is the same as:
+
+      {rawname} at +0: Grinding beans...
+
+    FIXME: Verify the colon...
+    If you want to specify an offset, you can, just use a colon,
+    which could work well to throw down a gap fact, e.g.,
+
+      {rawname} then -5m: Woke up.
+      {rawname} now Grinding beans...
+
     """
 )
 
 
-START_HELP_FROM = _(
+# verify_still
+ADD_FACT_STILL = _(
     """
+    Stops active Fact and Starts new Fact, copying metadata.
+
+    Starts Fact, copying metadata from ending Fact.
+
+    Starts Fact, copying activity, category, and tags from ending Fact.
+
+    Ends active Fact, and starts new Fact, and copies forward metadata.
+
+    Starts the new Fact using the same Act@Gory and Tags (Metadata) as the
+    active Fact that is ended.
+    """
+)
+
+
+# Note that dob.transcode mentions a `since:` that's like `after:/next:` (verify_after).
+# verify_after
+def ADD_FACT_AFTER(ctx):
+    _help = _(
+        """
+        Starts new Fact, beginning when the last Fact ended.
+
+        {}
+        """.strip().format(ADD_FACT_REFERRAL())
+    )
+    return _help
+
+
+# verify_after
+ADD_FACT_NEXT = _(
+    """
+    Aliases the 'after' command, e.g., `dob next: Foo bar...`.
+    """
+)
+
+
+# verify_end
+ADD_FACT_TO = _(
+    """
+    Stops active Fact, ending it now or at the time specified.
+
+    Stops the active Fact ending now or at the specified time.
+    """
+)
+
+
+# verify_end
+ADD_FACT_UNTIL = _(
+    """
+    Aliases the 'to' command, e.g., `dob until -10m: Yada...`.
+    """
+)
+
+
+# verify_both
+ADD_FACT_FROM = _(
+    """
+    Inserts new Fact using the start and end time indicated.
+
+    E.g., {rawname} from 2019-01-01 00:00 to 2019-01-01 01:00: Happy New Year!
     """
 )
 
@@ -991,16 +1081,11 @@ START_HELP_FROM = _(
 # *** [EDIT] Command help.
 # ***
 
-EDIT_GROUP_HELP = _(
-    """
-    Fires up the Carousel so you can edit Facts interactively.
-    """
-)
-
-
+# (lb): 2019-11-22: I had been using the term "Carousel" in docs, but I
+# think I should call it an "editor", and sometimes an "interactive" one.
 EDIT_FACT_HELP = _(
     """
-    Fires up the Carousel so you can edit Facts interactively.
+    Runs the interactive Fact editor in your terminal.
     """
 )
 

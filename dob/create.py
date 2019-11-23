@@ -504,7 +504,7 @@ def stop_fact(controller):
     try:
         fact = controller.facts.stop_current_fact()
     except KeyError:
-        dob_in_user_exit(NOTHING_TO_STOP_HELP)
+        dob_in_user_exit(NOTHING_TO_STOP_HELP())
     else:
         echo_ongoing_completed(controller, fact, cancelled=False)
         return fact

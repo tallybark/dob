@@ -67,7 +67,9 @@ def echo_ongoing_fact(controller):
     Raises:
         click.ClickException: If we fail to fetch any *ongoing fact*.
     """
-    echo_most_recent(controller, restrict='ongoing', empty_msg=NO_ACTIVE_FACT_HELP)
+    echo_most_recent(
+        controller, restrict='ongoing', empty_msg=NO_ACTIVE_FACT_HELP(controller.ctx),
+    )
 
 
 def echo_ongoing_or_ended(controller):

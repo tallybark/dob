@@ -119,7 +119,7 @@ class Controller(NarkControl):
             sys.exit(1)
 
         def help_newbie_onboard():
-            message = help_strings.NEWBIE_HELP_ONBOARDING()
+            message = help_strings.NEWBIE_HELP_ONBOARDING(self.ctx)
             click_echo(inspect.cleandoc(message), err=True)
 
         def berate_user_files_unwell(store_exists):

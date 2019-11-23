@@ -767,7 +767,7 @@ def generate_add_fact_command(time_hint):
 
 
 @cmd_bunch_group_add_fact
-@run.command("now", aliases=["now:"], help=help_strings.START_HELP_NOW)
+@run.command("now", aliases=["now:"], help=help_strings.ADD_FACT_NOW)
 @show_help_finally
 @flush_pager
 @cmd_options_factoid_verify_none
@@ -779,7 +779,7 @@ def add_fact_now(controller, *args, **kwargs):
 
 
 @cmd_bunch_group_add_fact
-@run.command("on", aliases=["on:"], help=help_strings.START_HELP_ON,
+@run.command("on", aliases=["on:"], help=help_strings.ADD_FACT_ON,
              hidden=True)  # FIXME/2019-11-21: Remove aliases, but keep unique help.
 @show_help_finally
 @flush_pager
@@ -792,7 +792,7 @@ def add_fact_on(controller, *args, **kwargs):
 
 
 @cmd_bunch_group_add_fact
-@run.command("at", aliases=["at:"], help=help_strings.START_HELP_AT)
+@run.command("at", aliases=["at:"], help=help_strings.ADD_FACT_AT)
 @show_help_finally
 @flush_pager
 @cmd_options_factoid_verify_start
@@ -804,7 +804,7 @@ def add_fact_at(controller, *args, **kwargs):
 
 
 @cmd_bunch_group_add_fact
-@run.command("from", help=help_strings.START_HELP_FROM)
+@run.command("from", help=help_strings.ADD_FACT_FROM)
 @show_help_finally
 @flush_pager
 @cmd_options_factoid_verify_both
@@ -816,7 +816,7 @@ def add_fact_from(controller, *args, **kwargs):
 
 
 @cmd_bunch_group_add_fact
-@run.command("to", aliases=["to:"], help=help_strings.START_HELP_TO)
+@run.command("to", aliases=["to:"], help=help_strings.ADD_FACT_TO)
 @show_help_finally
 @flush_pager
 @cmd_options_factoid_verify_end
@@ -828,7 +828,7 @@ def add_fact_to(controller, *args, **kwargs):
 
 
 @cmd_bunch_group_add_fact
-@run.command("until", aliases=["until:"], help=help_strings.START_HELP_UNTIL,
+@run.command("until", aliases=["until:"], help=help_strings.ADD_FACT_UNTIL,
              hidden=True)  # FIXME/2019-11-21: Remove aliases... but I like "until"!
 @show_help_finally
 @flush_pager
@@ -841,7 +841,7 @@ def add_fact_until(controller, *args, **kwargs):
 
 
 @cmd_bunch_group_add_fact
-@run.command("then", aliases=["then:"], help=help_strings.START_HELP_THEN)
+@run.command("then", aliases=["then:"], help=help_strings.ADD_FACT_THEN)
 @show_help_finally
 @flush_pager
 # FIXME/2019-11-22: (lb): This right? (Because command is verify_then):
@@ -854,7 +854,7 @@ def add_fact_then(controller, *args, **kwargs):
 
 
 @cmd_bunch_group_add_fact
-@run.command("still", aliases=["still:"], help=help_strings.START_HELP_STILL)
+@run.command("still", aliases=["still:"], help=help_strings.ADD_FACT_STILL)
 @show_help_finally
 @flush_pager
 # FIXME/2019-11-22: (lb): This right? (Because command is verify_still):
@@ -867,7 +867,7 @@ def add_fact_still(controller, *args, **kwargs):
 
 
 @cmd_bunch_group_add_fact
-@run.command("after", aliases=["after:"], help=help_strings.START_HELP_AFTER)
+@run.command("after", aliases=["after:"], help=help_strings.ADD_FACT_AFTER)
 @show_help_finally
 @flush_pager
 # FIXME/2019-11-22: (lb): This right? (Because command is verify_after):
@@ -880,7 +880,7 @@ def add_fact_after(controller, *args, **kwargs):
 
 
 @cmd_bunch_group_add_fact
-@run.command("next", aliases=["next:"], help=help_strings.START_HELP_NEXT,
+@run.command("next", aliases=["next:"], help=help_strings.ADD_FACT_NEXT,
              hidden=True)  # FIXME/2019-11-21: Remove aliases, but keep unique help.
 @show_help_finally
 @flush_pager
@@ -997,7 +997,7 @@ def add_help_group(*args, **kwargs):
 # ***
 
 @cmd_bunch_group_edit
-@run.group('edit', help=help_strings.EDIT_GROUP_HELP, **run_group_kwargs)
+@run.group('edit', help=help_strings.EDIT_FACT_HELP, **run_group_kwargs)
 @show_help_finally
 # The `edit` command has subcommands, but a bare edit is also
 # a shortcut for fact editing, so do not show help.

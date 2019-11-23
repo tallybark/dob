@@ -331,7 +331,7 @@ _cmd_options_fact_nocarousel = [
         # - What's a good mnemonic? -f as in force-save? Or -f-orget about editing?
         #   Oh, how 'bout this option makes it run -f[aster]?
         '-f', '--no-carousel', is_flag=True,
-        help=_('Save the new Facts immediately and exit. (Do not run the Carousel.)'),
+        help=_('Save new Facts immediately and exit. (Do not run the editor.)'),
     ),
 ]
 
@@ -376,11 +376,11 @@ _cmd_options_list_fact = [
     ),
     click.option(
         '-r', '--rule', '--sep', nargs=1, default='',
-        help=_('Separate facts with a horizontal rule'),
+        help=_('Separate Facts with a horizontal rule.'),
     ),
     click.option(
         '-S', '--span/--no-span', default=True, show_default=True,
-        help=_('Show fact elapsed time'),
+        help=_('Show Fact elapsed time.'),
     ),
 ]
 
@@ -406,7 +406,7 @@ _cmd_options_list_categoried = [
         # I'll keep my eye on this... maybe -s/--setting makes more sense...
         # '-c', '--category',
         '-g', '--category',
-        help=_('Restrict results by matching category name'),
+        help=_('Restrict results by matching category name.'),
     ),
 ]
 
@@ -432,7 +432,7 @@ def postprocess_options_list_categoried(kwargs):
 _cmd_options_list_activitied = [
     click.option(
         '-a', '--activity',
-        help=_('Restrict results by matching activity name'),
+        help=_('Restrict results by matching activity name.'),
     ),
 ]
 
@@ -456,7 +456,7 @@ def postprocess_options_list_activitied(kwargs):
 _cmd_options_usage = [
     click.option(
         '-u', '--usage', is_flag=True,
-        help=_('Include usage (just like usage command!)'),
+        help=_('Include usage (just like usage command!).'),
     ),
 ]
 
@@ -521,7 +521,7 @@ _cmd_options_edit_item = [
     # Note that this doesn't solve the issue for -2, -3, etc., but really, who cares.
     click.option(
         '-1', 'latest_1', is_flag=True,
-        help=_('Edit most recently saved item.'),
+        help=_('Edit most recently saved Fact.'),
     ),
 ]
 
