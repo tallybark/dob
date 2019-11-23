@@ -202,6 +202,12 @@ COPYRIGHT_HELP = _(
 )
 
 
+ABOUT_COMMAND_HELP = _(
+    """
+    Alias of 'copyright' command.
+    """
+)
+
 
 # ***
 # *** [DETAILS] Command help.
@@ -211,6 +217,12 @@ DETAILS_HELP = _(
     """Prints details about the runtime environment."""
 )
 
+
+DETAILS_TMI_HELP = _(
+    """
+    Show AppDirs paths, too.
+    """
+)
 
 # ***
 # *** [ENVIRONS] Command help.
@@ -584,6 +596,13 @@ CONFIG_CREATE_HELP = _(
 )
 
 
+CONFIG_CREATE_FORCE_HELP = _(
+    """
+    If specified, overwrite config file if is exists.
+    """
+)
+
+
 CONFIG_DUMP_HELP = _(
     """
     Prints a list of configurable settings, including names, values, and help.
@@ -632,6 +651,13 @@ STORE_CREATE_HELP = _(
 )
 
 
+STORE_CREATE_FORCE_HELP = _(
+    """
+    If specified, recreate data store if is exists.
+    """
+)
+
+
 STORE_PATH_HELP = _(
     """
     Prints the database path.
@@ -651,6 +677,14 @@ STORE_UPGRADE_LEGACY_HELP = _(
     Migrates a legacy “Hamster” database to dob.
     """
 )
+
+
+STORE_UPGRADE_FORCE_HELP = _(
+    """
+    If specified, overwrite data store if is exists.
+    """
+)
+
 
 
 # ***

@@ -157,7 +157,7 @@ def copyright(controller):
 
 
 @cmd_bunch_group_get_meta
-@run.command(hidden=True, help=_("Alias of 'copyright' command."))
+@run.command(hidden=True, help=help_strings.ABOUT_COMMAND_HELP)
 @show_help_finally
 @flush_pager
 @pass_controller
@@ -183,7 +183,7 @@ def about(controller):
 @run.command(aliases=['info'], help=help_strings.DETAILS_HELP)
 @show_help_finally
 @flush_pager
-@click.option('--tmi', '--full', is_flag=True, help=_('Show AppDirs paths, too.'))
+@click.option('--tmi', '--full', is_flag=True, help=help_strings.DETAILS_TMI_HELP)
 @pass_controller
 def details(controller, tmi):
     """List details about the runtime environment."""
@@ -284,7 +284,7 @@ def config_group(ctx):
 @show_help_finally
 @flush_pager
 @click.option('-f', '--force', is_flag=True,
-              help=_('If specified, overwrite config file if is exists'))
+              help=help_strings.CONFIG_CREATE_FORCE_HELP)
 @pass_controller
 def config_create(controller, force):
     """"""
@@ -363,7 +363,7 @@ def store_group(ctx):
 @show_help_finally
 @flush_pager
 @click.option('-f', '--force', is_flag=True,
-              help=_('If specified, recreate data store if is exists'))
+              help=help_strings.STORE_CREATE_FORCE_HELP)
 @pass_controller
 def store_create(controller, force):
     """"""
@@ -393,7 +393,7 @@ def store_url(controller):
 @flush_pager
 @click.argument('filename', nargs=1, type=click.File('r'), required=False)
 @click.option('-f', '--force', is_flag=True,
-              help=_('If specified, overwrite data store if is exists'))
+              help=help_strings.STORE_UPGRADE_FORCE_HELP)
 @pass_controller
 @click.pass_context
 @post_processor
