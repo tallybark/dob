@@ -68,9 +68,11 @@ def common_format():
     common_format = {
         'appname': highlight_value(__package_name__),
         'rawname': __package_name__,
-        'codehi': (fg('turquoise_2') or ''),
-        'reset': (attr('reset') or ''),
+        'codehi': fg('turquoise_2'),
+        'reset': attr('reset'),
+        'bold': attr('bold'),
         'italic': attr('italic'),
+        'underlined': attr('underlined'),
     }
     return common_format
 
@@ -308,13 +310,9 @@ DEMO_HELP_XXX = _(
 def DEMO_HELP(ctx):
     _help = _(
         """
-        Teaches you how to {rawname} -- {ital}Run this first!{reset}
+        Teaches you how to {rawname} -- {italic}Run this first!{reset}
         """
-    ).strip().format(
-        rawname=__package_name__,
-        ital=attr('italic'),
-        reset=attr('reset'),
-    )
+    ).strip().format(**common_format())
     return _help
 
 
@@ -334,7 +332,7 @@ def NEWBIE_HELP_WELCOME(ctx):
         # color=(fg('turquoise_4') + attr('bold')),
         # color=(fg('magenta_2a') + attr('bold')),
         # color=(fg('dark_orange_3b') + attr('bold')),
-        reset=attr('reset'),
+        **common_format(),
     )
     return _help
 
@@ -356,7 +354,7 @@ def section_heading(title):
         # line_color=fg('light_blue'),
         line_color='',
         color='',
-        reset=attr('reset'),
+        **common_format()
     )
 
 
@@ -395,7 +393,7 @@ def NEWBIE_HELP_ONBOARDING(ctx):
         cmd_color=fg('spring_green_2a'),
         # paragraph_color=fg('grey_78'),
         paragraph_color='',
-        reset=attr('reset'),
+        **common_format(),
     )
     return _help
 
@@ -431,11 +429,10 @@ def NEWBIE_HELP_CREATE_CONFIG(ctx, cfg_path):
         # - Maybe change errors to white on red, like here,
         #   but only for white on black terms (based on some setting?).
         errcol=(bg('red_1') + attr('bold')),
-        reset=attr('reset'),
-        rawname=__package_name__,
         cfg_path=cfg_path,
         default_config_path=default_config_path(),
         envkey=ConfigUrable.DOB_CONFIGFILE_ENVKEY,
+        **common_format()
     )
     return _help
 
@@ -455,6 +452,7 @@ def NEWBIE_HELP_CREATE_STORE(ctx):
         banner=NEWBIE_HELP_WELCOME,
         # mintgreen=(fg('spring_green_2a') + attr('bold')),
         # reset=attr('reset'),
+        # **common_format()
     )
     return _help
 
@@ -484,9 +482,7 @@ def INIT_HELP_OVERVIEW(ctx):
         """.format(
             default_config_path=highlight_value(default_config_path()),
             cfg_db_path=highlight_value(controller.config['db_path']),
-            rawname=__package_name__,
-            codehi=(fg('turquoise_2') or ''),
-            reset=(attr('reset') or ''),
+            **common_format()
         )
     )
     return _help
@@ -616,12 +612,9 @@ def CONFIG_GROUP_HELP(ctx):
             - Although you might care about the config file contents if you'd
         like to add comments to it, which is supported.
         """.format(
-            underlined=attr('underlined'),
             default_config_path=highlight_value(default_config_path()),
-            rawname=__package_name__,
             envkey=ConfigUrable.DOB_CONFIGFILE_ENVKEY,
-            codehi=(fg('turquoise_2') or ''),
-            reset=(attr('reset') or ''),
+            **common_format()
         )
     )
     return _help
@@ -954,9 +947,9 @@ CURRENT_HELP = _(
 
 NO_ACTIVE_FACT_HELP = _(
     """
-    No active fact. Try {}starting{} a new fact first.
+    No active fact. Try {italic}starting{reset} a new fact first.
     """
-).format(attr('italic'), attr('res_italic'))
+).format(**common_format())
 
 
 NOTHING_TO_STOP_HELP = _(
@@ -964,7 +957,7 @@ NOTHING_TO_STOP_HELP = _(
     """
     Sorry, bud, there's no ongoing Fact {}to{} stop.
     """
-).format(attr('italic'), attr('res_italic'))
+).format(**common_format())
 
 
 LATEST_HELP = _(
