@@ -37,6 +37,7 @@ import click
 from . import migrate, update
 from .clickux import help_strings
 from .clickux import help_string_add_fact
+from .clickux.add_fact_help_group import ClickAddFactHelpGroup
 from .clickux.aliasable_bunchy_plugin import ClickAliasableBunchyPluginGroup
 from .clickux.bunchy_help import (
     cmd_bunch_group_introducing,
@@ -887,6 +888,69 @@ def add_fact_after(controller, *args, **kwargs):
 def add_fact_next(controller, *args, **kwargs):
     """Start or add a fact using the `next` directive."""
     assert(False)  # Not reachable, because generate_add_fact_command.
+    pass
+
+
+# ***
+# *** [ADD-FACT-HELP] Command(s).
+# ***
+
+
+add_group_kwargs = {
+    # Use a special business class that munges the usage to show all add commands.
+    'cls': ClickAddFactHelpGroup,
+    'invoke_without_command': True,
+}
+
+
+@cmd_bunch_group_add_fact
+# - Hide this command; we'll show the misdirecting 'add --show' command instead,
+#   but this command is necessary to catch `dob add --help` (i.e., catch the
+#   command `add` with the option `--help`, as opposed to the next command,
+#   which is the command `add --show` with no option, e.g., `dob "add --show"`.
+# - ADD_FACT_GROUP_NAME is 'add', and a class member to automate usage building.
+@run.group(
+    ClickAddFactHelpGroup.ADD_FACT_GROUP_NAME,  # 'add'
+    help=help_string_add_fact.ADD_FACT_COMMON,
+    hidden=True,
+    **add_group_kwargs
+)
+@show_help_finally
+@show_help_if_no_command
+@flush_pager
+@cmd_options_factoid
+@cmd_options_fact_add
+@cmd_options_fact_dryable
+@pass_controller
+@induct_newbies
+@click.pass_context
+@post_processor
+def add_help_group(ctx, controller, *args, **kwargs):
+    """Base `add` group command run prior to any of the dob-add commands."""
+    pass
+
+
+@cmd_bunch_group_add_fact
+# - (lb): Just a little "hack" (more like "misdirection") to make the first entry
+#   in the add-fact bunchy group a hint to the user how to get help on adding Facts.
+# - ADD_FACT_GROUP_HELP is 'add --help', and a class member to automate usage building.
+@run.group(
+    ClickAddFactHelpGroup.ADD_FACT_GROUP_HELP,  # 'add --help'
+    help=help_string_add_fact.ADD_FACT_COMMON,
+    **add_group_kwargs
+)
+@show_help_finally
+@show_help_if_no_command
+@flush_pager
+@cmd_options_factoid
+@cmd_options_fact_add
+@cmd_options_fact_dryable
+@pass_controller
+@induct_newbies
+@click.pass_context
+@post_processor
+def add_help_group(*args, **kwargs):
+    """Misdirecting "add --help" command to improve general help."""
     pass
 
 
