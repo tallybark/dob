@@ -48,6 +48,15 @@ __all__ = (
 DEFAULT_SQUASH_SEP = '\n\n--\n\n'
 
 
+TIME_ERROR_ZEROTH_FACT_MUST_START = _(
+    'Please specify `start` for fact being added before time existed.'
+)
+
+TIME_ERROR_FINALE_FACT_MUST_START = _(
+    'Please complete the latest fact or specify the new fact start time.'
+)
+
+
 # ***
 
 def reduce_time_hint(time_hint):
@@ -797,6 +806,12 @@ def insert_forcefully(controller, fact, squash_sep=''):
                 #   # we could probably assert that fact.start is not None,
                 #   #  and remove set_start_per_antecedent
 
+                # (lb): This branch is a squash fact situation!
+                # - If you start an active, uncompleted Fact, and then try,
+                # e.g., `dob to 1000`, or `dob to +1h`, you'll get here.
+                # - After this branch, set_start_per_antecedent fails because
+                # the new Fact has no start, then TIME_ERROR_FINALE_FACT_MUST_START.
+                # - Another easy here: `dob after`.
                 conflict = set_start_per_antecedent(facts, fact)
             else:
                 conflict = facts.starting_at(fact)
@@ -812,6 +827,9 @@ def insert_forcefully(controller, fact, squash_sep=''):
                 # set_start_per_antecedent, compare to must_complete_times,
                 # which has its own start and end setting code.)
                 set_end_per_subsequent(facts, fact)
+                # FIXME/2019-11-23 00:42: Record how you can get here.
+                if controller.client_config['devmode']:
+                    controller.affirm(False)  # (lb): 2019-11-23: What cmd to here?
             else:
                 # LATER/BACKLOG/LOWLOWPRIORITY/2019-01-22: Momentaneous:
                 #   If supporting momentaneous, could have multiple Facts
@@ -834,13 +852,9 @@ def insert_forcefully(controller, fact, squash_sep=''):
         #             then remove set_start_per_antecedent.
 
         if not ref_fact:
-            raise ValueError(_(
-                'Please specify `start` for fact being added before time existed.'
-            ))
+            raise ValueError(TIME_ERROR_ZEROTH_FACT_MUST_START)
         elif not ref_fact.end:
-            raise ValueError(_(
-                'Please complete the latest fact or specify the new fact start time.'
-            ))
+            raise ValueError(TIME_ERROR_FINALE_FACT_MUST_START)
 
         # Because we called surrounding and got nothing, we know that
         # found_fact.end < fact.end; or that found_fact.end is None,
