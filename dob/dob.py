@@ -1264,8 +1264,7 @@ def complete(controller):
 @click.pass_context
 def migrate_group(ctx, controller):
     """Base `migrate` group command run prior to any of the dob-migrate commands."""
-    if not ctx.invoked_subcommand:
-        click_echo(ctx.get_help())
+    pass
 
 
 @migrate_group.command('control', help=help_strings.MIGRATE_CONTROL_HELP)
