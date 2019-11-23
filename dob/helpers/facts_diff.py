@@ -119,7 +119,15 @@ class FactsDiff(object):
 
     # ***
 
-    def diff_attrs(self, prop, name=None, truncate=False, beautify=None, **kwargs):
+    def diff_attrs(
+        self,
+        prop,
+        name=None,
+        truncate=False,
+        beautify=None,
+        mouse_handler=None,
+        **kwargs
+    ):
         if (self.exclude_attrs is not None) and (name in self.exclude_attrs):
             return ''
         self_val = resolve_attr_or_method(self.orig_fact, prop, **kwargs)
@@ -129,11 +137,15 @@ class FactsDiff(object):
             if callable(other_val):
                 other_val = other_val()
             self_val, other_val = self.diff_values_enhance(
-                self_val, other_val, truncate=truncate, beautify=beautify,
+                self_val,
+                other_val,
+                truncate=truncate,
+                beautify=beautify,
+                mouse_handler=mouse_handler,
             )
         elif truncate:
             self_val = self.format_value_truncate(self_val)
-            self_val = self.format_prepare(self_val)
+            self_val = self.format_prepare(self_val, mouse_handler=mouse_handler)
             other_val = self.format_prepare(other_val)
         attr_diff = self.diff_line_assemble(self_val, other_val, name)
         return attr_diff
@@ -146,7 +158,12 @@ class FactsDiff(object):
             return self.diff_line_tuples_style(self_val, other_val, prefix)
 
     def diff_values_enhance(
-        self, self_val, other_val, truncate=False, beautify=None,
+        self,
+        self_val,
+        other_val,
+        truncate=False,
+        beautify=None,
+        mouse_handler=None,
     ):
         differ = False
         if self_val != other_val:
@@ -162,14 +179,24 @@ class FactsDiff(object):
             self_val = self.format_edited_before(self_val)
             self_val, other_val = self.format_edited_after(self_val, other_val)
         else:
-            self_val = self.format_prepare(self_val)
+            self_val = self.format_prepare(self_val, mouse_handler=mouse_handler)
             other_val = self.format_prepare('')
         return (self_val, other_val)
 
-    def format_prepare(self, some_val):
+    def format_prepare(self, some_val, mouse_handler=None):
         if not self.formatted or not isinstance(some_val, text_type):
-            return some_val
-        return [('', some_val)]
+            if (
+                (mouse_handler is not None)
+                and (isinstance(some_val, list))
+                and (len(some_val) == 1)
+                and (isinstance(some_val[0], tuple))
+                and (len(some_val[0]) == 2)
+            ):
+                return [(some_val[0][0], some_val[0][1], mouse_handler,)]
+            return
+        if mouse_handler is None:
+            return [('', some_val)]
+        return [('', some_val, mouse_handler)]
 
     def format_value_truncate(self, val):
         # MAGIC_NUMBER: (lb): A third of the terminal (1 / 3.).
