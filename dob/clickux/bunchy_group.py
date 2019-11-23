@@ -19,6 +19,8 @@
 
 from __future__ import absolute_import, unicode_literals
 
+from collections import OrderedDict
+
 import click
 from click._compat import term_len
 
@@ -31,11 +33,11 @@ class ClickBunchyGroup(click.Group):
 
     def __init__(self, *args, **kwargs):
         super(ClickBunchyGroup, self).__init__(*args, **kwargs)
-        self.group_bunchies = {None: set()}
+        self.group_bunchies = {None: OrderedDict()}
         self.order_sortkeys = {None: 0}
 
     def add_command(self, cmd, name=None):
-        self.group_bunchies[None].add(cmd.name)
+        self.group_bunchies[None][cmd.name] = None
         return super(ClickBunchyGroup, self).add_command(cmd, name)
 
     def add_to_bunch(self, cmd, bunchy_name, sort_key=0):
@@ -43,9 +45,9 @@ class ClickBunchyGroup(click.Group):
         self.sortkeys_update(cmd, bunchy_name, sort_key)
 
     def bunchies_regroup(self, cmd, bunchy_name):
-        self.group_bunchies.setdefault(bunchy_name, set())
-        self.group_bunchies[bunchy_name].add(cmd.name)
-        self.group_bunchies[None].remove(cmd.name)
+        self.group_bunchies.setdefault(bunchy_name, OrderedDict())
+        self.group_bunchies[bunchy_name][cmd.name] = None
+        del self.group_bunchies[None][cmd.name]
 
     def sortkeys_update(self, cmd, bunchy_name, sort_key):
         self.order_sortkeys[bunchy_name] = sort_key
@@ -78,7 +80,7 @@ class ClickBunchyGroup(click.Group):
                 subcommand = '{0} ({1})'.format(subcommand, aliases)
             col_max = max(col_max, term_len(subcommand))
             # Note that this width does not account for color (ANSI codes).
-            if cmd.name not in self.group_bunchies[bunchy_name]:
+            if cmd.name not in self.group_bunchies[bunchy_name].keys():
                 continue
             commands.append((subcommand, cmd))
         return commands, col_max
