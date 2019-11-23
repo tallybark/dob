@@ -1039,9 +1039,8 @@ def edit_fact_by_key(
 
     def assemble_keys():
         keys = []
-        # The 'key' click.argument is nargs=-1, so it's an iterable.
-        for arg_key in key:
-            keys.append(arg_key)
+        if key is not None:
+            keys.append(key)
         # See also if user specified '-1', '-2', etc.
         for kwg_key in kwargs.keys():
             match = re.match(r'^(latest_(\d+))$', kwg_key)
@@ -1050,27 +1049,22 @@ def edit_fact_by_key(
                 if kwargs[match.groups()[0]]:
                     to_last_index = -1 * int(match.groups()[1])
                     keys.append(to_last_index)
-        # (lb): If no keys, dob will display docs, e.g.,
-        #   `dob edit` same as `dob edit --help`.
-        # But we could also default to last Fact, seems
-        # like friendlier behavior. So
-        #   `dob edit` same as `dob edit -1` (or even `dob edit fact -1`).
+        # (lb): If user runs plain `dob edit` be nice and assume latest Fact.
+        #  - So `dob edit` same as `dob edit -1`.
         if not keys:
             keys = [-1]
+        elif len(keys) > 1:
+            dob_in_user_exit(_(
+                "Argument error: Please specify “-1”, or Fact ID, not both!"
+            ))
         return keys
 
     def process_edit_command(keys):
-        if not keys:
-            click_echo(ctx.get_help())
-            edited_facts = None
-        elif len(keys) > 1:
-            dob_in_user_exit(_("Too many Fact keys specified! Try just one."))
-        else:
-            edited_facts = update.edit_fact_by_pk(
-                controller,
-                key=keys[0],
-                use_carousel=(not no_editor),
-            )
+        edited_facts = update.edit_fact_by_pk(
+            controller,
+            key=keys[0],
+            use_carousel=(not no_editor),
+        )
         return edited_facts
 
     return _edit_fact_by_key()

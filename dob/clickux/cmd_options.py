@@ -535,7 +535,7 @@ _cmd_options_edit_item = [
     # FIXME/BACKLOG/2019-01-31: Could allow user to specify datetime instead of PK,
     #   e.g., `dob edit 2019-01-31` could bring up Fact at Noon on specific day (or
     #   midnight).
-    click.argument('key', nargs=-1, type=int),
+    click.argument('key', nargs=1, type=int, required=False),
     # (lb): User can specify specific Fact PK, a positive integer, or user
     # can specify an index relative to the last Fact, e.g., `dob edit -1`
     # (or even `dob edit -2`, though anything other than `dob edit -1` seems
