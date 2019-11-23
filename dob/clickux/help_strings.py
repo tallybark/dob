@@ -23,15 +23,41 @@ from gettext import gettext as _
 
 from nark.helpers.emphasis import attr, bg, coloring, fg
 
-
 from .. import __arg0name__, __package_name__
 from ..config.manage import default_config_path
 from ..config.urable import ConfigUrable
 from ..copyright import assemble_copyright
 from ..helpers import highlight_value
 
-# Note that the help formatter removes single newlines and adjusts text width
-# when displayed, to a width determined by the terminal and max_content_width.
+# Note that the help formatter reformats paragraphs when the help is
+# displayed, to a width determined by the terminal and max_content_width.
+# So the newlines you see in the text below will be removed and each
+# paragraph will be reformatted with indents and new newlines inserted.
+# - Your best bet to see how the text is formatted is to run the help.
+
+# Note also that a lot of the help text is assembled at runtime, after
+# dob has started and parsed command line arguments and configuration
+# settings. This is because the global coloring() switch is off until
+# after arguments are parsed and the config is read, and then it might
+# be turned. But the way coloring works, ANSI is stripped when strings
+# are assembled, as opposed to ANSI being stripped on output (the latter
+# would make it easier to turn color on or off without having to rebuild
+# strings, or to worry about when strings are generated; but our code is
+# built the other way, so we have to wait for the coloring() question to
+# be settled before building help text. Hence all the callbacks below.
+#
+# E.g., instead of seeing help text built like this:
+#
+#           SOME_HELP_TEXT = _("""Helps you.""")
+#
+#       you'll often see a builder method used instead, such as:
+#
+#           def SOME_HELP_TEXT(ctx):
+#               return _("""Helps {color}you{reset}.""").format(...)
+
+# ***
+# *** [COMMON] Oft-used format() args.
+# ***
 
 
 def common_format():
