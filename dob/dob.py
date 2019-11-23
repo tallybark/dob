@@ -53,7 +53,8 @@ from .clickux.cmd_options import (
     cmd_options_edit_item,
     cmd_options_fact_add,
     cmd_options_fact_dryable,
-    cmd_options_fact_nocarousel,
+    cmd_options_fact_edit,
+    cmd_options_fact_import,
     cmd_options_factoid,
     cmd_options_factoid_verify_none,
     cmd_options_factoid_verify_start,
@@ -1004,7 +1005,7 @@ def add_help_group(*args, **kwargs):
 # Nope: @show_help_if_no_command
 @flush_pager
 @cmd_options_edit_item
-@cmd_options_fact_nocarousel
+@cmd_options_fact_edit
 @pass_controller
 @induct_newbies
 @click.pass_context
@@ -1027,7 +1028,7 @@ def edit_group(ctx, controller, *args, **kwargs):
 @show_help_finally
 @flush_pager
 @cmd_options_edit_item
-@cmd_options_fact_nocarousel
+@cmd_options_fact_edit
 @pass_controller
 @induct_newbies
 @click.pass_context
@@ -1084,7 +1085,7 @@ def edit_fact_by_key(ctx, controller, *args, key, no_carousel, **kwargs):
             edited_facts = update.edit_fact_by_pk(
                 controller,
                 key=keys[0],
-                use_carousel=(not no_carousel),
+                use_carousel=(not no_editor),
             )
         return edited_facts
 
@@ -1191,8 +1192,8 @@ def transcode_export(
               help=_('Keep plaintext backup of edited facts until committed'))
 @click.option('-X', '--leave-backup', is_flag=True,
               help=_('Leave working backup file after commit'))
-@cmd_options_fact_nocarousel
 @cmd_options_fact_dryable
+@cmd_options_fact_import
 @pass_controller
 @induct_newbies
 @click.pass_context
@@ -1202,7 +1203,7 @@ def transcode_import(
     controller,
     output,
     force,
-    no_carousel,
+    no_editor,
     filename=None,
     *args,
     **kwargs
@@ -1229,7 +1230,7 @@ def transcode_import(
         *args,
         file_in=filename,
         file_out=output,
-        use_carousel=(not no_carousel),
+        use_carousel=(not no_editor),
         **kwargs
     )
 

@@ -30,7 +30,8 @@ __all__ = (
     'cmd_options_factoid',
     'cmd_options_fact_add',
     'cmd_options_fact_dryable',
-    'cmd_options_fact_nocarousel',
+    'cmd_options_fact_edit',
+    'cmd_options_fact_import',
     'cmd_options_limit_offset',
     'cmd_options_list_activitied',
     'cmd_options_list_categoried',
@@ -287,14 +288,15 @@ def cmd_options_factoid_verify_both(func):
 # *** [ADD FACT] Options.
 # ***
 
-_cmd_options_fact_add = [
+_cmd_options_fact_add_prefix = [
     click.option(
-        # 2019-11-19: (lb): This was '-C'/'--carousel', but now trying '-e',
-        # because -C/--configfile.
-        # - Also, -e/--edit seems more obvious here, especially b/c dob-edit.
-        '-e', '--edit', is_flag=True,
+        '-e', '--editor', is_flag=True,
         help=_('Edit new Fact before saving, using Carousel, and Awesome Prompt.'),
     ),
+]
+
+
+_cmd_options_fact_add_and_edit = [
     click.option(
         '-d', '--edit-text', is_flag=True,
         help=_('Edit description using user’s preferred $EDITOR.'),
@@ -303,6 +305,10 @@ _cmd_options_fact_add = [
         '-a', '--edit-meta', is_flag=True,
         help=_('Ask for act@gory and tags using Awesome Prompt.'),
     ),
+]
+
+
+_cmd_options_fact_add_postfix = [
     # (lb): 2019-02-01: Current thinking is that conflicts are only okay
     # on add-fact, and only outside the context of the Carousel. So applies
     # to dob-add commands, but not to dob-import.
@@ -314,30 +320,53 @@ _cmd_options_fact_add = [
 
 
 def cmd_options_fact_add(func):
-    for option in reversed(_cmd_options_fact_add):
+    for option in reversed(
+        _cmd_options_fact_add_prefix
+        + _cmd_options_fact_add_and_edit
+        + _cmd_options_fact_add_postfix
+    ):
         func = option(func)
     return func
 
 
 # ***
-# *** [IMPORT FACTS/EDIT FACT] Shared Options.
+# *** [IMPORT FACTS] Options.
 # ***
 
-_cmd_options_fact_nocarousel = [
+_cmd_options_fact_import = [
     # (lb): This is similar to dob-add's --edit, except the default is reversed.
     # - On dob-add, default is to not run Carousel; but on dob-import, it is.
     click.option(
-        # 2019-11-19: (lb): This was '-c', but now trying '-f', because -c/--config.
-        # - What's a good mnemonic? -f as in force-save? Or -f-orget about editing?
-        #   Oh, how 'bout this option makes it run -f[aster]?
-        '-f', '--no-carousel', is_flag=True,
-        help=_('Save new Facts immediately and exit. (Do not run the editor.)'),
+        # Option skips carousel, opens Content in EDITOR, saves Fact on EDITOR exit.
+         '-E', '--no-editor', is_flag=True,
+        help=_('Skip interactive editor after import. Save Facts and exit.'),
     ),
 ]
 
 
-def cmd_options_fact_nocarousel(func):
-    for option in reversed(_cmd_options_fact_nocarousel):
+def cmd_options_fact_import(func):
+    for option in reversed(_cmd_options_fact_import):
+        func = option(func)
+    return func
+
+
+# ***
+# *** [EDIT FACT] Options.
+# ***
+
+_cmd_options_fact_no_editor_edit = [
+    click.option(
+         '-E', '--no-editor', is_flag=True,
+        help=_('Skip interactive editor. Use $EDITOR and Awesome Prompt.'),
+    ),
+]
+
+
+def cmd_options_fact_edit(func):
+    for option in reversed(
+        _cmd_options_fact_add_and_edit
+        + _cmd_options_fact_no_editor_edit
+    ):
         func = option(func)
     return func
 
@@ -521,7 +550,7 @@ _cmd_options_edit_item = [
     # Note that this doesn't solve the issue for -2, -3, etc., but really, who cares.
     click.option(
         '-1', 'latest_1', is_flag=True,
-        help=_('Edit most recently saved Fact.'),
+        help=_('Edit most recent Fact (latest complete, or active).'),
     ),
 ]
 
