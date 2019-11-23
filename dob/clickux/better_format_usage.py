@@ -33,8 +33,24 @@ __all__ = (
 
 class ClickBetterUsageGroup(click.Group):
 
+    # (lb): What I originally had but pretty wordy,
+    # and tends to force usage to wrap:
+    # USAGE_HINT_ALL_OPTS = '--GLOBAL-OPTIONS...'
+    # USAGE_HINT_CMD_OPTS = '--COMMAND-OPTIONS...'
+
+    USAGE_HINT_ALL_OPTS = '--GLOBAL...'
+    USAGE_HINT_CMD_OPTS = '--OPTION...'
+    USAGE_HINT_CMD_ARGS = 'ARGS...'
+
     def __init__(self, *args, **kwargs):
         super(ClickBetterUsageGroup, self).__init__(*args, **kwargs)
+
+    def help_usage_command_path_postfix(self, ctx):
+        if self.name == 'run':
+            return ''
+        # Return everything but the program name, e.g., if ctx.command_path
+        # is "dob config dump", returns "config dump".
+        return ctx.command_path.split(' ', 1)[1]
 
     def format_usage(self, ctx, formatter):
         """Writes the usage line into the formatter.
@@ -43,13 +59,18 @@ class ClickBetterUsageGroup(click.Group):
 
         Overriden by dob to emphasize with _underline_ and **bold**.
         """
+        # We want usage to appear like "dob [--GLOBAL-OPTIONS...] init...",
+        # but default click uses ctx.command_path, which is, e.g., "dob init".
         if self.name == 'run':
             prog = ctx.command_path
         else:
-            # command_path is, e.g., "dob init", but we want usage to
-            # appear like "dob [--GLOBAL-OPTIONS...] init.
-            parts = ctx.command_path.split(' ', 2)
-            prog = '{} [--GLOBAL-OPTIONS...] {}'.format(*parts)
+            prog = ctx.command_path.split(' ', 1)[0]
+        prog = '{} [{}]'.format(
+            prog, ClickBetterUsageGroup.USAGE_HINT_ALL_OPTS,
+        )
+        commands = self.help_usage_command_path_postfix(ctx)
+        if commands:
+            prog = '{} {}'.format(prog, commands)
         prog = '{bold}{prog}{reset}'.format(
             bold=attr('bold'),
             prog=prog,
@@ -57,11 +78,13 @@ class ClickBetterUsageGroup(click.Group):
         )
         #
         pieces = self.collect_usage_pieces(ctx)
-        args = '{bold}{args}{reset}'.format(
-            bold=attr('bold'),
-            args=' '.join(pieces),
-            reset=attr('reset'),
-        )
+        args = ''
+        if pieces:
+            args = '{bold}{args}{reset}'.format(
+                bold=attr('bold'),
+                args=' '.join(pieces),
+                reset=attr('reset'),
+            )
         #
         prefix = '{underlined}{usage}{reset}: '.format(
             underlined=attr('underlined'),
@@ -81,14 +104,18 @@ class ClickBetterUsageGroup(click.Group):
             # (lb): Skip click.core.Argument objects, which are
             # added separately to the pieces collection.
         self.options_metavar = ''
-        if n_opts:
-            if self.name == 'run':
-                self.options_metavar = '[--GLOBAL-OPTIONS...]'
-            else:
-                self.options_metavar = '[--COMMAND-OPTIONS...]'
+        if n_opts and self.name != 'run':
+            # E.g., [--COMMAND-OPTIONS...]
+            self.options_metavar = '[{}]'.format(
+                ClickBetterUsageGroup.USAGE_HINT_CMD_OPTS,
+            )
+        # else, if n_opts and name == 'run', then --GLOBAL-OPTIONS shown instead.
         self.subcommand_metavar = ''
         if self.commands:
-            self.subcommand_metavar = 'COMMAND [--COMMAND-OPTIONS...] [ARGS...]'
+            self.subcommand_metavar = 'COMMAND [{}] [{}]'.format(
+                ClickBetterUsageGroup.USAGE_HINT_CMD_OPTS,
+                ClickBetterUsageGroup.USAGE_HINT_CMD_ARGS,
+            )
         return super(
             ClickBetterUsageGroup, self
         ).collect_usage_pieces(*args, **kwargs)
