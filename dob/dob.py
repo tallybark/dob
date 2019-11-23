@@ -996,7 +996,9 @@ def add_help_group(*args, **kwargs):
 @cmd_bunch_group_edit
 @run.group('edit', help=help_strings.EDIT_GROUP_HELP, **run_group_kwargs)
 @show_help_finally
-@show_help_if_no_command
+# The `edit` command has subcommands, but a bare edit is also
+# a shortcut for fact editing, so do not show help.
+# Nope: @show_help_if_no_command
 @flush_pager
 @cmd_options_edit_item
 @cmd_options_fact_nocarousel
