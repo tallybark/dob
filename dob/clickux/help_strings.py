@@ -1344,3 +1344,49 @@ MIGRATE_VERSION_HELP = _(
     """
 )
 
+
+# ***
+# *** [--GLOBAL-OPTIONS] Global Options help. [run_cli.py]
+# ***
+
+GLOBAL_OPT_VERBOSE = _(
+    """
+    Be chatty. (-VV for more.)
+    """
+)
+
+
+GLOBAL_OPT_VERBOSER = _(
+    """
+    Be chattier.
+    """
+)
+
+
+GLOBAL_OPT_COLOR_NO_COLOR = _(
+    """
+    Color, or plain. (Default: Auto.)
+    """
+)
+
+
+GLOBAL_OPT_PAGER_NO_PAGER = _(
+    """
+    Send output to pager, or not. (Default: No.)
+    """
+)
+
+
+GLOBAL_OPT_CONFIG = _(
+    """
+    Override config setting(s) (may do multiple).
+    """
+)
+
+
+GLOBAL_OPT_CONFIGFILE = _(
+    """
+    Alternative path to configuration file.
+    """
+)
+

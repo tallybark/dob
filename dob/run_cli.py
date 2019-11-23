@@ -127,15 +127,20 @@ CONTEXT_SETTINGS = dict(
 # FIXME: Need universal options in cmd_options? Or can I apply to Groups?
 #          These aren't recognized by other fcns...
 #        OH! These have to come *before* the command??
-@click.option('-V', '--verbose', is_flag=True, help=_('Be chatty. (-VV for more.)'))
-@click.option('-VV', '--verboser', is_flag=True, help=_('Be chattier.'), hidden=True)
-@click.option('-X', '--color/--no-color', default=None, help=_('Color, or plain.'))
-@click.option('-P', '--pager/--no-pager', default=None, help=_('Pager, or splat.'))
+@click.option('-V', '--verbose', is_flag=True,
+              help=help_strings.GLOBAL_OPT_VERBOSE)
+@click.option('-VV', '--verboser', is_flag=True, hidden=True,
+              help=help_strings.GLOBAL_OPT_VERBOSER)
+# (lb): 2019-11-19: Trying -X, like you're PAINTING the screen.
+@click.option('-C', '--color/--no-color', '-X', default=None,
+              help=help_strings.GLOBAL_OPT_COLOR_NO_COLOR)
+@click.option('-P', '--pager/--no-pager', default=None,
+              help=help_strings.GLOBAL_OPT_PAGER_NO_PAGER)
 @click.option('-c', '--config', multiple=True, metavar='KEY=VALUE',
-              help=_('Override a single configuration setting.'))
+              help=help_strings.GLOBAL_OPT_CONFIG)
 # (lb): We could use `type=click.File('r')` here. Or not.
-@click.option('-C', '--configfile', metavar='PATH',
-              help=_('Override configuration file path.'))
+@click.option('-F', '--configfile', metavar='PATH',
+              help=help_strings.GLOBAL_OPT_CONFIGFILE)
 # Profiling: pass_controller appears to take ~ ¼ seconds.
 @timefunct('run: create Controller [_get_store]')
 @pass_controller
