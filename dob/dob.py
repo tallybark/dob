@@ -55,6 +55,10 @@ from .clickux.cmd_options import (
     cmd_options_fact_dryable,
     cmd_options_fact_nocarousel,
     cmd_options_factoid,
+    cmd_options_factoid_verify_none,
+    cmd_options_factoid_verify_start,
+    cmd_options_factoid_verify_end,
+    cmd_options_factoid_verify_both,
     cmd_options_limit_offset,
     cmd_options_list_activitied,
     cmd_options_list_categoried,
@@ -765,7 +769,6 @@ def show(controller):
 
 def generate_add_fact_command(time_hint):
     def _generate_add_fact_command(func):
-        @cmd_options_factoid
         @cmd_options_fact_add
         @cmd_options_fact_dryable
         @pass_controller
@@ -784,6 +787,7 @@ def generate_add_fact_command(time_hint):
 @run.command("now", aliases=["now:"], help=help_strings.START_HELP_NOW)
 @show_help_finally
 @flush_pager
+@cmd_options_factoid_verify_none
 @generate_add_fact_command("verify_none")
 def add_fact_now(controller, *args, **kwargs):
     """Start or add a fact using the `now` directive."""
@@ -795,6 +799,7 @@ def add_fact_now(controller, *args, **kwargs):
 @run.command("on", aliases=["on:"], help=help_strings.START_HELP_ON)
 @show_help_finally
 @flush_pager
+@cmd_options_factoid_verify_none
 @generate_add_fact_command("verify_none")
 def add_fact_on(controller, *args, **kwargs):
     """Start or add a fact using the `on` directive."""
@@ -806,6 +811,7 @@ def add_fact_on(controller, *args, **kwargs):
 @run.command("at", aliases=["at:"], help=help_strings.START_HELP_AT)
 @show_help_finally
 @flush_pager
+@cmd_options_factoid_verify_start
 @generate_add_fact_command("verify_start")
 def add_fact_at(controller, *args, **kwargs):
     """Start or add a fact using the `at` directive."""
@@ -817,6 +823,7 @@ def add_fact_at(controller, *args, **kwargs):
 @run.command("from", help=help_strings.START_HELP_FROM)
 @show_help_finally
 @flush_pager
+@cmd_options_factoid_verify_both
 @generate_add_fact_command("verify_both")
 def add_fact_from(controller, *args, **kwargs):
     """Add a fact using the `from ... to/until` directive."""
@@ -828,6 +835,7 @@ def add_fact_from(controller, *args, **kwargs):
 @run.command("to", aliases=["to:"], help=help_strings.START_HELP_TO)
 @show_help_finally
 @flush_pager
+@cmd_options_factoid_verify_end
 @generate_add_fact_command("verify_end")
 def add_fact_to(controller, *args, **kwargs):
     """Start or add a fact using the `to` directive."""
@@ -839,6 +847,7 @@ def add_fact_to(controller, *args, **kwargs):
 @run.command("until", aliases=["until:"], help=help_strings.START_HELP_UNTIL)
 @show_help_finally
 @flush_pager
+@cmd_options_factoid_verify_end
 @generate_add_fact_command("verify_end")
 def add_fact_until(controller, *args, **kwargs):
     """Start or add a fact using the `until` directive."""
@@ -850,6 +859,8 @@ def add_fact_until(controller, *args, **kwargs):
 @run.command("then", aliases=["then:"], help=help_strings.START_HELP_THEN)
 @show_help_finally
 @flush_pager
+# FIXME/2019-11-22: (lb): This right? (Because command is verify_then):
+@cmd_options_factoid_verify_start
 @generate_add_fact_command("verify_then")
 def add_fact_then(controller, *args, **kwargs):
     """Start or add a fact using the `then` directive."""
@@ -861,6 +872,8 @@ def add_fact_then(controller, *args, **kwargs):
 @run.command("still", aliases=["still:"], help=help_strings.START_HELP_STILL)
 @show_help_finally
 @flush_pager
+# FIXME/2019-11-22: (lb): This right? (Because command is verify_still):
+@cmd_options_factoid_verify_start
 @generate_add_fact_command("verify_still")
 def add_fact_still(controller, *args, **kwargs):
     """Start or add a fact using the `still` directive."""
@@ -872,6 +885,8 @@ def add_fact_still(controller, *args, **kwargs):
 @run.command("after", aliases=["after:"], help=help_strings.START_HELP_AFTER)
 @show_help_finally
 @flush_pager
+# FIXME/2019-11-22: (lb): This right? (Because command is verify_after):
+@cmd_options_factoid_verify_start
 @generate_add_fact_command("verify_after")
 def add_fact_after(controller, *args, **kwargs):
     """Start or add a fact using the `after` directive."""
@@ -883,6 +898,8 @@ def add_fact_after(controller, *args, **kwargs):
 @run.command("next", aliases=["next:"], help=help_strings.START_HELP_NEXT)
 @show_help_finally
 @flush_pager
+# FIXME/2019-11-22: (lb): This right? (Because command is verify_after):
+@cmd_options_factoid_verify_start
 # Note that 'next' is really just an alias of 'after'.
 @generate_add_fact_command("verify_after")
 def add_fact_next(controller, *args, **kwargs):

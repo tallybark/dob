@@ -207,8 +207,17 @@ def _postprocess_options_table_options_asc_desc_to_sort_order(kwargs):
 # *** [ADD FACT/STOP FACT] Raw Factoid Option.
 # ***
 
+_option_factoid_text_parts = (
+    '[<activity>[@<category>]]'
+    ' [@<tag>...] [<description>]'
+)
+
+
 _cmd_options_factoid = [
-    click.argument('factoid', nargs=-1, default=None),
+    click.argument('factoid', nargs=-1, default=None,
+                   metavar='[START_TIME] [to] [END_TIME] {}'.format(
+                       _option_factoid_text_parts,
+                   )),
 ]
 
 
@@ -216,6 +225,62 @@ def cmd_options_factoid(func):
     for option in reversed(_cmd_options_factoid):
         func = option(func)
     return func
+
+
+_cmd_options_factoid_verify_none = [
+    click.argument('factoid', nargs=-1, default=None,
+                   metavar=_option_factoid_text_parts,
+                   ),
+]
+
+
+def cmd_options_factoid_verify_none(func):
+    for option in reversed(_cmd_options_factoid_verify_none):
+        func = option(func)
+    return func
+
+
+_cmd_options_factoid_verify_start = [
+    click.argument('factoid', nargs=-1, default=None,
+                   metavar='[START_TIME] {}'.format(
+                       _option_factoid_text_parts,
+                   )),
+]
+
+
+def cmd_options_factoid_verify_start(func):
+    for option in reversed(_cmd_options_factoid_verify_start):
+        func = option(func)
+    return func
+
+
+_cmd_options_factoid_verify_end = [
+    click.argument('factoid', nargs=-1, default=None,
+                   metavar='[END_TIME] {}'.format(
+                       _option_factoid_text_parts,
+                   )),
+]
+
+
+def cmd_options_factoid_verify_end(func):
+    for option in reversed(_cmd_options_factoid_verify_end):
+        func = option(func)
+    return func
+
+
+_cmd_options_factoid_verify_both = [
+    click.argument('factoid', nargs=-1, default=None,
+                   metavar='START_TIME to END_TIME {}'.format(
+                       _option_factoid_text_parts,
+                   )),
+]
+
+
+def cmd_options_factoid_verify_both(func):
+    for option in reversed(_cmd_options_factoid_verify_both):
+        func = option(func)
+    return func
+
 
 
 # ***
