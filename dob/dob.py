@@ -998,11 +998,8 @@ def add_help_group(*args, **kwargs):
 # ***
 
 @cmd_bunch_group_edit
-@run.group('edit', help=help_strings.EDIT_FACT_HELP, **run_group_kwargs)
+@run.command('edit', help=help_strings.EDIT_FACT_HELP)
 @show_help_finally
-# The `edit` command has subcommands, but a bare edit is also
-# a shortcut for fact editing, so do not show help.
-# Nope: @show_help_if_no_command
 @flush_pager
 @cmd_options_edit_item
 @cmd_options_fact_edit
@@ -1012,33 +1009,20 @@ def add_help_group(*args, **kwargs):
 @post_processor
 def edit_group(ctx, controller, *args, **kwargs):
     """Base `edit` group command run prior to any of the dob-edit commands."""
-    if ctx.invoked_subcommand:
-        return None
-
-    # (lb): 2019-01-31: Default `dob edit` behavior is same as `dob edit fact -1`.
-    # - Intention was to someday have `dob edit activity`, `dob edit tag`, etc.,
-    #   but that feature so far not implemented, and likely to be named different,
-    #   anyway. (So maybe `dob edit fact` can just be `dob edit`; for now, both!)
     return edit_fact_by_key(ctx, controller, *args, **kwargs)
 
 
-# *** FACTS.
-
-@edit_group.command('fact', help=help_strings.EDIT_FACT_HELP)
-@show_help_finally
-@flush_pager
-@cmd_options_edit_item
-@cmd_options_fact_edit
-@pass_controller
-@induct_newbies
-@click.pass_context
-@post_processor
-def dob_edit_fact(ctx, controller, *args, **kwargs):
-    """Inline-Edit specified Fact using preferred $EDITOR."""
-    return edit_fact_by_key(ctx, controller, *args, **kwargs)
-
-
-def edit_fact_by_key(ctx, controller, *args, key, no_carousel, **kwargs):
+def edit_fact_by_key(
+    ctx,
+    controller,
+    *args,
+    key,
+    no_editor,
+    edit_text,
+    edit_meta,
+    # Leave 'latest_1' in kwargs.
+    **kwargs
+):
     def _edit_fact_by_key():
 
         if controller.client_config['carousel_centered']:
