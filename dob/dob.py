@@ -1064,6 +1064,8 @@ def edit_fact_by_key(
             controller,
             key=keys[0],
             use_carousel=(not no_editor),
+            edit_text=edit_text,
+            edit_meta=edit_meta,
         )
         return edited_facts
 

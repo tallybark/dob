@@ -23,20 +23,55 @@ import click
 
 from .create import mend_facts_confirm_and_save_maybe, prompt_and_save
 from .helpers import dob_in_user_exit
-from .interrogate import ask_edit_with_editor
+from .interrogate import ask_edit_with_editor, ask_user_for_edits
 
 __all__ = ('edit_fact_by_pk', )
 
 
-def edit_fact_by_pk(controller, key, use_carousel=True):
+def edit_fact_by_pk(
+    controller,
+    key,
+    use_carousel=True,
+    edit_text=False,
+    edit_meta=False,
+):
     """"""
     def _edit_fact_by_pk():
         old_fact = fact_from_key(key)
         if old_fact is None:
             return None
+        # Pre-run Awesome Prompt and/or $EDITOR.
+        # Then run the Interactive Editor Carousel, the star
+        # of the show; or show the $EDITOR if nothing else done.
+        # FIXME/2019-11-23: (lb): add_fact does $EDITOR, then Awesome.
+        #                   - Which way is best? Make if configurable!!
+        if edit_meta:
+            _prompter = ask_user_for_edits(
+                controller,
+                # MAYBE: rename old_fact
+                # fact=edit_fact,
+                fact=old_fact,
+                always_ask=True,
+                #restrict_edit='description',
+            )
+            # FIXME: Missing diff with old Fact to see if edited (and tell user)
+            #    and missing save Fact.
+        if edit_text:
+            # FIXME/2019-11-23 02:39: Care that new Fact(s) returned?
+            #edited_facts = edit_old_factoid(old_fact)
+            _prompter = ask_user_for_edits(
+                controller,
+                # MAYBE: rename old_fact
+                # fact=edit_fact,
+                fact=old_fact,
+                always_ask=True,
+                restrict_edit='description',
+            )
+            # FIXME: Missing diff with old Fact to see if edited (and tell user)
+            #    and missing save Fact.
         if use_carousel:
             edited_facts = edit_old_fact(old_fact)
-        else:
+        elif not edit_meta and not edit_text:
             edited_facts = edit_old_factoid(old_fact)
         return edited_facts
 
@@ -92,7 +127,6 @@ def edit_fact_by_pk(controller, key, use_carousel=True):
     # ***
 
     def edit_old_factoid(old_fact):
-        # FIXME/2018-06-11: (lb): Wire --ask option. For now, just open editor.
         raw_fact = editor_interact(old_fact)
         time_hint = fact_time_hint(old_fact)
         new_fact = new_fact_from_factoid(raw_fact, old_fact, time_hint)
@@ -101,7 +135,9 @@ def edit_fact_by_pk(controller, key, use_carousel=True):
         return new_and_edited
 
     def editor_interact(old_fact):
-        # FIXME/2018-06-11: (lb): Be explicit about str fcn. being called.
+        # FIXME/2019-11-23: So, friendly_str and ask_edit_with_editor
+        # can produce same string? If true, this should be its own
+        # method with no arguments (seems to fragile).
         old_raw_fact = old_fact.friendly_str(
             shellify=False,
             description_sep='\n\n',
