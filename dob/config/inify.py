@@ -71,9 +71,9 @@ class ConfigDecorator(Subscriptable):
         parent._sections[self._name] = self
 
     def update_from_dict(self, config):
-        for section, conf_dtor in self._sections.items():
+        for section, conf_dcor in self._sections.items():
             if section in config:
-                conf_dtor.update_from_dict(config[section])
+                conf_dcor.update_from_dict(config[section])
         for name, ckv in self._key_vals.items():
             if ckv.ephemeral:
                 # Essentially unreachable, unless hacked config file.
@@ -90,8 +90,8 @@ class ConfigDecorator(Subscriptable):
     ):
         def _download_to_dict():
             n_settings = 0
-            for section, conf_dtor in self._sections.items():
-                n_settings += _recurse_section(section, conf_dtor)
+            for section, conf_dcor in self._sections.items():
+                n_settings += _recurse_section(section, conf_dcor)
             for name, ckv in self._key_vals.items():
                 if ckv.ephemeral:
                     continue
@@ -102,10 +102,10 @@ class ConfigDecorator(Subscriptable):
                     pass
             return n_settings
 
-        def _recurse_section(section, conf_dtor):
+        def _recurse_section(section, conf_dcor):
             existed = section in config
             subsect = config.setdefault(section, {})
-            n_settings = conf_dtor.download_to_dict(subsect)
+            n_settings = conf_dcor.download_to_dict(subsect)
             if not n_settings and not existed:
                 del config[section]
             return n_settings
@@ -134,8 +134,8 @@ class ConfigDecorator(Subscriptable):
     def _walk(self, visitor):
         for keyval in self._key_vals.values():
             visitor(self, keyval)
-        for conf_dtor in self._sections.values():
-            conf_dtor._walk(visitor)
+        for conf_dcor in self._sections.values():
+            conf_dcor._walk(visitor)
 
     def _find(self, parts, skip_sections=False):
         # If caller specifies just one part, we'll do a loose, lazy match.
@@ -153,15 +153,16 @@ class ConfigDecorator(Subscriptable):
                 section_names = parts[:-1]
                 object_name = parts[-1]
 
-                conf_dtor = self
+                conf_dcor = self
                 for name in section_names:
-                    conf_dtor = conf_dtor._sections[name]
+                    # Raises KeyError if one of the sections not found.
+                    conf_dcor = conf_dcor._sections[name]
 
                 objects = []
-                if object_name in conf_dtor._sections and not skip_sections:
-                    objects.append(conf_dtor._sections[object_name])
-                if object_name in conf_dtor._key_vals:
-                    objects.append(conf_dtor._key_vals[object_name])
+                if object_name in conf_dcor._sections and not skip_sections:
+                    objects.append(conf_dcor._sections[object_name])
+                if object_name in conf_dcor._key_vals:
+                    objects.append(conf_dcor._key_vals[object_name])
 
             return objects
 
@@ -170,11 +171,14 @@ class ConfigDecorator(Subscriptable):
     def _find_objects_named(self, name, skip_sections=False):
         objects = []
         if name in self._sections and not skip_sections:
+            # Exact section name match.
             objects.append(self._sections[name])
         if name in self._key_vals:
+            # Exact setting name match.
             objects.append(self._key_vals[name])
-        for section, conf_dtor in self._sections.items():
-            objects.extend(conf_dtor._find_objects_named(name, skip_sections))
+        for section, conf_dcor in self._sections.items():
+            # Loosy breadth-first search for name.
+            objects.extend(conf_dcor._find_objects_named(name, skip_sections))
         return objects
 
     def _find_root(self):
