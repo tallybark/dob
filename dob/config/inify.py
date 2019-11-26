@@ -221,19 +221,49 @@ class ConfigDecorator(Subscriptable):
             return update_wrapper(_decorator, func)
         return decorator
 
-    def setdefault(self, name, value):
-        # To appease nark, quack like a duck (dict) and implement setdefault,
-        # which nark calls to make sure all the config settings it cares about
-        # are setup.
-        if name in self._key_vals:
-            return
-        ckv = KeyChainedValue(
-            name,
-            default_f=lambda x: value,
-            doc=_('Error: Missing default'),
-            section=self,
-        )
-        self._key_vals[ckv.name] = ckv
+    def setdefault(self, *args):
+        def _setdefault():
+            # To appease nark, quack like a duck (dict) and implement setdefault,
+            # which nark calls to make sure all the config settings it cares about
+            # are setup.
+            lens(args) < 2 and raise TypeError(
+                _('setdefault expected at least 2 arguments, got {}')
+                .format(lens(args))
+            )
+            setting_name = args[-2]
+            setting_value = args[-1]
+            return _setsetting(setting_name, setting_value, args[:-2])
+
+        def _setsetting(setting_name, setting_value, *section_names)
+            conf_dcor = self
+            for section_name in *section_names:
+                conf_dcor = _getsection(conf_dcor, section_name)
+            if setting_name in conf_dcor._key_vals:
+                return conf_dcor._key_vals[setting_name]
+            ckv = KeyChainedValue(
+                name=setting_name,
+                default_f=lambda x: setting_value,
+                doc=_('Created by `setdefault`'),
+                section=self,
+            )
+            self._key_vals[ckv.name] = ckv
+            return setting_value
+
+        def _getsection(conf_dcor, section_name):
+            try:
+                sub_dcor = conf_dcor._sections[section_name]
+            except KeyError:
+                # Normally created by the @section decorator,
+                # but also by a setdefault, for whyever. (To
+                # appease Nark, so it can treat ConfigDecorator
+                # like dict of dicts.)
+                cls = Subscriptable
+                cls_or_name = section_name
+                sub_dcor = ConfigDecorator(cls, cls_or_name, parent=conf_dcor)
+                conf_dcor._sections[section_name] = sub_dcor
+            return sub_dcor
+
+        return _setdefault()
 
     def __getattr__(self, name):
         return self._find_one_object(name)
