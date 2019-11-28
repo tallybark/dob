@@ -49,16 +49,34 @@ Current Hamsterriah
   does not get in your way (check out the ``Vim``-*esque* key bindings), and
   is beautiful (with a pleasing, artful, customizable *UX*/user interface).
 
-FIXME: NEED LOGO
-----------------
+Illustration [sic] Credit
+-------------------------
 
 .. |infocat| replace:: *Information Cat*
-.. _infocat: https://github.com/hotoffthehamster/nark/blob/develop/docs/_static/images/information-cat.png
+.. .. _infocat: https://github.com/hotoffthehamster/nark/blob/develop/docs/_static/images/information-cat.png
+.. _infocat: https://raw.githubusercontent.com/hotoffthehamster/nark/develop/docs/_static/images/information-cat.png
 
 |infocat|_
 illustration by `Landon Bouma <https://github.com/landonb>`_
 derived from `information Cat <https://thenounproject.com/iconka/collection/cat-commerce/?i=232268>`__
 by `Denis Sazhin <https://thenounproject.com/iconka/>`__
+from `the Noun Project <https://thenounproject.com>`__.
+
+.. |hothicon| replace:: *HotOffThe Hamster*
+.. _hothicon: https://avatars1.githubusercontent.com/u/40221513?s=400&v=4
+
+|hothicon|_
+illustration by `Landon Bouma <https://github.com/landonb>`_,
+derived from:
+`Desert <https://www.flaticon.com/free-icon/desert_190898>`__,
+by `Freepik <https://www.freepik.com/>`__,
+from `www.flaticon.com <https://www.flaticon.com/>`__,
+licensed by `CC 3.0 BY <http://creativecommons.org/licenses/by/3.0/>`__;
+`Hamster Wheel <https://thenounproject.com/term/hamster-wheel/4739/>`__,
+by `Olivier Guin <https://thenounproject.com/olivierguin>`__,
+from `the Noun Project <https://thenounproject.com>`__; and
+`Sun <https://thenounproject.com/term/sun/1888465/>`__,
+by `Valerie Lamm <https://thenounproject.com/my__valerie>`__,
 from `the Noun Project <https://thenounproject.com>`__.
 
 “Hamster 2.0” Rewrite (circa 2015 to 2017)
