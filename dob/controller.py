@@ -70,7 +70,7 @@ class Controller(NarkControl):
     def data_store_exists_at(self):
         return _(
             'Data store already exists at {}'
-        ).format(self.config['db_path'])
+        ).format(self.config['db.path'])
 
     @property
     def data_store_url(self):
@@ -78,8 +78,8 @@ class Controller(NarkControl):
 
     @property
     def sqlite_db_path(self):
-        if self.config['db_engine'] == 'sqlite':
-            return self.config['db_path']
+        if self.config['db.engine'] == 'sqlite':
+            return self.config['db.path']
         else:
             # (lb): I don't super-like this. It's a weird side effect.
             #   And it's knowledgeable about the CLI command API. Meh.
@@ -96,8 +96,8 @@ class Controller(NarkControl):
     @property
     def store_exists(self):
         # Check either db_path is set, or all of db_host/_port/_name/_user.
-        if self.config['db_engine'] == 'sqlite':
-            return os.path.isfile(self.config['db_path'])
+        if self.config['db.engine'] == 'sqlite':
+            return os.path.isfile(self.config['db.path'])
         else:
             return bool(self.store.db_url)
 
@@ -160,14 +160,9 @@ class Controller(NarkControl):
     def write_config(self, skip_unset=False):
         self.configurable.write_config(skip_unset=skip_unset)
 
-    def wire_configience(self):
-        # MAYBE/2019-11-19: (lb) I might rename/rewire self.config, self.client_config.
-        # - These are for convenience.
-        self.config = self.configurable.config_root.backend
-        self.client_config = self.configurable.config_root.client
-
+    def wire_configience(self, config_root=None):
+        self.config = config_root or self.configurable.config_root
         self.capture_config_lib(self.config)
-
         self._adjust_log_level()
 
     # ***
@@ -240,20 +235,26 @@ class Controller(NarkControl):
         ):
             return
         # FIXME/EXPLAIN/2019-01-22: (lb): What about other 2 loggers?
-        #   lib_log_level
-        #   cli_log_level
-        self.config.sql_log_level.value_from_forced = 'WARNING'
+        #   dev.cli_log_level
+        #   dev.lib_log_level
+        # (lb): Normally I'd prefer the []-lookup vs. attr., e.g., not:
+        #   self.config.dev.sql_log_level.value_from_forced = 'WARNING'
+        # because the self.config has non-key-val attributes (like
+        # setdefault) so I think for clarity we should lookup via [].
+        # Except the []-lookup returns the value, not the keyval object.
+        # So here we have to use dotted attribute notation.
+        self.config.dev.sql_log_level.value_from_forced = 'WARNING'
 
     def check_sqlite_store_ready(self):
-        if self.config['db_engine'] != 'sqlite':
+        if self.config['db.engine'] != 'sqlite':
             return None
-        db_path = self.config['db_path']
+        db_path = self.config['db.path']
         if not os.path.isfile(db_path):
             return False
         return True
 
     def _reset_data_store(self):
-        if self.config['db_engine'] != 'sqlite':
+        if self.config['db.engine'] != 'sqlite':
             # raise NotImplementedError
             dob_in_user_exit(_(
                 'FIXME: Reset non-SQLite data store not supported (yet).'
@@ -262,7 +263,7 @@ class Controller(NarkControl):
             self.must_unlink_db_path(force=True)
 
     def must_unlink_db_path(self, *_args, force):
-        db_path = self.config['db_path']
+        db_path = self.config['db.path']
         if not os.path.exists(db_path):
             return
         if not os.path.isfile(db_path):
@@ -276,7 +277,7 @@ class Controller(NarkControl):
     def _announce_recreated_store(self):
         click_echo(
             _('Recreated data store at {}')
-            .format(highlight_value(self.config['db_path']))
+            .format(highlight_value(self.config['db.path']))
         )
 
     def _standup_and_version_store(self):
@@ -309,9 +310,9 @@ class Controller(NarkControl):
 
     def setup_tty_color(self, use_color):
         if use_color is None:
-            use_color = self.client_config['term_color']
+            use_color = self.config['term.use_color']
         else:
-            self.client_config['term_color'] = use_color
+            self.config['term.use_color'] = use_color
         if use_color:
             enable_colors()
         else:
@@ -327,7 +328,7 @@ class Controller(NarkControl):
             logger.handlers = []
         # Clear existing Handlers, and set the level.
         # MAYBE: Allow user to specify different levels for different loggers.
-        cli_log_level_name = self.client_config['cli_log_level']
+        cli_log_level_name = self.config['dev.cli_log_level']
         cli_log_level, warn_name = logging_helpers.resolve_log_level(cli_log_level_name)
         # We can at least allow some simpler optioning from the command args.
         if verbose:
@@ -343,16 +344,16 @@ class Controller(NarkControl):
         self.client_logger.handlers = []
         self.client_logger.setLevel(cli_log_level)
 
-        color = self.client_config['log_color']
+        color = self.config['log.use_color']
         formatter = logging_helpers.formatter_basic(color=color)
 
-        if self.client_config['log_console']:
+        if self.config['log.use_console']:
             console_handler = logging.StreamHandler()
             logging_helpers.setup_handler(console_handler, formatter, *loggers)
 
-        if self.client_config['logfile_path']:
-            filename = self.client_config['logfile_path']
-            file_handler = logging.FileHandler(filename, encoding='utf-8')
+        logfile = self.config['log.filepath']
+        if logfile:
+            file_handler = logging.FileHandler(logfile, encoding='utf-8')
             logging_helpers.setup_handler(file_handler, formatter, *loggers)
 
         if warn_name:
@@ -389,7 +390,7 @@ class Controller(NarkControl):
         if condition:
             return
         self.client_logger.error(_('Something catastrophic happened!'))
-        if not self.client_config['devmode']:
+        if not self.config['dev.catch_errors']:
             return
         import traceback
         traceback.print_stack()

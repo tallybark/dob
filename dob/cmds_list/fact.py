@@ -135,8 +135,8 @@ class AnsiWrapper(TextWrapper):
 
 
 def echo_single_fact(controller, fact):
-    colorful = controller.client_config['term_color']
-    localize = controller.config['tz_aware']
+    colorful = controller.config['term.use_color']
+    localize = controller.config['time.tz_aware']
     friendly = fact.friendly_str(
         shellify=False,
         description_sep=': ',
@@ -204,7 +204,7 @@ def list_facts(
         return 'time'
 
     def output_block(results):
-        colorful = controller.client_config['term_color']
+        colorful = controller.client['term.use_color']
         sep_width = output_rule_width()
         cut_width = output_truncate_at()
         for idx, fact in enumerate(results):

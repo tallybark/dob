@@ -485,8 +485,8 @@ class TestDetails(object):
         """Make sure database details for sqlite are shown properly."""
         controller._get_store = mocker.MagicMock()
         engine, path = 'sqlite', appdirs.user_data_dir
-        controller.config['db_engine'] = engine
-        controller.config['db_path'] = path
+        controller.config['db.engine'] = engine
+        controller.config['db.path'] = path
         details.echo_app_details(controller)
         out, err = capsys.readouterr()
         for item in (engine, path):
@@ -511,12 +511,12 @@ class TestDetails(object):
         database connection right away otherwise.
         """
         controller._get_store = mocker.MagicMock()
-        controller.config['db_engine'] = 'postgres'
-        controller.config['db_name'] = db_name
-        controller.config['db_host'] = db_host
-        controller.config['db_user'] = db_user
-        controller.config['db_password'] = db_password
-        controller.config['db_port'] = db_port
+        controller.config['db.engine'] = 'postgres'
+        controller.config['db.name'] = db_name
+        controller.config['db.host'] = db_host
+        controller.config['db.user'] = db_user
+        controller.config['db.password'] = db_password
+        controller.config['db.port'] = db_port
         details.echo_app_details(controller)
         out, err = capsys.readouterr()
         for item in ('postgres', db_host, db_name, db_user):
@@ -547,18 +547,18 @@ class TestSetupLogging(object):
         controller.setup_logging()
         assert controller.lib_logger.level == (
             logging_helpers.resolve_log_level(
-                controller.config['lib_log_level']
+                controller.config['dev.lib_log_level']
             )[0]
         )
         assert controller.client_logger.level == (
             logging_helpers.resolve_log_level(
-                controller.client_config['cli_log_level']
+                controller.config['dev.cli_log_level']
             )[0]
         )
 
     def test_setup_logging_log_console_true(self, controller):
         """Ensure if console logging, lib and client have streamhandlers."""
-        controller.client_config['log_console'] = True
+        controller.config['log.use_console'] = True
         controller.setup_logging()
         assert isinstance(
             controller.client_logger.handlers[0],
@@ -591,7 +591,7 @@ class TestSetupLogging(object):
         """
         Make sure that if we enable logfile_path, both loggers receive ``FileHandler``.
         """
-        controller.client_config['logfile_path'] = os.path.join(
+        controller.config['log.filepath'] = os.path.join(
             appdirs.user_log_dir, 'foobar.log',
         )
         controller.setup_logging()
@@ -608,7 +608,7 @@ class TestSetupLogging(object):
 class TestGetConfig(object):
     """Make sure that turning a config instance into proper config dictionaries works."""
 
-# FIXME/2019-11-18 20:34: All the app_config are now wrong. See new dob.config.manage methods.
+# FIXME/2019-11-18: (lb): All the app_config are now wrong. See new dob.config.manage methods.
 
     @pytest.mark.parametrize('log_level', ['debug'])
     def test_log_levels_valid(self, log_level, config_instance):
@@ -618,7 +618,7 @@ class TestGetConfig(object):
         backend, client = app_config.get_separate_configs(
             config_instance(log_level=log_level)
         )
-        assert client['cli_log_level'] == 10
+        assert client['dev.cli_log_level'] == 10
 
     @pytest.mark.parametrize('cli_log_level', ['foobar'])
     def test_log_levels_invalid(self, cli_log_level, config_instance, capsys):
@@ -642,11 +642,11 @@ class TestGetConfig(object):
         """Make sure that passing a store other than 'sqlalchemy' raises exception."""
         config_instance = config_instance(db_engine='postgres')
         backend, client = app_config.get_separate_configs(config_instance)
-        assert backend['db_host'] == config_instance.get('backend', 'db_host')
-        assert backend['db_port'] == config_instance.get('backend', 'db_port')
-        assert backend['db_name'] == config_instance.get('backend', 'db_name')
-        assert backend['db_user'] == config_instance.get('backend', 'db_user')
-        assert backend['db_password'] == config_instance.get('backend', 'db_password')
+        assert backend['db.host'] == config_instance.get('backend', 'db.host')
+        assert backend['db.port'] == config_instance.get('backend', 'db.port')
+        assert backend['db.name'] == config_instance.get('backend', 'db.name')
+        assert backend['db.user'] == config_instance.get('backend', 'db.user')
+        assert backend['db.password'] == config_instance.get('backend', 'db.password')
 
 
 class TestGetConfigInstance(object):
@@ -700,7 +700,7 @@ class TestGenerateTable(object):
 
 class TestWriteConfigFile(object):
     def test_file_is_written(self, filepath, config_instance):
-        """Ensure file is written. Content not checked; that's ConfigParser's job."""
+        """Ensure file is written. Content not checked; that's ConfigObj's job."""
         app_config.store_config(config_instance(), filepath)
         assert os.path.lexists(filepath)
 

@@ -808,7 +808,7 @@ def import_facts(
                     seqt_fact.squash(new_facts[-1], DEFAULT_SQUASH_SEP)
                     new_facts[-1] = seqt_fact
                     return check_all
-                if not controller.config['allow_momentaneous']:
+                if not controller.config['time.allow_momentaneous']:
                     # User is not allowing momentaneous Facts, so disallow.
                     # Return True and we'll run thorough conflict check
                     # (and exit on error instead of continuing import).

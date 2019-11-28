@@ -36,10 +36,6 @@ __all__ = (
 
 
 # ***
-# ***
-# ***
-
-# ***
 
 def default_config_path():
     config_dir = AppDirs.user_config_dir

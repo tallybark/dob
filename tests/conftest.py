@@ -31,19 +31,16 @@ from __future__ import absolute_import, unicode_literals
 import codecs
 import datetime
 import os
+import pytest
+
+import fauxfactory
+from click.testing import CliRunner
+from configobj import ConfigObj
+from pytest_factoryboy import register
+from six import text_type
 
 import dob.dob as dob
 from dob.controller import Controller
-
-import fauxfactory
-import pytest
-# Once we drop py2 support, we can use the builtin again but unicode support
-# under python 2 is practicly non existing and manual encoding is not easily
-# possible.
-from backports.configparser import ConfigParser
-from click.testing import CliRunner
-from pytest_factoryboy import register
-from six import text_type
 
 from . import factories
 
@@ -126,9 +123,11 @@ def runner(appdirs, get_config_file, tmpdir):
 
 
 @pytest.fixture
-def base_config():
+def config_root():
     """Provide a generic baseline configuration."""
-    return lib_config, client_config
+    config = lib_config.copy()
+    config.update(client_config)
+    return config
 
 
 @pytest.fixture
@@ -143,37 +142,37 @@ def lib_config(tmpdir):
         # FIXME/2019-02-20: (lb): Test with missing config values; I know, bugs!
         # E.g., unset store, and I think dob topples.
 
-        'store': 'sqlalchemy',
-        'db_engine': 'sqlite',
-        'db_path': ':memory:',
+        'db.orm': 'sqlalchemy',
+        'db.engine': 'sqlite',
+        'db.path': ':memory:',
         # MAYBE/2019-02-20: (lb): Support for other DBMS's wired, but not tested.
-        #   'db_host': '',
-        #   'db_port': '',
-        #   'db_name': '',
-        #   'db_user': '',
-        #   'db_password': '',
+        #   'db.host': '',
+        #   'db.port': '',
+        #   'db.name': '',
+        #   'db.user': '',
+        #   'db.password': '',
 
         # 2019-02-20: (lb): Note that allow_momentaneous=False probably Bad Idea,
         #                   especially for user upgrading from legacy hamster db.
-        'allow_momentaneous': True,
+        'time.allow_momentaneous': True,
 
         # MAYBE/2019-02-20: (lb): I don't day_start, so probably broke; needs tests.
         #   'day_start': datetime.time(hour=0, minute=0, second=0).isoformat(),
         #   'day_start': datetime.time(hour=5, minute=0, second=0).isoformat(),
-        'day_start': '',
+        'time.day_start': '',
 
         # MAYBE/2019-02-20: (lb): Perhaps test min-delta, another feature I !use!
         #   'fact_min_delta': '60',
-        'fact_min_delta': '0',
+        'time.fact_min_delta': '0',
 
-        'lib_log_level': 'WARNING',
-        'sql_log_level': 'WARNING',
+        'dev.lib_log_level': 'WARNING',
+        'dev.sql_log_level': 'WARNING',
 
         # FIXME/2019-02-20: (lb): Implement tzawareness/tz_aware/timezone sanity.
-        'tz_aware': False,
+        'time.tz_aware': False,
         # FIXME/2019-02-20: (lb): Needs testing, e.g.,
-        #   'default_tzinfo': 'America/Menominee',
-        'default_tzinfo': '',
+        #   'time.default_tzinfo': 'America/Menominee',
+        'time.default_tzinfo': '',
     }
 
 
@@ -189,110 +188,154 @@ def client_config(tmpdir):
         # FIXME/2019-02-20: (lb): Test with missing config values; I know, bugs!
 
         # FIXME/2019-02-20: (lb): Clarify: Use bool, or string? True, or 'True'?
-        # 'carousel_centered': '',
-        'carousel_centered': 'True',
+        # 'editor.centered': '',
+        'editor.centered': 'True',
 
-        'carousel_lexer': '',
+        'editor.lexer': '',
 
-        # Devmode would probably be deadly under test, as it sets a trace trap.
-        'devmode': False,
+        # Devmode catch_errors could be deadly under test, as it sets a trace trap.
+        'dev.catch_errors': False,
 
-        'editor_suffix': '',
+        'term.editor_suffix': '',
 
         # The default export path is '', i.e., local directory. Use /tmp instead.
-        # 'export_path': '',  # Default.
-        'export_path': os.path.join(tmpdir.mkdir('export').strpath, 'export'),
-
-        'fifo_dir': '',
+        # 'term.export_path': '',  # Default.
+        'term.export_path': os.path.join(tmpdir.mkdir('export').strpath, 'export'),
 
         # Disable color, otherwise tests will have to look for color codes.
-        'log_color': False,
+        'log.use_color': False,
 
         # Don't log to console, otherwise tests have to deal with that noise.
         # 'log_console': True,  # Default.
-        'log_console': False,
+        'log.use_console': False,
 
         # The default log filename does not need to be changed.
         # 'log_filename': 'dob.log',  # Default.
         # See also:
         #  'logfile_path': '',  # Generated value.
 
-        # 'cli_log_level': 'WARNING',  # Default.
+        # 'dev.cli_log_level': 'WARNING',  # Default.
         # 2019-02-20 11:15: I need to see where py.test of Carousel is hanging!
-        'cli_log_level': 'DEBUG',  # Default.
+        'dev.cli_log_level': 'DEBUG',
 
-        'separators': '',  # [,:\n]
+        'fact.separators': '',  # [,:\n]
 
-        'show_greeting': False,
+        'term.show_greeting': False,
 
-        'styling': '',
+        'editor.styling': '',
 
-        'term_color': False,
-        'term_paging': False,
+        'term.use_color': False,
+        'term.use_pager': False,
     }
 
 
 @pytest.fixture
 def config_instance(tmpdir, faker):
-    """Provide a (dynamicly generated) ConfigParser instance."""
-    def generate_config(**kwargs):
-        config = ConfigParser()
-        # backend
-        config.add_section('backend')
+    """Provide a (dynamicly generated) ConfigObj instance."""
 
-        config.set('backend', 'store', kwargs.get('store', 'sqlalchemy'))
-        config.set('backend', 'db_engine', kwargs.get('db_engine', 'sqlite'))
-        config.set('backend', 'db_path', kwargs.get(
+    def generate_config(**kwargs):
+        cfg_dict = generate_dict(**kwargs)
+        config = ConfigObj(cfg_dict)
+        return config
+
+    def generate_dict(**kwargs):
+        config = {}
+
+        # ***
+
+        cfg_db = {}
+        cfg_dict['db'] = cfg_db
+
+        cfg_db.setdefault('orm', kwargs.get('db.orm', 'sqlalchemy'))
+        cfg_db.setdefault('engine', kwargs.get('db.engine', 'sqlite'))
+        cfg_db.setdefault('path', kwargs.get(
+            # FIXME/2019-11-27: (lb): hamster_db?
             'db_path', os.path.join(tmpdir.strpath, 'hamster_db.sqlite'))
         )
-        config.set('backend', 'db_host', kwargs.get('db_host', ''))
-        config.set('backend', 'db_port', kwargs.get('db_port', ''))
-        config.set('backend', 'db_name', kwargs.get('db_name', ''))
-        config.set('backend', 'db_user', kwargs.get('db_user', '')),
-        config.set('backend', 'db_password', kwargs.get('db_password', ''))
+        cfg_db.setdefault('host', kwargs.get('db.host', ''))
+        cfg_db.setdefault('port', kwargs.get('db.port', ''))
+        cfg_db.setdefault('name', kwargs.get('db.name', ''))
+        cfg_db.setdefault('user', kwargs.get('db.user', '')),
+        cfg_db.setdefault('password', kwargs.get('db.password', ''))
+
+        # ***
+
+        cfg_dev = {}
+        cfg_dict['dev'] = cfg_dev
+
+        cfg_dev.setdefault('lib_log_level',
+                           kwargs.get('dev.lib_log_level', 'WARNING'))
+        cfg_dev.setdefault('sql_log_level',
+                           kwargs.get('dev.sql_log_level', 'WARNING'))
+
+        # ***
+
+        cfg_time = {}
+        cfg_dict['time'] = cfg_time
 
         # (lb): Need to always support momentaneous, because legacy data bugs.
-        # config.set('backend', 'allow_momentaneous', 'False')
-        config.set('backend', 'allow_momentaneous', 'True')
+        # cfg_time.setdefault('time.allow_momentaneous', 'False')
+        cfg_time.setdefault('time.allow_momentaneous', 'True')
 
-        # config.set('backend', 'day_start', kwargs.get('day_start', ''))
-        config.set('backend', 'day_start', kwargs.get('day_start', '00:00:00'))
+        # cfg_time.setdefault('time.day_start', kwargs.get('time.day_start', ''))
+        cfg_time.setdefault('time.day_start', kwargs.get('time.day_start', '00:00:00'))
 
-        config.set('backend', 'fact_min_delta', kwargs.get('fact_min_delta', '60'))
-        # config.set('backend', 'fact_min_delta', kwargs.get('fact_min_delta', '0'))
+        cfg_time.setdefault('time.fact_min_delta', kwargs.get('time.fact_min_delta', '60'))
+        # cfg_time.setdefault('time.fact_min_delta', kwargs.get('time.fact_min_delta', '0'))
 
-        config.set(
-            'backend', 'lib_log_level', kwargs.get('lib_log_level', 'WARNING'),
-        )
-        config.set(
-            'backend', 'sql_log_level', kwargs.get('sql_log_level', 'WARNING'),
-        )
-
-        config.set('backend', 'tz_aware', 'False')
-        config.set('backend', 'default_tzinfo', '')
+        cfg_time.setdefault('time.tz_aware', 'False')
+        cfg_time.setdefault('time.default_tzinfo', '')
         # FIXME/2019-02-20: (lb): Fix timezones. And parameterize, e.g.,
-        #  config.set('backend', 'default_tzinfo', 'America/Menominee')
+        #  cfg_time.setdefault('time.default_tzinfo', 'America/Menominee')
 
-        # client
-        config.add_section('client')
-        # config.set('client', 'carousel_centered', '')
-        # config.set('client', 'carousel_lexer', '')
-        # config.set('client', 'devmode', '')
-        # config.set('client', 'editor_suffix', '')
-        config.set('client', 'export_path', '')
-        # config.set('client', 'fifo_dir', '')
-        # config.set('client', 'log_color', 'False')
-        config.set('client', 'log_console', kwargs.get('log_console', '0'))
-        # The log_filename is used to make logfile_path, which we don't need to set.
-        config.set(
-            'client', 'log_filename', kwargs.get('log_filename', faker.file_name())
-        )
-        config.set('client', 'cli_log_level', kwargs.get('cli_log_level', 'debug'))
-        config.set('client', 'separators', '')  # [,:\n]
-        config.set('client', 'show_greeting', 'False')
-        # config.set('client', 'styling', '')
-        config.set('client', 'term_color', 'True')
-        config.set('client', 'term_paging', 'False')
+        # ***
+
+        cfg_editor = {}
+        cfg_dict['editor'] = cfg_editor
+
+        cfg_editor.setdefault('centered', False)
+        cfg_editor.setdefault('lexer', '')
+        cfg_editor.setdefault('styling', '')
+
+        # ***
+
+        cfg_fact = {}
+        cfg_dict['fact'] = cfg_fact
+
+        cfg_fact.setdefault('separators', '')  # [,:\n]
+
+        # ***
+
+        assert('dev' in cfg_dict)
+
+        cfg_dev.setdefault('cli_log_level',
+                           kwargs.get('dev.cli_log_level', 'warning'))
+        cfg_dev.setdefault('catch_errors', 'False')
+
+        # ***
+
+        cfg_log = {}
+        cfg_dict['log'] = cfg_log
+
+        cfg_log.setdefault('filename',
+                           kwargs.get('dev.log_filename', faker.file_name()))
+        # The log_filename is used to make log.filepath, which we don't need to set.
+        cfg_log.setdefault('use_color', 'False')
+        cfg_log.setdefault('use_console', kwargs.get('dev.log_console', '0'))
+
+        # ***
+
+        cfg_term = {}
+        cfg_dict['term'] = cfg_term
+
+        cfg_term.setdefault('export_path', '')
+        cfg_term.setdefault('editor_suffix', '')
+        cfg_term.setdefault('show_greeting', 'False')
+        cfg_term.setdefault('use_color', 'True')
+        cfg_term.setdefault('use_pager', 'False')
+
+        # ***
+
         return config
 
     return generate_config
@@ -357,24 +400,25 @@ def ongoing_fact(controller_with_logging, fact):
     return fact
 
 
-def prepare_controller(lib_config, client_config):
-    controller = Controller(lib_config, client_config)
+def prepare_controller(config_root):
+    controller = Controller()
+    controller.wire_configience(config_root=config_root)
     return controller
 
 
 @pytest.yield_fixture
-def controller(lib_config, client_config):
+def controller(config_root):
     """Provide a pseudo controller instance."""
-    controller = prepare_controller(lib_config, client_config)
+    controller = prepare_controller(config_root=config_root)
     controller.standup_store()
     yield controller
     controller.store.cleanup()
 
 
 @pytest.yield_fixture
-def controller_with_logging(lib_config, client_config):
+def controller_with_logging(config_root):
     """Provide a pseudo controller instance with logging setup."""
-    controller = prepare_controller(lib_config, client_config)
+    controller = prepare_controller(config_root=config_root)
     controller.setup_logging()
     controller.standup_store()
     yield controller

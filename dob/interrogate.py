@@ -187,7 +187,7 @@ def ask_edit_with_editor(controller, fact=None, content=''):
         # User can set a suffix, which can be useful so, e.g., Vim
         # sees the extension and set filetype appropriately.
         # (lb): I like my Hamster logs to look like reST documents!
-        suffix = controller.client_config['editor_suffix'] or None
+        suffix = controller.config['term.editor_suffix'] or None
         return suffix
 
     def run_editor(filename, contents):

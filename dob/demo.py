@@ -732,14 +732,14 @@ def _demo_prep(controller):
         return tmpfile
 
     def demoize_config(db_path):
-        controller.config['store'] = 'sqlalchemy'
-        controller.config['db_engine'] = 'sqlite'
-        controller.config['db_path'] = db_path
+        controller.config['db.orm'] = 'sqlalchemy'
+        controller.config['db.engine'] = 'sqlite'
+        controller.config['db.path'] = db_path
         # For completeness, reset the others.
-        controller.config['db_host'] = ''
-        controller.config['db_port'] = ''
-        controller.config['db_name'] = ''
-        controller.config['db_user'] = ''
+        controller.config['db.host'] = ''
+        controller.config['db.port'] = ''
+        controller.config['db.name'] = ''
+        controller.config['db.user'] = ''
 
     return __demo_prep()
 

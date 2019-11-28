@@ -32,7 +32,7 @@ def catch_action_exception(func):
         except Exception as err:  # noqa: F841
             # F841 local variable '...' is assigned to but never used
 
-            if not self.carousel.controller.client_config['devmode']:
+            if not self.carousel.controller.config['dev.catch_errors']:
                 # MAYBE/2019-01-21: Display warning and silently recover.
                 #  But really, harden the code, and do not expect this path.
                 raise

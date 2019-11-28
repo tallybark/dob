@@ -600,7 +600,7 @@ def must_complete_times(
     # ...
 
     def cull_metaless_momentaneous(new_facts, conflicts):
-        allow_momentaneous = controller.store.config['allow_momentaneous']
+        allow_momentaneous = controller.config['time.allow_momentaneous']
         new_culled = []
         for idx, fact in enumerate(new_facts):
             if (
@@ -678,7 +678,7 @@ def must_complete_times(
         if (not conflicts) or (suppress_barf):
             return
 
-        colorful = controller.client_config['term_color']
+        colorful = controller.config['term.use_color']
 
         for fact, other, reason in conflicts:
             # other might be None, another new Fact, or ante_fact or seqt_fact.
@@ -755,7 +755,7 @@ def insert_forcefully(controller, fact, squash_sep=''):
         ValueError: If start or end time is not specified and cannot be
             deduced by other Facts in the system.
     """
-    allow_momentaneous = controller.config['allow_momentaneous']
+    allow_momentaneous = controller.config['time.allow_momentaneous']
 
     def _insert_forcefully(facts, fact):
         # Steps:
@@ -831,7 +831,7 @@ def insert_forcefully(controller, fact, squash_sep=''):
                 # which has its own start and end setting code.)
                 set_end_per_subsequent(facts, fact)
                 # FIXME/2019-11-23 00:42: Record how you can get here.
-                if controller.client_config['devmode']:
+                if controller.config['dev.catch_errors']:
                     controller.affirm(False)  # (lb): 2019-11-23: What cmd to here?
             else:
                 # LATER/BACKLOG/LOWLOWPRIORITY/2019-01-22: Momentaneous:

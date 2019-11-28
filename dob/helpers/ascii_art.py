@@ -1056,7 +1056,7 @@ def justify_line(lines, avail_width):
 # MEH: (lb): Doesn't really belong in this module...
 def curly_quote(obj):
     # FIXME/2018-05-18: (lb): Make config setting for this.
-    #    ascii_only = controller.client_config['ascii_only']
+    #    ascii_only = controller.config['term.ascii_only']
     ascii_only = False
     if ascii_only or (os.name == 'nt'):
         return "'{}'".format(obj)
@@ -1068,7 +1068,7 @@ def curly_quote(obj):
 # MEH: (lb): Doesn't really belong in this module...
 def curly_quotes(obj):
     # FIXME/2018-05-18: (lb): Make config setting for this.
-    #    ascii_only = controller.client_config['ascii_only']
+    #    ascii_only = controller.config['term.ascii_only']
     ascii_only = False
     if ascii_only or (os.name == 'nt'):
         return '"{}"'.format(obj)

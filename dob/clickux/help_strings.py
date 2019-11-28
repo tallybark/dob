@@ -468,7 +468,7 @@ def INIT_HELP_OVERVIEW(ctx):
     controller = ctx.obj
 
     _hint_sqlite = ''
-    if controller.config['db_engine'] == 'sqlite':
+    if controller.config['db.engine'] == 'sqlite':
         _hint_sqlite = _(
             """
         And if you know SQL, you can poke around the database file easily:
@@ -480,7 +480,7 @@ def INIT_HELP_OVERVIEW(ctx):
         But you'll probably just want to make sure you backup that file!
             """.strip().format(
                 default_config_path=highlight_value(default_config_path()),
-                cfg_db_path=controller.config['db_path'],
+                cfg_db_path=controller.config['db.path'],
                 **common_format()
             )
         )
@@ -509,7 +509,7 @@ def INIT_HELP_OVERVIEW(ctx):
         {_hint_sqlite}
         """.strip().format(
             default_config_path=highlight_value(default_config_path()),
-            hlg_db_path=highlight_value(controller.config['db_path']),
+            hlg_db_path=highlight_value(controller.config['db.path']),
             _hint_sqlite=_hint_sqlite,
             **common_format()
         )
@@ -586,7 +586,7 @@ def CONFIG_GROUP_HELP(ctx):
         environment variable:
 
           \b
-          {codehi}DOB_CONFIG_BACKEND_DB_ENGINE=sqlite {rawname} stats{reset}
+          {codehi}DOB_CONFIG_DB_ENGINE=sqlite {rawname} stats{reset}
 
         - If a config value is specified via the command line, that value is
         preferred over all other values.
@@ -595,7 +595,7 @@ def CONFIG_GROUP_HELP(ctx):
         option, e.g.,
 
           \b
-          {codehi}{rawname} -c backend.db_engine=sqlite stats{reset}
+          {codehi}{rawname} -c db.engine=sqlite stats{reset}
 
         {underlined}Config Command Overview{reset}
 

@@ -1025,7 +1025,7 @@ def edit_fact_by_key(
 ):
     def _edit_fact_by_key():
 
-        if controller.client_config['carousel_centered']:
+        if controller.config['editor.centered']:
             click.clear()
             # (lb): Revisit this? A little hacky.
             # Newlines seem to nudge Carousel centered.
@@ -1084,7 +1084,7 @@ CMD_EXPORT_OPT_FORMAT_DEFAULT = 'csv'
 
 def cmd_export_opt_output_default(controller):
     if controller is not None:
-        return '{}.{{format}}'.format(controller.client_config['export_path'])
+        return '{}.{{format}}'.format(controller.config['term.export_path'])
     else:
         return _('(Dynamic)')
 

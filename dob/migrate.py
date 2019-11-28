@@ -131,7 +131,7 @@ def upgrade_legacy_database_instructions(controller):
         'migrations', 'legacy', 'upgrade_hamster-applet_db.sh',
     )
     up_legacy_path = os.path.join(nark_path, up_legacy_rel)
-    db_path = controller.config['db_path']
+    db_path = controller.config['db.path']
     instructions = UPGRADE_INSTRUCTIONS.format(
         prog_name=os.path.basename(__arg0name__),
         legacy_path="~/.local/share/hamster-applet/hamster.db",
@@ -163,7 +163,7 @@ If this is a legacy database, upgrade and register the database.
 
 def upgrade_legacy_database_file(ctx, controller, file_in, force):
     """"""
-    db_path = controller.config['db_path']
+    db_path = controller.config['db.path']
 
     def _upgrade_legacy_database_file():
         if file_in is None:

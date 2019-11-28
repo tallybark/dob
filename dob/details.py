@@ -77,14 +77,14 @@ def echo_app_details(controller, full=False):
         click_echo(_(
             "Logfile stored at: {}"
         ).format(
-            highlight_value(controller.client_config['logfile_path']),
+            highlight_value(controller.config['log.filepath']),
         ))
 
     def echo_export_path():
         click_echo(_(
             "Reports exported to: {}"
         ).format(highlight_value(
-            '{}.{{format}}'.format(controller.client_config['export_path']))
+            '{}.{{format}}'.format(controller.config['term.export_path']))
         ))
 
     def echo_db_info():
@@ -100,7 +100,7 @@ def echo_app_details(controller, full=False):
     def get_sqlalchemy_info():
         """"""
         def _get_sqlalchemy_info():
-            engine = controller.config['db_engine']
+            engine = controller.config['db.engine']
             if engine == 'sqlite':
                 return sqlalchemy_string_sqlite()
             else:
@@ -111,22 +111,22 @@ def echo_app_details(controller, full=False):
                 "Using {engine} on database: {db_path}"
                 .format(
                     engine=highlight_value('sqlite'),
-                    db_path=highlight_value(controller.config['db_path']),
+                    db_path=highlight_value(controller.config['db.path']),
                 )
             )
             return sqlalchemy_string
 
         def sqlalchemy_string_remote(engine):
-            port = controller.config['db_port']
+            port = controller.config['db.port']
             if port:
                 port = ':{}'.format(port)
             sqlalchemy_string = _(
                 "Using {engine} on database {db_name} at:"
                 " {username}@{host}{port}".format(
                     engine=highlight_value(engine),
-                    db_name=highlight_value(controller.config['db_name']),
-                    username=highlight_value(controller.config['db_user']),
-                    host=highlight_value(controller.config['db_host']),
+                    db_name=highlight_value(controller.config['db.name']),
+                    username=highlight_value(controller.config['db.user']),
+                    host=highlight_value(controller.config['db.host']),
                     port=highlight_value(port),
                 )
             )
@@ -179,17 +179,20 @@ def echo_app_environs(controller):
         environs['plugins'] = ClickPluginGroup().plugins_basepath
 
     def environs_add_log_path():
-        environs['log'] = controller.client_config['logfile_path']
+        # environs['log_filepath'] = controller.config['log.filepath']
+        environs['CONFIG_LOG_FILEPATH'] = controller.config['log.filepath']
 
     def environs_add_reports_dir():
-        environs['exports'] = controller.client_config['export_path']
+        # environs['term_export_path'] = controller.config['term.export_path']
+        environs['CONFIG_TERM_EXPORT_PATH'] = controller.config['term.export_path']
 
     def environs_add_db_url():
         environs['db_url'] = controller.store.db_url
 
     def environs_add_db_path():
-        if controller.config['db_path']:
-            environs['db_path'] = controller.config['db_path']
+        if controller.config['db.path']:
+            # environs['db_path'] = controller.config['db.path']
+            environs['CONFIG_DB_PATH'] = controller.config['db.path']
 
     def environs_add_user_app_dirs():
         for prop, path in existent_app_dirs().items():

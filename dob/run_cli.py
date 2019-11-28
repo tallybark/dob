@@ -173,8 +173,8 @@ def run(ctx, controller, v, verbose, verboser, color, pager, config, configfile)
         # MAYBE: (lb): What about allowing color for outputting to ANSI file? Meh.
         use_color = color
         if use_color is None and not sys.stdout.isatty():
-            controller.client_config['term_paging'] = False
-            controller.client_config['term_color'] = False
+            controller.config['term.use_pager'] = False
+            controller.config['term.use_color'] = False
         _setup_tty_paging(controller)
         _setup_tty_color(ctx, controller)
 
@@ -183,7 +183,7 @@ def run(ctx, controller, v, verbose, verboser, color, pager, config, configfile)
         if use_pager is None:
             # None if --pager nor --no-pager specified,
             # so fallback to what's in the user config.
-            use_pager = controller.client_config['term_paging']
+            use_pager = controller.config['term.use_pager']
         set_paging(use_pager)
 
     def _setup_tty_color(ctx, controller):
@@ -203,7 +203,7 @@ def run(ctx, controller, v, verbose, verboser, color, pager, config, configfile)
         #   always output a license, on every invocation -- but I like
         #   the clean aesthetics of not showing it. Though I suppose
         #   it's easy enough just to make a config option for it....
-        if not controller.client_config['show_greeting']:
+        if not controller.config['term.show_greeting']:
             return
         echo_copyright()
         click_echo()

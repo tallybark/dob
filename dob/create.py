@@ -362,7 +362,7 @@ def must_create_fact_from_factoid(
         return fact
 
     def must_prepare_factoid_item_separators(controller):
-        sep_string = controller.client_config['separators']
+        sep_string = controller.config['fact.separators']
         if not sep_string:
             return None
         try:
@@ -570,7 +570,7 @@ def cancel_fact(controller, purge=False):
 def echo_ongoing_completed(controller, fact, cancelled=False):
     """"""
     def _echo_ongoing_completed():
-        colorful = controller.client_config['term_color']
+        colorful = controller.config['term.use_color']
         leader = _('Completed: ') if not cancelled else _('Cancelled: ')
         cut_width = width_avail(len(leader))
         completed_msg = echo_fact(leader, colorful, cut_width)
@@ -896,19 +896,19 @@ def prompt_and_save(
     # ***
 
     def load_and_apply_style(carousel):
-        chosen_style = load_molding('styling', various_styles, 'color')
+        chosen_style = load_molding('editor.styling', various_styles, 'color')
         carousel.chosen_style = chosen_style
 
     def load_and_apply_lexer(carousel):
         default_name = None
         # If you want to test the lexers, edit your config, or try, e.g.,
         #  default_name = 'hyphenator'
-        chosen_lexer = load_molding('carousel_lexer', various_lexers, default_name)
+        chosen_lexer = load_molding('editor.lexer', various_lexers, default_name)
         if chosen_lexer is not None:
             chosen_lexer = chosen_lexer()
 
         if chosen_lexer is None:
-            lexer_name = controller.client_config['carousel_lexer']
+            lexer_name = controller.config['editor.lexer']
             chosen_lexer = load_pygments_lexer(lexer_name)
 
         if chosen_lexer is not None:
@@ -918,7 +918,7 @@ def prompt_and_save(
         def _load_molding():
             molding = None
             # The molding_name is thus far, i.e., 'styling', or 'carousel_lexer'.
-            molding_name = controller.client_config[cfg_key]
+            molding_name = controller.config[cfg_key]
             molding_f = try_loading_internal(module, molding_name)
             if molding_f is not None:
                 molding = molding_f()
