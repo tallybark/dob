@@ -97,6 +97,8 @@ class ClickPluginGroup(click.Group):
     def open_source_eval_and_poke_around(self, py_path, name):
         # NOTE: The code that's eval()ed might append to self._aliases!
         #       (Or anything else!)
+        # NOTE: This source *should* be trusted -- the user had to run
+        #       `dob plugin install` to wire it. At least I think so. -lb.
         eval_globals = compile_and_eval_source(py_path)
         cmds = self.probe_source_for_commands(eval_globals, name)
         return cmds
