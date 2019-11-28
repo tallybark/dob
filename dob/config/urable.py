@@ -79,10 +79,12 @@ class ConfigUrable(object):
     def load_config(self, configfile_path):
         def _load_config():
             self.configfile_path = _resolve_configfile_path(configfile_path)
+            cfgfile_exists = os.path.exists(self.config_path)
             config_obj = load_config_obj(self.config_path)
             self.config_root.forget_config_values()
             self.config_root.update_from_dict(config_obj)
-            self.cfgfile_exists = _is_config_like()
+            self.cfgfile_exists = cfgfile_exists
+            self.cfgfile_sanity = not self.cfgfile_exists or _is_config_like()
 
         def _resolve_configfile_path(commandline_value):
             if commandline_value is not None:
@@ -141,6 +143,7 @@ class ConfigUrable(object):
         self.config_root.download_to_dict(config_obj, use_defaults=True)
         write_config_obj(config_obj)
         self.cfgfile_exists = True  # If anything, we just created it!
+        self.cfgfile_sanity = True  # If anything, we just created it!
 
     # ***
 
@@ -150,4 +153,5 @@ class ConfigUrable(object):
         self.config_root.download_to_dict(config_obj, skip_unset=skip_unset)
         write_config_obj(config_obj)
         self.cfgfile_exists = True
+        self.cfgfile_sanity = True
 

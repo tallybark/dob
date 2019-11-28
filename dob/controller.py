@@ -89,7 +89,13 @@ class Controller(NarkControl):
 
     @property
     def is_germinated(self):
-        if self.configurable.cfgfile_exists and self.store_exists:
+        if (
+            (
+                self.configurable.cfgfile_exists
+                and self.configurable.cfgfile_sanity
+            )
+            and self.store_exists
+        ):
             return True
         return False
 
@@ -108,29 +114,35 @@ class Controller(NarkControl):
     def insist_germinated(self):
         """Assist user if config or database not present."""
         def _insist_germinated():
-            store_exists = self.store_exists
-            if self.configurable.cfgfile_exists and store_exists:
+            if self.is_germinated:
                 self.standup_store()
                 return
-            if not self.configurable.cfgfile_exists and not store_exists:
+            if not self.configurable.cfgfile_exists and not self.store_exists:
                 help_newbie_onboard()
             else:
-                berate_user_files_unwell(store_exists)
+                berate_user_files_unwell()
             sys.exit(1)
 
         def help_newbie_onboard():
             message = help_strings.NEWBIE_HELP_ONBOARDING(self.ctx)
             click_echo(inspect.cleandoc(message), err=True)
 
-        def berate_user_files_unwell(store_exists):
+        def berate_user_files_unwell():
             if not self.configurable.cfgfile_exists:
                 oblige_user_create_config()
-            if not store_exists:
+            if not self.configurable.cfgfile_sanity:
+                oblige_user_repair_config()
+            if not self.store_exists:
                 oblige_user_create_store()
 
         def oblige_user_create_config():
             cfg_path = self.configurable.config_path
             message = help_strings.NEWBIE_HELP_CREATE_CONFIG(self.ctx, cfg_path)
+            click_echo(inspect.cleandoc(message), err=True)
+
+        def oblige_user_repair_config():
+            cfg_path = self.configurable.config_path
+            message = help_strings.NEWBIE_HELP_REPAIR_CONFIG(self.ctx, cfg_path)
             click_echo(inspect.cleandoc(message), err=True)
 
         def oblige_user_create_store():

@@ -440,6 +440,30 @@ def NEWBIE_HELP_CREATE_CONFIG(ctx, cfg_path):
     return _help
 
 
+def NEWBIE_HELP_REPAIR_CONFIG(ctx, cfg_path):
+    _help = _(
+        """
+        {errcol}ERROR: Something is wrong in the config file found at: “{cfg_path}”{reset}
+
+        The configuration file is at least missing the db.orm setting, if not others.
+
+        Either edit and repair the confirguration file manually, or blow it away:
+
+            {rawname} config create --force
+        """
+    ).strip().format(
+        # FIXME/2019-11-19 14:42: Make wrapper for format() with some common colors defined.
+        # - Maybe change errors to white on red, like here,
+        #   but only for white on black terms (based on some setting?).
+        errcol=(bg('red_1') + attr('bold')),
+        cfg_path=cfg_path,
+        default_config_path=default_config_path(),
+        envkey=ConfigUrable.DOB_CONFIGFILE_ENVKEY,
+        **common_format()
+    )
+    return _help
+
+
 def NEWBIE_HELP_CREATE_STORE(ctx):
     _help = _(
         """
