@@ -901,8 +901,12 @@ def prompt_and_save(
 
     def load_and_apply_lexer(carousel):
         default_name = None
-        # If you want to test the lexers, edit your config, or try, e.g.,
-        #  default_name = 'hyphenator'
+        # If you want to test the lexers, set your config, e.g.,
+        #   `dob config set editor.lexer rainbow`
+        # (you may need to un-hide lexer setting), or uncomment:
+        #  default_name = 'rainbow'
+        #  default_name = 'truncater'
+        #  default_name = 'wordwrapper'
         chosen_lexer = load_molding('editor.lexer', various_lexers, default_name)
         if chosen_lexer is not None:
             chosen_lexer = chosen_lexer()
