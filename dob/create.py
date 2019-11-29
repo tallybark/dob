@@ -775,9 +775,6 @@ def prompt_and_save(
 
         load_and_apply_lexer(carousel)
 
-        # Create a just-in-case backup file to capture unsaved edits.
-        backup_callback(carousel)
-
         ready_facts = carousel.gallop()
 
         return ready_facts, carousel
