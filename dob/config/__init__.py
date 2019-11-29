@@ -118,7 +118,7 @@ class DobConfigurableDev(Subscriptable):
 
     @property
     @ConfigRoot.setting(
-        _("The log level setting for frontend (dob) squaller"
+        _("The log level for frontend (dob) squaller"
             " (using Python logging library levels)"),
         # MEH/2019-01-17: We should warn, not die; see: resolve_log_level.
         validate=must_verify_log_level,
@@ -131,7 +131,7 @@ class DobConfigurableDev(Subscriptable):
     @property
     @ConfigRoot.setting(
         _("If True, enables features for developing dob"
-            " (e.g., stop at REPL on affirm faults"),
+            " (e.g., stop at REPL on affirm faults)."),
     )
     def catch_errors(self):
         return False
