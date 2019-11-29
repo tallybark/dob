@@ -68,13 +68,16 @@ class DobConfigurableEditor(Subscriptable):
 
     @property
     @ConfigRoot.setting(
-        # FIXME/2019-11-18: Confirm Pygments lexer, does it work, is it wired?
-        _("Fact lexer. Defaults to Pygments lexer."),
-        # FIXME/2019-11-16 22:45: Confirm hidden option!
-        hidden=True,
+        # FIXME/2019-11-29: (lb): Add command to list dob + pygments.lexers.
+        _("dob or Pygments lexer. See: https://pygments.org/docs/lexers/"),
     )
     def lexer(self):
-        return ''
+        # (lb): I'm a reSTie, personally, so let's just default to that.
+        # (Not to dishonor other markups, I'm friends with markdownies,
+        # I even LaTeXeD once in my life, and let's not talk about that
+        # one time I was into this really weird markup called Textile.)
+        # MAYBE/2019-11-29: (lb): Perhaps default to '' (and move this to *my* config).
+        return 'RstLexer'
 
     # ***
 
