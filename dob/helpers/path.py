@@ -18,7 +18,6 @@
 from __future__ import absolute_import, unicode_literals
 
 import os
-from io import open
 
 from gettext import gettext as _
 

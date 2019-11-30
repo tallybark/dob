@@ -22,7 +22,6 @@ import json
 import os
 import random
 import traceback
-from io import open
 
 from gettext import gettext as _
 
