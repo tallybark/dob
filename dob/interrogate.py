@@ -40,6 +40,7 @@ def ask_user_for_edits(
     always_ask=False,
     prompt_agent=None,
     restrict_edit='',
+    no_completion=None,
 ):
     """
     """
@@ -83,7 +84,18 @@ def ask_user_for_edits(
         ):
             return
 
-        act_name, cat_name = prompter.ask_act_cat(filter_activity, filter_category)
+        no_completion_act = None
+        no_completion_cat = None
+        if no_completion is not None:
+            no_completion_act = no_completion.re_act
+            no_completion_cat = no_completion.re_cat
+
+        act_name, cat_name = prompter.ask_act_cat(
+            filter_activity,
+            filter_category,
+            no_completion_act=no_completion_act,
+            no_completion_cat=no_completion_cat,
+        )
         set_actegory(fact, act_name, cat_name)
 
     def prepare_ask_act_cat(fact):
@@ -114,8 +126,15 @@ def ask_user_for_edits(
             or ('' != restrict_edit and 'tags' != restrict_edit)
         ):
             return
+
+        no_complete_tag = None
+        if no_completion is not None:
+            no_complete_tag = no_completion.re_tag
+
         chosen_tags = prompter.ask_for_tags(
-            already_selected=fact.tags, activity=fact.activity,
+            already_selected=fact.tags,
+            activity=fact.activity,
+            no_completion=no_complete_tag,
         )
         fact.tags_replace(chosen_tags)
 

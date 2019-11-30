@@ -38,6 +38,7 @@ from . import interrogate
 from .clickux.echo_assist import click_echo, echo_block_header
 from .clickux.help_strings import NOTHING_TO_STOP_HELP
 from .config.app_dirs import AppDirs, get_appdirs_subdir_file_path
+from .config.styling.ignore import load_no_completion
 from .helpers import (
     dob_in_user_exit,
     dob_in_user_warning,
@@ -754,6 +755,7 @@ def prompt_and_save(
             return (edit_facts or []) + (orig_facts or []), None
 
         backup_callback = write_facts_file(backup_f, rule, dry)
+        no_completion = load_no_completion(controller)
 
         # Lazy-load the carousel and save ~0.065s.
         from .traverser.carousel import Carousel
@@ -764,6 +766,7 @@ def prompt_and_save(
             orig_facts=orig_facts,
             dirty_callback=backup_callback,
             dry=dry,
+            no_completion=no_completion,
         )
 
         # MAYBE/2018-07-18 02:53: Setting up the carousel seems
