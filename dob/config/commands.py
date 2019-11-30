@@ -35,7 +35,7 @@ __all__ = (
 
 # *** [DUMP] TABLE
 
-# FIXME/2019-11-17 01:22: BUGBUG: `-T texttable` is broken.
+# FIXME/2019-11-17: BUGBUG: (lb): `-T texttable` is broken.
 
 def echo_config_table(controller, section, keyname, **kwargs):
     """"""
@@ -62,7 +62,8 @@ def echo_config_table(controller, section, keyname, **kwargs):
 
         val_def = str(keyval.value)
         if val_def != str(keyval.default):
-            val_def += ' [{}]'.format(str(keyval.default))
+            val_def += val_def and ' ' or ''
+            val_def += encode_default(str(keyval.default))
         sec_key_vals.append((
             condec._section_path(sep='.'),
             keyval.name,
@@ -71,7 +72,12 @@ def echo_config_table(controller, section, keyname, **kwargs):
         ))
 
     def echo_table():
-        headers = (_("Section"), _("Name"), _("Value [Default]"), _("Help"))
+        headers = (
+            _("Section"),
+            _("Name"),
+            _("Value {}").format(encode_default(_("Default"))),
+            _("Help"),
+        )
         generate_table(
             sec_key_vals,
             headers,
@@ -79,6 +85,12 @@ def echo_config_table(controller, section, keyname, **kwargs):
             truncate=False,
             trunccol=0,
         )
+
+    def encode_default(text):
+        # 2019-11-30: (lb): I switched from [square brackets] to <angle brackets>
+        # to avoid JSON-encoded lists being [[double bracketed]] (which triggered
+        # extra mental cycles upon sight).
+        return '<{}>'.format(text)
 
     _echo_config_table()
 
