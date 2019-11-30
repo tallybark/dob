@@ -38,7 +38,7 @@ from . import interrogate
 from .clickux.echo_assist import click_echo, echo_block_header
 from .clickux.help_strings import NOTHING_TO_STOP_HELP
 from .config.app_dirs import AppDirs, get_appdirs_subdir_file_path
-from .config.styling.ignore import load_no_completion
+from .config.styling.no_completion import load_no_completion
 from .helpers import (
     dob_in_user_exit,
     dob_in_user_warning,
