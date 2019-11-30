@@ -47,6 +47,13 @@ __all__ = (
 # *** Client (dob) Config.
 # ***
 
+def _styling_file_path(basename):
+    dirname = AppDirs.user_config_dir
+    subdir = 'styling'
+    # E.g., /home/user/config/.dob/styling/{basename}
+    return os.path.join(dirname, subdir, basename)
+
+
 @ConfigRoot.section('editor')
 class DobConfigurableEditor(Subscriptable):
     """"""
@@ -89,6 +96,20 @@ class DobConfigurableEditor(Subscriptable):
     )
     def styling(self):
         return ''
+
+    # ***
+
+    @property
+    @ConfigRoot.setting(
+        _("Path to file containing newline-separated ‘act@gory’ and ‘#tag’\n"
+          "names to omit from completions and suggestions (regex-aware)."),
+        name='ignore_fpath',
+    )
+    def ignore_list_path(self):
+        # E.g., /home/user/config/.dob/styling/ignore.list
+        return _styling_file_path(basename='ignore.list')
+
+    # ***
 
 
 # ***
