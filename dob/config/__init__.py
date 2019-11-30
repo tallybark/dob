@@ -18,6 +18,7 @@
 from __future__ import absolute_import, unicode_literals
 
 import datetime
+import json
 import os
 
 from gettext import gettext as _
@@ -25,6 +26,7 @@ from gettext import gettext as _
 from nark.config import ConfigRoot
 from nark.config.log_levels import must_verify_log_level
 from nark.config.subscriptable import Subscriptable
+from nark.helpers.parsing import FACT_METADATA_SEPARATORS
 
 from ..helpers import dob_in_user_warning
 
@@ -102,10 +104,13 @@ class DobConfigurableFact(Subscriptable):
 
     @property
     @ConfigRoot.setting(
-        _("Separator character(s) using to indicate datetime start to end."),
+        _("Use any of these separators to indicate end of Fact meta, and start of Fact body."),
     )  # noqa: E501
     def separators(self):
-        return ''
+        # Rather than `return ''` and act like there are no separators, show
+        # the default value that nark uses, so that user are better educated.
+        # FYI: json.dumps([",", ":"]) → '[",", ":"]'
+        return json.dumps(FACT_METADATA_SEPARATORS)
 
 
 # ***
