@@ -185,15 +185,17 @@ class FactsDiff(object):
 
     def format_prepare(self, some_val, mouse_handler=None):
         if not self.formatted or not isinstance(some_val, text_type):
+            # tags, e.g.,:
+            #   [('fg: #C6C6C6 underline', '#'), ('fg: #D7FF87 underline', 'my-tag')]
             if (
                 (mouse_handler is not None)
                 and (isinstance(some_val, list))
-                and (len(some_val) == 1)
+                and (len(some_val) > 0)
                 and (isinstance(some_val[0], tuple))
                 and (len(some_val[0]) == 2)
             ):
-                return [(some_val[0][0], some_val[0][1], mouse_handler,)]
-            return
+                return [(tup[0], tup[1], mouse_handler,) for tup in some_val]
+            return some_val
         if mouse_handler is None:
             return [('', some_val)]
         return [('', some_val, mouse_handler)]
