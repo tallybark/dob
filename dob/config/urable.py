@@ -81,8 +81,8 @@ class ConfigUrable(object):
             self.configfile_path = _resolve_configfile_path(configfile_path)
             cfgfile_exists = os.path.exists(self.config_path)
             config_obj = load_config_obj(self.config_path)
-            self.config_root.forget_config_values()
-            self.config_root.update_from_dict(config_obj)
+            self.config_root._forget_config_values()
+            self.config_root._update_known(config_obj)
             self.cfgfile_exists = cfgfile_exists
             self.cfgfile_sanity = not self.cfgfile_exists or _is_config_like()
 
@@ -139,7 +139,7 @@ class ConfigUrable(object):
     def reset_config(self):
         config_obj = empty_config_obj(self.config_path)
         # Fill in dict object using Config defaults.
-        self.config_root.forget_config_values()
+        self.config_root._forget_config_values()
         self.config_root.download_to_dict(config_obj, use_defaults=True)
         write_config_obj(config_obj)
         self.cfgfile_exists = True  # If anything, we just created it!
