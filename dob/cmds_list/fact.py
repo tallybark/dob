@@ -204,7 +204,7 @@ def list_facts(
         return 'time'
 
     def output_block(results):
-        colorful = controller.client['term.use_color']
+        colorful = controller.config['term.use_color']
         sep_width = output_rule_width()
         cut_width = output_truncate_at()
         for idx, fact in enumerate(results):
