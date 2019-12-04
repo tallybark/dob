@@ -25,6 +25,7 @@ import sys
 
 from gettext import gettext as _
 
+from .clickux.plugin_group import PLUGINS_DIRNAME
 from .config.app_dirs import AppDirs, get_appdirs_subdir_file_path
 
 __all__ = (
@@ -55,7 +56,7 @@ def install_plugin(package_module_path, package_plugin_name):
         src_plugin = os.path.join(
             os.path.dirname(package_module_path),
             '..',
-            'plugins',
+            PLUGINS_DIRNAME,
             package_plugin_name,
         )
         assert os.path.exists(src_plugin)
@@ -64,7 +65,7 @@ def install_plugin(package_module_path, package_plugin_name):
     def must_dst_target_path():
         dst_plugin = get_appdirs_subdir_file_path(
             file_basename=package_plugin_name,
-            dir_dirname='plugins',
+            dir_dirname=PLUGINS_DIRNAME,
             appdirs_dir=AppDirs.user_config_dir,
         )
         if os.path.exists(dst_plugin):

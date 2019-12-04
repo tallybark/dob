@@ -32,7 +32,11 @@ from ..helpers.path import compile_and_eval_source
 
 __all__ = (
     'ClickPluginGroup',
+    'PLUGINS_DIRNAME',
 )
+
+
+PLUGINS_DIRNAME = 'plugins'
 
 
 class ClickPluginGroup(click.Group):
@@ -40,7 +44,7 @@ class ClickPluginGroup(click.Group):
     def __init__(self, *args, **kwargs):
         super(ClickPluginGroup, self).__init__(*args, **kwargs)
         self.plugins_basepath = os.path.join(
-            AppDirs.user_config_dir, 'plugins',
+            AppDirs.user_config_dir, PLUGINS_DIRNAME,
         )
         self.has_loaded = False
 
