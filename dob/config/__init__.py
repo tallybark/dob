@@ -33,13 +33,13 @@ from ..helpers import dob_in_user_warning
 from .app_dirs import AppDirs
 
 __all__ = (
-    'ConfigRoot',
+    'DobConfigurableDev',
+    'DobConfigurableEditor',
+    'DobConfigurableFact',
+    'DobConfigurableLog',
+    'DobConfigurableTerm',
     # PRIVATE:
-    # 'DobConfigurableDev',
-    # 'DobConfigurableEditor',
-    # 'DobConfigurableFact',
-    # 'DobConfigurableLog',
-    # 'DobConfigurableTerm',
+    # '_styling_file_path',
 )
 
 
