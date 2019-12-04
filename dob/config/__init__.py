@@ -62,6 +62,7 @@ class DobConfigurableEditor(Subscriptable):
         # See comment in NarkConfigurable:
         #   Cannot super because decorator shenanigans.
         # DEATH: super(DobConfigurableEditor, self).__init__(*args, **kwargs)
+        # FIXME/2019-11-30 17:47: Could test again: (lb): I might have fixed issue.
         pass
 
     # ***
@@ -101,6 +102,15 @@ class DobConfigurableEditor(Subscriptable):
 
     @property
     @ConfigRoot.setting(
+        # FIXME/2019-11-30: Backlog entry: how best to split long help string.
+        # - One option: Split here with explicit newlines. Works well for:
+        #                 dob config dump -T tabulate
+        #               but does not work with -T friendly
+        #               - We could default to tabulate...
+        #                 or maybe help() callback that customizes
+        #                 text based on -T option?
+        # - Another option: Truncate after first period '.' on global dob-config-dump,
+        #                    but include complete help on dob-config-dump-setting (e.g.,)
         _("Path to file containing newline-separated ‘act@gory’ and ‘#tag’\n"
           "names to omit from completions and suggestions (regex-aware)."),
         name='ignore_fpath',
