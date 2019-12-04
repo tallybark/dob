@@ -78,7 +78,7 @@ class DobConfigurableEditor(Subscriptable):
 
     @property
     @ConfigRoot.setting(
-        # FIXME/2019-11-29: (lb): Add command to list dob + pygments.lexers.
+        # FIXME/2019-11-29: (lb): Help Docs: Add command to list dob + pygments.lexers.
         _("dob or Pygments lexer. See: https://pygments.org/docs/lexers/"),
     )
     def lexer(self):
@@ -118,6 +118,28 @@ class DobConfigurableEditor(Subscriptable):
     def ignore_list_path(self):
         # E.g., /home/user/config/.dob/styling/ignore.list
         return _styling_file_path(basename='ignore.list')
+
+    # ***
+
+    @property
+    @ConfigRoot.setting(
+        _("Path to file containing UX styles used by “editor.styling”."),
+        name='styles_fpath',
+    )
+    def styles_conf_path(self):
+        # E.g., /home/user/config/.dob/styling/styles.conf
+        return _styling_file_path(basename='styles.conf')
+
+    # ***
+
+    @property
+    @ConfigRoot.setting(
+        _("Path to file defining object matching used to stylize UX."),
+        name='stylit_fpath',
+    )
+    def stylit_conf_path(self):
+        # E.g., /home/user/config/.dob/styling/queries.conf
+        return _styling_file_path(basename='stylit.conf')
 
     # ***
 
@@ -207,6 +229,13 @@ class DobConfigurableLog(Subscriptable):
         ephemeral=True,
     )
     def filepath(self):
+        if self is None:
+            # If called on class definition, before kcv._section set, return
+            # empty string, which indicates the value type. However, because
+            # ephemeral=True, deduce_value_type won't call this method with
+            # self set to None -- meaning, this return statement technically
+            # unreachable. But we'll still keep it, for completeness.
+            return ''
         log_dir = AppDirs.user_log_dir
         # Note that self is the root ConfigDecorator, not the DobConfigurableLog...
         log_filename = self['filename']

@@ -17,7 +17,6 @@
 
 from __future__ import absolute_import, unicode_literals
 
-import glob
 import json
 import os
 import random
@@ -26,18 +25,16 @@ import traceback
 from gettext import gettext as _
 
 import click
-import pygments.lexers
 from inflector import English, Inflector
 from nark.helpers.emphasis import attr, fg
 from nark.helpers.parsing import ParserException
-# FIXME: Move this to an intermediate carousel-managing class.
-#        (lb): That is, decouple PPT implementation from create.py?
-from prompt_toolkit.lexers import PygmentsLexer
 
 from . import interrogate
 from .clickux.echo_assist import click_echo, echo_block_header
 from .clickux.help_strings import NOTHING_TO_STOP_HELP
 from .config.app_dirs import AppDirs, get_appdirs_subdir_file_path
+from .config.styling.classes_style import load_classes_style, load_matches_style
+from .config.styling.content_lexer import load_content_lexer
 from .config.styling.no_completion import load_no_completion
 from .helpers import (
     dob_in_user_exit,
@@ -52,8 +49,6 @@ from .helpers.fix_times import (
     reduce_time_hint,
     unite_and_stretch
 )
-from .helpers.path import compile_and_eval_source
-from .traverser import various_lexers, various_styles
 from .traverser.placeable_fact import PlaceableFact
 
 __all__ = (
@@ -755,6 +750,9 @@ def prompt_and_save(
             return (edit_facts or []) + (orig_facts or []), None
 
         backup_callback = write_facts_file(backup_f, rule, dry)
+        classes_style = load_classes_style(controller)
+        matches_style = load_matches_style(controller)
+        content_lexer = load_content_lexer(controller)
         no_completion = load_no_completion(controller)
 
         # Lazy-load the carousel and save ~0.065s.
@@ -766,17 +764,11 @@ def prompt_and_save(
             orig_facts=orig_facts,
             dirty_callback=backup_callback,
             dry=dry,
+            classes_style=classes_style,
+            matches_style=matches_style,
+            content_lexer=content_lexer,
             no_completion=no_completion,
         )
-
-        # MAYBE/2018-07-18 02:53: Setting up the carousel seems
-        # like it should be moved to its own module (away from create.py).
-        # prompt_and_save in general should be its own thing.
-
-        load_and_apply_style(carousel)
-
-        load_and_apply_lexer(carousel)
-
         ready_facts = carousel.gallop()
 
         return ready_facts, carousel
@@ -891,134 +883,6 @@ def prompt_and_save(
             controller, fact, time_hint, other_edits, yes=yes, dry=dry,
         )
         return new_and_edited
-
-    # ***
-
-    def load_and_apply_style(carousel):
-        chosen_style = load_molding('editor.styling', various_styles, 'color')
-        carousel.chosen_style = chosen_style
-
-    def load_and_apply_lexer(carousel):
-        default_name = None
-        # If you want to test the lexers, set your config, e.g.,
-        #   `dob config set editor.lexer rainbow`
-        # (you may need to un-hide lexer setting), or uncomment:
-        #  default_name = 'rainbow'
-        #  default_name = 'truncater'
-        #  default_name = 'wordwrapper'
-        chosen_lexer = load_molding('editor.lexer', various_lexers, default_name)
-        if chosen_lexer is not None:
-            chosen_lexer = chosen_lexer()
-
-        if chosen_lexer is None:
-            lexer_name = controller.config['editor.lexer']
-            chosen_lexer = load_pygments_lexer(lexer_name)
-
-        if chosen_lexer is not None:
-            carousel.chosen_lexer = chosen_lexer
-
-    def load_molding(cfg_key, module, default_name=None):
-        def _load_molding():
-            molding = None
-            # The molding_name is thus far, i.e., 'styling', or 'carousel_lexer'.
-            molding_name = controller.config[cfg_key]
-            molding_f = try_loading_internal(module, molding_name)
-            if molding_f is not None:
-                molding = molding_f()
-            elif molding_name:
-                # See if there's a user JSON styling.
-                molding = load_user_styling(molding_name)
-            if not molding:
-                warn_tell_on_molding_not_found(molding_name)
-                if default_name:
-                    molding = try_loading_internal(module, default_name)()
-            return molding
-
-        def try_loading_internal(module, molding_name):
-            if not molding_name:
-                return None
-            # See if this is one of the basic baked-in styles/lexers/things.
-            return getattr(module, molding_name, None)
-
-        def load_user_styling(molding_name):
-            # Load style from user-managed JSON files.
-            #   E.g., glob ~/.config/dob/molding/*.json.
-            molding = None
-            molding_glob = '{0}.*'.format(molding_name)
-            molding_paths = glob.glob(os.path.join(user_moldings_base(), molding_glob))
-            for molding_path in molding_paths:
-                try:
-                    fname, fext = molding_path.rsplit('.', 1)
-                except ValueError:
-                    continue
-                # (lb): Whatever. If multiple matches, use last parsed.
-                molding = parse_molding(fext, molding_path)
-            return molding
-
-        def user_moldings_base():
-            moldings_base = os.path.join(
-                AppDirs.user_config_dir, 'molding',
-            )
-            return moldings_base
-
-        def parse_molding(fext, molding_path):
-            # FIXME/BACKLOG: Implement custom styling.
-            controller.affirm(False)  # FIXME: Not *yet* implemented!
-
-            if fext == 'py':
-                return load_module(molding_path)
-            elif fext.endswith('json'):
-                return load_json(molding_path)
-            else:
-                return None
-
-        def load_module(py_path):
-            # FIXME/BACKLOG: Implement custom styling.
-            controller.affirm(False)  # FIXME: Not *yet* implemented!
-
-            eval_globals = compile_and_eval_source(py_path)
-            return eval_globals['default']
-
-        def load_json(json_path):
-            # FIXME/BACKLOG: Implement custom styling.
-            controller.affirm(False)  # FIXME: Not *yet* implemented!
-
-            import hjson
-            with open(json_path, 'r') as json_text:
-                try:
-                    return hjson.loads(json_text)
-                except hjson.scanner.HjsonDecodeError as err:
-                    warn_tell_on_molding_not_json(json_path, err)
-
-        def warn_tell_on_molding_not_found(molding_name):
-            if molding_name:
-                msg = _('Not a recognized “{0}”: “{1}”').format(cfg_key, molding_name)
-                controller.client_logger.warning(msg)
-                dob_in_user_warning(msg)  # Also blather to stdout.
-            else:
-                controller.client_logger.debug(
-                    _('Loaded default molding for “{0}”'.format(cfg_key))
-                )
-
-        def warn_tell_on_molding_not_json(json_path, err):
-            msg = _('Not valid JSON at “{0}”: “{1}”').format(json_path, err)
-            controller.client_logger.warning(msg)
-            dob_in_user_warning(msg)  # Also blather to stdout.
-
-        return _load_molding()
-
-    # FIXME: Move this into carousel? Or into new module? seems misplaced
-    #        (because it glues PPT and Pygments objects).
-    def load_pygments_lexer(lexer_name):
-        # (lb): I'm a reSTie, personally, so we'll just default to that.
-        lexer_name = lexer_name or 'RstLexer'
-        try:
-            return PygmentsLexer(getattr(pygments.lexers, lexer_name))
-        except AttributeError:
-            msg = _('Not a recognized Pygments lexer: “{0}”').format(lexer_name)
-            controller.client_logger.warning(msg)
-            dob_in_user_warning(msg)
-            return None
 
     # ***
 
