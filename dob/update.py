@@ -40,6 +40,7 @@ def edit_fact_by_pk(
         old_fact = fact_from_key(key)
         if old_fact is None:
             return None
+        unedited = old_fact.copy()
         # Pre-run Awesome Prompt and/or $EDITOR.
         # Then run the Interactive Editor Carousel, the star
         # of the show; or show the $EDITOR if nothing else done.
@@ -73,6 +74,12 @@ def edit_fact_by_pk(
             edited_facts = edit_old_fact(old_fact)
         elif not edit_meta and not edit_text:
             edited_facts = edit_old_factoid(old_fact)
+        elif old_fact != unedited:
+            # So @post_processor get proper list of edited facts,
+            # we have to check if really edited.
+            edited_facts = [old_fact]
+        else:
+            edited_facts = []
         return edited_facts
 
     def fact_from_key(key):
