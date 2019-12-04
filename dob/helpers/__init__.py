@@ -131,7 +131,21 @@ def integer_range_groupify(integers):
     from operator import itemgetter
 
     def _integer_range_groupify():
-        srtd = sorted(map(int, integers))
+        try:
+            srtd = sorted(map(int, integers))
+        except Exception as err:
+            # 2019-12-03 01:16: On add tag, then save. Died was jump_fact_inc
+            # or @decorator? (not sure what I was doing; and there were two
+            # stack traces:)
+            #  ...
+            #  File "dob/dob/traverser/key_action_map.py", line 88, in jump_fact_inc
+            #    self.zone_manager.jump_fact_inc(event)
+            #  ...
+            #  Traceback (most recent call last):
+            #  ...
+            #  ValueError: invalid literal for int() with base 10: 'None'
+            self.carousel.controller.affirm(False)
+
         return assemble_groups(srtd)
 
     def range_key_recursive(srtd, ix):
