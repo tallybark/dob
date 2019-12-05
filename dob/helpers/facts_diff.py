@@ -123,6 +123,7 @@ class FactsDiff(object):
         self,
         prop,
         name=None,
+        style_class='',
         truncate=False,
         beautify=None,
         mouse_handler=None,
@@ -139,14 +140,17 @@ class FactsDiff(object):
             self_val, other_val = self.diff_values_enhance(
                 self_val,
                 other_val,
+                style_class=style_class,
                 truncate=truncate,
                 beautify=beautify,
                 mouse_handler=mouse_handler,
             )
         elif truncate:
             self_val = self.format_value_truncate(self_val)
-            self_val = self.format_prepare(self_val, mouse_handler=mouse_handler)
-            other_val = self.format_prepare(other_val)
+            self_val = self.format_prepare(
+                self_val, style_class=style_class, mouse_handler=mouse_handler,
+            )
+            other_val = self.format_prepare(other_val, style_class=style_class)
         attr_diff = self.diff_line_assemble(self_val, other_val, name)
         return attr_diff
 
@@ -161,6 +165,7 @@ class FactsDiff(object):
         self,
         self_val,
         other_val,
+        style_class='',
         truncate=False,
         beautify=None,
         mouse_handler=None,
@@ -179,11 +184,13 @@ class FactsDiff(object):
             self_val = self.format_edited_before(self_val)
             self_val, other_val = self.format_edited_after(self_val, other_val)
         else:
-            self_val = self.format_prepare(self_val, mouse_handler=mouse_handler)
-            other_val = self.format_prepare('')
+            self_val = self.format_prepare(
+                self_val, style_class=style_class, mouse_handler=mouse_handler,
+            )
+            other_val = self.format_prepare('', style_class=style_class)
         return (self_val, other_val)
 
-    def format_prepare(self, some_val, mouse_handler=None):
+    def format_prepare(self, some_val, style_class='', mouse_handler=None):
         if not self.formatted or not isinstance(some_val, text_type):
             # tags, e.g.,:
             #   [('fg: #C6C6C6 underline', '#'), ('fg: #D7FF87 underline', 'my-tag')]
@@ -197,8 +204,8 @@ class FactsDiff(object):
                 return [(tup[0], tup[1], mouse_handler,) for tup in some_val]
             return some_val
         if mouse_handler is None:
-            return [('', some_val)]
-        return [('', some_val, mouse_handler)]
+            return [(style_class, some_val)]
+        return [(style_class, some_val, mouse_handler)]
 
     def format_value_truncate(self, val):
         # MAGIC_NUMBER: (lb): A third of the terminal (1 / 3.).
@@ -209,13 +216,13 @@ class FactsDiff(object):
 
     # ***
 
-    def diff_time_elapsed(self, show_now=False):
+    def diff_time_elapsed(self, show_now=False, style_class=''):
         self_val = self.time_elapsed(self.orig_fact, show_now)
         other_val = self.time_elapsed(self.edit_fact, show_now)
         if not self_val:
             # Make 'em the same, i.e., show no diff, no styling.
             self_val = other_val
-        return self.diff_values_enhance(self_val, other_val)
+        return self.diff_values_enhance(self_val, other_val, style_class=style_class)
 
     def time_elapsed(self, fact, show_now=False):
         # NOTE: start and/or end might be string; e.g., clock or rel. time.
@@ -305,10 +312,10 @@ class FactsDiff(object):
         format_inline += "\n" if self.include_newlines else ''
         return format_inline
 
-    def diff_line_tuples_style(self, self_val, other_val, prefix=''):
+    def diff_line_tuples_style(self, self_val, other_val, prefix='', style_class=''):
         format_tuples = []
         if prefix:
-            format_tuples += [('', prefix)]
+            format_tuples += [(style_class, prefix)]
         if self_val:
             format_tuples += self_val
         if other_val:
