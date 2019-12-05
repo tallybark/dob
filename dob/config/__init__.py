@@ -93,9 +93,13 @@ class DobConfigurableEditor(Subscriptable):
 
     @property
     @ConfigRoot.setting(
-        _("Interface style to use."),
+        _("UX style: '' or 'default' applies none;"
+          "'night', 'light', or 'color' applies builtin;"
+          " or name your own (see: styles_fpath)."),
     )
     def styling(self):
+        # Do not specify a style (or specify 'default') so that the UX is not
+        # styled, but uses the current terminal color scheme.
         return ''
 
     # ***
