@@ -92,13 +92,30 @@ def load_config_obj(configfile_path):
 def write_config_obj(config_obj):
     def _write_config_obj():
         ensure_dirs(config_obj.filename)
-        config_obj.write()
+        try:
+            config_obj.write()
+        except UnicodeEncodeError as err:
+            die_write_failed(config_obj, err)
 
     def ensure_dirs(filename):
         # Avoid: FileNotFoundError: [Errno 2] No such file or directory: ....
         configfile_dir = os.path.dirname(filename)
         if configfile_dir and not os.path.lexists(configfile_dir):
             os.makedirs(configfile_dir)
+
+    def die_write_failed(config_obj, err):
+        # E.g.,:
+        #   UnicodeEncodeError: 'ascii' codec can't encode character
+        #     '\u2018' in position 1135: ordinal not in range(128)
+        msg = _(
+            'ERROR: Failed to write file at “{}”: “{}”\n'
+            'Perhaps unknown character(s): {}'
+        ).format(
+            config_obj.filename,
+            str(err),
+            err.object[err.start:err.end],
+        )
+        dob_in_user_exit(msg)
 
     return _write_config_obj()
 
