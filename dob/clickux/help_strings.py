@@ -443,7 +443,7 @@ def NEWBIE_HELP_CREATE_CONFIG(ctx, cfg_path):
 def NEWBIE_HELP_REPAIR_CONFIG(ctx, cfg_path):
     _help = _(
         """
-        {errcol}ERROR: Something is wrong in the config file found at: “{cfg_path}”{reset}
+        {errcol}ERROR: Please fix the config file found at: “{cfg_path}”{reset}
 
         The configuration file is at least missing the db.orm setting, if not others.
 

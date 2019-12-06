@@ -158,8 +158,8 @@ class DobConfigurableFact(Subscriptable):
 
     @property
     @ConfigRoot.setting(
-        _("Use any of these separators to indicate end of Fact meta, and start of Fact body."),
-    )  # noqa: E501
+        _("Acceptable separator(s) to delimit Fact meta data from description."),
+    )
     def separators(self):
         # Rather than `return ''` and act like there are no separators, show
         # the default value that nark uses, so that user are better educated.
@@ -226,7 +226,7 @@ class DobConfigurableLog(Subscriptable):
     # config value, just a derived one).
     @property
     @ConfigRoot.setting(
-        _('Generate value.'),
+        _('Generated value.'),
         ephemeral=True,
     )
     def filepath(self):
