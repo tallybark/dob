@@ -23,6 +23,7 @@ from gettext import gettext as _
 
 from .help_strings import common_format
 
+
 # ***
 # *** [CREATE-FACT] Commands help.
 # ***

@@ -283,7 +283,6 @@ def cmd_options_factoid_verify_both(func):
     return func
 
 
-
 # ***
 # *** [ADD FACT] Options.
 # ***

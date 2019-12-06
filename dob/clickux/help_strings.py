@@ -772,7 +772,6 @@ STORE_UPGRADE_FORCE_HELP = _(
 )
 
 
-
 # ***
 # *** [STATS] Commands help.
 # ***
