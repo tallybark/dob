@@ -53,7 +53,10 @@ def edit_fact_by_pk(
                 # fact=edit_fact,
                 fact=old_fact,
                 always_ask=True,
-                #restrict_edit='description',
+                # (lb): If we leave restrict_edit alone, the prompter will
+                # prompt for act@gory, then tags, and description (show editor).
+                # Otherwise, we could just ask for, e.g., act@gory, say:
+                #   restrict_edit='actegory',
             )
             # FIXME: Missing diff with old Fact to see if edited (and tell user)
             #    and missing save Fact.
