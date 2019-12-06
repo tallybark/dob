@@ -53,13 +53,6 @@ TIME_ERROR_ZEROTH_FACT_MUST_START = _(
 )
 
 
-TIME_ERROR_FINALE_FACT_MUST_START = _(
-    'Complete active Fact,'
-    ' or specify a `start` time'
-    ' (you might need a different command).'
-)
-
-
 # ***
 
 def reduce_time_hint(time_hint):
@@ -809,12 +802,13 @@ def insert_forcefully(controller, fact, squash_sep=''):
                 #   # we could probably assert that fact.start is not None,
                 #   #  and remove set_start_per_antecedent
 
-                # (lb): This branch is a squash fact situation!
+                # (lb): This code branch is a squash fact situation!
                 # - If you start an active, uncompleted Fact, and then try,
-                # e.g., `dob to 1000`, or `dob to +1h`, you'll get here.
-                # - After this branch, set_start_per_antecedent fails because
-                # the new Fact has no start, then TIME_ERROR_FINALE_FACT_MUST_START.
+                #   e.g., `dob to 1000`, or `dob to +1h`, you'll get here.
                 # - Another easy here: `dob after`.
+                # - 2019-12-06: I changed set_start_per_antecedent to not fail if
+                #   the new Fact has no start, so that it'll get squashed with the
+                #   active fact later. (Just noting now in case breaks soon after.)
                 conflict = set_start_per_antecedent(facts, fact)
             else:
                 conflict = facts.starting_at(fact)
@@ -856,8 +850,6 @@ def insert_forcefully(controller, fact, squash_sep=''):
 
         if not ref_fact:
             raise ValueError(TIME_ERROR_ZEROTH_FACT_MUST_START)
-        elif not ref_fact.end:
-            raise ValueError(TIME_ERROR_FINALE_FACT_MUST_START)
 
         # Because we called surrounding and got nothing, we know that
         # found_fact.end < fact.end; or that found_fact.end is None,

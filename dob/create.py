@@ -379,6 +379,9 @@ def must_create_fact_from_factoid(
 
     # FIXME/DRY: See create.py/transcode.py (other places that use "+0").
     #   (lb): 2019-01-22: Or maybe I don't care (not special enough to DRY?).
+    #   (lb): 2019-12-06: My knowledge of this code is now so crusty that
+    #                     it's too dangerous to consider DRYing anything!
+    #                     Especially not without good test coverage first.
     def fact_set_start_time_after_hack(fact, time_hint):
         # FIXME/2019-01-19 13:00: What about verify_next: and verify_then: ???
         #   TESTME: Write more tests first to see if there's really an issue.
@@ -754,7 +757,7 @@ def prompt_and_save(
 
     def prompt_all(backup_f):
         if not use_carousel:
-            return (edit_facts or []) + (orig_facts or []), None
+            return ((edit_facts or []), None)
 
         backup_callback = write_facts_file(backup_f, rule, dry)
         classes_style = load_classes_style(controller)
