@@ -759,9 +759,9 @@ def generate_add_fact_command(time_hint):
         @induct_newbies
         @click.pass_context
         @post_processor
-        def _add_fact(ctx, controller, *args, edit, **kwargs):
+        def _add_fact(ctx, controller, *args, editor, **kwargs):
             return add_fact(
-                controller, *args, time_hint=time_hint, use_carousel=edit, **kwargs
+                controller, *args, time_hint=time_hint, use_carousel=editor, **kwargs
             )
         return update_wrapper(_add_fact, func)
     return _generate_add_fact_command
