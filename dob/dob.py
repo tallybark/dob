@@ -88,7 +88,7 @@ from .cmds_usage import tag as usage_tag
 from .complete import tab_complete
 from .config.commands import echo_config_table, echo_config_value, write_config_value
 from .copyright import echo_copyright, echo_license
-from .create import add_fact, cancel_fact, stop_fact
+from .create import add_fact, cancel_fact
 from .demo import demo_config, demo_dob
 from .details import echo_app_details, echo_app_environs, echo_data_stats
 from .helpers import dob_in_user_exit, dob_in_user_warning

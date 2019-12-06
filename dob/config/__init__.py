@@ -17,7 +17,6 @@
 
 from __future__ import absolute_import, unicode_literals
 
-import datetime
 import json
 import os
 
@@ -27,8 +26,6 @@ from nark.config import ConfigRoot
 from nark.config.log_levels import must_verify_log_level
 from nark.config.subscriptable import Subscriptable
 from nark.helpers.parsing import FACT_METADATA_SEPARATORS
-
-from ..helpers import dob_in_user_warning
 
 from .app_dirs import AppDirs
 

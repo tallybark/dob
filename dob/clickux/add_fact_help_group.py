@@ -19,8 +19,6 @@
 
 from __future__ import absolute_import, unicode_literals
 
-from gettext import gettext as _
-
 from .aliasable_bunchy_plugin import ClickAliasableBunchyPluginGroup
 from .bunchy_help import help_header_add_fact
 
