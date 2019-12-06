@@ -907,7 +907,7 @@ def add_fact_next(controller, *args, **kwargs):
 @flush_pager
 @cmd_options_factoid_verify_none
 @generate_add_fact_command('verify_none')
-def add_fact_now(controller, *args, **kwargs):
+def add_fact_start(controller, *args, **kwargs):
     """Start or add a fact using the `now` directive."""
     assert(False)  # Not reachable, because generate_add_fact_command.
     pass
@@ -964,7 +964,7 @@ add_group_kwargs = {
 @induct_newbies
 @click.pass_context
 @post_processor
-def add_help_group(ctx, controller, *args, **kwargs):
+def add_group(ctx, controller, *args, **kwargs):
     """Base `add` group command run prior to any of the dob-add commands."""
     pass
 
@@ -988,7 +988,7 @@ def add_help_group(ctx, controller, *args, **kwargs):
 @induct_newbies
 @click.pass_context
 @post_processor
-def add_help_group(*args, **kwargs):
+def add_help(*args, **kwargs):
     """Misdirecting "add --help" command to improve general help."""
     pass
 
