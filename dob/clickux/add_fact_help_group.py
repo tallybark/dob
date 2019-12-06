@@ -33,9 +33,10 @@ class ClickAddFactHelpGroup(ClickAliasableBunchyPluginGroup):
 
     ADD_FACT_GROUP_HELP = 'add --help'
 
-    # SYNC_ME: dob.run.command(name) ↔ ClickAddFactHelpGroup.ADD_FACT_SKIP_ALIASED=[name,]
-    ADD_FACT_SKIP_ALIASED = ['on', 'until', 'next',]
-    # Here the main names = ['now', 'to', 'after',].
+    # SYNC_ME:
+    #   dob.run.command(name) ↔ ClickAddFactHelpGroup.ADD_FACT_SKIP_ALIASED=[name,]
+    ADD_FACT_SKIP_ALIASED = ['on', 'until', 'next']
+    # Here the main names = ['now', 'to', 'after'].
     # FIXME/2019-11-21: (lb): Maybe remove these aliased Add Fact cmds?
     #                        (And be more confident about chosen names.)
 
