@@ -428,7 +428,7 @@ def NEWBIE_HELP_CREATE_CONFIG(ctx, cfg_path):
             {rawname} -C "{cfg_path}" init
         """
     ).strip().format(
-        # FIXME/2019-11-19 14:42: Make wrapper for format() with some common colors defined.
+        # FIXME/2019-11-19 14:42: Make wrapper for format() with common colors defined.
         # - Maybe change errors to white on red, like here,
         #   but only for white on black terms (based on some setting?).
         errcol=(bg('red_1') + attr('bold')),
@@ -452,7 +452,7 @@ def NEWBIE_HELP_REPAIR_CONFIG(ctx, cfg_path):
             {rawname} config create --force
         """
     ).strip().format(
-        # FIXME/2019-11-19 14:42: Make wrapper for format() with some common colors defined.
+        # FIXME/2019-11-19 14:42: Make wrapper for format() with common colors defined.
         # - Maybe change errors to white on red, like here,
         #   but only for white on black terms (based on some setting?).
         errcol=(bg('red_1') + attr('bold')),

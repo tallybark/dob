@@ -1009,7 +1009,8 @@ def add_help(*args, **kwargs):
 @post_processor
 def edit_group(ctx, controller, *args, **kwargs):
     """Base `edit` group command run prior to any of the dob-edit commands."""
-    # NOTE: return value (list of edited Facts) sent to @post_processor decorator callbacks.
+    # NOTE: The return value is a list of edited Facts that's sent to the
+    #       @post_processor decorator callbacks.
     return edit_fact_by_key(ctx, controller, *args, **kwargs)
 
 
