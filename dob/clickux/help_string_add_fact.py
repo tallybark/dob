@@ -550,7 +550,7 @@ def ADD_FACT_COMMON(ctx):
          {codehi}to{reset}           No   Yes     Yes    You must specify end time.
                                           If no active, new Fact starts at last end.
 
-        """.format(first_line=first_line, **common_format())
+        """.format(first_line=first_line, **common_format())  # noqa: E501
     )
     return _help
 
