@@ -71,7 +71,8 @@ def assemble_copyright():
         _('This program comes with ABSOLUTELY NO WARRANTY. This is free software,'),
         _('and you are welcome to redistribute it under certain conditions.'),
         _(''),
-        _('Run `{} license` for your legal rights and responsibilities.').format(__arg0name__),
+        _('Run `{} license` for your legal rights and responsibilities.'
+          ).format(__arg0name__),
     ]
     copy_notice = gpl3_notice_2018
     return copy_notice
