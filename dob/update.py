@@ -47,7 +47,7 @@ def edit_fact_by_pk(
         # FIXME/2019-11-23: (lb): add_fact does $EDITOR, then Awesome.
         #                   - Which way is best? Make if configurable!!
         if edit_meta:
-            _prompter = ask_user_for_edits(
+            _prompter = ask_user_for_edits(  # noqa: F841
                 controller,
                 # MAYBE: rename old_fact
                 # fact=edit_fact,
@@ -58,9 +58,7 @@ def edit_fact_by_pk(
             # FIXME: Missing diff with old Fact to see if edited (and tell user)
             #    and missing save Fact.
         if edit_text:
-            # FIXME/2019-11-23 02:39: Care that new Fact(s) returned?
-            #edited_facts = edit_old_factoid(old_fact)
-            _prompter = ask_user_for_edits(
+            _prompter = ask_user_for_edits(  # noqa: F841
                 controller,
                 # MAYBE: rename old_fact
                 # fact=edit_fact,
