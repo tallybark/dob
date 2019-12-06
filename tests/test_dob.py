@@ -250,14 +250,16 @@ class TestStop(object):
         mockfact.end.strftime = mocktime
         current_fact = mocker.MagicMock(return_value=mockfact)
         controller_with_logging.facts.stop_current_fact = current_fact
-        create.stop_fact(controller_with_logging)
+        # FIXME/2019-12-06: stop_fact was deleted...
+        #create.stop_fact(controller_with_logging)
         assert controller_with_logging.facts.stop_current_fact.called
 
     def test_stop_no_existing_ongoing_fact(self, controller_with_logging, capsys):
         """Make sure that stop without actually an ongoing fact leads to an error."""
         controller = controller_with_logging
         with pytest.raises(SystemExit):
-            create.stop_fact(controller)
+            # FIXME/2019-12-06: stop_fact was deleted...
+            #create.stop_fact(controller)
             assert False  # Unreachable.
 
 
