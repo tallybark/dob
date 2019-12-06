@@ -546,7 +546,6 @@ def INIT_HELP_OVERVIEW(ctx):
 # ***
 
 def CONFIG_GROUP_HELP(ctx):
-    controller = ctx.obj
     _help = _(
         """
         Commands for managing user configurable values.
