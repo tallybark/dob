@@ -148,7 +148,13 @@ def add_fact(
             )
         except ValueError as err:
             # (lb): I'm very indecisive.
-            choices = [_("Not so fast!"), _("Cannawt!"), _("Unpossible!")]
+            choices = [
+                _("Not so fast!"),
+                _("Cannawt!"),
+                _("Unpossible!"),
+                _("Insidious!"),
+                _("Think again!"),
+            ]
             msg = _('{} {}').format(random.choice(choices), err)
             controller.client_logger.error(msg)
             dob_in_user_exit(msg)
