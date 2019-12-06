@@ -890,10 +890,10 @@ USAGE_FACTS_HELP = _(
 # ***
 
 STOP_HELP = _(
-   # Not DRY: Copied from first line of ADD_FACT_THEN.
-   """
-   Stops active Fact, ending it now or at the time specified.
-   """
+    # Not DRY: Copied from first line of ADD_FACT_THEN.
+    """
+    Stops active Fact, ending it now or at the time specified.
+    """
 )
 
 
@@ -969,7 +969,7 @@ ADD_FACT_ON = _(
 
 # verify_none
 ADD_FACT_NOW = _(
-# FIXME/2019-11-22 04:06: I think "if nothing active" might be wrong.
+    # FIXME/2019-11-22: (lb): I think "if nothing active" might be wrong.
     """
     Starts a new Fact if nothing active, using time now.
     """

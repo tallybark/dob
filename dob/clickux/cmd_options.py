@@ -337,7 +337,7 @@ _cmd_options_fact_import = [
     # - On dob-add, default is to not run Carousel; but on dob-import, it is.
     click.option(
         # Option skips carousel, opens Content in EDITOR, saves Fact on EDITOR exit.
-         '-E', '--no-editor', is_flag=True,
+        '-E', '--no-editor', is_flag=True,
         help=_('Skip interactive editor after import. Save Facts and exit.'),
     ),
 ]
@@ -355,7 +355,7 @@ def cmd_options_fact_import(func):
 
 _cmd_options_fact_no_editor_edit = [
     click.option(
-         '-E', '--no-editor', is_flag=True,
+        '-E', '--no-editor', is_flag=True,
         help=_('Skip interactive editor. Use $EDITOR and Awesome Prompt.'),
     ),
 ]
