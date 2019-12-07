@@ -31,7 +31,7 @@ from dob import (
     dob,
     transcode
 )
-from dob.config import manage
+from dob.config import fileboss
 from dob.cmds_list.fact import search_facts
 from dob.helpers import ascii_table
 

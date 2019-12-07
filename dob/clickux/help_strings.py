@@ -24,7 +24,7 @@ from gettext import gettext as _
 from nark.helpers.emphasis import attr, bg, coloring, fg
 
 from .. import __arg0name__, __package_name__
-from ..config.manage import default_config_path
+from ..config.fileboss import default_config_path
 from ..config.urable import ConfigUrable
 from ..copyright import assemble_copyright
 from ..helpers import highlight_value

@@ -26,7 +26,7 @@ from ..helpers import dob_in_user_exit, highlight_value
 
 from . import ConfigRoot
 
-from .manage import (
+from .fileboss import (
     default_config_path,
     empty_config_obj,
     load_config_obj,
