@@ -21,7 +21,7 @@ from gettext import gettext as _
 
 from click.exceptions import MissingParameter
 
-from nark.config.key_chained_val import KeyChainedValue
+from config_decorator.key_chained_val import KeyChainedValue
 
 from ..clickux.echo_assist import click_echo
 from ..helpers import dob_in_user_exit

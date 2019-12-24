@@ -22,9 +22,11 @@ import os
 
 from gettext import gettext as _
 
+from config_decorator.key_chained_val import KeyChainedValue
+from config_decorator.subscriptable import Subscriptable
+
 from nark.config import ConfigRoot
 from nark.config.log_levels import must_verify_log_level
-from nark.config.subscriptable import Subscriptable
 from nark.helpers.parsing import FACT_METADATA_SEPARATORS
 
 from .app_dirs import AppDirs
@@ -39,6 +41,8 @@ __all__ = (
     # '_styling_file_path',
 )
 
+
+KeyChainedValue._envvar_prefix = 'DOB_'
 
 # ***
 # *** Client (dob) Config.
