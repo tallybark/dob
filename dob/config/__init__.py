@@ -23,7 +23,6 @@ import os
 from gettext import gettext as _
 
 from config_decorator.key_chained_val import KeyChainedValue
-from config_decorator.subscriptable import Subscriptable
 
 from nark.config import ConfigRoot
 from nark.config.log_levels import must_verify_log_level
@@ -56,7 +55,7 @@ def _styling_file_path(basename):
 
 
 @ConfigRoot.section('editor')
-class DobConfigurableEditor(Subscriptable):
+class DobConfigurableEditor(object):
     """"""
 
     def __init__(self, *args, **kwargs):
@@ -152,7 +151,7 @@ class DobConfigurableEditor(Subscriptable):
 # ***
 
 @ConfigRoot.section('fact')
-class DobConfigurableFact(Subscriptable):
+class DobConfigurableFact(object):
     """"""
 
     def __init__(self, *args, **kwargs):
@@ -174,7 +173,7 @@ class DobConfigurableFact(Subscriptable):
 # ***
 
 @ConfigRoot.section('dev')
-class DobConfigurableDev(Subscriptable):
+class DobConfigurableDev(object):
     """"""
 
     def __init__(self, *args, **kwargs):
@@ -206,7 +205,7 @@ class DobConfigurableDev(Subscriptable):
 # ***
 
 @ConfigRoot.section('log')
-class DobConfigurableLog(Subscriptable):
+class DobConfigurableLog(object):
     """"""
 
     def __init__(self, *args, **kwargs):
@@ -268,7 +267,7 @@ class DobConfigurableLog(Subscriptable):
 # ***
 
 @ConfigRoot.section('term')
-class DobConfigurableTerm(Subscriptable):
+class DobConfigurableTerm(object):
     """"""
 
     def __init__(self, *args, **kwargs):
