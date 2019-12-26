@@ -105,7 +105,7 @@ class ConfigUrable(object):
             # the app will run just fine without a config file, because
             # defaults!
             try:
-                self.config_root.db.orm.value_from_config
+                self.config_root.asobj.db.orm.value_from_config
                 return True
             except AttributeError:
                 return False
