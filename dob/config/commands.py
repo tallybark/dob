@@ -45,13 +45,13 @@ def echo_config_table(controller, section, keyname, **kwargs):
 
     def _echo_config_table():
         try:
-            conf_objs = controller.configurable._find(parts)
+            conf_objs = controller.configurable.find_all(parts)
         except AttributeError:
             dob_in_user_exit(_(
                 'ERROR: Not a configuration setting: “{}”.'.format('.'.join(parts))
             ))
         for conf_obj in conf_objs:
-            conf_obj._walk(visitor)
+            conf_obj.walk(visitor)
         echo_table()
 
     def visitor(condec, keyval):
@@ -65,7 +65,7 @@ def echo_config_table(controller, section, keyname, **kwargs):
             val_def += val_def and ' ' or ''
             val_def += encode_default(str(keyval.default))
         sec_key_vals.append((
-            condec._section_path(sep='.'),
+            condec.section_path(sep='.'),
             keyval.name,
             val_def,
             keyval.doc,
@@ -140,7 +140,7 @@ def write_config_value(ctx, controller, parts):
 # *** [GET/SET] FETCH
 
 def fetch_config_object(controller, parts):
-    conf_objs = controller.configurable._find(parts)
+    conf_objs = controller.configurable.find_all(parts)
     if len(conf_objs) == 1:
         return conf_objs[0]
     error_exit_not_one(parts, conf_objs)

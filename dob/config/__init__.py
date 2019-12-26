@@ -236,7 +236,7 @@ class DobConfigurableLog(object):
         if self is None:
             # If called on class definition, before kcv._section set, return
             # empty string, which indicates the value type. However, because
-            # ephemeral=True, deduce_value_type won't call this method with
+            # ephemeral=True, _deduce_value_type won't call this method with
             # self set to None -- meaning, this return statement technically
             # unreachable. But we'll still keep it, for completeness.
             return ''
