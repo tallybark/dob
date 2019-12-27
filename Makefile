@@ -101,6 +101,7 @@ develop:
 
 lint:
 	flake8 setup.py dob/ tests/
+	doc8
 
 test:
 	@echo "Use the PYTEST_ADDOPTS environment variable to add extra command line options."
