@@ -250,12 +250,12 @@ class Controller(NarkControl):
         #   dev.cli_log_level
         #   dev.lib_log_level
         # (lb): Normally I'd prefer the []-lookup vs. attr., e.g., not:
-        #   self.config.dev.sql_log_level.value_from_forced = 'WARNING'
+        #   self.config.asobj.dev.sql_log_level.value_from_forced = 'WARNING'
         # because the self.config has non-key-val attributes (like
         # setdefault) so I think for clarity we should lookup via [].
         # Except the []-lookup returns the value, not the keyval object.
         # So here we have to use dotted attribute notation.
-        self.config.dev.sql_log_level.value_from_forced = 'WARNING'
+        self.config.asobj.dev.sql_log_level.value_from_forced = 'WARNING'
 
     def check_sqlite_store_ready(self):
         if self.config['db.engine'] != 'sqlite':
