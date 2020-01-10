@@ -101,7 +101,7 @@ class Controller(NarkControl):
 
     @property
     def store_exists(self):
-        # Check either db_path is set, or all of db_host/_port/_name/_user.
+        # Check either db.path is set, or all of db.host/port/name/user.
         if self.config['db.engine'] == 'sqlite':
             return os.path.isfile(self.config['db.path'])
         else:
