@@ -31,7 +31,10 @@ from dob import (
     dob,
     transcode
 )
-from dob.config import fileboss
+from dob.config import decorate_config, app_dirs, fileboss
+from dob.config.app_dirs import DobAppDirs
+from dob.config.fileboss import load_config_obj, write_config_obj
+from dob.config.urable import ConfigUrable
 from dob.cmds_list.fact import search_facts
 from dob.helpers import ascii_table
 
@@ -216,6 +219,8 @@ class TestAddFact(object):
         assert fact.description == expect_description
 
 
+# FIXME/2020-01-09: (lb): Perhaps delete this test and related code, or repair
+# or rewire it, but first go from dob.py and see what current stop command does.
 class TestStop(object):
     """Unit test concerning the stop command."""
 
@@ -542,7 +547,7 @@ class TestLicense(object):
 class TestSetupLogging(object):
     """Make sure that our logging setup is executed as expected."""
 
-    def test_setup_logging_and_log_level(self, controller, client_config, lib_config):
+    def test_setup_logging_and_log_level(self, controller):
         """
         Test that library and client logger have log level set according to config.
         """
@@ -610,45 +615,51 @@ class TestSetupLogging(object):
 class TestGetConfig(object):
     """Make sure that turning a config instance into proper config dictionaries works."""
 
-# FIXME/2019-11-18: (lb): All the app_config are now wrong. See new dob.config.manage methods.
-
-    @pytest.mark.parametrize('log_level', ['debug'])
-    def test_log_levels_valid(self, log_level, config_instance):
+    @pytest.mark.parametrize('cli_log_level', ['debug'])
+    def test_log_levels_valid(self, cli_log_level, config_instance):
         """
         Make sure *string loglevels* translates to their respective integers properly.
         """
-        backend, client = app_config.get_separate_configs(
-            config_instance(log_level=log_level)
-        )
-        assert client['dev.cli_log_level'] == 10
+        config_obj = config_instance(cli_log_level=cli_log_level)
+        assert config_obj['dev']['cli_log_level'] == cli_log_level
+        config = decorate_config(config_obj)
+        assert config['dev']['cli_log_level'] == 10
+        assert config['dev.cli_log_level'] == 10
+        assert config.asobj.dev.cli_log_level.value == 10
 
     @pytest.mark.parametrize('cli_log_level', ['foobar'])
     def test_log_levels_invalid(self, cli_log_level, config_instance, capsys):
         """Test that invalid *string loglevels* raise ``ValueError``."""
-        with pytest.raises(SystemExit):
-            backend, client = app_config.get_separate_configs(
-                config_instance(cli_log_level=cli_log_level)
-            )
+        config_obj = config_instance(cli_log_level=cli_log_level)
+        with pytest.raises(
+            ValueError,
+            match=r"^Unrecognized value for setting ‘cli_log_level’: “foobar”.*"
+        ):
+            config = decorate_config(config_obj)
         out, err = capsys.readouterr()
         assert out == ''
-        assert err.startswith('Unrecognized log level')
+        assert err == ''
 
     def test_invalid_store(self, config_instance):
-        """Make sure that encountering an unsupportet store will raise an exception."""
-        with pytest.raises(ValueError):
-            backend, client = app_config.get_separate_configs(
-                config_instance(store='foobar'),
-            )
+        """Make sure that passing an ORM other than 'sqlalchemy' raises an exception."""
+        config_obj = config_instance(orm='foobar')
+        with pytest.raises(
+            ValueError,
+            match=r"^Unrecognized value for setting ‘orm’: “foobar” \(Choose from: ‘sqlalchemy’\)$"
+        ):
+            config = decorate_config(config_obj)
 
     def test_non_sqlite(self, config_instance):
-        """Make sure that passing a store other than 'sqlalchemy' raises exception."""
-        config_instance = config_instance(db_engine='postgres')
-        backend, client = app_config.get_separate_configs(config_instance)
-        assert backend['db.host'] == config_instance.get('backend', 'db.host')
-        assert backend['db.port'] == config_instance.get('backend', 'db.port')
-        assert backend['db.name'] == config_instance.get('backend', 'db.name')
-        assert backend['db.user'] == config_instance.get('backend', 'db.user')
-        assert backend['db.password'] == config_instance.get('backend', 'db.password')
+        """Make sure that passing a postgres config works.
+
+        Albeit actual postgres connections not tested."""
+        confnstnc = config_instance(engine='postgres')
+        config = decorate_config(confnstnc)
+        assert config['db.host'] == confnstnc['db']['host']
+        assert config['db.port'] == confnstnc['db']['port']
+        assert config['db.name'] == confnstnc['db']['name']
+        assert config['db.user'] == confnstnc['db']['user']
+        assert config['db.password'] == confnstnc['db']['password']
 
 
 class TestGetConfigInstance(object):
@@ -663,28 +674,29 @@ class TestGetConfigInstance(object):
         #   mocker.patch('dob.app_config.fresh_config')
         # i.e., go for more coverage!
         app_dirs_mock.configure_mock(user_data_dir='/XXX')
-# FIXME/2019-11-18 20:32: AppDirs was moved to config.app_dirs...
-        mocker.patch.object(app_config, 'AppDirs', app_dirs_mock)
-        config, preexists = app_config.get_config_instance()
-        assert len(list(config.items())) > 0
-        assert preexists is False
+        mocker.patch.object(fileboss, 'AppDirs', app_dirs_mock)
+        self.configurable = ConfigUrable()
+        self.configurable.load_config(configfile_path=None)
+        assert len(list(self.configurable.config_root.items())) > 0
+        assert self.configurable.cfgfile_exists is False
 
     def test_file_present(self, config_instance):
         """Make sure we try parsing a found config file."""
-        config, preexists = app_config.get_config_instance()
-        # I.e., 'sqlalchemy' == 'sqlalchemy'
-        assert (
-            config.get('backend', 'store') == config_instance().get('backend', 'store')
-        )
-        assert isinstance(config_instance(), type(config))
-        assert config_instance() is not config
+        self.configurable = ConfigUrable()
+        self.configurable.load_config(configfile_path=None)
+        cfg_val = self.configurable.config_root['db']['orm']
+        assert cfg_val == config_instance()['db']['orm']
+        assert config_instance() is not self.configurable.config_root
 
     def test_config_path_getter(self, appdirs, mocker):
         """Make sure the config target path is constructed to our expectations."""
-        mocker.patch('dob.app_config.fresh_config')
-        config, preexists = app_config.get_config_instance()
+        mocker.patch('dob.config.fileboss.load_config_obj')
+        # DRY?/2020-01-09: (lb): Perhaps move repeated ConfigUrable code to fixture.
+        self.configurable = ConfigUrable()
+        self.configurable.load_config(configfile_path=None)
+        # 'dob.conf' defined and used in dob.config.fileboss.default_config_path.
         expectation = os.path.join(appdirs.user_config_dir, 'dob.conf')
-        assert app_config.fresh_config.called_with(expectation)
+        assert fileboss.load_config_obj.called_with(expectation)
 
 
 class TestGenerateTable(object):
@@ -700,18 +712,22 @@ class TestGenerateTable(object):
         assert len(header) == 8
 
 
+# FIXME/2020-01-09: (lb): Could probably move this to dob/tests/test_config or test_fileboss.
 class TestWriteConfigFile(object):
     def test_file_is_written(self, filepath, config_instance):
         """Ensure file is written. Content not checked; that's ConfigObj's job."""
-        app_config.store_config(config_instance(), filepath)
-        assert os.path.lexists(filepath)
+        config_obj = config_instance()
+        write_config_obj(config_obj)
+        assert os.path.lexists(config_obj.filename)
 
     def test_non_existing_path(self, tmpdir, filename, config_instance):
         """Make sure that the path-parents are created if not present."""
         filepath = os.path.join(tmpdir.strpath, filename)
         assert os.path.lexists(filepath) is False
-        app_config.store_config(config_instance(), filepath)
-        assert os.path.lexists(filepath)
+        config_obj = config_instance()
+        config_obj.filename = filepath
+        write_config_obj(config_obj)
+        assert os.path.lexists(config_obj.filename)
 
 
 class TestDobAppDirs(object):
@@ -725,7 +741,7 @@ class TestDobAppDirs(object):
             new_callable=mock.PropertyMock,
         ) as mock_app_dir:
             mock_app_dir.return_value = path
-            appdir = app_config.DobAppDirs('dob')
+            appdir = app_dirs.DobAppDirs('dob')
             assert getattr(appdir, app_dirname) == path
             # (lb): Guh. After py3.5 dropped, we could simplify this to:
             #   mock_app_dir.assert_called_once()
@@ -744,7 +760,7 @@ class TestDobAppDirs(object):
             new_callable=mock.PropertyMock,
             return_value=path,
         ) as mock_app_dir:
-            appdir = app_config.DobAppDirs('dob')
+            appdir = app_dirs.DobAppDirs('dob')
             appdir.create = create
             # DEVS: Weird: If this assert fires and you're running `py.test --pdb`,
             # entering e.g., `appdir.user_data_dir` at the pdb prompt shows the

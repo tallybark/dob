@@ -38,8 +38,12 @@ from click.testing import CliRunner
 from configobj import ConfigObj
 from pytest_factoryboy import register
 from six import text_type
+from unittest import mock
+
+from nark.config import decorate_config
 
 import dob.dob as dob
+from dob.config.fileboss import default_config_path
 from dob.controller import Controller
 
 from . import factories
@@ -123,61 +127,66 @@ def runner(appdirs, get_config_file, tmpdir):
 
 
 @pytest.fixture
-def config_root():
+def config_root(nark_config, dob_config):
     """Provide a generic baseline configuration."""
-    config = lib_config.copy()
-    config.update(client_config)
+    config_root = decorate_config(nark_config)
+    config_root.update(dob_config)
+    config = config_root.as_dict()
     return config
 
-
+# This method essentially same as: nark:tests/conftest.py::base_config.
 @pytest.fixture
-def lib_config(tmpdir):
+def nark_config(tmpdir):
     """
     Provide a backend config fixture. This can be passed to a controller directly.
 
     That means this fixture represents the the result of all typechecks and
     type conversions.
     """
+    # FETREQ/2020-01-09: (lb): Support dot-notation in dict keys on `update`.
+    # - For now, create deep dictionary; not flat with dotted key names.
     return {
-        # FIXME/2019-02-20: (lb): Test with missing config values; I know, bugs!
-        # E.g., unset store, and I think dob topples.
+        'db': {
+            'orm': 'sqlalchemy',
+            'engine': 'sqlite',
+            'path': ':memory:',
+            # MAYBE/2019-02-20: (lb): Support for alt. DBMS is wired, but not tested.
+            #   'host': '',
+            #   'port': '',
+            #   'name': '',
+            #   'user': '',
+            #   'password': '',
+        },
+        'dev': {
+            'lib_log_level': 'WARNING',
+            'sql_log_level': 'WARNING',
+        },
+        'time': {
+            # 2019-02-20: (lb): Note that allow_momentaneous=False probably Bad Idea,
+            #                   especially for user upgrading from legacy hamster db.
+            'allow_momentaneous': True,
 
-        'db.orm': 'sqlalchemy',
-        'db.engine': 'sqlite',
-        'db.path': ':memory:',
-        # MAYBE/2019-02-20: (lb): Support for other DBMS's wired, but not tested.
-        #   'db.host': '',
-        #   'db.port': '',
-        #   'db.name': '',
-        #   'db.user': '',
-        #   'db.password': '',
+            # MAYBE/2019-02-20: (lb): I don't day_start, so probably broke; needs tests.
+            #   'day_start': datetime.time(hour=0, minute=0, second=0).isoformat(),
+            #   'day_start': datetime.time(hour=5, minute=0, second=0).isoformat(),
+            'day_start': '',
 
-        # 2019-02-20: (lb): Note that allow_momentaneous=False probably Bad Idea,
-        #                   especially for user upgrading from legacy hamster db.
-        'time.allow_momentaneous': True,
+            # MAYBE/2019-02-20: (lb): Perhaps test min-delta, another feature I !use!
+            #   'fact_min_delta': '60',
+            'fact_min_delta': '0',
 
-        # MAYBE/2019-02-20: (lb): I don't day_start, so probably broke; needs tests.
-        #   'day_start': datetime.time(hour=0, minute=0, second=0).isoformat(),
-        #   'day_start': datetime.time(hour=5, minute=0, second=0).isoformat(),
-        'time.day_start': '',
+            # FIXME/2019-02-20: (lb): Implement tzawareness/tz_aware/timezone sanity.
+            'tz_aware': False,
 
-        # MAYBE/2019-02-20: (lb): Perhaps test min-delta, another feature I !use!
-        #   'fact_min_delta': '60',
-        'time.fact_min_delta': '0',
-
-        'dev.lib_log_level': 'WARNING',
-        'dev.sql_log_level': 'WARNING',
-
-        # FIXME/2019-02-20: (lb): Implement tzawareness/tz_aware/timezone sanity.
-        'time.tz_aware': False,
-        # FIXME/2019-02-20: (lb): Needs testing, e.g.,
-        #   'time.default_tzinfo': 'America/Menominee',
-        'time.default_tzinfo': '',
+            # FIXME/2019-02-20: (lb): Needs testing, e.g.,
+            #   'default_tzinfo': 'America/Menominee',
+            'default_tzinfo': '',
+        },
     }
 
 
 @pytest.fixture
-def client_config(tmpdir):
+def dob_config(tmpdir):
     """
     Provide a client config fixture. This can be passed to a controller directly.
 
@@ -235,38 +244,40 @@ def config_instance(tmpdir, faker):
 
     def generate_config(**kwargs):
         cfg_dict = generate_dict(**kwargs)
-        config = ConfigObj(cfg_dict)
+        # configfile_path = os.path.join(tmpdir, 'dob.conf')
+        configfile_path = default_config_path()
+        config = ConfigObj(configfile_path)
+        config.merge(cfg_dict)
         return config
 
     def generate_dict(**kwargs):
-        config = {}
+        cfg_dict = {}
 
         # ***
 
         cfg_db = {}
         cfg_dict['db'] = cfg_db
 
-        cfg_db.setdefault('orm', kwargs.get('db.orm', 'sqlalchemy'))
-        cfg_db.setdefault('engine', kwargs.get('db.engine', 'sqlite'))
-        cfg_db.setdefault('path', kwargs.get(
-            # FIXME/2019-11-27: (lb): hamster_db?
-            'db_path', os.path.join(tmpdir.strpath, 'hamster_db.sqlite'))
-        )
-        cfg_db.setdefault('host', kwargs.get('db.host', ''))
-        cfg_db.setdefault('port', kwargs.get('db.port', ''))
-        cfg_db.setdefault('name', kwargs.get('db.name', ''))
-        cfg_db.setdefault('user', kwargs.get('db.user', '')),
-        cfg_db.setdefault('password', kwargs.get('db.password', ''))
+        cfg_db.setdefault('orm', kwargs.get('orm', 'sqlalchemy'))
+        cfg_db.setdefault('engine', kwargs.get('engine', 'sqlite'))
+        # HARDCODED: This filename value does not matter, really.
+        db_path = os.path.join(tmpdir.strpath, 'dob.sqlite')
+        cfg_db.setdefault('path', kwargs.get('path', db_path))
+        cfg_db.setdefault('host', kwargs.get('host', ''))
+        cfg_db.setdefault('port', kwargs.get('port', ''))
+        cfg_db.setdefault('name', kwargs.get('name', ''))
+        cfg_db.setdefault('user', kwargs.get('user', '')),
+        cfg_db.setdefault('password', kwargs.get('password', ''))
 
         # ***
 
         cfg_dev = {}
         cfg_dict['dev'] = cfg_dev
 
-        cfg_dev.setdefault('lib_log_level',
-                           kwargs.get('dev.lib_log_level', 'WARNING'))
-        cfg_dev.setdefault('sql_log_level',
-                           kwargs.get('dev.sql_log_level', 'WARNING'))
+        lib_log_level = kwargs.get('lib_log_level', 'WARNING')
+        cfg_dev.setdefault('lib_log_level', lib_log_level)
+        sql_log_level = kwargs.get('sql_log_level', 'WARNING')
+        cfg_dev.setdefault('sql_log_level', sql_log_level)
 
         # ***
 
@@ -274,19 +285,22 @@ def config_instance(tmpdir, faker):
         cfg_dict['time'] = cfg_time
 
         # (lb): Need to always support momentaneous, because legacy data bugs.
-        # cfg_time.setdefault('time.allow_momentaneous', 'False')
-        cfg_time.setdefault('time.allow_momentaneous', 'True')
+        # cfg_time.setdefault('allow_momentaneous', 'False')
+        cfg_time.setdefault('allow_momentaneous', 'True')
 
-        # cfg_time.setdefault('time.day_start', kwargs.get('time.day_start', ''))
-        cfg_time.setdefault('time.day_start', kwargs.get('time.day_start', '00:00:00'))
+        # day_start = kwargs.get('day_start', '')
+        day_start = kwargs.get('day_start', '00:00:00')
+        cfg_time.setdefault('day_start', day_start)
 
-        cfg_time.setdefault('time.fact_min_delta', kwargs.get('time.fact_min_delta', '60'))
-        # cfg_time.setdefault('time.fact_min_delta', kwargs.get('time.fact_min_delta', '0'))
+        # fact_min_delta = kwargs.get('fact_min_delta', '0')
+        fact_min_delta = kwargs.get('fact_min_delta', '60')
+        cfg_time.setdefault('fact_min_delta', fact_min_delta)
 
-        cfg_time.setdefault('time.tz_aware', 'False')
-        cfg_time.setdefault('time.default_tzinfo', '')
+        cfg_time.setdefault('tz_aware', kwargs.get('tz_aware', 'False'))
         # FIXME/2019-02-20: (lb): Fix timezones. And parameterize, e.g.,
-        #  cfg_time.setdefault('time.default_tzinfo', 'America/Menominee')
+        #  default_tzinfo = kwargs.get('default_tzinfo', 'America/Menominee')
+        default_tzinfo = kwargs.get('default_tzinfo', '')
+        cfg_time.setdefault('default_tzinfo', default_tzinfo)
 
         # ***
 
@@ -308,8 +322,8 @@ def config_instance(tmpdir, faker):
 
         assert('dev' in cfg_dict)
 
-        cfg_dev.setdefault('cli_log_level',
-                           kwargs.get('dev.cli_log_level', 'warning'))
+        cli_log_level = kwargs.get('cli_log_level', 'warning')
+        cfg_dev.setdefault('cli_log_level', cli_log_level)
         cfg_dev.setdefault('catch_errors', 'False')
 
         # ***
@@ -317,11 +331,10 @@ def config_instance(tmpdir, faker):
         cfg_log = {}
         cfg_dict['log'] = cfg_log
 
-        cfg_log.setdefault('filename',
-                           kwargs.get('dev.log_filename', faker.file_name()))
+        cfg_log.setdefault('filename', kwargs.get('log_filename', faker.file_name()))
         # The log_filename is used to make log.filepath, which we don't need to set.
         cfg_log.setdefault('use_color', 'False')
-        cfg_log.setdefault('use_console', kwargs.get('dev.log_console', '0'))
+        cfg_log.setdefault('use_console', kwargs.get('log_console', 'False'))
 
         # ***
 
@@ -336,7 +349,7 @@ def config_instance(tmpdir, faker):
 
         # ***
 
-        return config
+        return cfg_dict
 
     return generate_config
 
@@ -407,18 +420,22 @@ def prepare_controller(config_root):
 
 
 @pytest.yield_fixture
-def controller(config_root):
+def controller(config_root, mocker):
     """Provide a pseudo controller instance."""
     controller = prepare_controller(config_root=config_root)
+    controller.ctx = mocker.MagicMock()
+    controller.configurable = mocker.MagicMock()
     controller.standup_store()
     yield controller
     controller.store.cleanup()
 
 
 @pytest.yield_fixture
-def controller_with_logging(config_root):
+def controller_with_logging(config_root, mocker):
     """Provide a pseudo controller instance with logging setup."""
     controller = prepare_controller(config_root=config_root)
+    controller.ctx = mocker.MagicMock()
+    controller.configurable = mocker.MagicMock()
     controller.setup_logging()
     controller.standup_store()
     yield controller

@@ -54,7 +54,7 @@ def spoof_terminal(monkeypatch):
 
     # MAYBE/2019-02-20 11:55: Should async_enable be settable,
     #                         so we don't have to hack-mock?
-    monkeypatch.setattr('dob.traverser.carousel.Carousel.async_enable', False)
+    monkeypatch.setattr('dob_viewer.traverser.carousel.Carousel.async_enable', False)
 
     sys_stdin = sys.stdin
     # os.pipe() might also work, but pty was built to be a terminal spoof.
