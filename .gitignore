@@ -26,10 +26,8 @@ docs/modules.rst
 docs/dob.cmds_list.rst
 docs/dob.cmds_usage.rst
 docs/dob.helpers.rst
-docs/dob.prompters.rst
 docs/dob.rst
 docs/dob.styling.rst
-docs/dob.traverser.rst
 
 # In lieu of a personalizable, secondary Grep/Silver Searcher/RipGrep ignore,
 # like .gitignore's .git/info/exclude, the repo contains an .ignore.example.
