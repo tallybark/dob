@@ -194,7 +194,7 @@ def upgrade_legacy_database_file(ctx, controller, file_in, force):
             AppDirs._ensure_directory_exists(db_dir)
             shutil.copyfile(file_in.name, db_path)
         except Exception as err:
-            msg = _('Failed to copy new database to db_path: {}').format(str(err))
+            msg = _('Failed to copy new database to ‘{}’').format(str(err))
             dob_in_user_warning(msg)
 
     def echo_help():
