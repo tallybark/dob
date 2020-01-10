@@ -91,6 +91,8 @@ def load_config_obj(configfile_path):
 
 def write_config_obj(config_obj):
     def _write_config_obj():
+        if not config_obj.filename:
+            raise AttributeError('ConfigObj missing ‘filename’')
         ensure_dirs(config_obj.filename)
         try:
             config_obj.write()
