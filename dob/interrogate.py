@@ -20,11 +20,12 @@ from __future__ import absolute_import, unicode_literals
 import tempfile
 
 import editor
-from nark.items.activity import Activity
 from six import text_type
 
+from nark.items.activity import Activity
+
 # Lazy-load AwesomePrompt to save ~0.1 seconds when not needed.
-from . import prompters
+from dob_prompt import prompters
 
 __all__ = (
     'ask_user_for_edits',

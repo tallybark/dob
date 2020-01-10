@@ -29,13 +29,15 @@ from inflector import English, Inflector
 from nark.helpers.emphasis import attr, fg
 from nark.helpers.parsing import ParserException
 
+from dob_viewer.config.styling.classes_style import load_classes_style, load_matches_style
+from dob_viewer.config.styling.content_lexer import load_content_lexer
+from dob_viewer.config.styling.no_completion import load_no_completion
+from dob_viewer.traverser.placeable_fact import PlaceableFact
+
 from . import interrogate
 from .clickux.echo_assist import click_echo, echo_block_header
 from .clickux.help_strings import NOTHING_TO_STOP_HELP
 from .config.app_dirs import AppDirs, get_appdirs_subdir_file_path
-from .config.styling.classes_style import load_classes_style, load_matches_style
-from .config.styling.content_lexer import load_content_lexer
-from .config.styling.no_completion import load_no_completion
 from .helpers import (
     dob_in_user_exit,
     dob_in_user_warning,
@@ -49,7 +51,6 @@ from .helpers.fix_times import (
     reduce_time_hint,
     unite_and_stretch
 )
-from .traverser.placeable_fact import PlaceableFact
 
 __all__ = (
     'add_fact',
@@ -766,7 +767,7 @@ def prompt_and_save(
         no_completion = load_no_completion(controller)
 
         # Lazy-load the carousel and save ~0.065s.
-        from .traverser.carousel import Carousel
+        from dob_viewer.traverser.carousel import Carousel
 
         carousel = Carousel(
             controller,

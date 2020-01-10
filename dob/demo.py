@@ -27,8 +27,9 @@ from gettext import gettext as _
 from nark.items.activity import Activity
 from nark.items.category import Category
 
+from dob_viewer.traverser.placeable_fact import PlaceableFact
+
 from .create import prompt_and_save
-from .traverser.placeable_fact import PlaceableFact
 
 __all__ = (
     'demo_config',

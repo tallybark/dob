@@ -31,6 +31,8 @@ from nark import reports
 from nark.helpers.emphasis import attr, bg, fg
 from nark.helpers.parsing import parse_factoid
 
+from dob_viewer.traverser.placeable_fact import PlaceableFact
+
 from . import __package_name__
 from .clickux.echo_assist import barf_and_exit, click_echo, echo_block_header
 from .clickux.query_assist import hydrate_activity, hydrate_category
@@ -45,7 +47,6 @@ from .helpers.fix_times import (
     reduce_time_hint,
     then_extend_fact
 )
-from .traverser.placeable_fact import PlaceableFact
 
 __all__ = (
     'export_facts',

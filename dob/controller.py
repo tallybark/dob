@@ -31,12 +31,13 @@ from nark.control import NarkControl
 from nark.helpers import logging as logging_helpers
 from nark.helpers.emphasis import disable_colors, enable_colors
 
+from dob_viewer.traverser.placeable_fact import PlaceableFact
+
 from . import __arg0name__
 from .clickux import help_strings
 from .clickux.echo_assist import click_echo
 from .config.urable import ConfigUrable
 from .helpers import dob_in_user_exit, highlight_value
-from .traverser.placeable_fact import PlaceableFact
 
 # Disable the python_2_unicode_compatible future import warning.
 click.disable_unicode_literals_warning = True
