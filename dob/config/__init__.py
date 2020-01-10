@@ -22,7 +22,7 @@ import os
 
 from gettext import gettext as _
 
-from config_decorator.key_chained_val import KeyChainedValue
+from config_decorator import ConfigDecorator, KeyChainedValue
 
 from nark.config import ConfigRoot
 from nark.config.log_levels import get_log_level_safe, must_verify_log_level
@@ -31,6 +31,7 @@ from nark.helpers.parsing import FACT_METADATA_SEPARATORS
 from .app_dirs import AppDirs
 
 __all__ = (
+    'decorate_config',
     'DobConfigurableDev',
     'DobConfigurableEditor',
     'DobConfigurableFact',
@@ -329,4 +330,25 @@ class DobConfigurableTerm(object):
     )
     def use_pager(self):
         return False
+
+
+# ***
+
+def decorate_config(config):
+    """Wraps or ensures the supplied config dict is a nark config decorator.
+
+    Note: This is mostly for the ``nark/tests``, as the dob client will
+    explicitly prepare a decorated config and pass that to nark. But to
+    make it easier to write fixtures for ``nark/tests``, this method
+    accepts a dictionary and returns a decorated config.
+    """
+    if isinstance(config, ConfigDecorator):
+        return config
+    # Caution: Remember that ConfigRoot is a weird Singleton.
+    # FIXME/2020-01-07: (lb): Can probably put ConfigRoot et al in a getter
+    #                         so that it doesn't have to be a module global.
+    config_root = ConfigRoot
+    config_root.forget_config_values()
+    config_root.update(config)
+    return config_root
 
