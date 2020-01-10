@@ -605,7 +605,7 @@ def CONFIG_GROUP_HELP(ctx):
         a prefix, {codehi}DOB_CONFIG_{reset}, followed by the uppercase
         section name and the uppercase setting name.
 
-          E.g., here's how to specify the db_engine setting using its
+          E.g., here's how to specify the db.engine setting using its
         environment variable:
 
           \b
