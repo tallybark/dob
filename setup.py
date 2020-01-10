@@ -38,14 +38,12 @@ requirements = [
     # (lb): I considered adding this to Click, but Click has no dependencies!
     #       So let's keep it pure.
     'ansiwrap >= 0.8.4',
-    # https://github.com/pytest-dev/apipkg
-    'apipkg',
     # Platform-specific directory magic.
     #  https://github.com/ActiveState/appdirs
     'appdirs',
     # (lb): Click may be the best optparser of any language I've used.
     #  https://github.com/pallets/click
-    'click >= 7.0',
+    'click--hotoffthehamster',
     # Indispensable aliases support for Click.
     #  Stolen from: https://github.com/click-contrib/click-aliases
     #  Released at: https://github.com/hotoffthehamster/click-alias
@@ -65,31 +63,24 @@ requirements = [
     # Vocabulary word pluralizer.
     #  https://github.com/ixmatus/inflector
     'Inflector',
-    # https://github.com/hjson/hjson-py
-    'hjson',
     # Humanfriendly is one of the many table formatter choices.
     #  https://github.com/xolox/python-humanfriendly
     'humanfriendly',
     # Elapsed timedelta formatter, e.g., "1.25 days".
-    'human-friendly_pedantic-timedelta >= 0.0.6',
+    'human-friendly_pedantic-timedelta >= 0.0.6',  #  Imports as pedantic_timedelta.
     # https://github.com/mnmelo/lazy_import
     'lazy_import',
     # The heart of Hamster. (Ye olde `hamster-lib`).
     'nark',
     # Amazeballs prompt library.
     # FIXME/2019-02-21: Submit PR. Until then, whose fork?
-    'prompt-toolkit-dob >= 2.0.9',
-    # For the Carousel Fact description lexer.
-    #  http://pygments.org/
-    'pygments',
+    'prompt-toolkit-dob >= 2.0.9',  # Imports as prompt_toolkit.
     # Just Another EDITOR package.
     #  https://github.com/fmoo/python-editor
-    'python-editor',
+    'python-editor',  # Imports as editor.
     # Virtuous Six Python 2 and 3 compatibility library.
     #  https://six.readthedocs.io/
     'six',
-    # https://github.com/grantjenks/python-sortedcontainers/
-    'sortedcontainers',
     # Tabulate is one of the many table formatter choices.
     #  https://bitbucket.org/astanin/python-tabulate
     'tabulate',
