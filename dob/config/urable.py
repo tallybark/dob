@@ -140,7 +140,7 @@ class ConfigUrable(object):
         config_obj = empty_config_obj(self.config_path)
         # Fill in dict object using Config defaults.
         self.config_root.forget_config_values()
-        self.config_root.download_to_dict(config_obj, use_defaults=True)
+        self.config_root.apply_items(config_obj, use_defaults=True)
         write_config_obj(config_obj)
         self.cfgfile_exists = True  # If anything, we just created it!
         self.cfgfile_sanity = True  # If anything, we just created it!
@@ -150,7 +150,7 @@ class ConfigUrable(object):
     def write_config(self, skip_unset=False):
         config_obj = empty_config_obj(self.config_path)
         # Fill in dict object using values previously set from config or newly set.
-        self.config_root.download_to_dict(config_obj, skip_unset=skip_unset)
+        self.config_root.apply_items(config_obj, skip_unset=skip_unset)
         write_config_obj(config_obj)
         self.cfgfile_exists = True
         self.cfgfile_sanity = True
