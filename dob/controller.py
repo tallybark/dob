@@ -58,9 +58,8 @@ class Controller(NarkControl):
 
     POST_PROCESSORS = []
 
-    def __init__(self):
-        """Load backend and client configs, and instantiate controller."""
-        super(Controller, self).__init__()
+    def __init__(self, config=None):
+        super(Controller, self).__init__(config)
         self.configurable = None
 
     @property
