@@ -25,7 +25,7 @@ from gettext import gettext as _
 from config_decorator.key_chained_val import KeyChainedValue
 
 from nark.config import ConfigRoot
-from nark.config.log_levels import must_verify_log_level
+from nark.config.log_levels import get_log_level_safe, must_verify_log_level
 from nark.helpers.parsing import FACT_METADATA_SEPARATORS
 
 from .app_dirs import AppDirs
@@ -185,8 +185,8 @@ class DobConfigurableDev(object):
     @ConfigRoot.setting(
         _("The log level for frontend (dob) squaller"
             " (using Python logging library levels)"),
-        # MEH/2019-01-17: We should warn, not die; see: resolve_log_level.
         validate=must_verify_log_level,
+        conform=get_log_level_safe,
     )
     def cli_log_level(self):
         return 'WARNING'
