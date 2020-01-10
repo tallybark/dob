@@ -84,7 +84,7 @@ author = 'HotOffThe Hamster'
 # the built documents.
 #
 # The full version, including alpha/beta/rc tags.
-release = get_distribution('nark').version
+release = get_distribution('dob').version
 # The short X.Y version.
 # (lb): One place I see `release` used -- to name the browser page.
 version = '.'.join(release.split('.')[:2])
