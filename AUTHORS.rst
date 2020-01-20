@@ -53,7 +53,7 @@ Illustration [sic] Credit
 -------------------------
 
 .. |infocat| replace:: *Information Cat*
-.. .. _infocat: https://github.com/hotoffthehamster/nark/blob/develop/docs/_static/images/information-cat.png
+.. .. _infocat: https://github.com/hotoffthehamster/nark/tree/develop/docs/_static/images/information-cat.png
 .. _infocat: https://raw.githubusercontent.com/hotoffthehamster/nark/develop/docs/_static/images/information-cat.png
 
 |infocat|_
