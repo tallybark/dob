@@ -125,7 +125,8 @@ Ready to contribute? Here's how to set up |dob|_ for local development.
 
     $ git clone git@github.com:<your_login>/nark.git
 
-3. Install both projects into a Python virtual instance, or ``virtualenv``.
+3. Install both projects into a Python virtual instance,
+   or ``virtualenv``.
 
    First, ensure that you have |virtualenvwrapper|_ installed.
 
