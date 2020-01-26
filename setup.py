@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # This file exists within 'dob':
 #
 #   https://github.com/hotoffthehamster/dob
