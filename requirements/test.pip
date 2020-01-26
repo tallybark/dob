@@ -1,19 +1,75 @@
 # Specifies packages for local testing with and without tox,
 # as well as for testing on the CI servers.
 
-# Fakers and Factories.
-factory-boy == 2.11.1
-Faker == 1.0.2
-fauxfactory == 3.0.2
-pytest-factoryboy == 2.0.2
-pytest-faker == 2.0.0
+# *** Py.Test Framework & Related
 
-# The rest.
-coverage >= 4.5.2
-freezegun >= 0.3.11
-future == 0.17.1
-# EVENTUALLY/2019-02-16: (lb): Use latest: pytest >= 4.2.1
+# - "pytest: simple powerful testing with Python"
+#
+#   https://docs.pytest.org/en/latest/
 pytest == 3.10.1
-pytest-cov == 2.6.1
+#pytest >= 5.3.4
+
+# - "Thin-wrapper around the mock package for easier use with py.test"
+#
+#   https://github.com/pytest-dev/pytest-mock/
 pytest-mock == 1.10.1
+#pytest-mock >= 2.0.0
+
+# *** Coverage
+
+# EXPLAIN/2020-01-26: (lb): Do we need both coverage and pytest-cov?
+
+# - "Code coverage measurement for Python"
+#   2020-01-26: Itself with 94.00% coverage.
+#
+#   https://coverage.readthedocs.io/en/latest/
+#coverage >= 4.5.2
+coverage >= 5.0.3
+
+# - "Pytest plugin for measuring coverage"
+#
+#   https://github.com/pytest-dev/pytest-cov
+#pytest-cov == 2.6.1
+pytest-cov >= 2.6.1
+
+# - Upload to codecov.io.
+#
+#   https://github.com/codecov/codecov-python
+codecov >= 2.0.15
+
+# *** Datetime testing.
+
+# - "travel through time by mocking the datetime module"
+#   https://github.com/spulec/freezegun
+#freezegun >= 0.3.11
+freezegun >= 0.3.14
+
+# *** Fakers and Factories.
+
+# - ORM record generator / "test fixtures replacement for Python".
+#   https://github.com/FactoryBoy/factory_boy
+factory-boy == 2.11.1
+#factory-boy >= 2.12.0
+#
+# - "Factory Boy support for pytest"
+#   https://github.com/pytest-dev/pytest-factoryboy
+pytest-factoryboy == 2.0.2
+#pytest-factoryboy >= 2.0.3
+
+# - "package that generates fake data for you"
+#   https://github.com/FactoryBoy/factory_boy
+Faker == 1.0.2
+#Faker >= 4.0.0
+#
+# - "Faker integration with the pytest framework."
+#   https://github.com/pytest-dev/pytest-faker
+pytest-faker == 2.0.0
+#pytest-faker >= 2.0.0
+
+# - "Generates random data for your tests"
+#   https://github.com/omaciel/fauxfactory
+fauxfactory == 3.0.2
+#fauxfactory >= 3.0.6
+
+future == 0.17.1
 

@@ -1,6 +1,18 @@
 # Specifies packages required to build the documentation.
 
-doc8
+# - "Style checker for Sphinx (or other) RST documentation"
+#
+#   https://launchpad.net/doc8
+doc8 >= 0.8.0
+
+# - "Python documentation generator"
+#
+#   https://www.sphinx-doc.org/en/master/
 Sphinx >= 1.8.4
-sphinx_rtd_theme
+#Sphinx >= 2.3.1
+
+# - "Read the Docs theme for Sphinx"
+#
+#   https://github.com/readthedocs/sphinx_rtd_theme
+sphinx_rtd_theme >= 0.4.3
 
