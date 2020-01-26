@@ -4,11 +4,11 @@
 
 graft dob
 
-# We could include specify filetypes, e.g.,
+# We could include specific files, e.g.,
 #   include docs/*.rst
 #   include docs/Makefile
 #   ...
-# but a graft-prune-prune seems like best, set-it-forget-it approach.
+# but a graft-prune-prune tastes more maintainable.
 graft docs
 prune docs/_build
 prune docs/_static
@@ -27,11 +27,11 @@ graft requirements
 
 graft tests
 
-# NOTE: While we do not have to explicitly exclude files (they will not be
-# packaged regardless), doing so means we do not have to add the filename
-# to the --ignore option in the `check-manifest` call in `tox -e manifest`.
-# NOTE: This list ordered like `git ls-files` orders.
-# SCM files:
+# Specify SCM files to ignore.
+# - These files would not packaged by default, even without these rules,
+#   but listing them here means we do not have to add a corresponing
+#   --ignore option in the `check-manifest` call in `tox -e manifest`.
+# - NOTE: Order this like `git ls-files`, to keep it easy to maintain.
 exclude .coveragerc
 exclude .editorconfig
 exclude .gitignore
