@@ -26,6 +26,9 @@ coverage.xml
 # User's personal .ignore (e.g., .ignore.example).
 .ignore
 
+# Optional private DEV Makefile.
+Makefile.local
+
 # Sphinx Docs — `make docs`
 docs/_build/
 
