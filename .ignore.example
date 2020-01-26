@@ -25,8 +25,9 @@ dist/
 # `make docs`.
 docs/_build
 
-# man pages.
-man/dob.1
+# `make test-local` output saved for Vim quickfix.
+.make.out
+
 # Localization file.
 messages.pot
 
