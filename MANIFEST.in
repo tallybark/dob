@@ -36,7 +36,6 @@ exclude .coveragerc
 exclude .editorconfig
 exclude .gitignore
 exclude .ignore.example
-exclude .isort.cfg
 exclude .readthedocs.yml
 exclude .travis.yml
 exclude MANIFEST.in
