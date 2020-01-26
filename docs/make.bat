@@ -1,5 +1,9 @@
 @ECHO OFF
 
+REM This file exists within 'dob':
+REM
+REM   https://github.com/hotoffthehamster/dob
+
 REM Command file for Sphinx documentation
 
 if "%SPHINXBUILD%" == "" (
@@ -240,5 +244,4 @@ if "%1" == "pseudoxml" (
 )
 
 :end
-
 

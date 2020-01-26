@@ -1,6 +1,6 @@
-###
+@@@
 dob
-###
+@@@
 
 .. image:: https://travis-ci.com/hotoffthehamster/dob.svg?branch=develop
   :target: https://travis-ci.com/hotoffthehamster/dob
@@ -81,9 +81,9 @@ A proper, stable release is forthcoming
 
   *We'll verify macOS and Windows support as part of the alpha cycle.*
 
-=====
+#####
 Ethos
-=====
+#####
 
 ``dob`` is a developer's tool, or at least targeted to someone who’s
 comfortable in the terminal.
@@ -119,9 +119,9 @@ If you like |dob|_, hopefully you'll
 `help us make it better
 <https://dob.readthedocs.io/en/latest/contributing.html>`_!
 
-========
+########
 Features
-========
+########
 
 * Compatible with all modern Python releases (3.5, 3.6, and 3.7).
 * Seamlessly integrates into your terminal-based workflow.
@@ -135,12 +135,12 @@ Features
 * Constant dogfooding *(-- I dob daily!)*
 * Free and open source -- hack away!
 
-=======
+#######
 Example
-=======
+#######
 
 Demo ``dob``
-------------
+============
 
 You can easily demo ``dob`` after installing it.
 

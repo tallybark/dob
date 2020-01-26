@@ -1,4 +1,9 @@
+# This file exists within 'dob':
+#
+#   https://github.com/hotoffthehamster/dob
+
 # USAGE: `/bin/cp .ignore.example .ignore` and personalize.
+
 .git/
 
 *.egg-info/

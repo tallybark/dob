@@ -1,3 +1,7 @@
+# This file exists within 'dob':
+#
+#   https://github.com/hotoffthehamster/dob
+
 codecov:
   branch: develop
   # (lb): With setting disable_default_path_fixes, I see:

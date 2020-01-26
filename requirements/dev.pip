@@ -1,4 +1,4 @@
-# This file specifies all packages required for local development
+# Specifies packages required for local development.
 
 -r ./docs.pip
 -r ./test.pip

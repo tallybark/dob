@@ -1,3 +1,9 @@
+# vim:tw=0:ts=2:sw=2:et:norl:ft=dosini
+
+# This file exists within 'dob':
+#
+#   https://github.com/hotoffthehamster/dob
+
 [run]
 source=dob
 

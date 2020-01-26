@@ -1,3 +1,7 @@
+# This file exists within 'dob':
+#
+#   https://github.com/hotoffthehamster/dob
+
 BUILDDIR = _build
 
 .PHONY: clean-pyc clean-build docs clean

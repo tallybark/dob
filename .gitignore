@@ -1,3 +1,7 @@
+# This file exists within 'dob':
+#
+#   https://github.com/hotoffthehamster/dob
+
 # Building/Packaging/Distributing.
 build/
 dist/

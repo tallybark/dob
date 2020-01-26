@@ -1,4 +1,4 @@
-# This file specifies all packages required to build the documentation.
+# Specifies packages required to build the documentation.
 
 doc8
 Sphinx >= 1.8.4

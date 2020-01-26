@@ -1,4 +1,4 @@
-# This file is used for local testing with and without tox,
+# Specifies packages for local testing with and without tox,
 # as well as for testing on the CI servers.
 
 # Fakers and Factories.
