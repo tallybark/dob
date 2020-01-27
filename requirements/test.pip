@@ -17,19 +17,15 @@ pytest-mock == 1.10.1
 
 # *** Coverage
 
-# EXPLAIN/2020-01-26: (lb): Do we need both coverage and pytest-cov?
-
 # - "Code coverage measurement for Python"
 #   2020-01-26: Itself with 94.00% coverage.
 #
 #   https://coverage.readthedocs.io/en/latest/
-#coverage >= 4.5.2
 coverage >= 5.0.3
 
 # - "Pytest plugin for measuring coverage"
 #
 #   https://github.com/pytest-dev/pytest-cov
-#pytest-cov == 2.6.1
 pytest-cov >= 2.6.1
 
 # - Upload to codecov.io.
@@ -41,20 +37,17 @@ codecov >= 2.0.15
 
 # - "travel through time by mocking the datetime module"
 #   https://github.com/spulec/freezegun
-#freezegun >= 0.3.11
 freezegun >= 0.3.14
 
 # *** Fakers and Factories.
 
 # - ORM record generator / "test fixtures replacement for Python".
 #   https://github.com/FactoryBoy/factory_boy
-factory-boy == 2.11.1
-#factory-boy >= 2.12.0
+factory-boy >= 2.12.0
 #
 # - "Factory Boy support for pytest"
 #   https://github.com/pytest-dev/pytest-factoryboy
-pytest-factoryboy == 2.0.2
-#pytest-factoryboy >= 2.0.3
+pytest-factoryboy >= 2.0.3
 
 # - "package that generates fake data for you"
 #   https://github.com/FactoryBoy/factory_boy

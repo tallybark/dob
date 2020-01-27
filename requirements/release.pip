@@ -3,13 +3,11 @@
 # - "Check MANIFEST.in ... for completeness"
 #
 #   https://github.com/mgedmin/check-manifest
-#check-manifest >= 0.37
 check-manifest >= 0.40
 
 # - "the modular source code checker: pep8, pyflakes and co"
 #
 #   https://gitlab.com/pycqa/flake8
-#flake8 >= 3.7.5
 flake8 >= 3.7.9
 
 # - "Render local readme files before sending off to GitHub"
@@ -21,7 +19,6 @@ grip >= 4.5.2
 # - "utility / library to sort Python imports"
 #
 #   https://github.com/timothycrosley/isort
-#isort >= 4.3.4
 isort >= 4.3.21
 
 # - "Easily download, build, install, upgrade, and uninstall Python packages"
@@ -33,7 +30,6 @@ setuptools >= 38.6.0
 # - "the blessed package to manage your versions by scm tags"
 #
 #   https://github.com/pypa/setuptools_scm/
-#setuptools_scm
 setuptools_scm >= 3.4.3
 
 # - "generic virtualenv management and test command line tool"
