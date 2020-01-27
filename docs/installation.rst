@@ -11,16 +11,7 @@ Installation
 .. |workon| replace:: ``workon``
 .. _workon: https://virtualenvwrapper.readthedocs.io/en/latest/command_ref.html?highlight=workon#workon
 
-.. NOTE:: Please be aware that |dob|_ is currently *alpha* software.
-
-          The application works well, but it has a few minor issues
-          that must be fixed before it can be truly released. And it
-          wouldn't hurt to write a few more tests and expand coverage.
-
-          In lieu of committing to a date that this software will be
-          out of alpha, let's just say, it'll happen this year, 2019!
-
-To install system-wide, run as superuser
+To install system-wide, run as superuser:
 
 .. code-block:: sh
 
@@ -37,22 +28,24 @@ To install within a |virtualenv|_, try:
 .. code-block:: sh
 
     $ mkvirtualenv dob
-    $ pip3 install dob
+    (dob) $ pip3 install dob
 
 To develop on the project, link to the source files instead:
 
 .. code-block:: sh
 
-    $ deactivate
+    (dob) $ deactivate
     $ rmvirtualenv dob
     $ git clone git@github.com:hotoffthehamster/dob.git
     $ cd dob
     $ mkvirtualenv -a $(pwd) --python=/usr/bin/python3.6 dob
-    $ make develop
+    (dob) $ make develop
 
-To start developing from a fresh terminal, run |workon|_:
+After creating the virtual environment,
+to start developing from a fresh terminal, run |workon|_:
 
 .. code-block:: sh
 
     $ workon dob
+    (dob) $ ...
 
