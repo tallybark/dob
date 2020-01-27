@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This file is part of 'dob'. Copyright © 2018-2019 Hot Off The Hamster.
 #
 # 'dob' is free software: you can redistribute it and/or modify
