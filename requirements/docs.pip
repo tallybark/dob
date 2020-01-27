@@ -8,8 +8,7 @@ doc8 >= 0.8.0
 # - "Python documentation generator"
 #
 #   https://www.sphinx-doc.org/en/master/
-Sphinx >= 1.8.4
-#Sphinx >= 2.3.1
+Sphinx >= 2.3.1
 
 # - "Read the Docs theme for Sphinx"
 #

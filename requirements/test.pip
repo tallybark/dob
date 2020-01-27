@@ -6,14 +6,12 @@
 # - "pytest: simple powerful testing with Python"
 #
 #   https://docs.pytest.org/en/latest/
-pytest == 3.10.1
-#pytest >= 5.3.4
+pytest >= 5.3.4
 
 # - "Thin-wrapper around the mock package for easier use with py.test"
 #
 #   https://github.com/pytest-dev/pytest-mock/
-pytest-mock == 1.10.1
-#pytest-mock >= 2.0.0
+pytest-mock >= 2.0.0
 
 # *** Coverage
 
@@ -51,16 +49,13 @@ pytest-factoryboy >= 2.0.3
 
 # - "package that generates fake data for you"
 #   https://github.com/FactoryBoy/factory_boy
-Faker == 1.0.2
-#Faker >= 4.0.0
+Faker >= 4.0.0
 #
 # - "Faker integration with the pytest framework."
 #   https://github.com/pytest-dev/pytest-faker
-pytest-faker == 2.0.0
-#pytest-faker >= 2.0.0
+pytest-faker >= 2.0.0
 
 # - "Generates random data for your tests"
 #   https://github.com/omaciel/fauxfactory
-fauxfactory == 3.0.2
-#fauxfactory >= 3.0.6
+fauxfactory >= 3.0.6
 
