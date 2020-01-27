@@ -171,6 +171,32 @@ class Controller(NarkControl):
         self.capture_config_lib(self.config)
         self._adjust_log_level()
 
+    def _adjust_log_level(self):
+        # *cough*hack!*cough*”
+        # Because invoke_without_command, we allow command-less invocations.
+        #   For one such invocation -- dob -v -- tell the store not to log.
+        # Also tell the store not to log if user did not specify anything,
+        #   because we'll show the help/usage (which Click would normally
+        #   handle if we had not tampered with invoke_without_command).
+        if (
+            (len(sys.argv) > 2)
+            or (
+                (len(sys.argv) == 2)
+                and (sys.argv[1] not in ('-v', 'version'))
+            )
+        ):
+            return
+        # FIXME/EXPLAIN/2019-01-22: (lb): What about other 2 loggers?
+        #   dev.cli_log_level
+        #   dev.lib_log_level
+        # (lb): Normally I'd prefer the []-lookup vs. attr., e.g., not:
+        #   self.config.asobj.dev.sql_log_level.value_from_forced = 'WARNING'
+        # because the self.config has non-key-val attributes (like
+        # setdefault) so I think for clarity we should lookup via [].
+        # Except the []-lookup returns the value, not the keyval object.
+        # So here we have to use dotted attribute notation.
+        self.config.asobj.dev.sql_log_level.value_from_forced = 'WARNING'
+
     # ***
 
     def create_data_store(self, force):
@@ -224,32 +250,6 @@ class Controller(NarkControl):
             ).format(__arg0name__))
 
         _create_config_and_store()
-
-    def _adjust_log_level(self):
-        # *cough*hack!*cough*”
-        # Because invoke_without_command, we allow command-less invocations.
-        #   For one such invocation -- dob -v -- tell the store not to log.
-        # Also tell the store not to log if user did not specify anything,
-        #   because we'll show the help/usage (which Click would normally
-        #   handle if we had not tampered with invoke_without_command).
-        if (
-            (len(sys.argv) > 2)
-            or (
-                (len(sys.argv) == 2)
-                and (sys.argv[1] not in ('-v', 'version'))
-            )
-        ):
-            return
-        # FIXME/EXPLAIN/2019-01-22: (lb): What about other 2 loggers?
-        #   dev.cli_log_level
-        #   dev.lib_log_level
-        # (lb): Normally I'd prefer the []-lookup vs. attr., e.g., not:
-        #   self.config.asobj.dev.sql_log_level.value_from_forced = 'WARNING'
-        # because the self.config has non-key-val attributes (like
-        # setdefault) so I think for clarity we should lookup via [].
-        # Except the []-lookup returns the value, not the keyval object.
-        # So here we have to use dotted attribute notation.
-        self.config.asobj.dev.sql_log_level.value_from_forced = 'WARNING'
 
     def check_sqlite_store_ready(self):
         if self.config['db.engine'] != 'sqlite':
