@@ -5,10 +5,24 @@ History
 .. |dob| replace:: ``dob``
 .. _dob: https://github.com/hotoffthehamster/dob
 
+.. |dob-prompt| replace:: ``dob-prompt``
+.. _dob-prompt: https://github.com/hotoffthehamster/dob-prompt
+
+.. |dob-viewer| replace:: ``dob-viewer``
+.. _dob-viewer: https://github.com/hotoffthehamster/dob-viewer
+
 .. |hamster-cli| replace:: ``hamster-cli``
 .. _hamster-cli: https://github.com/projecthamster/hamster-cli
 
 .. :changelog:
+
+3.0.0rc1 (2020-01-27)
+=====================
+
+* Split prompt and carousel/editor interfaces to separate projects,
+  |dob-prompt|_ and _dob-viewer|_, respectively.
+
+* A year's worth of development, minus an extended holiday. Enjoy!
 
 3.0.0a34 (2019-02-24)
 =====================
