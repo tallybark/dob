@@ -25,15 +25,6 @@ coverage.xml
 
 # Created by Sphinx on `make docs`:
 docs/_build
-docs/modules.rst
-# `make docs` Sphinx autodocs-generated.
-docs/dob.clickux.rst
-docs/dob.cmds_list.rst
-docs/dob.cmds_usage.rst
-docs/dob.config.rst
-docs/dob.helpers.rst
-docs/dob.rst
-docs/dob.styling.rst
 
 # In lieu of a personalizable, secondary Grep/Silver Searcher/RipGrep ignore,
 # like .gitignore's .git/info/exclude, the repo contains an .ignore.example.
