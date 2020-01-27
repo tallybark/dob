@@ -22,8 +22,6 @@ from datetime import datetime
 
 from gettext import gettext as _
 
-import click
-
 from . import (
     __arg0name__,
     __author__,

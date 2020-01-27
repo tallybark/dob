@@ -24,7 +24,6 @@ import sys
 
 from gettext import gettext as _
 
-import click
 from nark.control import NarkControl
 from nark.helpers import logging as logging_helpers
 from nark.helpers.emphasis import disable_colors, enable_colors

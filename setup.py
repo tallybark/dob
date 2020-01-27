@@ -50,7 +50,8 @@ requirements = [
     #  https://github.com/xolox/python-humanfriendly
     'humanfriendly',
     # Elapsed timedelta formatter, e.g., "1.25 days".
-    'human-friendly_pedantic-timedelta >= 0.0.6',  #  Imports as pedantic_timedelta.
+    # - Imports as `pedantic_timedelta`.
+    'human-friendly_pedantic-timedelta >= 0.0.6',
     # https://github.com/mnmelo/lazy_import
     'lazy_import',
     # The heart of Hamster. (Ye olde `hamster-lib`).

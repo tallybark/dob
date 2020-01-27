@@ -27,7 +27,10 @@ from inflector import English, Inflector
 from nark.helpers.emphasis import attr, fg
 from nark.helpers.parsing import ParserException
 
-from dob_viewer.config.styling.classes_style import load_classes_style, load_matches_style
+from dob_viewer.config.styling.classes_style import (
+    load_classes_style,
+    load_matches_style
+)
 from dob_viewer.config.styling.content_lexer import load_content_lexer
 from dob_viewer.config.styling.no_completion import load_no_completion
 from dob_viewer.traverser.placeable_fact import PlaceableFact

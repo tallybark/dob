@@ -14,6 +14,9 @@ Credits
 .. |nark| replace:: ``nark``
 .. _nark: https://github.com/hotoffthehamster/nark
 
+.. |hamster-cli| replace:: ``hamster-cli``
+.. _hamster-cli: https://github.com/projecthamster/hamster-cli
+
 ########################
 ``dob`` (2018 — Present)
 ########################

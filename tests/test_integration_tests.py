@@ -15,6 +15,7 @@
 # You can find the GNU General Public License reprinted in the file titled 'LICENSE',
 # or visit <http://www.gnu.org/licenses/>.
 
+
 class TestBasicRun(object):
     def test_basic_run(self, runner):
         """Make sure that invoking the command passes without exception."""

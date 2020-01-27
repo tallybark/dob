@@ -30,8 +30,7 @@ from dob import (
     transcode
 )
 from dob.config import decorate_config, app_dirs, fileboss
-from dob.config.app_dirs import DobAppDirs
-from dob.config.fileboss import load_config_obj, write_config_obj
+from dob.config.fileboss import write_config_obj
 from dob.config.urable import ConfigUrable
 from dob.cmds_list.fact import search_facts
 from dob.helpers import ascii_table
@@ -254,15 +253,15 @@ class TestStop(object):
         current_fact = mocker.MagicMock(return_value=mockfact)
         controller_with_logging.facts.stop_current_fact = current_fact
         # FIXME/2019-12-06: stop_fact was deleted...
-        #create.stop_fact(controller_with_logging)
+        #  create.stop_fact(controller_with_logging)
         assert controller_with_logging.facts.stop_current_fact.called
 
     def test_stop_no_existing_ongoing_fact(self, controller_with_logging, capsys):
         """Make sure that stop without actually an ongoing fact leads to an error."""
-        controller = controller_with_logging
+        _controller = controller_with_logging   # noqa: F841 unused local
         with pytest.raises(SystemExit):
             # FIXME/2019-12-06: stop_fact was deleted...
-            #create.stop_fact(controller)
+            #  create.stop_fact(controller)
             assert False  # Unreachable.
 
 
@@ -633,7 +632,7 @@ class TestGetConfig(object):
             ValueError,
             match=r"^Unrecognized value for setting ‘cli_log_level’: “foobar”.*"
         ):
-            config = decorate_config(config_obj)
+            _config = decorate_config(config_obj)  # noqa: F841 unused local
         out, err = capsys.readouterr()
         assert out == ''
         assert err == ''
@@ -641,11 +640,12 @@ class TestGetConfig(object):
     def test_invalid_store(self, config_instance):
         """Make sure that passing an ORM other than 'sqlalchemy' raises an exception."""
         config_obj = config_instance(orm='foobar')
+        match_former = r'Unrecognized value for setting ‘orm’'
+        match_latter = r'“foobar” \(Choose from: ‘sqlalchemy’\)'
         with pytest.raises(
-            ValueError,
-            match=r"^Unrecognized value for setting ‘orm’: “foobar” \(Choose from: ‘sqlalchemy’\)$"
+            ValueError, match=r"^{}: {}$".format(match_former, match_latter),
         ):
-            config = decorate_config(config_obj)
+            _config = decorate_config(config_obj)  # noqa: F841 unused local
 
     def test_non_sqlite(self, config_instance):
         """Make sure that passing a postgres config works.
@@ -710,7 +710,8 @@ class TestGenerateTable(object):
         assert len(header) == 8
 
 
-# FIXME/2020-01-09: (lb): Could probably move this to dob/tests/test_config or test_fileboss.
+# FIXME/2020-01-09: (lb): Could probably move this to dob/tests/test_config
+#                                                            or test_fileboss.
 class TestWriteConfigFile(object):
     def test_file_is_written(self, filepath, config_instance):
         """Ensure file is written. Content not checked; that's ConfigObj's job."""
