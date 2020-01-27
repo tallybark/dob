@@ -19,13 +19,12 @@
 
 from gettext import gettext as _
 
-from nark.helpers.emphasis import attr, bg, coloring, fg
-
 from .. import __arg0name__, __package_name__
 from ..config.fileboss import default_config_path
 from ..config.urable import ConfigUrable
 from ..copyright import assemble_copyright
 from ..helpers import highlight_value
+from ..helpers.emphasis import attr, bg, coloring, fg
 
 # Note that the help formatter reformats paragraphs when the help is
 # displayed, to a width determined by the terminal and max_content_width.

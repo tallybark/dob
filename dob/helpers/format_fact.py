@@ -19,10 +19,10 @@
 
 from gettext import gettext as _
 
-from ..helpers.emphasis import attr, colorize, set_coloring
-from ..helpers.strings import format_value_truncate
+from .emphasis import attr, colorize, set_coloring
 
 __all__ = (
+    'format_value_truncate',
     'friendly_str',
     'html_notif',
     'tags_inline',
@@ -32,6 +32,22 @@ __all__ = (
     #  '_description_string',
     #  '_ordered_tagnames',
 )
+
+
+def format_value_truncate(val, trunc_width=None):
+    if not val:
+        return val
+    # (lb): First attempt was to only short first line:
+    #   vals = val.splitlines()
+    #   if len(vals) > 1:
+    #       val = vals[0] + '...'
+    # but replacing newlines with representation of same
+    # is more meaningful, and less confusing to end user.
+    val = '\\n'.join(str(val).splitlines())
+    if trunc_width is not None:
+        if len(val) > trunc_width and trunc_width >= 0:
+            val = val[:trunc_width - 3] + '...'
+    return val
 
 
 def friendly_str(

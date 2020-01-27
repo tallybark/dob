@@ -17,7 +17,7 @@
 
 from gettext import gettext as _
 
-from nark.helpers.emphasis import attr, coloring
+from ..helpers.emphasis import attr, coloring
 
 __all__ = (
     'help_header_format',

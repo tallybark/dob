@@ -22,7 +22,7 @@ from gettext import gettext as _
 import click
 from click.core import Option
 
-from nark.helpers.emphasis import attr
+from ..helpers.emphasis import attr
 
 __all__ = (
     'ClickBetterUsageGroup'

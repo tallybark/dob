@@ -19,9 +19,10 @@ from gettext import gettext as _
 
 import click
 import lazy_import
-from nark.helpers.emphasis import attr
 
 from ..clickux.echo_assist import click_echo
+
+from .emphasis import attr
 
 # (lb): I know, I know, 3 table libraries! I couldn't find one I liked the
 # best, so now they're all included, and the user can choose their fave.

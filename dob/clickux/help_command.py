@@ -5,8 +5,7 @@
 
 from gettext import gettext as _
 
-from nark.helpers.emphasis import attr, fg
-
+from ..helpers.emphasis import attr, fg
 from ..run_cli import run
 
 from .echo_assist import click_echo, echo_exit

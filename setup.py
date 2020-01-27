@@ -19,6 +19,14 @@ from setuptools import find_packages, setup
 # *** Package requirements.
 
 requirements = [
+    # "Very simple Python library for color and formatting in terminal."
+    # Forked (for italic "support") to:
+    #  https://github.com/hotoffthehamster/ansi-escape-room
+    # Forked from:
+    #  https://gitlab.com/dslackw/colored
+    # See wrapper file:
+    #  nark/helpers/emphasis.py
+    'ansi-escape-room',
     # Nice! Because Click was already halfway there... just not quite.
     # https://github.com/jonathaneunice/ansiwrap
     # (lb): I considered adding this to Click, but Click has no dependencies!

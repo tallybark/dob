@@ -26,7 +26,6 @@ from gettext import gettext as _
 
 import click
 from nark import reports
-from nark.helpers.emphasis import attr, bg, fg
 from nark.helpers.parsing import parse_factoid
 
 from . import __package_name__
@@ -36,6 +35,7 @@ from .cmds_list.fact import search_facts
 from .create import prompt_and_save
 from .helpers import highlight_value, prepare_log_msg
 from .helpers.crude_progress import CrudeProgress
+from .helpers.emphasis import attr, bg, fg
 from .helpers.fact_dressed import FactDressed
 from .helpers.fix_times import (
     DEFAULT_SQUASH_SEP,

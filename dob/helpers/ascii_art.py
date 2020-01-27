@@ -21,7 +21,8 @@ import random
 from gettext import gettext as _
 
 import click
-from nark.helpers.emphasis import attr, bg, fg
+
+from .emphasis import attr, bg, fg
 
 try:
     # (lb): Not including pyfiglet because it's large and unnecessary.

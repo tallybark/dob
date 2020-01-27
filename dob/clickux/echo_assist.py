@@ -20,9 +20,8 @@ from functools import update_wrapper
 
 import click
 
-from nark.helpers.emphasis import attr, coloring, colorize, fg
-
 from ..helpers import ascii_art
+from ..helpers.emphasis import attr, coloring, colorize, fg
 
 __all__ = (
     'disable_paging',

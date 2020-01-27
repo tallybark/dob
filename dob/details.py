@@ -19,7 +19,6 @@ import os
 
 from gettext import gettext as _
 
-from nark.helpers.emphasis import attr, fg
 from nark.items import Fact
 
 from . import __package_name__ as package_name_dob
@@ -28,6 +27,7 @@ from .clickux.echo_assist import click_echo
 from .clickux.plugin_group import ClickPluginGroup
 from .config.app_dirs import AppDirs
 from .helpers import ascii_art, highlight_value
+from .helpers.emphasis import attr, fg
 
 __all__ = (
     'echo_app_details',

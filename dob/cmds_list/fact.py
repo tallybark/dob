@@ -25,7 +25,6 @@ import click
 from click.formatting import wrap_text
 from click._textwrap import TextWrapper
 
-from nark.helpers.emphasis import colorize
 from nark.helpers.parse_time import parse_dated
 
 from ..clickux.echo_assist import click_echo
@@ -37,6 +36,7 @@ from ..clickux.query_assist import (
 )
 from ..helpers import dob_in_user_exit, dob_in_user_warning
 from ..helpers.ascii_table import generate_table, warn_if_truncated
+from ..helpers.emphasis import colorize
 
 __all__ = (
     'echo_latest_ended',

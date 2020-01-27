@@ -22,7 +22,8 @@ import sys
 from gettext import gettext as _
 
 import click
-from nark.helpers.emphasis import attr, bg, colorize, fg
+
+from .emphasis import attr, bg, colorize, fg
 
 __all__ = (
     'conflict_prefix',

@@ -24,7 +24,6 @@ from gettext import gettext as _
 
 import click
 from inflector import English, Inflector
-from nark.helpers.emphasis import attr, fg
 from nark.helpers.parsing import ParserException
 
 from dob_viewer.config.styling.classes_style import (
@@ -45,6 +44,7 @@ from .helpers import (
     highlight_value
 )
 from .helpers.crude_progress import CrudeProgress
+from .helpers.emphasis import attr, fg
 from .helpers.fact_dressed import FactDressed
 from .helpers.fix_times import (
     mend_facts_times,

@@ -14,9 +14,11 @@
 # along with 'nark'. If not, see <http://www.gnu.org/licenses/>.
 
 import click
-from nark.helpers.emphasis import attr, fg
+
 from nark.helpers.objects import resolve_attr_or_method
-from nark.helpers.strings import format_value_truncate
+
+from .emphasis import attr, fg
+from .format_fact import format_value_truncate
 
 __all__ = (
     'FactsDiff',
