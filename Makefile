@@ -118,10 +118,8 @@ clean-pyc:
 
 clean-docs:
 	$(MAKE) -C docs clean BUILDDIR=$(BUILDDIR)
-	git ls-files docs --ignored --exclude-standard --others | while read file; do \
-		echo "Removing: $$file"; \
-		/bin/rm $$file; \
-	done
+	/bin/rm -f docs/$(PROJNAME).*rst
+	/bin/rm -f docs/modules.rst
 .PHONY: clean-docs
 
 clean-test:

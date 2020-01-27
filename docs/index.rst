@@ -1,5 +1,4 @@
 .. toctree::
-
    :hidden:
 
    Installation <installation>
