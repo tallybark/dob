@@ -6,26 +6,25 @@
 
 .git/
 
+# Packaging — `make dist`.
+build/
+dist/
 *.egg-info/
 *.eggs/
 
+# Testing/CI tasks.
 .pytest_cache/
 .tox/
 
-# `make coverage` generated file.
+# Coverage — `make coverage`.
 .coverage
-
-# `make coverage-html`.
+# Coverage — `make coverage-html`.
 htmlcov/
 
-# `make dist`.
-build/
-dist/
-
-# `make docs`.
+# Sphinx Docs — `make docs`.
 docs/_build
 
-# `make test-local` output saved for Vim quickfix.
+# Test output for Vim quickfix — `make test-local`.
 .make.out
 
 # Localization file.
