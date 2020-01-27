@@ -51,8 +51,6 @@ exclude tox.ini
 #exclude docs/modules.rst
 #recursive-exclude docs dob*.rst
 
-recursive-include man *
-
 ## Custom Carousel skinning.
 #recursive-include dob/styling *.json
 

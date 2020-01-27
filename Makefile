@@ -8,20 +8,6 @@ PROJNAME = dob
 
 BUILDDIR = _build
 
-# Setup up the man page directories.
-PREFIX ?= /usr/local
-MANDIR := $(abspath $(PREFIX)/man)
-# NOTE: `make` appends MAKEFILE_LIST with paths as it reads makefiles.
-#   https://ftp.gnu.org/old-gnu/Manuals/make/html_node/make_17.html
-# So this is the path to this Makefile from the user's working directory.
-mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
-# This is the path to the directory wherein this Makefile is located,
-#   in case the user is running make from another directory.
-mkfile_base := $(dir $(mkfile_path))
-# USAGE: To wire man pages under the user's local directory, try:
-#   PREFIX=~/.local make man-link
-#   man dob
-
 # DEV: Set BROWSER environ to pick your browser, otherwise webbrowser ignores
 # the system default and goes through its list, which starts with 'mozilla'.
 # E.g.,
@@ -81,11 +67,6 @@ help-main:
 	@echo "   docs            generate Sphinx HTML documentation, including API docs"
 	@echo "   isort           run isort; sorts and groups imports in every module"
 	@echo "   lint            check style with flake8"
-	@echo "   man-compile     compile manual page"
-	@echo "   man-install     install manual page"
-	@echo "   man-uninstall   uninstall manual page"
-	@echo "   man-link        create man page symlink under ~/.local/man/man1"
-	@echo "   man-unlink      remove man page symlink"
 	@echo "   test            run tests quickly with the default Python"
 	@echo "   test-all        run tests on every Python version with tox"
 	@echo "   test-one        run tests until the first one fails"
@@ -239,48 +220,6 @@ dist: venvforce clean
 install: venvforce clean
 	python setup.py install
 .PHONY: install
-
-man-compile:
-	@mandb > /dev/null 2>&1
-.PHONY: man-compile
-
-man-install:
-	@find man/ \
-		-iname "*.[0-9]" \
-		-exec /bin/bash -c \
-			"echo {} \
-				| /bin/sed -r 's~(.*)([0-9])$$~install \1\2 $(MANDIR)/man\2/~' \
-				| source /dev/stdin" \;
-.PHONY: man-install
-
-man-uninstall:
-	@cd $(mkfile_base)/man \
-		&& find . \
-			-iname "*.[0-9]" \
-			-exec /bin/bash -c \
-				"echo {} \
-					| /bin/sed -r 's~(.*)([0-9])$$~[[ -f $(MANDIR)/man\2/\1\2 \&\& ! -h $(MANDIR)/man\2/\1\2 ]] \&\& /bin/rm $(MANDIR)/man\2/\1\2 || true~' \
-					| source /dev/stdin" \;
-.PHONY: man-uninstall
-
-man-link:
-	@find man/ \
-		-iname "*.[0-9]" \
-		-exec /bin/bash -c \
-			"echo {} \
-				| /bin/sed -r 's~(.*)([0-9])$$~/bin/ln -sf \$$(realpath $(mkfile_base)/\1\2) $(MANDIR)/man\2/~' \
-				| source /dev/stdin" \;
-.PHONY: man-link
-
-man-unlink:
-	@cd $(mkfile_base)/man \
-		&& find . \
-			-iname "*.[0-9]" \
-			-exec /bin/bash -c \
-				"echo {} \
-					| /bin/sed -r 's~(.*)([0-9])$$~[[ -h $(MANDIR)/man\2/\1\2 ]] \&\& /bin/rm $(MANDIR)/man\2/\1\2 || true~' \
-					| source /dev/stdin" \;
-.PHONY: man-unlink
 
 CLOC := $(shell command -v cloc 2> /dev/null)
 .PHONY: CLOC
