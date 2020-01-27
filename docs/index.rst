@@ -2,10 +2,9 @@
 
    :hidden:
 
-   installation
+   Installation <installation>
    usage
    concepts
-
    API Reference <modules>
    Help Us Improve <contributing>
    Code of Conduct <code-of-conduct>
