@@ -17,8 +17,6 @@
 
 """Click Group wrapper combines all our custom classes."""
 
-from __future__ import absolute_import, unicode_literals
-
 from click_alias import ClickAliasedGroup
 
 from .better_format_usage import ClickBetterUsageGroup

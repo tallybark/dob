@@ -17,8 +17,6 @@
 
 """Click Group wrapper combines all our custom classes."""
 
-from __future__ import absolute_import, unicode_literals
-
 from gettext import gettext as _
 
 import click

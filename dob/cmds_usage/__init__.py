@@ -17,8 +17,6 @@
 
 """``dob usage`` commands."""
 
-from __future__ import absolute_import, unicode_literals
-
 from gettext import gettext as _
 
 from pedantic_timedelta import PedanticTimedelta

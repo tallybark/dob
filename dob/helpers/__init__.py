@@ -17,8 +17,6 @@
 
 """Hamter CLI Nonbusiness Helper modules."""
 
-from __future__ import absolute_import, unicode_literals
-
 import sys
 
 from gettext import gettext as _

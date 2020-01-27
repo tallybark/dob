@@ -16,8 +16,6 @@
 # along with 'dob'.  If not, see <http://www.gnu.org/licenses/>.
 """Facts Carousel"""
 
-from __future__ import absolute_import, unicode_literals
-
 from prompt_toolkit.formatted_text import merge_formatted_text
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.keys import Keys

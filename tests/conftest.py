@@ -26,8 +26,6 @@ Fixtures available to the tests/.
   ``_parametrized`` to imply it has increased complexity.
 """
 
-from __future__ import absolute_import, unicode_literals
-
 import codecs
 import datetime
 import os

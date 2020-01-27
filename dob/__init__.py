@@ -17,8 +17,6 @@
 
 """``hamster``, ``hamster``, ``hamster``!!! a cuddly, furry time tracker."""
 
-from __future__ import absolute_import, unicode_literals
-
 import os
 import sys
 

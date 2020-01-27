@@ -15,10 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with 'nark'. If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import, unicode_literals
-
 import click
-from future.utils import python_2_unicode_compatible
 from nark.helpers.emphasis import attr, fg
 from nark.helpers.objects import resolve_attr_or_method
 from nark.helpers.strings import format_value_truncate
@@ -34,7 +31,6 @@ __all__ = (
 # Because it's only used by the CLI...
 
 
-@python_2_unicode_compatible
 class FactsDiff(object):
     """"""
     def __init__(self, orig_fact, edit_fact, formatted=False):

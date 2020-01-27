@@ -17,8 +17,6 @@
 
 """Copyright output UX methods."""
 
-from __future__ import absolute_import, unicode_literals
-
 import os
 from datetime import datetime
 
@@ -34,9 +32,6 @@ from . import (
     __resolve_vers__
 )
 from .clickux.echo_assist import click_echo
-
-# Disable the python_2_unicode_compatible future import warning.
-click.disable_unicode_literals_warning = True
 
 __all__ = (
     'assemble_copyright',

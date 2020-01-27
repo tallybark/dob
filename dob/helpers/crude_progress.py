@@ -17,8 +17,6 @@
 
 """Hamter CLI Nonbusiness Helper modules."""
 
-from __future__ import absolute_import, unicode_literals
-
 import click
 
 from ..clickux.echo_assist import click_echo

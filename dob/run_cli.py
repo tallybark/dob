@@ -17,8 +17,6 @@
 
 """Defines the main Click Group."""
 
-from __future__ import absolute_import, unicode_literals
-
 import sys
 
 import click
@@ -34,9 +32,6 @@ from .clickux.echo_assist import click_echo, echo_exit, set_paging
 from .clickux.aliasable_bunchy_plugin import ClickAliasableBunchyPluginGroup
 from .controller import Controller
 from .copyright import echo_copyright
-
-# Disable the python_2_unicode_compatible future import warning.
-click.disable_unicode_literals_warning = True
 
 __all__ = (
     'pass_controller',

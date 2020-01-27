@@ -15,16 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with 'dob'.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import, unicode_literals
-
 import inspect
 
 from gettext import gettext as _
 
 import click
-
-# Disable the python_2_unicode_compatible future import warning.
-click.disable_unicode_literals_warning = True
 
 __all__ = (
     'cmd_options_factoid',

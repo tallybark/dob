@@ -17,5 +17,3 @@
 
 """Top-level package module for clickux modules."""
 
-from __future__ import absolute_import, unicode_literals
-

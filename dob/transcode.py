@@ -17,8 +17,6 @@
 
 """A time tracker for the command line. Utilizing the power of nark."""
 
-from __future__ import absolute_import, unicode_literals
-
 import copy
 import re
 import sys

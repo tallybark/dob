@@ -71,5 +71,3 @@ pytest-faker == 2.0.0
 fauxfactory == 3.0.2
 #fauxfactory >= 3.0.6
 
-future == 0.17.1
-

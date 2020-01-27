@@ -43,9 +43,6 @@ requirements = [
     #  https://github.com/DiffSK/configobj
     #  https://configobj.readthedocs.io/en/latest/
     'configobj >= 5.0.6',
-    # Compatibility layer between Python 2 and Python 3.
-    #  https://python-future.org/
-    'future',
     # Vocabulary word pluralizer.
     #  https://github.com/ixmatus/inflector
     'Inflector',

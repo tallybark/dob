@@ -17,8 +17,6 @@
 
 """Module to define command group decorators and section headers."""
 
-from __future__ import absolute_import, unicode_literals
-
 from gettext import gettext as _
 
 from .help_header import help_header_format

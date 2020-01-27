@@ -3,8 +3,6 @@
 # You should have received a copy of the GNU General Public License
 # along with 'dob'.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import, unicode_literals
-
 from gettext import gettext as _
 
 from nark.helpers.emphasis import attr, fg

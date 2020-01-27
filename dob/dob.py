@@ -17,8 +17,6 @@
 
 """A time tracker for the command line. Utilizing the power of hamster! [nark]."""
 
-from __future__ import absolute_import, unicode_literals
-
 # FIXME: PROFILING
 from nark.helpers.dev.profiling import profile_elapsed
 # FIXME: PROFILING
@@ -95,9 +93,6 @@ from .helpers import dob_in_user_exit, dob_in_user_warning
 from .migrate import upgrade_legacy_database_file
 from .run_cli import dob_versions, pass_controller, run
 from .transcode import export_facts, import_facts
-
-# Disable the python_2_unicode_compatible future import warning.
-click.disable_unicode_literals_warning = True
 
 # __all__ = ( ... )  # So many. Too tedious to list.
 

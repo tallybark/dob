@@ -17,8 +17,6 @@
 
 """Module to provide u18n friendly help text strings for our CLI commands."""
 
-from __future__ import absolute_import, unicode_literals
-
 from gettext import gettext as _
 
 from nark.helpers.emphasis import attr, bg, coloring, fg
