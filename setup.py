@@ -29,6 +29,9 @@ requirements = [
     'appdirs',
     # (lb): Click may be the best optparser of any language I've used.
     #  https://github.com/pallets/click
+    #    'click',
+    #  - Still, had to make one adjustment, and too impatient to ask for a pull...
+    #  https://github.com/hotoffthehamster/click
     'click--hotoffthehamster',
     # Indispensable aliases support for Click.
     #  Stolen from: https://github.com/click-contrib/click-aliases
@@ -51,13 +54,18 @@ requirements = [
     'humanfriendly',
     # Elapsed timedelta formatter, e.g., "1.25 days".
     # - Imports as `pedantic_timedelta`.
+    #  https://github.com/hotoffthehamster/human-friendly_pedantic-timedelta
     'human-friendly_pedantic-timedelta >= 0.0.6',
     # https://github.com/mnmelo/lazy_import
     'lazy_import',
     # The heart of Hamster. (Ye olde `hamster-lib`).
+    #  https://github.com/hotoffthehamster/nark
     'nark',
     # Amazeballs prompt library.
-    # FIXME/2019-02-21: Submit PR. Until then, whose fork?
+    #   https://github.com/prompt-toolkit/python-prompt-toolkit
+    #     'prompt-toolkit',
+    # - FIXME/2019-02-21: (lb): Need to submit PR, then return to mainline.
+    #   https://github.com/hotoffthehamster/python-prompt-toolkit
     'prompt-toolkit-dob >= 2.0.9',  # Imports as prompt_toolkit.
     # Just Another EDITOR package.
     #  https://github.com/fmoo/python-editor
