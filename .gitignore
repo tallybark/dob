@@ -36,6 +36,3 @@ docs/_build
 # Translations
 *.mo
 
-# (lb): 2019-02-23: I wish I knew what was creating this file, ha!
-pip-wheel-metadata/
-
