@@ -28,13 +28,12 @@ from nark.control import NarkControl
 from nark.helpers import logging as logging_helpers
 from nark.helpers.emphasis import disable_colors, enable_colors
 
-from dob_viewer.traverser.placeable_fact import PlaceableFact
-
 from . import __arg0name__
 from .clickux import help_strings
 from .clickux.echo_assist import click_echo
 from .config.urable import ConfigUrable
 from .helpers import dob_in_user_exit, highlight_value
+from .helpers.fact_dressed import FactDressed
 
 __all__ = (
     'Controller',
@@ -102,7 +101,7 @@ class Controller(NarkControl):
             return bool(self.store.db_url)
 
     def standup_store(self):
-        self.store.fact_cls = PlaceableFact
+        self.store.fact_cls = FactDressed
         return super(Controller, self).standup_store()
 
     def insist_germinated(self):

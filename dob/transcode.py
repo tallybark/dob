@@ -29,8 +29,6 @@ from nark import reports
 from nark.helpers.emphasis import attr, bg, fg
 from nark.helpers.parsing import parse_factoid
 
-from dob_viewer.traverser.placeable_fact import PlaceableFact
-
 from . import __package_name__
 from .clickux.echo_assist import barf_and_exit, click_echo, echo_block_header
 from .clickux.query_assist import hydrate_activity, hydrate_category
@@ -38,6 +36,7 @@ from .cmds_list.fact import search_facts
 from .create import prompt_and_save
 from .helpers import highlight_value, prepare_log_msg
 from .helpers.crude_progress import CrudeProgress
+from .helpers.fact_dressed import FactDressed
 from .helpers.fix_times import (
     DEFAULT_SQUASH_SEP,
     mend_facts_times,
@@ -569,7 +568,7 @@ def import_facts(
         new_fact = None
         err_msg = None
         try:
-            new_fact = PlaceableFact.create_from_parsed_fact(
+            new_fact = FactDressed.create_from_parsed_fact(
                 fact_dict,
                 lenient=True,
                 line_num=fact_dict['parsed_source.line_num'],

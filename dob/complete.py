@@ -93,7 +93,7 @@ def tab_complete(controller):
     def _get_choices(args, incomplete, time_hint):
         choices = []
         try:
-            # Meh. Probably don't need PlaceableFact.
+            # Meh. Probably don't need FactDressed.
             fact, _err = Fact.create_from_factoid(args, time_hint=time_hint)
         except ParserMissingDatetimeOneException as err:
             choices = _choices_datetimes(controller, incomplete, time_hint, err)

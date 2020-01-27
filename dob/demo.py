@@ -26,9 +26,8 @@ from gettext import gettext as _
 from nark.items.activity import Activity
 from nark.items.category import Category
 
-from dob_viewer.traverser.placeable_fact import PlaceableFact
-
 from .create import prompt_and_save
+from .helpers.fact_dressed import FactDressed
 
 __all__ = (
     'demo_config',
@@ -126,7 +125,7 @@ class DemoFactGenerator(object):
         return self.final_fact()
 
     def final_fact(self):
-        demo_fact = PlaceableFact(
+        demo_fact = FactDressed(
             start=self.controller.now - timedelta(hours=1),
             end=None,
             activity=self.acts['demo@welcome'],
@@ -149,7 +148,7 @@ Let’s get started! You’re looking at the last, final Fact.
     def first_fact(self):
         since_time = self.controller.now - timedelta(days=14)
         until_time = since_time + timedelta(minutes=90)
-        demo_fact = PlaceableFact(
+        demo_fact = FactDressed(
             start=since_time,
             end=until_time,
             activity=self.acts['demo@welcome'],
@@ -173,7 +172,7 @@ The "G" command (uppercase), similarly, takes you to the last Fact.
     # going to be easy to move sections around!
 
     def demo_fact_01(self, prev_fact):
-        demo_fact = PlaceableFact(
+        demo_fact = FactDressed(
             start=prev_fact.end,
             end=prev_fact.end + timedelta(minutes=66),
             activity=self.acts['demo@welcome'],
@@ -193,7 +192,7 @@ You can also use the left and right arrow keys to change Facts.
         return demo_fact
 
     def demo_fact_02(self, prev_fact):
-        demo_fact = PlaceableFact(
+        demo_fact = FactDressed(
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=12),
             activity=self.acts['demo@intermediate'],
@@ -213,7 +212,7 @@ You can also navigate dob by jumping Facts one day at a time.
         return demo_fact
 
     def demo_fact_03(self, prev_fact):
-        demo_fact = PlaceableFact(
+        demo_fact = FactDressed(
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=9),
             activity=self.acts['demo@intermediate'],
@@ -267,7 +266,7 @@ This is the end of the description!
         return demo_fact
 
     def demo_fact_04(self, prev_fact):
-        demo_fact = PlaceableFact(
+        demo_fact = FactDressed(
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=6),
             activity=self.acts['demo@intermediate'],
@@ -285,7 +284,7 @@ To continue the demo, jump back one day, to the last entry you read.
         return demo_fact
 
     def demo_fact_05(self, prev_fact):
-        demo_fact = PlaceableFact(
+        demo_fact = FactDressed(
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=18),
             activity=self.acts['demo@intermediate'],
@@ -317,7 +316,7 @@ Gaps
         return demo_fact
 
     def demo_fact_06(self, prev_fact):
-        demo_fact = PlaceableFact(
+        demo_fact = FactDressed(
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=18),
             activity=self.acts['demo@intermediate'],
@@ -364,7 +363,7 @@ To see a Gap Fact for real, the next Fact in the demo starts 17 minutes later, a
 
     def demo_fact_07(self, prev_fact):
         since_time = prev_fact.end + timedelta(minutes=17)
-        demo_fact = PlaceableFact(
+        demo_fact = FactDressed(
             start=since_time,
             end=since_time + timedelta(hours=6),
             activity=self.acts['demo@intermediate'],
@@ -383,7 +382,7 @@ Speaking of editing, let’s talk about that finally!
         return demo_fact
 
     def demo_fact_08(self, prev_fact):
-        demo_fact = PlaceableFact(
+        demo_fact = FactDressed(
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=4.75),
             activity=self.acts['demo@intermediate'],
@@ -472,7 +471,7 @@ To read about editing the Description, Activity & Category, and Tags, move forwa
         return demo_fact
 
     def demo_fact_09(self, prev_fact):
-        demo_fact = PlaceableFact(
+        demo_fact = FactDressed(
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=4.75),
             activity=self.acts['demo@intermediate'],
@@ -523,7 +522,7 @@ Save
         return demo_fact
 
     def demo_fact_10(self, prev_fact):
-        demo_fact = PlaceableFact(
+        demo_fact = FactDressed(
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=4.75),
             activity=self.acts['demo@intermediate'],
@@ -551,7 +550,7 @@ Undo/Redo
         return demo_fact
 
     def demo_fact_11(self, prev_fact):
-        demo_fact = PlaceableFact(
+        demo_fact = FactDressed(
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=4.75),
             activity=self.acts['demo@intermediate'],
@@ -585,7 +584,7 @@ The next Fact explains how copy and paste work in dob.
         return demo_fact
 
     def demo_fact_12(self, prev_fact):
-        demo_fact = PlaceableFact(
+        demo_fact = FactDressed(
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=4.75),
             activity=self.acts['demo@intermediate'],
@@ -621,7 +620,7 @@ Split/Merge
         return demo_fact
 
     def demo_fact_13(self, prev_fact):
-        demo_fact = PlaceableFact(
+        demo_fact = FactDressed(
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=4.75),
             activity=self.acts['demo@intermediate'],
@@ -655,7 +654,7 @@ To get up and running, read the next Fact.
         return demo_fact
 
     def demo_fact_14(self, prev_fact):
-        demo_fact = PlaceableFact(
+        demo_fact = FactDressed(
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=4.75),
             activity=self.acts['demo@intermediate'],
@@ -692,7 +691,7 @@ You're a pro!
         return demo_fact
 
     def demo_fact_15(self, prev_fact):
-        demo_fact = PlaceableFact(
+        demo_fact = FactDressed(
             start=prev_fact.end,
             end=prev_fact.end + timedelta(hours=4.75),
             activity=self.acts['demo@intermediate'],

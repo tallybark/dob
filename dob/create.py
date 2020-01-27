@@ -33,7 +33,6 @@ from dob_viewer.config.styling.classes_style import (
 )
 from dob_viewer.config.styling.content_lexer import load_content_lexer
 from dob_viewer.config.styling.no_completion import load_no_completion
-from dob_viewer.traverser.placeable_fact import PlaceableFact
 
 from . import interrogate
 from .clickux.echo_assist import click_echo, echo_block_header
@@ -46,6 +45,7 @@ from .helpers import (
     highlight_value
 )
 from .helpers.crude_progress import CrudeProgress
+from .helpers.fact_dressed import FactDressed
 from .helpers.fix_times import (
     mend_facts_times,
     must_complete_times,
@@ -350,7 +350,7 @@ def must_create_fact_from_factoid(
         separators = must_prepare_factoid_item_separators(controller)
         use_hint = reduce_time_hint(time_hint)
         try:
-            fact, err = PlaceableFact.create_from_factoid(
+            fact, err = FactDressed.create_from_factoid(
                 factoid=factoid,
                 time_hint=use_hint,
                 separators=separators,
