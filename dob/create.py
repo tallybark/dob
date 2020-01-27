@@ -81,10 +81,10 @@ def add_fact(
     Start or add a fact.
 
     Args:
-        factoid (text_type): ``factoid`` detailing Fact to be added.
+        factoid (str): ``factoid`` detailing Fact to be added.
             See elsewhere for the factoid format.
 
-        time_hint (text_type, optional): One of:
+        time_hint (str, optional): One of:
             | 'verify_none': Do not expect to find any time encoded in factoid.
             | 'verify_both': Expect to find both start and end times.
             | 'verify_start': Expect to find just one time, which is the start.

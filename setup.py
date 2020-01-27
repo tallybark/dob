@@ -61,9 +61,6 @@ requirements = [
     # Just Another EDITOR package.
     #  https://github.com/fmoo/python-editor
     'python-editor',  # Imports as editor.
-    # Virtuous Six Python 2 and 3 compatibility library.
-    #  https://six.readthedocs.io/
-    'six',
     # Tabulate is one of the many table formatter choices.
     #  https://bitbucket.org/astanin/python-tabulate
     'tabulate',

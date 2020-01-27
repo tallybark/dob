@@ -35,7 +35,6 @@ import fauxfactory
 from click.testing import CliRunner
 from configobj import ConfigObj
 from pytest_factoryboy import register
-from six import text_type
 from unittest import mock
 
 from nark.config import decorate_config
@@ -400,7 +399,7 @@ def db_host(request):
 @pytest.fixture
 def db_port(request):
     """Return a randomized database port."""
-    return text_type(fauxfactory.gen_integer(min_value=0, max_value=65535))
+    return str(fauxfactory.gen_integer(min_value=0, max_value=65535))
 
 
 @pytest.fixture

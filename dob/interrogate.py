@@ -18,7 +18,6 @@
 import tempfile
 
 import editor
-from six import text_type
 
 from nark.items.activity import Activity
 
@@ -173,9 +172,11 @@ def ask_edit_with_editor(controller, fact=None, content=''):
 
     def prepare_contents(content):
         content = content if content else ''
-        # FIXME: py2 compatible? Or need to six.b()?
-        # contents = six.b(str(content))  # NOPE: Has problems with Unicode, like: ½
-        contents = text_type(content).encode()
+        # # FIXME: py2 compatible? Or need to six.b()?
+        # #contents = six.b(str(content))  # NOPE: Has problems with Unicode, like: ½
+        # contents = text_type(content).encode()
+        # FIXME/2020-01-26: (lb): Verify no longer an issue.
+        contents = str(content).encode()
         return contents
 
     def temp_filename():

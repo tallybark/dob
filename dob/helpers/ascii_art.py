@@ -22,7 +22,6 @@ from gettext import gettext as _
 
 import click
 from nark.helpers.emphasis import attr, bg, fg
-from six import text_type
 
 try:
     # (lb): Not including pyfiglet because it's large and unnecessary.
@@ -109,7 +108,7 @@ def figletize_hamster():
     figlet.setFont(font=random.choice(figlet.getFonts()))
     hword = ''.join(
         random.choice(
-            (text_type.upper, text_type.lower)
+            (str.upper, str.lower)
         )(lttr) for lttr in 'hamster'
     )
     rendered = figlet.renderText(hword)

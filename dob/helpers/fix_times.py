@@ -24,7 +24,6 @@ from nark.helpers import fact_time
 from nark.helpers.fact_time import datetime_from_clock_after, datetime_from_clock_prior
 from nark.helpers.facts_fit import antecedent_fact, subsequent_fact
 from nark.helpers.parse_time import parse_clock_time, parse_relative_minutes
-from six import text_type
 
 from dob_viewer.traverser.placeable_fact import PlaceableFact
 
@@ -392,7 +391,7 @@ def must_complete_times(
             if isinstance(dt_fact, datetime):
                 prev_time = dt_fact
             else:
-                controller.affirm(isinstance(dt_fact, text_type))
+                controller.affirm(isinstance(dt_fact, str))
                 clock_time = parse_clock_time(dt_fact)
                 if clock_time is not None:
                     prev_time = infer_datetime_from_clock(
@@ -483,7 +482,7 @@ def must_complete_times(
             if isinstance(dt_fact, datetime):
                 prev_time = dt_fact
             else:
-                controller.affirm(isinstance(dt_fact, text_type))
+                controller.affirm(isinstance(dt_fact, str))
                 delta_mins, delta_minus = parse_relative_minutes(dt_fact)
                 if delta_mins is not None:
                     prev_time = infer_datetime_from_delta(

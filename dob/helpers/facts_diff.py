@@ -17,7 +17,6 @@ import click
 from nark.helpers.emphasis import attr, fg
 from nark.helpers.objects import resolve_attr_or_method
 from nark.helpers.strings import format_value_truncate
-from six import text_type
 
 __all__ = (
     'FactsDiff',
@@ -185,7 +184,7 @@ class FactsDiff(object):
         return (self_val, other_val)
 
     def format_prepare(self, some_val, style_class='', mouse_handler=None):
-        if not self.formatted or not isinstance(some_val, text_type):
+        if not self.formatted or not isinstance(some_val, str):
             # tags, e.g.,:
             #   [('fg: #C6C6C6 underline', '#'), ('fg: #D7FF87 underline', 'my-tag')]
             if (
@@ -261,7 +260,7 @@ class FactsDiff(object):
         spring_green_3a = '00AF5F'
         style = 'fg:#{}'.format(spring_green_3a)
         before_parts = []
-        if isinstance(before_val, text_type):
+        if isinstance(before_val, str):
             before_parts += [(style, before_val)]
         elif before_val is not None:
             for tup in before_val:
@@ -281,7 +280,7 @@ class FactsDiff(object):
         light_salmon_3b = 'D7875F'
         style = 'fg:#{} bold underline'.format(light_salmon_3b)
         after_parts = []
-        if isinstance(other_val, text_type):
+        if isinstance(other_val, str):
             after_parts += [(style, other_val)]
         elif other_val is not None:
             for tup in other_val:
