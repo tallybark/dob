@@ -4,6 +4,10 @@ REM This file exists within 'dob':
 REM
 REM   https://github.com/hotoffthehamster/dob
 
+set PROJECTNAME=dob
+
+REM *** END: Project customization. Remainder of file is _boilerplate_.
+
 REM Command file for Sphinx documentation
 
 if "%SPHINXBUILD%" == "" (
@@ -119,9 +123,9 @@ if "%1" == "qthelp" (
 	echo.
 	echo.Build finished; now you can run "qcollectiongenerator" with the ^
 .qhcp project file in %BUILDDIR%/qthelp, like this:
-	echo.^> qcollectiongenerator %BUILDDIR%\qthelp\dob.qhcp
+	echo.^> qcollectiongenerator %BUILDDIR%\qthelp\%PROJECTNAME%.qhcp
 	echo.To view the help file:
-	echo.^> assistant -collectionFile %BUILDDIR%\qthelp\dob.ghc
+	echo.^> assistant -collectionFile %BUILDDIR%\qthelp\%PROJECTNAME%.ghc
 	goto end
 )
 
