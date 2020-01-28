@@ -20,6 +20,8 @@ dist/
 .coverage
 # Coverage — `make coverage-html`.
 htmlcov/
+# Coverage — `codecov` https://codecov.io.
+coverage.xml
 
 # Sphinx Docs — `make docs`.
 docs/_build
