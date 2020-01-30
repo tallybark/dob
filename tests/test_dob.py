@@ -216,8 +216,6 @@ class TestAddFact(object):
         assert fact.description == expect_description
 
 
-# FIXME/2020-01-09: (lb): Perhaps delete this test and related code, or repair
-# or rewire it, but first go from dob.py and see what current stop command does.
 class TestStop(object):
     """Unit test concerning the stop command."""
 
@@ -227,23 +225,7 @@ class TestStop(object):
         controller_with_logging,
         mocker,
     ):
-        """Make sure stoping an ongoing fact works as intended."""
-        # 2018-05-05: (lb): How long have these tests been broken?
-        #
-        #   I forked a zombie project! Works, Not Works!
-        #
-        #   In any case, there's a u''.format() in create.stop_fact
-        #   that complains if you pass it MagicMock objects instead
-        #   of strings. So here we mock all the methods and members
-        #   that stop_fact uses. (And I'm not super familiar with
-        #   py.test and mocking, so I can only hope I'm doing this
-        #   correctly!)
-        #
-        # Here's the original code (w/ stop_current_fact renamed from stop_ongoing_fact):
-        #
-        #   controller_with_logging.facts.stop_current_fact = mocker.MagicMock()
-        #
-        # And here's what I changed to make this test succeed:
+        """Make sure stopping an ongoing fact works as intended."""
         mockfact = mocker.MagicMock()
         mockfact.activity.name = 'foo'
         mockfact.category.name = 'bar'
@@ -251,18 +233,30 @@ class TestStop(object):
         mockfact.start.strftime = mocktime
         mockfact.end.strftime = mocktime
         current_fact = mocker.MagicMock(return_value=mockfact)
-        controller_with_logging.facts.stop_current_fact = current_fact
-        # FIXME/2019-12-06: stop_fact was deleted...
-        #  create.stop_fact(controller_with_logging)
-        assert controller_with_logging.facts.stop_current_fact.called
+        # While nark still has stop_current_fact, dob replaced stop_fact
+        # with add_fact, so it can use all the same CLI magic that the
+        # other add-fact commands use. So while we're testing stop-fact
+        # here, we're really testing add-fact with a verify-end time-hint.
+        controller_with_logging.facts.save = current_fact
+        # 2019-12-06: stop_fact was deleted, replaced with add_fact + time_hint.
+        create.add_fact(
+            controller_with_logging,
+            factoid='',
+            time_hint='verify_end',
+            use_carousel=False,
+        )
+        assert controller_with_logging.facts.save.called
 
     def test_stop_no_existing_ongoing_fact(self, controller_with_logging, capsys):
         """Make sure that stop without actually an ongoing fact leads to an error."""
-        _controller = controller_with_logging   # noqa: F841 unused local
         with pytest.raises(SystemExit):
-            # FIXME/2019-12-06: stop_fact was deleted...
-            #  create.stop_fact(controller)
-            assert False  # Unreachable.
+            # 2019-12-06: stop_fact was deleted, replaced with add_fact + time_hint.
+            create.add_fact(
+                controller_with_logging,
+                factoid='',
+                time_hint='verify_end',
+                use_carousel=False,
+            )
 
 
 class TestCancel(object):
