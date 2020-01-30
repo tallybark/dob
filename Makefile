@@ -168,8 +168,11 @@ coverage: venvforce
 	coverage report
 .PHONY: coverage
 
-coverage-html: coverage view-coverage
+coverage-to-html:
 	coverage html
+.PHONY: coverage-html
+
+coverage-html: coverage coverage-to-html view-coverage
 .PHONY: coverage-html
 
 view-coverage:
