@@ -141,9 +141,11 @@ def edit_fact_by_pk(
         return new_and_edited
 
     def editor_interact(old_fact):
-        # FIXME/2019-11-23: So, friendly_str and ask_edit_with_editor
-        # can produce same string? If true, this should be its own
-        # method with no arguments (seems to fragile).
+        """Presents user with their EDITOR displaying the Factoid text.
+        """
+        # So that the user can edit act@gory and tags, and not solely
+        # the description, marshal the Fact to a factoid string and
+        # let the user edit that.
         old_raw_fact = old_fact.friendly_str(
             shellify=False,
             description_sep='\n\n',
@@ -151,6 +153,19 @@ def edit_fact_by_pk(
             colorful=False,
             show_elapsed=False,
         )
+
+        # MAYBE/2020-01-28: Give user option of using dob-prompt to edit
+        # act@gory and tags, then the description, e.g., something like
+        # this?:
+        #
+        #   # MAYBE/2019-11-23: Call ask_user_for_edits instead?
+        #                       What happens on active Fact that has body?
+        #   __prompter = ask_user_for_edits(
+        #       controller,
+        #       fact=old_fact,
+        #       always_ask=True,
+        #       restrict_edit='description',
+        #   )
 
         new_raw_fact = ask_edit_with_editor(controller, old_fact, old_raw_fact)
 
@@ -189,7 +204,7 @@ def edit_fact_by_pk(
     def echo_edited_fact(new_fact, old_fact):
         if new_fact == old_fact:
             dob_in_user_exit(
-                _("Nothing changed! New Fact same same as old Fact.")
+                _("Nothing changed! New Fact same as old Fact.")
             )
 
         click.echo('An edited fact!: {}'.format(str(new_fact)))
