@@ -130,14 +130,12 @@ def config_root(nark_config, dob_config):
     config = config_root.as_dict()
     return config
 
+
 # This method essentially same as: nark:tests/conftest.py::base_config.
 @pytest.fixture
 def nark_config(tmpdir):
     """
-    Provide a backend config fixture. This can be passed to a controller directly.
-
-    That means this fixture represents the the result of all typechecks and
-    type conversions.
+    Provide a static backend config fixture.
     """
     # FETREQ/2020-01-09: (lb): Support dot-notation in dict keys on `update`.
     # - For now, create deep dictionary; not flat with dotted key names.
@@ -184,15 +182,9 @@ def nark_config(tmpdir):
 @pytest.fixture
 def dob_config(tmpdir):
     """
-    Provide a client config fixture. This can be passed to a controller directly.
-
-    That means this fixture represents the the result of all typechecks and
-    type conversions.
+    Provide a static client config fixture.
     """
     return {
-        # FIXME/2019-02-20: (lb): Test with missing config values; I know, bugs!
-
-        # FIXME/2019-02-20: (lb): Clarify: Use bool, or string? True, or 'True'?
         # 'editor.centered': '',
         'editor.centered': 'True',
 
