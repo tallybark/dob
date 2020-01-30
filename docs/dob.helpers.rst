@@ -28,10 +28,26 @@ dob.helpers.crude\_progress module
    :undoc-members:
    :show-inheritance:
 
+dob.helpers.emphasis module
+---------------------------
+
+.. automodule:: dob.helpers.emphasis
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dob.helpers.exceptions module
 -----------------------------
 
 .. automodule:: dob.helpers.exceptions
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dob.helpers.fact\_dressed module
+--------------------------------
+
+.. automodule:: dob.helpers.fact_dressed
    :members:
    :undoc-members:
    :show-inheritance:
@@ -56,6 +72,14 @@ dob.helpers.path module
 -----------------------
 
 .. automodule:: dob.helpers.path
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dob.helpers.ppt\_markup module
+------------------------------
+
+.. automodule:: dob.helpers.ppt_markup
    :members:
    :undoc-members:
    :show-inheritance:
