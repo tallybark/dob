@@ -48,6 +48,12 @@ register(factories.CategoryFactory)
 register(factories.ActivityFactory)
 register(factories.FactFactory)
 
+test_lib_log_level = 'WARNING'
+test_cli_log_level = 'WARNING'
+# DEV: Uncomment to see more log trace while testing:
+test_lib_log_level = 'DEBUG'
+test_cli_log_level = 'DEBUG'
+
 
 @pytest.fixture
 def filename():
@@ -152,7 +158,7 @@ def nark_config(tmpdir):
             #   'password': '',
         },
         'dev': {
-            'lib_log_level': 'WARNING',
+            'lib_log_level': test_lib_log_level,
             'sql_log_level': 'WARNING',
         },
         'time': {
@@ -211,9 +217,7 @@ def dob_config(tmpdir):
         # See also:
         #  'logfile_path': '',  # Generated value.
 
-        # 'dev.cli_log_level': 'WARNING',  # Default.
-        # 2019-02-20 11:15: I need to see where py.test of Carousel is hanging!
-        'dev.cli_log_level': 'DEBUG',
+        'dev.cli_log_level': test_cli_log_level,
 
         'fact.separators': '',  # [,:\n]
 
@@ -262,7 +266,7 @@ def config_instance(tmpdir, faker):
         cfg_dev = {}
         cfg_dict['dev'] = cfg_dev
 
-        lib_log_level = kwargs.get('lib_log_level', 'WARNING')
+        lib_log_level = kwargs.get('lib_log_level', test_lib_log_level)
         cfg_dev.setdefault('lib_log_level', lib_log_level)
         sql_log_level = kwargs.get('sql_log_level', 'WARNING')
         cfg_dev.setdefault('sql_log_level', sql_log_level)
@@ -310,7 +314,7 @@ def config_instance(tmpdir, faker):
 
         assert('dev' in cfg_dict)
 
-        cli_log_level = kwargs.get('cli_log_level', 'warning')
+        cli_log_level = kwargs.get('cli_log_level', test_cli_log_level)
         cfg_dev.setdefault('cli_log_level', cli_log_level)
         cfg_dev.setdefault('catch_errors', 'False')
 
