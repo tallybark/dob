@@ -607,6 +607,7 @@ def prompt_and_save(
     yes=False,
     dry=False,
     progress=None,
+    **kwargs,
 ):
     """"""
     progress = CrudeProgress(enabled=True) if progress is None else progress
@@ -759,7 +760,7 @@ def prompt_and_save(
             content_lexer=content_lexer,
             no_completion=no_completion,
         )
-        ready_facts = carousel.gallop()
+        ready_facts = carousel.gallop(**kwargs)
         # The Carousel forces the user to save to exit! So ready_facts is empty!!
         # Or the user quit without saving, which would also mean no ready facts.
         # - 2020-01-28: (lb): If I recall correctly, I had originally

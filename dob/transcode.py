@@ -28,7 +28,6 @@ import click
 from nark import reports
 from nark.helpers.parsing import parse_factoid
 
-from . import __package_name__
 from .clickux.echo_assist import barf_and_exit, click_echo, echo_block_header
 from .clickux.query_assist import hydrate_activity, hydrate_category
 from .cmds_list.fact import search_facts
@@ -185,7 +184,9 @@ def import_facts(
     backup=True,
     leave_backup=False,
     use_carousel=False,
+    force_use_carousel=False,
     dry=False,
+    **kwargs,
 ):
     """
     Import Facts from STDIN or a file.
@@ -206,9 +207,7 @@ def import_facts(
     #   For now, we'll just read one fact at a time.
 
     def _import_facts():
-        redirecting = must_specify_input(file_in)
-        input_f = must_open_file(redirecting, file_in)
-        raw_facts = parse_facts_from_stream(input_f)
+        raw_facts = parse_facts_input(file_in)
         new_facts = must_hydrate_facts(raw_facts)
         conflicts = must_complete_times(controller, new_facts, progress=progress)
         controller.affirm(not conflicts)  # (lb): 2019-01-19: This happen?
@@ -222,56 +221,42 @@ def import_facts(
             rule=rule,
             backup=backup,
             leave_backup=leave_backup,
-            use_carousel=use_carousel,
+            # FIXME: If you pipe to import, Facts are saved, but plugins not called!
+            #        E.g., try
+            #           echo "2020-01-28 15:38: hello" | dob import
+            #        vs.
+            #           echo "2020-01-28 15:38: hello" > test && dob import test
+            #        For the latter you need to Ctrl-s save, and then plugins called.
+            use_carousel=force_use_carousel or (use_carousel and sys.stdin.isatty()),
             dry=dry,
             yes=False,
             progress=progress,
+            **kwargs,
         )
         return saved_facts
 
     # ***
 
-    def must_specify_input(file_in):
-        redirecting = False
-        # See if the user is piping or redirecting STDIN, e.g.,
-        #   echo "derp" | nark import
-        #   nark import < path/to/file
-        if not sys.stdin.isatty():
-            # Bingo!
-            redirecting = True
-            if file_in:
-                # NOTE: You cannot set a breakpoint here if you do something
-                #       weird like: ``cat import.nark | nark import -``
-                #               or: ``nark import - < import.nark``
-                # MEH: (lb): This is sorta an optparser layer concern and
-                # maybe should be handled from the caller (CLI) rather than
-                # from the import/export processing routines. But, meh.
-                msg = 'Weirdo, why are you redirecting STDIN *and* specifying a file?'
-                click_echo(msg)
-                sys.exit(1)
-        elif not file_in:
-            # MEH: (lb): Same idea as earlier comment: Maybe echo() and exit()
-            # should be done by caller, and not by library routine.
-            msg = (
-                'Please specify a file, or send something on STDIN.\n'
-                'For examples: `cat {{file}} | {appname} import`\n'
-                '          or: `{appname} import < {{file}})\n'
-                '          or: `{appname} import {{file}}'
-            ).format(appname=__package_name__)
-            click_echo(msg)
-            sys.exit(1)
-        return redirecting
+    def parse_facts_input(file_in):
+        # A few reminders:
+        # - On `dob import`, file_in is None -- but on `dob import -`,
+        #   Click sets file_in to <stdin> _io.TextIOWrapper.
+        # - On `echo '...' | dob import` → isatty() is False, but
+        #   on `dob import | cat`        → isatty() is True.
+        # - Dob will print help on `dob import`, but if the user runs
+        #   `dob import -` then dob waits for input from the user, and
+        #   processes it line by line (whenever the user his ENTER).
+        #   This is expected behavior -- that's what the special `-`
+        #   filename convention does in *nix -- but I thought I'm spell
+        #   it out, in case it feels odd to new developers.
+        input_f = file_or_stdin(file_in)
+        raw_facts = parse_facts_from_stream(input_f)
+        return raw_facts
 
-    # ***
-
-    def must_open_file(redirecting, file_in):
-        if redirecting:
-            f_in = sys.stdin
-        else:
-            f_in = file_in
-        return f_in
-
-    # ***
+    def file_or_stdin(file_in):
+        if file_in is not None:
+            return file_in
+        return sys.stdin
 
     def parse_facts_from_stream(input_f):
         # Track current empty line run count, to know when to check if line
@@ -878,5 +863,5 @@ def import_facts(
 
     # ***
 
-    _import_facts()
+    return _import_facts()
 
