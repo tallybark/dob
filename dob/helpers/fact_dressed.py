@@ -19,7 +19,7 @@
 
 from collections import namedtuple
 
-from nark.items import Fact
+from nark.items.fact import Fact
 
 from .emphasis import colorize, set_coloring
 from .facts_diff import FactsDiff

@@ -19,7 +19,7 @@ import os
 
 from gettext import gettext as _
 
-from nark.items import Fact
+from nark.items.fact import Fact
 
 from . import __package_name__ as package_name_dob
 from . import __resolve_vers__ as resolve_vers_dob
