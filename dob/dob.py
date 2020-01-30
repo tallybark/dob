@@ -1185,15 +1185,40 @@ def transcode_import(
     *args,
     **kwargs
 ):
-    """Import from file or STDIN (pipe)."""
+    """Import from file or STDIN (pipe).
 
-    # NOTE: You can get tricky and enter Facts LIVE! E.g.,
-    #
-    #           dob import -
-    #
-    #       will open pipe from STDIN, and Dob will wait for
-    #       you to type! (lb): Though I did not verify ^D EOFs.
+    .. NOTE: You can get tricky and enter Facts on stdin using ``-``::
 
+               dob import -
+
+             Click will set filename to STDIN, and Dob process each line
+             as the user types it (and presses ENTER), and stops on ^D.
+    """
+
+    # If neither file nor stdin specified, dump the help.
+    if filename is None and sys.stdin.isatty():
+        # There are two functionally equivalent ends to showing help.
+        # - We could use the help helper with a string:
+        #     help_command_help(ctx, ['import'])
+        # - Or we can use the context to spill its help:
+        click_echo(ctx.command.get_help(ctx))
+        # We could `return` or `return []` here for post_processor, or exit 0
+        # because we showed help and now we're done; but you can pipe stdin to
+        # `dob import` and that is a real operation, so let's return 1, indicating
+        # that maybe the command *is* wrong, because no input specified.
+        sys.exit(1)
+
+    # If opposite condition, complain -- user cannot send stdin and a filename.
+    if filename is not None and not sys.stdin.isatty():
+        # Use case:
+        #   echo "2020-01-28 15:38: hello" | dob import facts.txt
+        # Or:
+        #   dob import - < facts.txt
+        msg = 'Hey, why are you redirecting STDIN *and* specifying a file?'
+        click_echo(msg)
+        sys.exit(1)
+
+    # If output file specified, verify file absent, or --force.
     if output and not force and os.path.exists(output.name):
         msg = _('Outfile already exists at: {}'.format(output.name))
         click_echo(msg)
@@ -1202,7 +1227,12 @@ def transcode_import(
     # If filename smells False, import_facts will use sys.stdin.
     # - FIXME/2019-11-19: Test not specifying file and see how it works on
     # its own vs. piped, e.g., test `dob import` vs. `cat file | dob import`.
-    return import_facts(
+    # NOTE: It use_carousel is True, user is forced to save through interface,
+    #       and then quit, and then saved_facts is empty; but if the carousel
+    #       was not used and the facts were immediately saved, saved_facts
+    #       will be those facts, which are returned from this functions for
+    #       @post_processor to use to call the plugins.
+    pre_post_processed_saved_facts = import_facts(
         controller,
         *args,
         file_in=filename,
@@ -1210,6 +1240,7 @@ def transcode_import(
         use_carousel=(not no_editor),
         **kwargs
     )
+    return pre_post_processed_saved_facts
 
 
 # ***
