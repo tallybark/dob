@@ -812,6 +812,13 @@ def insert_forcefully(controller, fact, squash_sep=''):
         else:
             assert ref_time == 'end'
             if fact.end is None:
+                # This use case will get you here, because no end time:
+                #   echo "2020-01-28 15:38: hello" | dob import
+                # EXPLAIN/2020-01-28: But fact still saved as ongoing fact...
+                #   interest. I think this is Desired Behavior, but curious
+                #   what removes the end time (which set_end_per_subsequent
+                #   sets to now).
+                # - 2020-01-28: Old comment might still have some relevance:
                 # FIXME/TESTME/2019-01-22: Is this path possible? Will code
                 # have called must_complete_times first, and this situation
                 # have been remedied? See comment above, before function def,
@@ -821,9 +828,6 @@ def insert_forcefully(controller, fact, squash_sep=''):
                 # set_start_per_antecedent, compare to must_complete_times,
                 # which has its own start and end setting code.)
                 set_end_per_subsequent(facts, fact)
-                # FIXME/2019-11-23 00:42: Record how you can get here.
-                if controller.config['dev.catch_errors']:
-                    controller.affirm(False)  # (lb): 2019-11-23: What cmd to here?
             else:
                 # LATER/BACKLOG/LOWLOWPRIORITY/2019-01-22: Momentaneous:
                 #   If supporting momentaneous, could have multiple Facts
