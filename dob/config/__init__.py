@@ -186,7 +186,7 @@ class DobConfigurableDev(object):
     @property
     @ConfigRoot.setting(
         _("The log level for frontend (dob) squaller"
-            " (using Python logging library levels)"),
+          " (using Python logging library levels)"),
         validate=must_verify_log_level,
         conform=get_log_level_safe,
     )
@@ -198,7 +198,7 @@ class DobConfigurableDev(object):
     @property
     @ConfigRoot.setting(
         _("If True, enables features for developing dob"
-            " (e.g., stop at REPL on affirm faults)."),
+          " (e.g., stop at REPL on affirm faults)."),
     )
     def catch_errors(self):
         return False
@@ -215,8 +215,13 @@ class DobConfigurableLog(object):
 
     # ***
 
+    # MAYBE/2019-11-29: (lb): I'm not sure utility of setting logfile name,
+    # but not the path. Perhaps add log.dirname option.
+    # - Or
     @property
     @ConfigRoot.setting(
+        # MAYBE/2019-11-29: Resolve appdirs path -- or somehow show user full log path.
+        # Or, if (hypothetical) log.dirname option added, substitute in help text here.
         _("Filename of dob log under AppDirs.user_log_dir"),
     )
     def filename(self):
@@ -243,7 +248,7 @@ class DobConfigurableLog(object):
             # unreachable. But we'll still keep it, for completeness.
             return ''
         log_dir = AppDirs.user_log_dir
-        # Note that self is the root ConfigDecorator, not the DobConfigurableLog...
+        # Note that self is the root ConfigDecorator, not the DobConfigurableLog.
         log_filename = self['filename']
         return os.path.join(log_dir, log_filename)
 
