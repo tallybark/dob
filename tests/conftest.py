@@ -42,7 +42,7 @@ import dob.dob as dob
 from dob.config.fileboss import default_config_path
 from dob.controller import Controller
 
-from . import factories
+from nark.tests import factories
 
 register(factories.CategoryFactory)
 register(factories.ActivityFactory)
