@@ -43,7 +43,7 @@ from ..helpers.emphasis import attr, bg, coloring, fg
 # built the other way, so we have to wait for the coloring() question to
 # be settled before building help text. Hence all the callbacks below.
 #
-# E.g., instead of seeing help text built like this:
+# E.g./tl;dr, instead of seeing help text built like this:
 #
 #           SOME_HELP_TEXT = _("""Helps you.""")
 #
@@ -157,10 +157,6 @@ def RUN_HELP_COMPLETE():
         - Put global options {italic}before{reset} the command name, e.g.,
 
           {codehi}{rawname} --no-color details{reset}
-
-        - See how {rawname} can {italic}hack your life{reset} using plugins,
-
-          {codehi}{rawname} plugins avail{reset} [FIXME: No such cmd!]
 
         - Some commands have aliases, shown in (parentheses) below, e.g.,
 
@@ -1000,34 +996,35 @@ def ADD_FACT_AT(ctx):
 
 
 # verify_then
-ADD_FACT_THEN = _(
-    """
-    Stops active Fact and Starts new, using now or time specified.
+def ADD_FACT_THEN():
+    # FIXME/2019-11-22: Verify the 'just use a colon' text, I think that works.
+    _help = _(
+        """
+        Stops active Fact and Starts new, using now or time specified.
 
-    Ends active Fact and Starts new Fact, at now or offset.
+        Ends active Fact and Starts new Fact, at now or offset.
 
-    Starts Fact, at time now or optional offset, ending active Fact.
+        Starts Fact, at time now or optional offset, ending active Fact.
 
-    Starts Fact, ending active Fact, using now or optional offset.
+        Starts Fact, ending active Fact, using now or optional offset.
 
-    This is basically a shortcut for the at command, which requires a time
-    offset, e.g.,
+        This is basically a shortcut for the at command, which requires a time
+        offset, e.g.,
 
-      {rawname} then Grinding beans for coffee.
+          {rawname} then Grinding beans for coffee.
 
-    is the same as:
+        is the same as:
 
-      {rawname} at +0: Grinding beans...
+          {rawname} at +0: Grinding beans...
 
-    FIXME: Verify the colon...
-    If you want to specify an offset, you can, just use a colon,
-    which could work well to throw down a gap fact, e.g.,
+        If you want to specify an offset, you can, just use a colon,
+        which could work well to throw down a gap fact, e.g.,
 
-      {rawname} then -5m: Woke up.
-      {rawname} now Grinding beans...
-
-    """
-)
+          {rawname} then -5m: Woke up.
+          {rawname} now Grinding beans...
+        """.strip().format(**common_format())
+    )
+    return _help
 
 
 # verify_still
@@ -1079,21 +1076,25 @@ ADD_FACT_TO = _(
 
 
 # verify_end
-ADD_FACT_UNTIL = _(
-    """
-    Aliases the 'to' command, e.g., `dob until -10m: Yada...`.
-    """
-)
+def ADD_FACT_UNTIL():
+    _help = _(
+        """
+        Aliases the 'to' command, e.g., `{rawname} until -10m: Yada...`.
+        """.strip().format(**common_format())
+    )
+    return _help
 
 
 # verify_both
-ADD_FACT_FROM = _(
-    """
-    Inserts new Fact using the start and end time indicated.
+def ADD_FACT_FROM():
+    _help = _(
+        """
+        Inserts new Fact using the start and end time indicated.
 
-    E.g., {rawname} from 2019-01-01 00:00 to 2019-01-01 01:00: Happy New Year!
-    """
-)
+        E.g., {rawname} from 2019-01-01 00:00 to 2019-01-01 01:00: Happy New Year!
+        """.strip().format(**common_format())
+    )
+    return _help
 
 
 # ***
