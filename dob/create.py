@@ -760,6 +760,21 @@ def prompt_and_save(
             no_completion=no_completion,
         )
         ready_facts = carousel.gallop()
+        # The Carousel forces the user to save to exit! So ready_facts is empty!!
+        # Or the user quit without saving, which would also mean no ready facts.
+        # - 2020-01-28: (lb): If I recall correctly, I had originally
+        #   plumbed Carousel to have you *review* Facts being imported
+        #   (and only those Facts; user did not see other Facts); but now
+        #   user sees Carousel of all Facts, with imported Facts inserted,
+        #   but not saved, and user saves through Carousel.
+        #   - Which is fine, probably desirable. But because user might
+        #     have insisted `not use_carousel`, this module still has
+        #     code to save Facts independent of the Carousel.
+        #     Nonetheless, the Carousel is still coded to return a Facts
+        #     array...
+        #     MAYBE/2020-01-28: Could probably remove gallop() return list,
+        #                  I think nowadays it'll always be the empty list??
+        controller.affirm(not ready_facts)
 
         return ready_facts, carousel
 
@@ -801,6 +816,9 @@ def prompt_and_save(
             del other_edits[fact.pk is not None and fact.pk or fact_pk]
 
         assert len(other_edits) == 0
+
+        # NOTE: It's up to the caller to ensure controller.post_process called,
+        #       either via @post_processor, or by calling it directly.
 
         progress.click_echo_current_task('')
 
