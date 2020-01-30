@@ -8,35 +8,35 @@
 
 language: python
 
-# Specify xenial for 3.7 support.
+# Specify xenial or bionic for 3.7+ support.
 dist: xenial
 
 matrix:
   include:
     # Unit tests run on each Python version.
+    - env: TOXENV=py38
+      python: '3.8'
     - env: TOXENV=py37
       python: '3.7'
     - env: TOXENV=py36
       python: '3.6'
-    - env: TOXENV=py35
-      python: '3.5'
     # Other tasks run against latest Python.
     # - Upload reports to Codecov.io.
     - env: TOXENV=codecov
-      python: '3.7'
+      python: '3.8'
     # - Verify long description (README.rst) will render on PyPI.
     - env: TOXENV=dist_check
-      python: '3.7'
+      python: '3.8'
     # - Lint docs (doc8).
     - env: TOXENV=docs
-      python: '3.7'
+      python: '3.8'
     # - Lint code (flake8).
     - env: TOXENV=flake8
-      python: '3.7'
+      python: '3.8'
     # FIXME/2020-01-24: Add pep257 check -- once docstrings fixed.
     # # - Verify docstring conventions.
     # - env: TOXENV=pep257
-    #   python: '3.7'
+    #   python: '3.8'
 
 install:
   - pip install -U tox

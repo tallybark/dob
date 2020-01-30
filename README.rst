@@ -123,7 +123,7 @@ If you like |dob|_, hopefully you'll
 Features
 ########
 
-* Compatible with all modern Python releases (3.5, 3.6, and 3.7).
+* Designed for modern Python releases (3.6, 3.7, and 3.8).
 * Seamlessly integrates into your terminal-based workflow.
 * Naturally Unicode compatible -- spice up your notes!
 * Can migrate legacy Hamster databases (and fix integrity issues, too).
