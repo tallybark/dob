@@ -912,16 +912,6 @@ def NO_ACTIVE_FACT_HELP(ctx):
     return _help
 
 
-def NOTHING_TO_STOP_HELP(ctx):
-    _help = _(
-        # It doesn't look like there's any current Fact {}to{} stop.
-        """
-        Sorry, bud, there's no active Fact {italic}to{reset} stop.
-        """
-    ).strip().format()
-    return _help
-
-
 LATEST_HELP = _(
     """
     Prints latest completed Fact (Fact with most recent end time).

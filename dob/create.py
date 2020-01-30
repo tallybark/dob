@@ -36,7 +36,6 @@ from dob_viewer.config.styling.no_completion import load_no_completion
 
 from . import interrogate
 from .clickux.echo_assist import click_echo, echo_block_header
-from .clickux.help_strings import NOTHING_TO_STOP_HELP
 from .config.app_dirs import AppDirs, get_appdirs_subdir_file_path
 from .helpers import (
     dob_in_user_exit,
@@ -59,7 +58,6 @@ __all__ = (
     'cancel_fact',
     'mend_facts_confirm_and_save_maybe',
     'prompt_and_save',
-    'stop_fact',
     # Private:
     #   'echo_ongoing_completed',
     #   'mend_fact_timey_wimey',
@@ -527,27 +525,6 @@ def save_facts_maybe(controller, new_facts, conflicts, ignore_pks, dry):
     # ***
 
     return _save_facts_maybe(controller, new_facts, conflicts, ignore_pks, dry)
-
-
-# ***
-
-def stop_fact(controller):
-    """
-    Stop current 'ongoing fact' and save it to the backend.
-
-    Returns:
-        None: If successful.
-
-    Raises:
-        ValueError: If no *ongoing fact* can be found.
-    """
-    try:
-        fact = controller.facts.stop_current_fact()
-    except KeyError:
-        dob_in_user_exit(NOTHING_TO_STOP_HELP())
-    else:
-        echo_ongoing_completed(controller, fact, cancelled=False)
-        return fact
 
 
 # ***
