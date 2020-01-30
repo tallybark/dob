@@ -71,6 +71,7 @@ def common_format():
         'italic': attr('italic'),
         'underlined': attr('underlined'),
         'wordhi': fg('chartreuse_3a'),
+        'errcol': bg('red_1') + attr('bold'),
     }
     return common_format
 
@@ -424,7 +425,6 @@ def NEWBIE_HELP_CREATE_CONFIG(ctx, cfg_path):
         # FIXME/2019-11-19 14:42: Make wrapper for format() with common colors defined.
         # - Maybe change errors to white on red, like here,
         #   but only for white on black terms (based on some setting?).
-        errcol=(bg('red_1') + attr('bold')),
         cfg_path=cfg_path,
         default_config_path=default_config_path(),
         envkey=ConfigUrable.DOB_CONFIGFILE_ENVKEY,
@@ -445,10 +445,6 @@ def NEWBIE_HELP_REPAIR_CONFIG(ctx, cfg_path):
             {rawname} config create --force
         """
     ).strip().format(
-        # FIXME/2019-11-19 14:42: Make wrapper for format() with common colors defined.
-        # - Maybe change errors to white on red, like here,
-        #   but only for white on black terms (based on some setting?).
-        errcol=(bg('red_1') + attr('bold')),
         cfg_path=cfg_path,
         default_config_path=default_config_path(),
         envkey=ConfigUrable.DOB_CONFIGFILE_ENVKEY,
@@ -460,12 +456,13 @@ def NEWBIE_HELP_REPAIR_CONFIG(ctx, cfg_path):
 def NEWBIE_HELP_CREATE_STORE(ctx, db_path, val_source):
     _help = _(
         """
-        {errcol}ERROR: No database file found at: “{db_path}”{reset}
+        {errcol}ERROR: No database file found.{reset}
 
-        - The db.path value was sourced from a(n) ‘{val_source}’
+        - There was no file found at: {db_path}
+
+        - The db.path value was set from the ‘{val_source}’ source.
 
         - For help on configuring settings, try the config help:
-
           \b
           {codehi}{rawname} config --help{reset}
         """
