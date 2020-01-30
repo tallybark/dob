@@ -1130,13 +1130,28 @@ EXPORT_HELP = _(
 # to demonstrate how all the dob-on/dob-after/etc. commands work.
 IMPORT_HELP = _(
     """
-    Imports Facts from a text file using a natural syntax.
+    Imports Facts from a text file or stdin using a natural syntax.
 
     Useful if you cannot use dob for a while but can
     maintain a text file. Or if you need to massage
     data from another source into dob, it's easy to
     prepare an import file that dob can read and use
     to make Facts in the database.
+
+    HINT: To read from stdin, you can pipe to dob:
+
+            echo "2020-01-09 00:00: Hi!" | dob import
+
+          You can use shell redirection:
+
+            dob import < path/to/my.facts
+
+          Or you can use a single dash as the filename:
+
+            dob import -
+
+          For the last option, dob processes input as you type it,
+          until you press ^D.
     """
 )
 
