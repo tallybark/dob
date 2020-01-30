@@ -133,7 +133,9 @@ def config_root(nark_config, dob_config):
     """Provide a generic baseline configuration."""
     config_root = decorate_config(nark_config)
     config_root.update(dob_config)
-    config = config_root.as_dict()
+    # Beware config_decorator settings' _conform_f(), which mutates source values.
+    # To layer config collections, be sure to use the original, pre-mutation values.
+    config = config_root.as_dict(unmutated=True)
     return config
 
 
