@@ -457,22 +457,22 @@ def NEWBIE_HELP_REPAIR_CONFIG(ctx, cfg_path):
     return _help
 
 
-def NEWBIE_HELP_CREATE_STORE(ctx):
+def NEWBIE_HELP_CREATE_STORE(ctx, db_path, val_source):
     _help = _(
         """
-        {banner}
+        {errcol}ERROR: No database file found at: “{db_path}”{reset}
 
-        Where's you database??
+        - The db.path value was sourced from a(n) ‘{val_source}’
 
-        FIXME: Provide example commands.
+        - For help on configuring settings, try the config help:
 
+          \b
+          {codehi}{rawname} config --help{reset}
         """
     ).strip().format(
-        # appname=__arg0name__,
-        banner=NEWBIE_HELP_WELCOME(ctx),
-        # mintgreen=(fg('spring_green_2a') + attr('bold')),
-        # reset=attr('reset'),
-        # **common_format()
+        db_path=db_path,
+        val_source=val_source,
+        **common_format()
     )
     return _help
 

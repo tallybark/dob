@@ -139,7 +139,11 @@ class Controller(NarkControl):
             click_echo(inspect.cleandoc(message), err=True)
 
         def oblige_user_create_store():
-            message = help_strings.NEWBIE_HELP_CREATE_STORE(self.ctx)
+            message = help_strings.NEWBIE_HELP_CREATE_STORE(
+                self.ctx,
+                db_path=self.config['db.path'],
+                val_source=self.config.asobj.db.path.source,
+            )
             click_echo(inspect.cleandoc(message), err=True)
 
         _insist_germinated()
