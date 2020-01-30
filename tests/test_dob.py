@@ -745,6 +745,8 @@ class TestDobAppDirs(object):
             # (lb): Guh. After py3.5 dropped, we could simplify this to:
             #   mock_app_dir.assert_called_once()
             # Until then, gotta specify args and kwargs.
+            # MAYBE/2020-01-29: Ha! Dropped py3.5 because PTK3 dropped it!
+            # - So now we could see about simplifying this.
             kwargs['version'] = None
             mock_app_dir.assert_called_once_with('dob', None, **kwargs)
 
@@ -772,9 +774,9 @@ class TestDobAppDirs(object):
             #   (pdb) appdir.user_data_dir
             #   '/home/user/.local/share/dob'
             assert os.path.exists(getattr(appdir, app_dirname)) is create
-            # Were not for supporting py3.5, we could simply call:
+            # MAYBE/2020-01-29: New min. Py now 3.6, so might be able to simplify:
             #   mock_app_dir.assert_called_once()
-            # but have to do it the hard way.
+            # but currently doing it hard way _with() args and kwargs (circa py3.5).
             kwargs['version'] = None
             mock_app_dir.assert_called_once_with('dob', None, **kwargs)
 
