@@ -17,10 +17,10 @@
 
 import click
 
+from nark.helpers.format_text import format_value_truncate
 from nark.helpers.objects import resolve_attr_or_method
 
 from .emphasis import attr, fg
-from .format_fact import format_value_truncate
 
 __all__ = (
     'FactsDiff',
@@ -100,13 +100,9 @@ class FactsDiff(object):
             result += self.diff_attrs('activity_name', 'activity')
             result += self.diff_attrs('category_name', 'category')
             if not self.formatted:
-                result += self.diff_attrs(
-                    'tags_inline', 'tags', colorful=True, underlined=True,
-                )
+                result += self.diff_attrs('oid_tags', 'tags', colorful=True)
             else:
-                result += self.diff_attrs(
-                    'tags_tuples', 'tags', colorful=True, underlined=True,
-                )
+                result += self.diff_attrs('tags_tuples', 'tags', colorful=True)
             result += self.diff_attrs('description', 'description', truncate=truncate)
             return result
 

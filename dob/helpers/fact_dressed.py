@@ -21,10 +21,14 @@ from collections import namedtuple
 
 from nark.items import Fact
 
+from .emphasis import colorize, set_coloring
 from .facts_diff import FactsDiff
+from .ppt_markup import namilize
 
 __all__ = (
     'FactDressed',
+    # PRIVATE:
+    #  'FactoidSource',
 )
 
 
@@ -54,6 +58,8 @@ class FactDressed(Fact):
         self.next_fact = None
         self.prev_fact = None
 
+    # ***
+
     @property
     def short(self):
         friendly = (
@@ -68,6 +74,8 @@ class FactDressed(Fact):
         )
         return friendly
 
+    # ***
+
     def copy(self, *args, **kwargs):
         """
         """
@@ -78,9 +86,39 @@ class FactDressed(Fact):
         # SKIP: next_fact, prev_fact.
         return new_fact
 
+    # ***
+
     def friendly_diff(self, other, formatted=False, **kwargs):
         facts_diff = FactsDiff(self, other, formatted=formatted)
         return facts_diff.friendly_diff(**kwargs)
+
+    # ***
+
+    def friendly_str(self, *args, colorful=False, **kwargs):
+        was_coloring = set_coloring(colorful)
+        friendly_str = super(FactDressed, self).friendly_str(*args, **kwargs)
+        set_coloring(was_coloring)
+        return friendly_str
+
+    def oid_colorize(self, oid_part, oid_text):
+        """Stylizes parts of the Factoid with color and emphasis.
+        """
+        # FIXME: Turn this into config. (And check BonW vs WonB.)
+        lookup = {
+            'pk': ('grey_78'),
+            'act@gory': ('cornflower_blue', 'bold', 'underlined'),
+            '#': ('grey_78'),
+            'tag': ('dark_olive_green_1b'),
+            '#tag': ('underlined'),
+            'start': ('sandy_brown'),
+            'end': ('sandy_brown'),
+            'to': ('grey_85'),
+            'duration': ('grey_78'),
+        }
+        colorized = colorize(oid_text, *lookup[oid_part])
+        return colorized
+
+    # ***
 
     def squash(self, other, squash_sep=''):
         def _squash():
@@ -134,9 +172,11 @@ class FactDressed(Fact):
 
         _squash()
 
+    # ***
+
     @classmethod
     def create_from_factoid(cls, factoid, *args, **kwargs):
-        """
+        """Creates a new Fact from Factoid text, and sets bulk import metadata.
         """
         new_fact, err = super(FactDressed, cls).create_from_factoid(
             factoid, *args, **kwargs
@@ -147,8 +187,10 @@ class FactDressed(Fact):
             new_fact.parsed_source = FactoidSource(line_num, line_raw)
         return new_fact, err
 
+    # ***
+
     @property
-    def dirty(self):
+    def dirty(self):  # MAYBE: Rename: positive()?
         # MAYBE/FIXME: Set dirty_reasons if fact.pk < 0, on new FactDressed.
         return (
             (self.unstored or len(self.dirty_reasons) > 0)
@@ -164,4 +206,88 @@ class FactDressed(Fact):
     @property
     def has_prev_fact(self):
         return self.prev_fact is not None
+
+    # *** Presentation concerns.
+
+    def oid_tags(self, *args, colorful=False, **kwargs):
+        was_coloring = set_coloring(colorful)
+        friendly_tags = super(FactDressed, self).oid_tags(*args, **kwargs)
+        set_coloring(was_coloring)
+        return friendly_tags
+
+    # NOTE/2020-01-27: (lb): Returns PPT tuple, not something dob knows about.
+    # - We could move this method to dob-viewer, to truly decouple.
+    #   But then dob-viewer needs to override FactDressed (self.store.fact_cls).
+    #   (For now, I'm happy this method at least made it out of nark!)
+    def tags_tuples(
+        self,
+        hashtag_token='#',
+        quote_tokens=False,
+        colorful=False,
+        underlined=False,
+        split_lines=False,
+    ):
+
+        def format_tagname(tag):
+            # FIXME/2020-01-28: (lb): make underline and colors configable.
+            underline_fmt = ' underline' if colorful else ''
+            tagged = []
+            #
+            tclss_fmt = ' class:tag-{}'.format(namilize(tag.name))
+            #
+            token_fmt = 'fg: ' if (colorful or underline_fmt) else ''
+            token_fmt += '#C6C6C6' if colorful else ''
+            token_fmt += underline_fmt
+            token_fmt += tclss_fmt
+            tagged.append((token_fmt, hashtag_token))
+            #
+            tname_fmt = 'fg: ' if (colorful or underline_fmt) else ''
+            tname_fmt += '#D7FF87' if colorful else ''
+            tname_fmt += underline_fmt
+            tname_fmt += tclss_fmt
+            tagged.append((tname_fmt, tag.name))
+            #
+            if quote_tokens:
+                fmt_quote = ('', '"')
+                tagged.insert(0, fmt_quote)
+                tagged.append(fmt_quote)
+            return tagged
+
+        # NOTE: The returned string includes leading space if nonempty!
+        tagnames = []
+        if self.tags:
+            # Build array of PPT tuples.
+            fmt_sep = ('', "\n") if split_lines else ('', ' ')
+            n_tag = 0
+            for fmtd_tagn in self.tagnames_sorted_formatted(format_tagname):
+                if n_tag > 0:
+                    tagnames += [fmt_sep]
+                n_tag += 1
+                tagnames += fmtd_tagn
+        return tagnames
+
+    # ***
+
+    @property
+    def html_notif(self):
+        """
+        A briefer Fact one-liner using HTML. Useful for, e.g., notifier toast.
+        """
+        was_coloring = set_coloring(False)
+        duration = '[{}]'.format(self.format_delta(style=''))
+        actegory = self.oid_actegory(omit_empty_actegory=True)
+        actegory = actegory or '<i>No activity</i>'
+        description = self.oid_description(cut_width=39, sep=': ')
+        simple_str = (
+            '{} {}{}'
+            .format(
+                duration,
+                actegory,
+                description,
+            )
+        )
+        set_coloring(was_coloring)
+        return simple_str
+
+    # ***
 
