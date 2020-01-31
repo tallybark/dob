@@ -34,6 +34,7 @@ from dob_viewer.config.styling.classes_style import (
 )
 from dob_viewer.config.styling.content_lexer import load_content_lexer
 from dob_viewer.config.styling.no_completion import load_no_completion
+from dob_viewer.helpers.fact_dressed import FactDressed
 
 from .clickux.echo_assist import click_echo, echo_block_header
 from .config.app_dirs import AppDirs, get_appdirs_subdir_file_path
@@ -45,7 +46,6 @@ from .helpers import (
 )
 from .helpers.crude_progress import CrudeProgress
 from .helpers.emphasis import attr, fg
-from .helpers.fact_dressed import FactDressed
 from .helpers.fix_times import (
     mend_facts_times,
     must_complete_times,
@@ -451,7 +451,7 @@ def must_confirm_fact_edits(controller, conflicts, yes, dry):
     def echo_confirmation_edited(n_conflict, edited_fact, original):
         click.echo()
         # MAYBE:
-        #   from .helpers.re_confirm import confirm
+        #   from dob_viewer.helpers.re_confirm import confirm
         #   confirmed = confirm()
         confirmed = click.confirm(
             text=_('Conflict #{}\n-----------\n{}\nReally edit fact?').format(

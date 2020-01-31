@@ -26,8 +26,9 @@ from gettext import gettext as _
 from nark.items.activity import Activity
 from nark.items.category import Category
 
+from dob_viewer.helpers.fact_dressed import FactDressed
+
 from .create import prompt_and_save
-from .helpers.fact_dressed import FactDressed
 
 __all__ = (
     'demo_config',

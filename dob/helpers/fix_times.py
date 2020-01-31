@@ -15,19 +15,22 @@
 # You can find the GNU General Public License reprinted in the file titled 'LICENSE',
 # or visit <http://www.gnu.org/licenses/>.
 
-from datetime import datetime, timedelta
-
 from gettext import gettext as _
 
+from datetime import datetime, timedelta
+
 import click
+
 from nark.helpers import fact_time
 from nark.helpers.fact_time import datetime_from_clock_after, datetime_from_clock_prior
 from nark.helpers.facts_fit import antecedent_fact, subsequent_fact
 from nark.helpers.parse_time import parse_clock_time, parse_relative_minutes
 
-from . import conflict_prefix, prepare_log_msg
-from .fact_dressed import FactDressed
+from dob_viewer.helpers.fact_dressed import FactDressed
+
 from ..clickux.echo_assist import barf_and_exit, click_echo, echo_block_header
+
+from . import conflict_prefix, prepare_log_msg
 
 __all__ = (
     'mend_facts_times',

@@ -27,12 +27,13 @@ from gettext import gettext as _
 from nark.control import NarkControl
 from nark.helpers import logging as logging_helpers
 
+from dob_viewer.helpers.fact_dressed import FactDressed
+
 from . import __arg0name__
 from .clickux import help_strings
 from .clickux.echo_assist import click_echo
 from .config.urable import ConfigUrable
 from .helpers import dob_in_user_exit, dob_in_user_warning, highlight_value
-from .helpers.fact_dressed import FactDressed
 from .helpers.emphasis import disable_colors, enable_colors
 
 __all__ = (

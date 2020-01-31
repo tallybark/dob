@@ -29,6 +29,8 @@ import click
 from nark import reports
 from nark.helpers.parsing import parse_factoid
 
+from dob_viewer.helpers.fact_dressed import FactDressed
+
 from .clickux.echo_assist import barf_and_exit, click_echo, echo_block_header
 from .clickux.query_assist import hydrate_activity, hydrate_category
 from .cmds_list.fact import search_facts
@@ -36,7 +38,6 @@ from .create import prompt_and_save
 from .helpers import highlight_value, prepare_log_msg
 from .helpers.crude_progress import CrudeProgress
 from .helpers.emphasis import attr, bg, fg
-from .helpers.fact_dressed import FactDressed
 from .helpers.fix_times import (
     DEFAULT_SQUASH_SEP,
     mend_facts_times,
