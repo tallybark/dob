@@ -17,14 +17,15 @@
 
 """A time tracker for the command line. Utilizing the power of nark."""
 
+from gettext import gettext as _
+
 import copy
 import re
 import sys
 from datetime import datetime, time, timedelta
 
-from gettext import gettext as _
-
 import click
+
 from nark import reports
 from nark.helpers.parsing import parse_factoid
 
