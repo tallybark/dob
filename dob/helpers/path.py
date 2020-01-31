@@ -15,28 +15,13 @@
 # You can find the GNU General Public License reprinted in the file titled 'LICENSE',
 # or visit <http://www.gnu.org/licenses/>.
 
-import os
-
 from gettext import gettext as _
 
 from . import dob_in_user_warning
 
 __all__ = (
     'compile_and_eval_source',
-    'touch',
 )
-
-
-def touch(filepath):
-    try:
-        import pathlib
-        pathlib.Path(filepath).touch()
-    except ImportError:
-        # Python <3.4 [2020-01-27: now unreachable!]
-        # MAYBE/2020-01-27: Move pathlib import to module level...
-        #   or leave here in method, to be lazy-loaded.
-        if not os.path.exists(filepath):
-            open(filepath, 'w').close()
 
 
 def compile_and_eval_source(py_path):
