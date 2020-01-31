@@ -90,37 +90,17 @@ def echo_most_recent(controller, restrict=None, empty_msg=None):
 
 
 def find_latest_fact(controller, restrict=None):
-    assert not restrict or restrict in ['ended', 'ongoing', ]
-    fact = None
-    if not restrict or restrict == 'ongoing':
-        try:
-            fact = controller.facts.get_current_fact()
-        except KeyError:
-            fact = None
-        except Exception as err:
-            # (lb): Unexpected! This could mean more than one ongoing Fact found!
-            dob_in_user_warning(str(err))
-    if fact is None and restrict != 'ongoing':
-        results = controller.facts.get_all(
-            sort_col='start', sort_order='desc', limit=1, exclude_ongoing=True,
-        )
-        if len(results) > 0:
-            assert len(results) == 1
-            fact, = results
-    return fact
+    try:
+        return controller.facts.find_latest_fact(restrict=restrict)
+    except Exception as err:
+        # (lb): Unexpected! This could mean more than one ongoing Fact found!
+        dob_in_user_warning(str(err))
 
 
 # ***
 
 def find_oldest_fact(controller):
-    fact = None
-    results = controller.facts.get_all(
-        sort_col='start', sort_order='asc', limit=1,
-    )
-    if len(results) > 0:
-        assert len(results) == 1
-        fact, = results
-    return fact
+    return controller.facts.find_oldest_fact()
 
 
 # ***
