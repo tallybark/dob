@@ -28,7 +28,6 @@ from nark.helpers.parse_time import parse_clock_time, parse_relative_minutes
 from . import conflict_prefix, prepare_log_msg
 from .fact_dressed import FactDressed
 from ..clickux.echo_assist import barf_and_exit, click_echo, echo_block_header
-from ..cmds_list.fact import find_latest_fact
 
 __all__ = (
     'mend_facts_times',
@@ -139,7 +138,7 @@ def unite_and_stretch(
             return [new_fact]
 
     def extend_or_not():
-        final_fact = find_latest_fact(controller)
+        final_fact = controller.find_latest_fact()
 
         if final_fact is None:
             return [new_fact]

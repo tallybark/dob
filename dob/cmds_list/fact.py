@@ -34,7 +34,7 @@ from ..clickux.query_assist import (
     hydrate_activity,
     hydrate_category
 )
-from ..helpers import dob_in_user_exit, dob_in_user_warning
+from ..helpers import dob_in_user_exit
 from ..helpers.ascii_table import generate_table, warn_if_truncated
 from ..helpers.emphasis import colorize
 
@@ -42,8 +42,6 @@ __all__ = (
     'echo_latest_ended',
     'echo_ongoing_fact',
     'echo_ongoing_or_ended',
-    'find_latest_fact',
-    'find_oldest_fact',
     'list_facts',
     'search_facts',
     'generate_facts_table',
@@ -81,26 +79,12 @@ def echo_ongoing_or_ended(controller):
 
 
 def echo_most_recent(controller, restrict=None, empty_msg=None):
-    fact = find_latest_fact(controller, restrict=restrict)
+    fact = controller.find_latest_fact(restrict=restrict)
     if fact is not None:
         echo_single_fact(controller, fact)
     else:
         empty_msg = empty_msg if empty_msg else _('No facts found.')
         dob_in_user_exit(empty_msg)
-
-
-def find_latest_fact(controller, restrict=None):
-    try:
-        return controller.facts.find_latest_fact(restrict=restrict)
-    except Exception as err:
-        # (lb): Unexpected! This could mean more than one ongoing Fact found!
-        dob_in_user_warning(str(err))
-
-
-# ***
-
-def find_oldest_fact(controller):
-    return controller.facts.find_oldest_fact()
 
 
 # ***

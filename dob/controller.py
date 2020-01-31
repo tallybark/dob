@@ -31,7 +31,7 @@ from . import __arg0name__
 from .clickux import help_strings
 from .clickux.echo_assist import click_echo
 from .config.urable import ConfigUrable
-from .helpers import dob_in_user_exit, highlight_value
+from .helpers import dob_in_user_exit, dob_in_user_warning, highlight_value
 from .helpers.fact_dressed import FactDressed
 from .helpers.emphasis import disable_colors, enable_colors
 
@@ -438,4 +438,16 @@ class Controller(NarkControl):
         # And then the caller, if self.carousel, will redraw the interface
         # (because it has the handle to the application).
         self.client_logger.debug(_("Get on with it!"))
+
+    # ***
+
+    def find_latest_fact(self, restrict=None):
+        try:
+            return self.facts.find_latest_fact(restrict=restrict)
+        except Exception as err:
+            # (lb): Unexpected! This could mean more than one ongoing Fact found!
+            dob_in_user_warning(str(err))
+
+    def find_oldest_fact(self):
+        return self.facts.find_oldest_fact()
 
