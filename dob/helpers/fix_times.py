@@ -33,6 +33,7 @@ from ..clickux.echo_assist import barf_and_exit, click_echo, echo_block_header
 from . import conflict_prefix, prepare_log_msg
 
 __all__ = (
+    'mend_fact_timey_wimey',
     'mend_facts_times',
     'must_complete_times',
     'reduce_time_hint',
@@ -1036,4 +1037,95 @@ def resolve_overlapping(fact, conflicts, squash_sep='', allow_momentaneous=False
     # ***
 
     return _resolve_overlapping(fact, conflicts)
+
+
+# ***
+
+def mend_fact_timey_wimey(controller, fact, time_hint, other_edits={}):
+    """"""
+    def _mend_fact_timey_wimey():
+        must_complete_time(controller, fact, other_edits)
+        # Fill in the start and, or, end times, maybe.
+        # Possibly correct the times of 2 other Facts!
+        # Or die if too many Facts are abound tonight.
+        conflicts = mend_facts_times(controller, fact, time_hint)
+        # Resolve conflicts from store with other edited facts being saved.
+        conflicts = rebuild_conflicts(fact, conflicts, other_edits)
+        new_fact_or_two = unite_and_stretch_fact_per_conflicts(conflicts)
+        return new_fact_or_two, conflicts
+
+    def unite_and_stretch_fact_per_conflicts(conflicts):
+        # On `to` and `then`, combine fact and latest.
+        # Note that insert_forcefully will handle ``to`` for ongoing fact;
+        # otherwise unite_and_stretch handles it for ended latest.
+        if fact.deleted:
+            return []
+        return unite_and_stretch(controller, fact, time_hint, conflicts)
+
+    def must_complete_time(controller, fact, other_edits):
+        reset_end = fact.end is None
+        if fact.end is None:
+            fact.end = controller.now
+        new_facts = [fact, ]
+        must_complete_times(
+            controller,
+            new_facts,
+            leave_blanks=True,
+            other_edits=other_edits,
+        )
+        assert len(new_facts) == 1
+        fact.end = None if reset_end else fact.end
+
+    def rebuild_conflicts(fact, conflicts, other_edits):
+        if not other_edits:
+            return conflicts
+        culled_conflicts = []
+        for conflict in conflicts:
+            verify_conflict(fact, conflict, other_edits, culled_conflicts)
+        return culled_conflicts
+
+    def verify_conflict(fact, conflict, other_edits, culled_conflicts):
+        auto_edit, orig_fact = conflict
+        assert auto_edit.pk == orig_fact.pk
+        try:
+            edit_fact = other_edits[orig_fact.pk]
+        except KeyError:
+            # Fact was not separately edited, so conflict from store stands.
+            culled_conflicts.append(conflict)
+        else:
+            new_conflict = recheck_conflict(edit_fact, orig_fact)
+            if new_conflict is not None:
+                culled_conflicts.append(new_conflict)
+
+    def recheck_conflict(edit_fact, orig_fact):
+        # Both Facts should have a start, and only 1 may be unended.
+        assert fact.start and edit_fact.start
+        assert fact.end or edit_fact.end
+        if edit_fact.end is None:
+            # If edit_fact is ongoing, should start after fact.
+            if edit_fact.start >= fact.end:
+                return None
+        elif fact.end is None:
+            # If fact is ongoing, should start after edit_fact.
+            if fact.start >= edit_fact.end:
+                return None
+        elif edit_fact.start == edit_fact.end:
+            # Momentaneous can only happen on boundary.
+            if (edit_fact.start <= fact.start) or (edit_fact.start >= fact.end):
+                return None
+        elif fact.start == fact.end:
+            # Momentaneous can only happen on boundary.
+            if (fact.start <= edit_fact.start) or (fact.start >= edit_fact.end):
+                return None
+        elif (edit_fact.end <= fact.start) or (edit_fact.start >= fact.end):
+            # Both facts complete, neither is momentaneous, and ranges are distinct.
+            return None
+        # If we made it here, whoa! Unexpected time conflict after using carousel?
+        new_conflict = (edit_fact, orig_fact, )
+        return new_conflict
+
+    # ***
+
+    return _mend_fact_timey_wimey()
+
 
