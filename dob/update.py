@@ -19,9 +19,10 @@ from gettext import gettext as _
 
 import click
 
+from dob_viewer.interrogate import ask_edit_with_editor, ask_user_for_edits
+
 from .create import mend_facts_confirm_and_save_maybe, prompt_and_save
 from .helpers import dob_in_user_exit
-from .interrogate import ask_edit_with_editor, ask_user_for_edits
 
 __all__ = ('edit_fact_by_pk', )
 
