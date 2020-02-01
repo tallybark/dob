@@ -223,12 +223,6 @@ def import_facts(
             rule=rule,
             backup=backup,
             leave_backup=leave_backup,
-            # FIXME: If you pipe to import, Facts are saved, but plugins not called!
-            #        E.g., try
-            #           echo "2020-01-28 15:38: hello" | dob import
-            #        vs.
-            #           echo "2020-01-28 15:38: hello" > test && dob import test
-            #        For the latter you need to Ctrl-s save, and then plugins called.
             use_carousel=force_use_carousel or (use_carousel and sys.stdin.isatty()),
             dry=dry,
             yes=False,
@@ -471,7 +465,7 @@ def import_facts(
 
         return fact_dict, err
 
-    # FIXME/DRY: See create.py/transcode.py.
+    # FIXME/DRY: See create.py/transcode.py (places that use "+0").
     def fact_dict_set_time_hint(fact_dict, time_hint):
         fact_dict['time_hint'] = time_hint
         if time_hint in ('verify_after', 'verify_then_none', 'verify_still_none'):
