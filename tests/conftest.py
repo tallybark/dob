@@ -39,7 +39,6 @@ from pytest_factoryboy import register
 from nark.config import decorate_config
 
 import dob.dob as dob
-from dob.config.fileboss import default_config_path
 from dob.controller import Controller
 
 from nark.tests import factories
@@ -238,8 +237,10 @@ def config_instance(tmpdir, faker):
 
     def generate_config(**kwargs):
         cfg_dict = generate_dict(**kwargs)
-        # configfile_path = os.path.join(tmpdir, 'dob.conf')
-        configfile_path = default_config_path()
+        # NOPE: You'd overwrite your user's file with the default path:
+        #   from dob.config.fileboss import default_config_path
+        #   configfile_path = default_config_path()
+        configfile_path = os.path.join(tmpdir, 'dob.conf')
         config = ConfigObj(configfile_path)
         config.merge(cfg_dict)
         return config
