@@ -15,13 +15,16 @@
 # You can find the GNU General Public License reprinted in the file titled 'LICENSE',
 # or visit <http://www.gnu.org/licenses/>.
 
-from functools import update_wrapper
-
 from gettext import gettext as _
 
-from .echo_assist import click_echo, echo_block_header
+from functools import update_wrapper
+
+from dob_viewer.crud.fact_dressed import FactDressed
+
 from .. import __arg0name__, migrate
 from ..helpers import dob_in_user_exit
+
+from .echo_assist import click_echo, echo_block_header
 
 __all__ = (
     'induct_newbies',
@@ -98,7 +101,7 @@ def insist_germinated(func):
     """
 
     def wrapper(controller, *args, **kwargs):
-        controller.insist_germinated()
+        controller.insist_germinated(fact_cls=FactDressed)
         func(controller, *args, **kwargs)
 
     return wrapper

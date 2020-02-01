@@ -26,8 +26,7 @@ from gettext import gettext as _
 
 from nark.control import NarkControl
 from nark.helpers import logging as logging_helpers
-
-from dob_viewer.helpers.fact_dressed import FactDressed
+from nark.items.fact import Fact
 
 from . import __arg0name__
 from .clickux import help_strings
@@ -101,15 +100,15 @@ class Controller(NarkControl):
         else:
             return bool(self.store.db_url)
 
-    def standup_store(self):
-        self.store.fact_cls = FactDressed
+    def standup_store(self, fact_cls=Fact):
+        self.store.fact_cls = fact_cls
         return super(Controller, self).standup_store()
 
-    def insist_germinated(self):
+    def insist_germinated(self, fact_cls=Fact):
         """Assist user if config or database not present."""
         def _insist_germinated():
             if self.is_germinated:
-                self.standup_store()
+                self.standup_store(fact_cls)
                 return
             if not self.configurable.cfgfile_exists and not self.store_exists:
                 help_newbie_onboard()
@@ -203,7 +202,7 @@ class Controller(NarkControl):
 
     # ***
 
-    def create_data_store(self, force):
+    def create_data_store(self, force, fact_cls=Fact):
         skip_standup = self.check_sqlite_store_ready()
         if skip_standup:
             if force:
@@ -211,11 +210,11 @@ class Controller(NarkControl):
                 unlinked_db = True
             else:
                 dob_in_user_exit(self.data_store_exists_at)
-        self._standup_and_version_store()
+        self._standup_and_version_store(fact_cls)
         if unlinked_db:
             self._announce_recreated_store()
 
-    def create_config_and_store(self):
+    def create_config_and_store(self, fact_cls=Fact):
         def _create_config_and_store():
             if not self.is_germinated:
                 germinate_config_and_store()
@@ -246,7 +245,7 @@ class Controller(NarkControl):
             if skip_standup:
                 click_echo(self.data_store_exists_at)
             else:
-                self._standup_and_version_store()
+                self._standup_and_version_store(fact_cls)
 
         def exit_already_germinated():
             dob_in_user_exit(_(
@@ -290,8 +289,8 @@ class Controller(NarkControl):
             .format(highlight_value(self.config['db.path']))
         )
 
-    def _standup_and_version_store(self):
-        created_fresh = self.standup_store()
+    def _standup_and_version_store(self, fact_cls):
+        created_fresh = self.standup_store(fact_cls)
         if created_fresh:
             verb = _('created')
         else:

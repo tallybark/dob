@@ -17,16 +17,16 @@
 
 """dob-demo command"""
 
+from gettext import gettext as _
+
 import tempfile
 from datetime import timedelta
 from functools import update_wrapper
 
-from gettext import gettext as _
-
 from nark.items.activity import Activity
 from nark.items.category import Category
 
-from dob_viewer.helpers.fact_dressed import FactDressed
+from dob_viewer.crud.fact_dressed import FactDressed
 
 from .create import prompt_and_save
 
@@ -721,7 +721,7 @@ def _demo_prep(controller):
     def __demo_prep():
         tmpfile = create_temporary_file()
         demoize_config(db_path=tmpfile.name)
-        controller.standup_store()
+        controller.standup_store(fact_cls=FactDressed)
         return tmpfile
 
     def create_temporary_file():

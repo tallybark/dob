@@ -26,7 +26,7 @@ from nark.helpers.fact_time import datetime_from_clock_after, datetime_from_cloc
 from nark.helpers.facts_fit import antecedent_fact, subsequent_fact
 from nark.helpers.parse_time import parse_clock_time, parse_relative_minutes
 
-from dob_viewer.helpers.fact_dressed import FactDressed
+from dob_viewer.crud.fact_dressed import FactDressed
 
 from ..clickux.echo_assist import barf_and_exit, click_echo, echo_block_header
 

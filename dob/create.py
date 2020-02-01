@@ -34,7 +34,7 @@ from dob_viewer.config.styling.classes_style import (
 )
 from dob_viewer.config.styling.content_lexer import load_content_lexer
 from dob_viewer.config.styling.no_completion import load_no_completion
-from dob_viewer.helpers.fact_dressed import FactDressed
+from dob_viewer.crud.fact_dressed import FactDressed
 
 from .clickux.echo_assist import click_echo, echo_block_header
 from .config.app_dirs import AppDirs, get_appdirs_subdir_file_path

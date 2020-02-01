@@ -29,7 +29,7 @@ import click
 from nark import reports
 from nark.helpers.parsing import parse_factoid
 
-from dob_viewer.helpers.fact_dressed import FactDressed
+from dob_viewer.crud.fact_dressed import FactDressed
 
 from .clickux.echo_assist import barf_and_exit, click_echo, echo_block_header
 from .clickux.query_assist import hydrate_activity, hydrate_category

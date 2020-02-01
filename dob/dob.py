@@ -17,20 +17,22 @@
 
 """A time tracker for the command line. Utilizing the power of hamster! [nark]."""
 
-# FIXME: PROFILING
+# BREADCRUMP: PROFILING
 from nark.helpers.dev.profiling import profile_elapsed
-# FIXME: PROFILING
+# BREADCRUMP: PROFILING
 # E402 module level import not at top of file
 profile_elapsed('To dob:   _top')  # noqa: E402
+
+from gettext import gettext as _
 
 import os
 import re
 import sys
 from functools import update_wrapper
 
-from gettext import gettext as _
-
 import click
+
+from dob_viewer.crud.fact_dressed import FactDressed
 
 from . import migrate, update
 from .clickux import help_strings
@@ -248,7 +250,7 @@ def demo_dob_and_nark(controller):
 @pass_controller
 def init_config_and_store(controller):
     """"""
-    controller.create_config_and_store()
+    controller.create_config_and_store(fact_cls=FactDressed)
 
 
 # ***
@@ -369,7 +371,7 @@ def store_group(ctx):
 @pass_controller
 def store_create(controller, force):
     """"""
-    controller.create_data_store(force)
+    controller.create_data_store(force, fact_cls=FactDressed)
 
 
 @store_group.command('path', help=help_strings.STORE_PATH_HELP)

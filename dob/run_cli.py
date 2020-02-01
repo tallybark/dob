@@ -20,9 +20,10 @@
 import sys
 
 import click
+
 from nark import __package_name__ as package_name_nark
 from nark import __resolve_vers__ as resolve_vers_nark
-# FIXME: PROFILING
+# BREADCRUMP: PROFILING
 from nark.helpers.dev.profiling import profile_elapsed, timefunct
 
 from . import __package_name__ as package_name_dob
