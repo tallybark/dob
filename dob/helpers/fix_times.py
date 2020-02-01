@@ -108,7 +108,7 @@ def unite_and_stretch(
         if time_hint not in [
             'verify_end',  # Use prev's fact end if set; or squash facts.
             'verify_then',  # Like `at`, but back-fill gap, start is time-spec or now.
-            'verify_after',  # Left `then` w/o time-spec; sets start to final's end.
+            'verify_after',  # Like `then` w/o time-spec; sets start to final's end.
             'verify_still',  # Like `then`, but copy prev fact's meta; time optional.
         ]:
             return [new_fact]
