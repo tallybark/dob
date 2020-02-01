@@ -983,7 +983,7 @@ def ADD_FACT_AT(ctx):
 
 
 # verify_then
-def ADD_FACT_THEN():
+def ADD_FACT_THEN(ctx):
     # FIXME/2019-11-22: Verify the 'just use a colon' text, I think that works.
     _help = _(
         """
@@ -1063,7 +1063,7 @@ ADD_FACT_TO = _(
 
 
 # verify_end
-def ADD_FACT_UNTIL():
+def ADD_FACT_UNTIL(ctx):
     _help = _(
         """
         Aliases the 'to' command, e.g., `{rawname} until -10m: Yada...`.
@@ -1073,7 +1073,7 @@ def ADD_FACT_UNTIL():
 
 
 # verify_both
-def ADD_FACT_FROM():
+def ADD_FACT_FROM(ctx):
     _help = _(
         """
         Inserts new Fact using the start and end time indicated.
