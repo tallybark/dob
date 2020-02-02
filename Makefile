@@ -111,6 +111,9 @@ clean-test:
 
 develop: venvforce
 	pip install -U pip setuptools wheel
+	if [ -f requirements/ultra-editable.pip ]; then \
+		pip install -U -r requirements/ultra-editable.pip; \
+	fi
 	pip install -U -r requirements/dev.pip
 	pip install -U -e .
 .PHONY: develop

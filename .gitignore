@@ -38,3 +38,6 @@ docs/_build/
 # Translations files.
 *.mo
 
+# User's local projects they want pip-installed --editable.
+requirements/ultra-editable.pip
+
