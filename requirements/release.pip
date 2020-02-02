@@ -14,7 +14,9 @@ flake8 >= 3.7.9
 #   - For verifying docs/history-ci.md.
 #
 #   https://github.com/joeyespo/grip
-grip >= 4.5.2
+#
+# DISABLED/2020-02-02: grip installs Click, which supersedes click--HOTH.
+#   grip >= 4.5.2
 
 # - "utility / library to sort Python imports"
 #
