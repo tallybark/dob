@@ -1,23 +1,15 @@
 # Specifies packages for local testing with and without tox,
 # as well as for testing on the CI servers.
 
-# *** DEV: When developing locally, if you touch the other projects,
-#          you may need to include them in the tox test environments.
-#          Uncomment these are appropriate.
-#
-# ../config-decorator
-# ../human-friendly_pedantic-timedelta
-# ../nark
-# ../dob-bright
-# ../dob-prompt
-# ../dob-viewer
-
 # PTK not required by dob except to test dob-viewer callbacks.
 #   https://github.com/prompt-toolkit/python-prompt-toolkit
 #     'prompt-toolkit',
 # - FIXME/2019-02-21: (lb): Need to submit PR, then return to mainline.
 #   https://github.com/hotoffthehamster/python-prompt-toolkit
-prompt-toolkit-dob >= 2.0.9  # Imports as prompt_toolkit.
+#
+# *** DEV: If you -e--installed python-prompt-toolkit above, disable this:
+#
+prompt_toolkit-dob >= 3.0.3  # Imports as prompt_toolkit.
 
 # *** Py.Test Framework & Related
 
