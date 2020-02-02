@@ -43,7 +43,7 @@ requirements = [
     # Elapsed timedelta formatter, e.g., "1.25 days".
     # - Imports as `pedantic_timedelta`.
     #  https://github.com/hotoffthehamster/human-friendly_pedantic-timedelta
-    'human-friendly_pedantic-timedelta >= 0.0.6',
+    'human-friendly_pedantic-timedelta >= 1.0.1',
     # https://github.com/mnmelo/lazy_import
     'lazy_import',
     # Tabulate is one of the many table formatter choices.
