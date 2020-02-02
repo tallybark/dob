@@ -17,7 +17,7 @@
 
 from gettext import gettext as _
 
-from . import dob_in_user_warning
+from dob_bright.termio import dob_in_user_warning
 
 __all__ = (
     'compile_and_eval_source',

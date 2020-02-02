@@ -17,7 +17,7 @@
 
 from gettext import gettext as _
 
-from ..helpers import dob_in_user_exit
+from dob_bright.termio import dob_in_user_exit
 
 __all__ = (
     'error_exit_no_results',

@@ -23,8 +23,9 @@ import sys
 
 from gettext import gettext as _
 
+from dob_bright.config.app_dirs import AppDirs, get_appdirs_subdir_file_path
+
 from .clickux.plugin_group import PLUGINS_DIRNAME
-from .config.app_dirs import AppDirs, get_appdirs_subdir_file_path
 
 __all__ = (
     'install_plugin',

@@ -2,7 +2,7 @@
 #
 #   https://github.com/hotoffthehamster/dob
 #
-# Copyright © 2018-2020 Landon Bouma. All rights reserved.
+# Copyright © 2018-2020 Landon Bouma,  2015-2016 Eric Goller.  All rights reserved.
 #
 # 'dob' is free software: you can redistribute it and/or modify it under the terms
 # of the GNU General Public License  as  published by the Free Software Foundation,
@@ -15,20 +15,5 @@
 # You can find the GNU General Public License reprinted in the file titled 'LICENSE',
 # or visit <http://www.gnu.org/licenses/>.
 
-from gettext import gettext as _
-
-from dob_bright.termio import attr, coloring
-
-__all__ = (
-    'help_header_format',
-)
-
-
-def help_header_format(text):
-    return '{underlined}{text}{reset}{optolon}'.format(
-        underlined=attr('underlined'),
-        text=text,
-        reset=attr('reset'),
-        optolon=not coloring() and _(':') or '',
-    )
+"""``dob`` commands that deal with creating/editing/exporting/importing facts."""
 

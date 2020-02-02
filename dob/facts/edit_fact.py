@@ -19,10 +19,12 @@ from gettext import gettext as _
 
 import click
 
-from dob_viewer.interrogate import ask_edit_with_editor, ask_user_for_edits
+from dob_bright.termio import dob_in_user_exit
 
-from .create import mend_facts_confirm_and_save_maybe, prompt_and_save
-from .helpers import dob_in_user_exit
+from dob_viewer.crud.interrogate import ask_edit_with_editor, ask_user_for_edits
+
+from .save_backedup import prompt_and_save_backedup
+from .simple_prompts import mend_facts_confirm_and_save_maybe
 
 __all__ = ('edit_fact_by_pk', )
 
@@ -120,7 +122,7 @@ def edit_fact_by_pk(
     # ***
 
     def edit_old_fact(old_fact):
-        saved_facts = prompt_and_save(
+        saved_facts = prompt_and_save_backedup(
             controller,
             edit_facts=[old_fact],
             # (lb): The whole point on dob-edit is to fire up the Carousel.

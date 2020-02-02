@@ -19,12 +19,13 @@
 
 from gettext import gettext as _
 
-from .. import __arg0name__, __package_name__
-from ..config.fileboss import default_config_path
-from ..config.urable import ConfigUrable
+from dob_bright.config.fileboss import default_config_path
+from dob_bright.config.urable import ConfigUrable
+from dob_bright.termio import attr, bg, coloring, fg, highlight_value
+
 from ..copyright import assemble_copyright
-from ..helpers import highlight_value
-from ..helpers.emphasis import attr, bg, coloring, fg
+
+from .. import __arg0name__, __package_name__
 
 # Note that the help formatter reformats paragraphs when the help is
 # displayed, to a width determined by the terminal and max_content_width.
@@ -309,168 +310,6 @@ def DEMO_HELP(ctx):
         Teaches you how to {rawname} -- {italic}Run this first!{reset}
         """
     ).strip().format(**common_format())
-    return _help
-
-
-# ***
-# *** [INDUCTEE] help.
-# ***
-
-def NEWBIE_HELP_WELCOME(ctx):
-    _help = _(
-        """
-        {color}┏━━━━━━━━━━━━━━━━━┓{reset}
-        {color}┃ Welcome to dob! ┃{reset}
-        {color}┗━━━━━━━━━━━━━━━━━┛{reset}
-        """
-    ).strip().format(
-        color=(fg('spring_green_2a') + attr('bold')),
-        # color=(fg('turquoise_4') + attr('bold')),
-        # color=(fg('magenta_2a') + attr('bold')),
-        # color=(fg('dark_orange_3b') + attr('bold')),
-        **common_format(),
-    )
-    return _help
-
-
-def section_heading(title):
-    return _(
-        """
-        {color}{title}{reset}
-        {line_color}{sep:{sep}<{len_title}}{reset}
-        """
-    ).strip().format(
-        title=title,
-        # sep='-',
-        sep='─',
-        len_title=len(title),
-        # color=fg('spring_green_2a'),
-        # color=fg('dark_orange'),
-        # color=fg('turquoise_4'),
-        # line_color=fg('grey_78'),
-        # line_color=fg('light_blue'),
-        line_color='',
-        color='',
-        **common_format()
-    )
-
-
-def NEWBIE_HELP_ONBOARDING(ctx):
-    # NOTE: This help is not automatically formatted like other text.
-    _help = _(
-        """
-        {banner}
-
-        Let’s get you setup!
-
-        {init_title}
-        To create a fresh, empty database, run:
-
-          {cmd_color}{appname} init{reset}
-
-        {upgrade_title}
-        To learn how to import data from a previous version
-        of dob, or to import from the old hamster app, run:
-
-          {cmd_color}{appname} migrate -h{reset}
-
-        {demo_title}
-        If you’d like to get your hands dirty, you can demo
-        the application with some example data that you can
-        follow as a walk-through. Run:
-
-          {cmd_color}{appname} demo{reset}
-        \b
-        """
-    ).format(
-        appname=__arg0name__,
-        banner=NEWBIE_HELP_WELCOME(ctx),
-        upgrade_title=section_heading(_('Import existing facts')),
-        init_title=section_heading(_('Start from scratch')),
-        demo_title=section_heading(_('Demo Dob')),
-        help_title=section_heading(_('Such Help')),
-        cmd_color=fg('spring_green_2a'),
-        **common_format(),
-    )
-    return _help
-
-
-def NEWBIE_HELP_CREATE_CONFIG(ctx, cfg_path):
-    _help = _(
-        """
-        {errcol}ERROR: No config file found at: “{cfg_path}”{reset}
-
-        Where's your config file??
-
-        Verify and correct the configuration file path.
-
-        The configuration file defaults to:
-
-            {default_config_path}
-
-        but you can override it using an environ:
-
-            {envkey}=PATH
-
-        or by specifying a global option:
-
-            -C/--configfile PATH
-
-        If you are certain the path is correct and you want to create
-        a new configuration file at the path specified, run init, e.g.,:
-
-            {rawname} -C "{cfg_path}" init
-        """
-    ).strip().format(
-        # FIXME/2019-11-19 14:42: Make wrapper for format() with common colors defined.
-        # - Maybe change errors to white on red, like here,
-        #   but only for white on black terms (based on some setting?).
-        cfg_path=cfg_path,
-        default_config_path=default_config_path(),
-        envkey=ConfigUrable.DOB_CONFIGFILE_ENVKEY,
-        **common_format()
-    )
-    return _help
-
-
-def NEWBIE_HELP_REPAIR_CONFIG(ctx, cfg_path):
-    _help = _(
-        """
-        {errcol}ERROR: Please fix the config file found at: “{cfg_path}”{reset}
-
-        The configuration file is at least missing the db.orm setting, if not others.
-
-        Either edit and repair the confirguration file manually, or blow it away:
-
-            {rawname} config create --force
-        """
-    ).strip().format(
-        cfg_path=cfg_path,
-        default_config_path=default_config_path(),
-        envkey=ConfigUrable.DOB_CONFIGFILE_ENVKEY,
-        **common_format()
-    )
-    return _help
-
-
-def NEWBIE_HELP_CREATE_STORE(ctx, db_path, val_source):
-    _help = _(
-        """
-        {errcol}ERROR: No database file found.{reset}
-
-        - There was no file found at: {db_path}
-
-        - The db.path value was set from the ‘{val_source}’ source.
-
-        - For help on configuring settings, try the config help:
-          \b
-          {codehi}{rawname} config --help{reset}
-        """
-    ).strip().format(
-        db_path=db_path,
-        val_source=val_source,
-        **common_format()
-    )
     return _help
 
 

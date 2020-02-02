@@ -28,7 +28,10 @@ from nark.items.category import Category
 
 from dob_viewer.crud.fact_dressed import FactDressed
 
-from .create import prompt_and_save
+# We could use the wrapper method and tell it to Carousel:
+#  from .facts.save_confirmed import prompt_and_save_confirmed
+# Or we could just call the Carousel wrapper directly:
+from dob_viewer.crud.save_confirmer import prompt_and_save_confirmer
 
 __all__ = (
     'demo_config',
@@ -62,14 +65,7 @@ def demo_dob(controller):
             saved_fact = controller.facts.save(demo_fact)
             demo_facts.append(saved_fact)
 
-        # F841 local variable '...' is assigned to but never used
-        _saved_facts = prompt_and_save(  # noqa: F841
-            controller,
-            edit_facts=demo_facts,
-            use_carousel=True,
-            yes=False,
-            dry=False,
-        )
+        prompt_and_save_confirmer(controller, edit_facts=demo_facts, dry=False)
 
     return _demo_dob()
 

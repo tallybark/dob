@@ -26,12 +26,14 @@ from nark import __resolve_vers__ as resolve_vers_nark
 # BREADCRUMP: PROFILING
 from nark.helpers.dev.profiling import profile_elapsed, timefunct
 
+from dob_bright.controller import Controller
+from dob_bright.termio import click_echo, echo_exit
+from dob_bright.termio.paging import set_paging
+
 from . import __package_name__ as package_name_dob
 from . import __resolve_vers__ as resolve_vers_dob
 from .clickux import help_strings
-from .clickux.echo_assist import click_echo, echo_exit, set_paging
 from .clickux.aliasable_bunchy_plugin import ClickAliasableBunchyPluginGroup
-from .controller import Controller
 from .copyright import echo_copyright
 
 __all__ = (

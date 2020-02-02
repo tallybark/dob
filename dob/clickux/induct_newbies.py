@@ -21,10 +21,9 @@ from functools import update_wrapper
 
 from dob_viewer.crud.fact_dressed import FactDressed
 
-from .. import __arg0name__, migrate
-from ..helpers import dob_in_user_exit
+from dob_bright.termio import click_echo, dob_in_user_exit, echo_block_header
 
-from .echo_assist import click_echo, echo_block_header
+from .. import __arg0name__, migrate
 
 __all__ = (
     'induct_newbies',

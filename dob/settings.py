@@ -2,20 +2,18 @@
 #
 #   https://github.com/hotoffthehamster/dob
 #
-# Copyright © 2018-2020 Landon Bouma
-# Copyright © 2015-2016 Eric Goller
-#  All rights reserved
+# Copyright © 2019-2020 Landon Bouma. All rights reserved.
 #
-# 'dob' is free software: you can redistribute it and/or modify it under the terms
-# of the GNU General Public License  as  published by the Free Software Foundation,
-# either version 3  of the License,  or  (at your option)  any   later    version.
+# This program is free software:  you can redistribute it  and/or  modify it under the
+# terms of the GNU General Public License as published by the Free Software Foundation,
+# either version 3  of the License,  or  (at your option)  any later version  (GPLv3+).
 #
-# 'dob' is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY  or  FITNESS FOR A PARTICULAR
-# PURPOSE.  See  the  GNU General Public License  for  more details.
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY;  without even the implied warranty of MERCHANTABILITY or  FITNESS FOR
+# A PARTICULAR PURPOSE. See the GNU  General  Public  License  for  more  details.
 #
-# You can find the GNU General Public License reprinted in the file titled 'LICENSE',
-# or visit <http://www.gnu.org/licenses/>.
+# If you lost the GNU General Public License that ships with this software
+# repository (read the 'LICENSE' file), see <http://www.gnu.org/licenses/>.
 
 from gettext import gettext as _
 
@@ -23,13 +21,22 @@ from click.exceptions import MissingParameter
 
 from config_decorator.key_chained_val import KeyChainedValue
 
-from ..clickux.echo_assist import click_echo
-from ..helpers import dob_in_user_exit
-from ..helpers.ascii_table import generate_table
+from dob_bright.termio import click_echo, dob_in_user_exit
+
+from .helpers.ascii_table import generate_table
 
 __all__ = (
     'echo_config_table',
     'echo_config_value',
+    'write_config_value',
+    # PRIVATE:
+    #  'echo_config_value_setting',
+    #  'echo_config_value_section',
+    #  'fetch_config_object',
+    #  'error_exit_not_one',
+    #  'config_parts_pop_value',
+    #  'must_parts',
+    #  'must_be_config_setting',
 )
 
 

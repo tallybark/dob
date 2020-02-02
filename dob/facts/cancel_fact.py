@@ -2,7 +2,7 @@
 #
 #   https://github.com/hotoffthehamster/dob
 #
-# Copyright © 2018-2020 Landon Bouma. All rights reserved.
+# Copyright © 2018-2020 Landon Bouma,  2015-2016 Eric Goller.  All rights reserved.
 #
 # 'dob' is free software: you can redistribute it and/or modify it under the terms
 # of the GNU General Public License  as  published by the Free Software Foundation,
@@ -17,18 +17,32 @@
 
 from gettext import gettext as _
 
-from dob_bright.termio import attr, coloring
+import click
+
+from .simple_prompts import echo_ongoing_completed
 
 __all__ = (
-    'help_header_format',
+    'cancel_fact',
 )
 
 
-def help_header_format(text):
-    return '{underlined}{text}{reset}{optolon}'.format(
-        underlined=attr('underlined'),
-        text=text,
-        reset=attr('reset'),
-        optolon=not coloring() and _(':') or '',
-    )
+def cancel_fact(controller, purge=False):
+    """
+    Cancel current fact, either marking it deleted, or really removing it.
+
+    Returns:
+        None: If success.
+
+    Raises:
+        KeyErŕor: No *ongoing fact* can be found.
+    """
+    try:
+        fact = controller.facts.cancel_current_fact(purge=purge)
+    except KeyError:
+        message = _("Nothing tracked right now. Not doing anything.")
+        controller.client_logger.info(message)
+        raise click.ClickException(message)
+    else:
+        echo_ongoing_completed(controller, fact, cancelled=True)
+        return fact
 

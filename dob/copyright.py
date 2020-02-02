@@ -22,6 +22,8 @@ from datetime import datetime
 
 from gettext import gettext as _
 
+from dob_bright.termio import click_echo
+
 from . import (
     __arg0name__,
     __author__,
@@ -29,7 +31,6 @@ from . import (
     __package_name__,
     __resolve_vers__
 )
-from .clickux.echo_assist import click_echo
 
 __all__ = (
     'assemble_copyright',

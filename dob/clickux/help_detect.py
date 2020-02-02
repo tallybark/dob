@@ -19,7 +19,7 @@ from functools import update_wrapper
 
 import click
 
-from .echo_assist import click_echo, echo_exit
+from dob_bright.termio import click_echo, echo_exit
 
 __all__ = (
     'show_help_finally',

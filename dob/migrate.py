@@ -21,15 +21,21 @@ import sys
 
 from gettext import gettext as _
 
-import nark
+from nark import __file__ as nark___file__
+
+from dob_bright.help_newbs import NEWBIE_HELP_WELCOME
+# Profiling: load AppDirs: ~ 0.011 secs.
+from dob_bright.config.app_dirs import AppDirs
+from dob_bright.termio import (
+    attr,
+    click_echo,
+    dob_in_user_exit,
+    dob_in_user_warning,
+    fg,
+    highlight_value
+)
 
 from . import __arg0name__
-# Profiling: load AppDirs: ~ 0.011 secs.
-from .clickux import help_strings
-from .clickux.echo_assist import click_echo
-from .config.app_dirs import AppDirs
-from .helpers import dob_in_user_exit, dob_in_user_warning, highlight_value
-from .helpers.emphasis import attr, fg
 
 __all__ = (
     'control',
@@ -124,7 +130,7 @@ See the project page for more information:
 
 def upgrade_legacy_database_instructions(controller):
     """"""
-    nark_path = os.path.dirname(os.path.dirname(nark.__file__))
+    nark_path = os.path.dirname(os.path.dirname(nark___file__))
     up_legacy_rel = os.path.join(
         'migrations', 'legacy', 'upgrade_hamster-applet_db.sh',
     )
@@ -223,7 +229,7 @@ def upgrade_legacy_database_file(ctx, controller, file_in, force):
 def _instruct_upgrade(controller):
     click_echo(
         '\n{}\n{}'.format(
-            help_strings.NEWBIE_HELP_WELCOME,
+            NEWBIE_HELP_WELCOME,
             upgrade_legacy_database_instructions(controller),
         )
     )

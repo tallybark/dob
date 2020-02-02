@@ -32,9 +32,12 @@ from functools import update_wrapper
 
 import click
 
+from dob_bright.termio.echoes import click_echo
+from dob_bright.termio.errors import dob_in_user_exit, dob_in_user_warning
+from dob_bright.termio.paging import flush_pager
+
 from dob_viewer.crud.fact_dressed import FactDressed
 
-from . import migrate, update
 from .clickux import help_strings
 from .clickux import help_string_add_fact
 from .clickux.add_fact_help_group import ClickAddFactHelpGroup
@@ -72,29 +75,31 @@ from .clickux.cmd_options import (
     postprocess_options_list_categoried,
     postprocess_options_table_options
 )
-from .clickux.echo_assist import click_echo, flush_pager
 from .clickux.help_command import help_command_help
 from .clickux.help_detect import show_help_finally, show_help_if_no_command
 from .clickux.induct_newbies import induct_newbies, insist_germinated
 from .clickux.post_processor import post_processor
+from . import migrate
 from .cmds_list import activity as list_activity
 from .cmds_list import category as list_category
 from .cmds_list import fact as list_fact
 from .cmds_list import tag as list_tag
-from .cmds_list.fact import echo_latest_ended, echo_ongoing_fact, echo_ongoing_or_ended
 from .cmds_usage import activity as usage_activity
 from .cmds_usage import category as usage_category
 from .cmds_usage import tag as usage_tag
 from .complete import tab_complete
-from .config.commands import echo_config_table, echo_config_value, write_config_value
 from .copyright import echo_copyright, echo_license
-from .create import add_fact, cancel_fact
 from .demo import demo_config, demo_dob
 from .details import echo_app_details, echo_app_environs, echo_data_stats
-from .helpers import dob_in_user_exit, dob_in_user_warning
+from .facts.add_fact import add_fact
+from .facts.cancel_fact import cancel_fact
+from .facts.echo_fact import echo_latest_ended, echo_ongoing_fact, echo_ongoing_or_ended
+from .facts.edit_fact import edit_fact_by_pk
+from .facts.export_facts import export_facts
+from .facts.import_facts import import_facts
 from .migrate import upgrade_legacy_database_file
 from .run_cli import dob_versions, pass_controller, run
-from .transcode import export_facts, import_facts
+from .settings import echo_config_table, echo_config_value, write_config_value
 
 # __all__ = ( ... )  # So many. Too tedious to list.
 
@@ -1059,7 +1064,7 @@ def edit_fact_by_key(
         return keys
 
     def process_edit_command(keys):
-        edited_facts = update.edit_fact_by_pk(
+        edited_facts = edit_fact_by_pk(
             controller,
             key=keys[0],
             use_carousel=(not no_editor),

@@ -20,103 +20,25 @@ from collections import namedtuple
 
 from gettext import gettext as _
 
-import ansiwrap
 import click
-from click.formatting import wrap_text
-from click._textwrap import TextWrapper
 
 from nark.helpers.parse_time import parse_dated
 
-from ..clickux.echo_assist import click_echo
-from ..clickux.help_strings import NO_ACTIVE_FACT_HELP
+from dob_bright.termio import click_echo, colorize
+
 from ..clickux.query_assist import (
     error_exit_no_results,
     hydrate_activity,
     hydrate_category
 )
-from ..helpers import dob_in_user_exit
 from ..helpers.ascii_table import generate_table, warn_if_truncated
-from ..helpers.emphasis import colorize
 
 __all__ = (
-    'echo_latest_ended',
-    'echo_ongoing_fact',
-    'echo_ongoing_or_ended',
     'list_facts',
     'search_facts',
     'generate_facts_table',
-    # Private:
-    #  'echo_most_recent',
-    #  'echo_single_fact',
 )
 
-
-# ***
-
-def echo_latest_ended(controller):
-    echo_most_recent(controller, restrict='ended')
-
-
-def echo_ongoing_fact(controller):
-    """
-    Return current *ongoing fact*.
-
-    Returns:
-        None: If everything went alright.
-
-    Raises:
-        click.ClickException: If we fail to fetch any *ongoing fact*.
-    """
-    echo_most_recent(
-        controller,
-        restrict='ongoing',
-        empty_msg=NO_ACTIVE_FACT_HELP(controller.ctx),
-    )
-
-
-def echo_ongoing_or_ended(controller):
-    echo_most_recent(controller, restrict=None)
-
-
-def echo_most_recent(controller, restrict=None, empty_msg=None):
-    fact = controller.find_latest_fact(restrict=restrict)
-    if fact is not None:
-        echo_single_fact(controller, fact)
-    else:
-        empty_msg = empty_msg if empty_msg else _('No facts found.')
-        dob_in_user_exit(empty_msg)
-
-
-# ***
-
-class AnsiWrapper(TextWrapper):
-
-    def __init__(self, *args, **kwargs):
-        super(AnsiWrapper, self).__init__(*args, **kwargs)
-
-    def fill(self, *args, **kwargs):
-        return ansiwrap.fill(*args, width=self.width, **kwargs)
-
-
-def echo_single_fact(controller, fact):
-    colorful = controller.config['term.use_color']
-    localize = controller.config['time.tz_aware']
-    friendly = fact.friendly_str(
-        shellify=False,
-        description_sep=': ',
-        localize=localize,
-        colorful=colorful,
-        show_elapsed=True,
-    )
-    # Click's default wrap_text behavior uses Click TextWrapper class, which
-    # extends Python's textwrap.TextWrapper, which is not ANSI-aware. So we
-    # extent TextWrapper to redirect it to ansiwrap, which is ANSI-couth.
-    # FIXME/2019-11-22: (lb): Make this width CONFIGable.
-    wrapped = wrap_text(friendly, width=100, preserve_paragraphs=True, cls=AnsiWrapper)
-    click_echo(wrapped)
-
-
-# ***
 
 def list_facts(
     controller,

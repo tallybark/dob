@@ -17,10 +17,9 @@
 
 from gettext import gettext as _
 
-from ..helpers.emphasis import attr, fg
-from ..run_cli import run
+from dob_bright.termio import attr, fg, click_echo, echo_exit
 
-from .echo_assist import click_echo, echo_exit
+from ..run_cli import run
 
 
 def help_command_help(ctx, command=None):

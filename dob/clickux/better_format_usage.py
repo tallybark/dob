@@ -22,7 +22,7 @@ from gettext import gettext as _
 import click
 from click.core import Option
 
-from ..helpers.emphasis import attr
+from dob_bright.termio.style import attr
 
 __all__ = (
     'ClickBetterUsageGroup'

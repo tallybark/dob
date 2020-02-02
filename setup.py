@@ -19,22 +19,11 @@ from setuptools import find_packages, setup
 # *** Package requirements.
 
 requirements = [
-    # "Very simple Python library for color and formatting in terminal."
-    # Forked (for italic "support") to:
-    #  https://github.com/hotoffthehamster/ansi-escape-room
-    # Forked from:
-    #  https://gitlab.com/dslackw/colored
-    # See wrapper file:
-    #  nark/helpers/emphasis.py
-    'ansi-escape-room',
     # Nice! Because Click was already halfway there... just not quite.
     # https://github.com/jonathaneunice/ansiwrap
     # (lb): I considered adding this to Click, but Click has no dependencies!
     #       So let's keep it pure.
     'ansiwrap >= 0.8.4',
-    # Platform-specific directory magic.
-    #  https://github.com/ActiveState/appdirs
-    'appdirs',
     # (lb): Click may be the best optparser of any language I've used.
     #  https://github.com/pallets/click
     #    'click',
@@ -45,21 +34,6 @@ requirements = [
     #  Stolen from: https://github.com/click-contrib/click-aliases
     #  Released at: https://github.com/hotoffthehamster/click-alias
     'click-alias >= 0.1.0a1',
-    # Enable Click color support (we don't use colorama directly, but it does),
-    #  "on Windows, this ... is only available if colorama is installed".
-    #  https://click.palletsprojects.com/en/5.x/utils/#ansi-colors
-    #  https://pypi.org/project/colorama/
-    'colorama',
-    # INI/config parser, even better (preserves comments and ordering).
-    #  https://github.com/DiffSK/configobj
-    #  https://configobj.readthedocs.io/en/latest/
-    'configobj >= 5.0.6',
-    # The act@gory and tag prompt interface.
-    #  https://github.com/hotoffthehamster/dob-prompt
-    'dob-prompt',
-    # The so-called Facts "carousel" chrono-viewer.
-    #  https://github.com/hotoffthehamster/dob-viewer
-    'dob-viewer',
     # Vocabulary word pluralizer.
     #  https://github.com/ixmatus/inflector
     'Inflector',
@@ -72,24 +46,24 @@ requirements = [
     'human-friendly_pedantic-timedelta >= 0.0.6',
     # https://github.com/mnmelo/lazy_import
     'lazy_import',
-    # The heart of Hamster. (Ye olde `hamster-lib`).
-    #  https://github.com/hotoffthehamster/nark
-    'nark',
-    # Amazeballs prompt library.
-    #   https://github.com/prompt-toolkit/python-prompt-toolkit
-    #     'prompt-toolkit',
-    # - FIXME/2019-02-21: (lb): Need to submit PR, then return to mainline.
-    #   https://github.com/hotoffthehamster/python-prompt-toolkit
-    'prompt-toolkit-dob >= 2.0.9',  # Imports as prompt_toolkit.
-    # Just Another EDITOR package.
-    #  https://github.com/fmoo/python-editor
-    'python-editor',  # Imports as editor.
     # Tabulate is one of the many table formatter choices.
     #  https://bitbucket.org/astanin/python-tabulate
     'tabulate',
     # Texttable is one of the many table formatter choices.
     #  https://github.com/bufordtaylor/python-texttable
     'texttable',
+
+    # *** Hamster packages.
+
+    # The heart of Hamster. (Ye olde `hamster-lib`).
+    #  https://github.com/hotoffthehamster/nark
+    'nark',
+    # The controller, config, and common output and error tossing code.
+    #  https://github.com/hotoffthehamster/dob-bright
+    'dob-bright',
+    # The so-called Facts "carousel" chrono-viewer.
+    #  https://github.com/hotoffthehamster/dob-viewer
+    'dob-viewer',
 ]
 
 # *** Minimal setup() function -- Prefer using config where possible.
