@@ -59,8 +59,6 @@ def assemble_copyright():
         # Be nice and call out the significant copyright holders from the years.
         # (lb): What about Right to be forgotten?
         'Copyright (C) 2015-2016 Eric Goller <elbenfreund@DenkenInEchtzeit.net>',
-        'Copyright (C) 2007-2014 Toms Baugis <toms.baugis@gmail.com>',
-        'Copyright (C) 2007-2008 Patryk Zawadzki <patrys at pld-linux.org>',
         '',
         _('This program comes with ABSOLUTELY NO WARRANTY. This is free software,'),
         _('and you are welcome to redistribute it under certain conditions.'),
