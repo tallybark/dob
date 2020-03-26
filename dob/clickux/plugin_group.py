@@ -22,7 +22,7 @@ import os
 
 from gettext import gettext as _
 
-import click
+import click_hotoffthehamster as click
 
 from dob_bright.config.app_dirs import AppDirs
 from dob_bright.termio import dob_in_user_warning

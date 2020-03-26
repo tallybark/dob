@@ -18,7 +18,7 @@
 import datetime
 import os
 
-from click import ClickException
+from click_hotoffthehamster import ClickException
 
 import fauxfactory
 from freezegun import freeze_time

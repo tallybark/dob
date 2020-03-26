@@ -30,7 +30,7 @@ import re
 import sys
 from functools import update_wrapper
 
-import click
+import click_hotoffthehamster as click
 
 from dob_bright.termio.echoes import click_echo
 from dob_bright.termio.errors import dob_in_user_exit, dob_in_user_warning

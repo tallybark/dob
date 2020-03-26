@@ -22,8 +22,8 @@ import sys
 
 from gettext import gettext as _
 
-import click
-from click.parser import split_arg_string
+import click_hotoffthehamster as click
+from click_hotoffthehamster.parser import split_arg_string
 from nark.helpers.parsing import (
     ParserMissingActivityException,
     ParserMissingDatetimeOneException,

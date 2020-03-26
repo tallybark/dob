@@ -19,7 +19,7 @@
 
 from gettext import gettext as _
 
-import click
+import click_hotoffthehamster as click
 
 from .help_header import help_header_format
 

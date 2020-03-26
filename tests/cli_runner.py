@@ -18,7 +18,7 @@
 import os
 import pytest
 
-from click.testing import CliRunner
+from click_hotoffthehamster.testing import CliRunner
 
 import dob.dob as dob  # for dob.run
 

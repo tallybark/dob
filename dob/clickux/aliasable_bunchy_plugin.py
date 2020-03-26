@@ -17,7 +17,7 @@
 
 """Click Group wrapper combines all our custom classes."""
 
-from click_alias import ClickAliasedGroup
+from click_hotoffthehamster_alias import ClickAliasedGroup
 
 from .better_format_usage import ClickBetterUsageGroup
 from .better_help_headers import ClickBetterHeadersGroup

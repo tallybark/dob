@@ -19,8 +19,8 @@
 
 from collections import OrderedDict
 
-import click
-from click._compat import term_len
+import click_hotoffthehamster as click
+from click_hotoffthehamster._compat import term_len
 
 __all__ = (
     'ClickBunchyGroup',

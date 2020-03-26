@@ -31,7 +31,7 @@ import os
 import pytest
 
 import fauxfactory
-from click.testing import CliRunner
+from click_hotoffthehamster.testing import CliRunner
 
 # For the fixture to work, either import specifically, or glob it all.
 # noqa: F401 'foo.bar' imported but unused

@@ -19,7 +19,7 @@ import inspect
 
 from gettext import gettext as _
 
-import click
+import click_hotoffthehamster as click
 
 __all__ = (
     'cmd_options_factoid',

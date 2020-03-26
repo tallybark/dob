@@ -17,7 +17,7 @@
 
 from gettext import gettext as _
 
-from click.exceptions import MissingParameter
+from click_hotoffthehamster.exceptions import MissingParameter
 
 from config_decorator.key_chained_val import KeyChainedValue
 

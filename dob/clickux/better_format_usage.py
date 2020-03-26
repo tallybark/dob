@@ -19,8 +19,8 @@
 
 from gettext import gettext as _
 
-import click
-from click.core import Option
+import click_hotoffthehamster as click
+from click_hotoffthehamster.core import Option
 
 from dob_bright.termio.style import attr
 

@@ -17,7 +17,7 @@
 
 from gettext import gettext as _
 
-import click
+import click_hotoffthehamster as click
 
 from .simple_prompts import echo_ongoing_completed
 

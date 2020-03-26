@@ -29,11 +29,11 @@ requirements = [
     #    'click',
     #  - Still, had to make one adjustment, and too impatient to ask for a pull...
     #  https://github.com/hotoffthehamster/click
-    'click--hotoffthehamster',
+    'click-hotoffthehamster >= 7.1.1, < 8.0.0',
     # Indispensable aliases support for Click.
-    #  Stolen from: https://github.com/click-contrib/click-aliases
-    #  Released at: https://github.com/hotoffthehamster/click-alias
-    'click-alias >= 0.1.0a1',
+    #  Upstream at: https://github.com/click-contrib/click-aliases
+    #  Released at: https://github.com/hotoffthehamster/click-hotoffthehamster-alias
+    'click-hotoffthehamster-alias >= 1.0.1a1, < 2.0.0',
     # Vocabulary word pluralizer.
     #  https://github.com/ixmatus/inflector
     'Inflector',

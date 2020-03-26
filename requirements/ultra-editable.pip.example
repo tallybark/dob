@@ -14,8 +14,8 @@
 # These default paths assume you have every project checked out or symlinked
 # from the parent directory of this project. Edit as necessary for your user.
 
--e ../click
--e ../click-alias
+-e ../click-hotoffthehamster
+-e ../click-hotoffthehamster-alias
 -e ../ansi-escape-room
 -e ../sqlalchemy-migrate
 -e ../python-prompt-toolkit

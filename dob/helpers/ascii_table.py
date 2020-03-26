@@ -17,7 +17,7 @@
 
 from gettext import gettext as _
 
-import click
+import click_hotoffthehamster as click
 import lazy_import
 
 from dob_bright.termio import attr, click_echo

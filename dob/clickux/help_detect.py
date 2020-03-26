@@ -17,7 +17,7 @@
 
 from functools import update_wrapper
 
-import click
+import click_hotoffthehamster as click
 
 from dob_bright.termio import click_echo, echo_exit
 

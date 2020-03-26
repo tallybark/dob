@@ -19,7 +19,7 @@
 
 import sys
 
-import click
+import click_hotoffthehamster as click
 
 from nark import __package_name__ as package_name_nark
 from nark import __resolve_vers__ as resolve_vers_nark

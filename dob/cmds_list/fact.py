@@ -20,7 +20,7 @@ from collections import namedtuple
 
 from gettext import gettext as _
 
-import click
+import click_hotoffthehamster as click
 
 from nark.helpers.parse_time import parse_dated
 

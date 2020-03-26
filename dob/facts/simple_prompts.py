@@ -19,7 +19,7 @@ import traceback
 
 from gettext import gettext as _
 
-import click
+import click_hotoffthehamster as click
 from inflector import English, Inflector
 
 from dob_bright.termio import (
