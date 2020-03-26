@@ -24,6 +24,8 @@ from click_hotoffthehamster.core import Option
 
 from dob_bright.termio.style import attr
 
+from ._ansitextwrap import AnsiTextWrapper
+
 __all__ = (
     'ClickBetterUsageGroup'
 )
@@ -90,7 +92,13 @@ class ClickBetterUsageGroup(click.Group):
             reset=attr('reset'),
         )
         #
-        formatter.write_usage(prog, args, prefix=prefix)
+        formatter.write_usage(
+            prog,
+            args,
+            prefix=prefix,
+            alt_fmt=True,
+            cls=AnsiTextWrapper,
+        )
 
     def collect_usage_pieces(self, *args, **kwargs):
         """Show '[OPTIONS]' in usage unless command takes none."""
