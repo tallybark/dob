@@ -96,8 +96,8 @@ class ClickBetterUsageGroup(click.Group):
             prog,
             args,
             prefix=prefix,
-            alt_fmt=True,
             cls=AnsiTextWrapper,
+            alt_fmt=True,
         )
 
     def collect_usage_pieces(self, *args, **kwargs):
