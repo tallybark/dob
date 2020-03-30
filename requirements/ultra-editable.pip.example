@@ -20,7 +20,7 @@
 -e ../config-decorator
 -e ../human-friendly_pedantic-timedelta
 -e ../pep440-version-compare-cli
--e ../sqlalchemy-migrate
+-e ../sqlalchemy-migrate-hotoffthehamster
 
 -e ../nark
 
