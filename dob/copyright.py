@@ -26,8 +26,8 @@ from dob_bright.termio import click_echo
 
 from . import (
     __arg0name__,
-    __author__,
-    __author_email__,
+    __author_name__,
+    __author_link__,
     __package_name__,
     __resolve_vers__
 )
@@ -51,10 +51,10 @@ def assemble_copyright():
             version=__resolve_vers__(),
         ),
         '',
-        'Copyright (C) {years} {author} <{email}>'.format(
+        'Copyright (C) {years} {aname} <{alink}>'.format(
             years=year_range,
-            author=__author__,
-            email=__author_email__,
+            aname=__author_name__,
+            alink=__author_link__,
         ),
         # Be nice and call out the significant copyright holders from the years.
         # (lb): What about Right to be forgotten?
