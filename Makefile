@@ -215,6 +215,11 @@ servedocs: docs
 	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
 .PHONY: servedocs
 
+tox_commands_pre:
+	test -f "requirements/ultra-editable.pip" && \
+		pip install -U -r requirements/ultra-editable.pip
+.PHONY: tox_commands_pre
+
 release: venvforce clean
 	python setup.py sdist bdist_wheel
 	twine upload -r pypi -s dist/*
