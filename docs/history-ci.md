@@ -8,7 +8,10 @@
 [hamster-cli History]: ./history-hamster-cli
     "hamster-cli History"
 
-## 3.0.0rc1 (2020-01-27)
+## 3.0.0 (2020-03-30)
+
+[dob-bright]: https://github.com/hotoffthehamster/dob-bright
+    "`dob-bright`"
 
 [dob-prompt]: https://github.com/hotoffthehamster/dob-prompt
     "`dob-prompt`"
@@ -16,10 +19,25 @@
 [dob-viewer]: https://github.com/hotoffthehamster/dob-viewer
     "`dob-viewer`"
 
-* Split prompt and carousel/editor interfaces to separate projects,
-  [dob-prompt][] and [dob-viewer][], respectively.
+[hamster-cli]: https://github.com/projecthamster/hamster-cli
+    "`hamster-cli`"
 
-* A year's worth of development, minus an extended holiday. Enjoy!
+[OhMyRepos]: https://github.com/landonb/ohmyrepos
+    "OhMyRepos"
+
+* Split prompt and carousel/editor interfaces to separate projects,
+  [dob-prompt][] and [dob-viewer][], respectively; and a shared
+  project, [dob-bright][].
+
+  - This not only helps keep most of the Click CLI code separate from
+    the PPT interface code, but it removes all of the recent front end
+    work from the original hamster-cli codebase.
+
+    - This comes at the expense of making developer onboarding a little
+      more of a chore, because there are that many more repositories to
+      clone. So perhaps now is a good time to plug a multiple-repository
+      manager -- check out [OhMyRepos][] to help you monitor all the
+      projects that make up dob.
 
 ## 3.0.0a34 (2019-02-24)
 
