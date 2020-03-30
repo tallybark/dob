@@ -759,9 +759,9 @@ work and to submit a `Pull Request`__.
 
 __ `Pull Request Guidelines`_
 
-===============
-Code of Conduct
-===============
+===========================
+Contributor Code of Conduct
+===========================
 
 Please respect and adhere to the `Code of Conduct <code-of-conduct.html>`__
 (please also read it!).

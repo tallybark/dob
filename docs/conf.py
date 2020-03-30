@@ -57,6 +57,12 @@ project_copy = '2018-2020 Landon Bouma, HotOffThe Hamster, & contributors.'
 project_auth = 'Landon Bouma'
 project_orgn = 'HotOffThe Hamster'
 
+exclude_patterns = [
+    'CODE-OF-CONDUCT.rst',
+    'CONTRIBUTING.rst',
+    'README.rst',
+]
+
 # ┃                                                                     ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
