@@ -9,7 +9,7 @@ Contributing
 .. _nark: https://github.com/hotoffthehamster/nark
 
 .. |user-docs| replace:: user documentation
-.. _user-docs: https://github.com/hotoffthehamster/dob/tree/develop/docs
+.. _user-docs: https://github.com/hotoffthehamster/dob/tree/master/docs
 
 .. |envlist| replace:: ``envlist``
 .. _envlist: https://tox.readthedocs.io/en/latest/config.html#conf-envlist
@@ -88,7 +88,7 @@ us to improve it.
 
 This includes the official |user-docs|_,
 the `README
-<https://github.com/hotoffthehamster/dob/blob/develop/README.rst>`__,
+<https://github.com/hotoffthehamster/dob/blob/master/README.rst>`__,
 and the inline docstrings that generate the `API documentation
 <https://dob.readthedocs.io/en/latest/modules.html>`__
 (per |PEP-257|_ and |goog-py-sty|_).
