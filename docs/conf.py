@@ -168,6 +168,14 @@ pygments_style = 'sphinx'
 #   https://sphinx-rtd-theme.readthedocs.io/en/latest/configuring.html
 html_theme = 'sphinx_rtd_theme'
 
+# 2020-03-29: There's a deprecation warning fixed upstream last year
+# but the Sphinx package has not been released to PyPI since Feb, 2019.
+# Here's the error:
+#   writing additional pages...  search/<path>/.tox/docs/lib/python3.8/site-packages/
+#       sphinx_rtd_theme/search.html:21: RemovedInSphinx30Warning: To modify script_files in
+#       the theme is deprecated. Please insert a <script> tag directly in your theme instead.
+html_theme_path = ["_themes", ]
+
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see the
 # documentation.
