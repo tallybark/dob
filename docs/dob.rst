@@ -9,7 +9,7 @@ Subpackages
    dob.clickux
    dob.cmds_list
    dob.cmds_usage
-   dob.config
+   dob.facts
    dob.helpers
 
 Submodules
@@ -23,26 +23,10 @@ dob.complete module
    :undoc-members:
    :show-inheritance:
 
-dob.controller module
----------------------
-
-.. automodule:: dob.controller
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 dob.copyright module
 --------------------
 
 .. automodule:: dob.copyright
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-dob.create module
------------------
-
-.. automodule:: dob.create
    :members:
    :undoc-members:
    :show-inheritance:
@@ -71,14 +55,6 @@ dob.dob module
    :undoc-members:
    :show-inheritance:
 
-dob.interrogate module
-----------------------
-
-.. automodule:: dob.interrogate
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 dob.migrate module
 ------------------
 
@@ -103,18 +79,10 @@ dob.run\_cli module
    :undoc-members:
    :show-inheritance:
 
-dob.transcode module
---------------------
+dob.settings module
+-------------------
 
-.. automodule:: dob.transcode
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-dob.update module
------------------
-
-.. automodule:: dob.update
+.. automodule:: dob.settings
    :members:
    :undoc-members:
    :show-inheritance:
