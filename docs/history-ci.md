@@ -5,11 +5,6 @@
 [dob]: https://github.com/hotoffthehamster/dob
     "`dob`"
 
-[hamster-cli History]: ./history-hamster-cli
-    "hamster-cli History"
-
-## 3.0.0 (2020-03-30)
-
 [dob-bright]: https://github.com/hotoffthehamster/dob-bright
     "`dob-bright`"
 
@@ -22,8 +17,13 @@
 [hamster-cli]: https://github.com/projecthamster/hamster-cli
     "`hamster-cli`"
 
+[hamster-cli History]: https://github.com/projecthamster/hamster-cli/blob/develop/HISTORY.rst
+    "hamster-cli History"
+
 [OhMyRepos]: https://github.com/landonb/ohmyrepos
     "OhMyRepos"
+
+## 3.0.0 (2020-03-30)
 
 * Split prompt and carousel/editor interfaces to separate projects,
   [dob-prompt][] and [dob-viewer][], respectively; and a shared
