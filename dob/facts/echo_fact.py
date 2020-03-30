@@ -131,9 +131,8 @@ def write_fact_block_format(fact_f, fact, rule, is_first_fact):
     fact_f.write(friendly_str)
 
 
-RULE_WIDTH = 76  # How wide to print the between-facts separator.
-
 def write_fact_separator(fact_f, rule, is_first_fact):
+    RULE_WIDTH = 76  # How wide to print the between-facts separator.
     if is_first_fact:
         return
     fact_f.write('\n\n')
