@@ -26,6 +26,9 @@ include setup.cfg
 include setup.py
 
 graft requirements
+# Private user files, copied from examples, not in VCS.
+exclude requirements/ultra-editable.pip
+exclude requirements/ultra-pluggable.pip
 
 graft tests
 
