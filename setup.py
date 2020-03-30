@@ -23,47 +23,50 @@ requirements = [
     # https://github.com/jonathaneunice/ansiwrap
     # (lb): I considered adding this to Click, but Click has no dependencies!
     #       So let's keep it pure.
-    'ansiwrap >= 0.8.4',
+    'ansiwrap >= 0.8.4, < 1',
     # (lb): Click may be the best optparser of any language I've used.
     #  https://github.com/pallets/click
     #    'click',
     #  - Still, had to make one adjustment, and too impatient to ask for a pull...
     #  https://github.com/hotoffthehamster/click
-    'click-hotoffthehamster >= 7.1.1, < 8.0.0',
+    'click-hotoffthehamster >= 7.1.1, < 8',
     # Indispensable aliases support for Click.
     #  Upstream at: https://github.com/click-contrib/click-aliases
     #  Released at: https://github.com/hotoffthehamster/click-hotoffthehamster-alias
-    'click-hotoffthehamster-alias >= 1.0.1a1, < 2.0.0',
+    'click-hotoffthehamster-alias >= 1.0.2, < 2',
     # Vocabulary word pluralizer.
     #  https://github.com/ixmatus/inflector
-    'Inflector',
+    'Inflector >= 3.0.1, < 4',
     # Humanfriendly is one of the many table formatter choices.
     #  https://github.com/xolox/python-humanfriendly
+    # 2020-03-30: (lb): Not pinning (at 8.1): author bumps major often, hard to tell
+    # what's truly backward incompatible or not... we'll let our tests figure it out.
+    #  'humanfriendly >= 8.1, < 9',
     'humanfriendly',
     # Elapsed timedelta formatter, e.g., "1.25 days".
     # - Imports as `pedantic_timedelta`.
     #  https://github.com/hotoffthehamster/human-friendly_pedantic-timedelta
-    'human-friendly_pedantic-timedelta >= 1.0.1',
+    'human-friendly_pedantic-timedelta >= 2.0.0, < 3',
     # https://github.com/mnmelo/lazy_import
-    'lazy_import',
+    'lazy_import >= 0.2.2, < 1',
     # Tabulate is one of the many table formatter choices.
     #  https://bitbucket.org/astanin/python-tabulate
-    'tabulate',
+    'tabulate >= 0.8.7, < 1',
     # Texttable is one of the many table formatter choices.
     #  https://github.com/bufordtaylor/python-texttable
-    'texttable',
+    'texttable >= 1.6.2, < 2',
 
     # *** Hamster packages.
 
     # The heart of Hamster. (Ye olde `hamster-lib`).
     #  https://github.com/hotoffthehamster/nark
-    'nark',
+    'nark >= 3.0.1, < 4',
     # The controller, config, and common output and error tossing code.
     #  https://github.com/hotoffthehamster/dob-bright
-    'dob-bright',
+    'dob-bright >= 1.0.0, < 2',
     # The so-called Facts "carousel" chrono-viewer.
     #  https://github.com/hotoffthehamster/dob-viewer
-    'dob-viewer',
+    'dob-viewer >= 1.0.0, < 2',
 ]
 
 # *** Minimal setup() function -- Prefer using config where possible.
