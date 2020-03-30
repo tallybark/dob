@@ -5,6 +5,11 @@
 #   https://launchpad.net/doc8
 doc8 >= 0.8.0
 
+# - Python docstring checker.
+#
+#   https://github.com/PyCQA/pydocstyle/
+pydocstyle >= 5.0.2
+
 # - "Python documentation generator"
 #
 #   https://www.sphinx-doc.org/en/master/

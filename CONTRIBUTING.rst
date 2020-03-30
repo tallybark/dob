@@ -534,7 +534,7 @@ by running various developer tasks.
    .. code-block:: Bash
 
       # Run the docstrings linter:
-      $ tox -e pep257
+      $ tox -e pydocstyle
 
       # Generate the reST docs (peruse the output for errors and warnings):
       $ make docs

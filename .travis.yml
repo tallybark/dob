@@ -33,10 +33,10 @@ matrix:
     # - Lint code (flake8).
     - env: TOXENV=flake8
       python: '3.8'
-    # FIXME/2020-01-24: Add pep257 check -- once docstrings fixed.
-    # # - Verify docstring conventions.
-    # - env: TOXENV=pep257
-    #   python: '3.8'
+    # Unless docstrings repaired, linting disabled.
+    #  # - Verify docstring conventions (née pep257).
+    #  - env: TOXENV=pydocstyle
+    #    python: '3.8'
 
 install:
   - pip install -U tox
