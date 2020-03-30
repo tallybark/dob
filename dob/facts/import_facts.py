@@ -17,8 +17,6 @@
 
 """A time tracker for the command line. Utilizing the power of nark."""
 
-import sys
-
 from dob_bright.termio.crude_progress import CrudeProgress
 
 from dob_viewer.crud.parse_input import parse_input

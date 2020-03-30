@@ -27,11 +27,7 @@ Fixtures available to the tests/.
 """
 
 import datetime
-import os
 import pytest
-
-import fauxfactory
-from click_hotoffthehamster.testing import CliRunner
 
 # For the fixture to work, either import specifically, or glob it all.
 # noqa: F401 'foo.bar' imported but unused
@@ -40,7 +36,9 @@ from dob_bright.tests.conftest import *  # noqa: F401, F403
 
 from dob_viewer.crud.fact_dressed import FactDressed
 
-from .cli_runner import runner
+# The runner is used as a fixture (method parameter) in other files.
+from .cli_runner import runner  # noqa: F401 '<>' imported but unused
+
 
 # ***
 

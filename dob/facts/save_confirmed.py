@@ -19,12 +19,6 @@ from gettext import gettext as _
 
 import sys
 
-from dob_viewer.config.styling.classes_style import (
-    load_classes_style,
-    load_matches_style
-)
-from dob_viewer.config.styling.content_lexer import load_content_lexer
-
 
 __all__ = (
     'prompt_and_save_confirmed',

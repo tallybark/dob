@@ -31,8 +31,6 @@ from dob_viewer.ptkui import re_confirm
 
 from dob.facts.import_facts import import_facts
 
-## So mocker works, the import order here matters: import the wrap first:
-#from dob.facts.save_confirmed import prompt_and_save_confirmed
 from dob.facts import save_confirmer as proper_confirmer
 from dob_viewer.crud import save_confirmer as viewer_confirmer
 
@@ -90,6 +88,7 @@ class TestPromptAndSaveBackedUpViaImportFacts(object):
             # so this touch-file, in a sense, is more a slight of hand.
             input=True,
         )
+
 
 # ***
 
