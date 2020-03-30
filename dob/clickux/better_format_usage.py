@@ -136,7 +136,6 @@ class ClickBetterUsageGroup(click.Group):
             and (not ctx.help_option_spotted)
         ):
             return
-        self.format_prolog(ctx, formatter)
         self.format_options(ctx, formatter)
         self.format_epilog(ctx, formatter)
 
