@@ -116,6 +116,9 @@ develop: venvforce
 	fi
 	pip install -U -r requirements/dev.pip
 	pip install -U -e .
+	if [ -f requirements/ultra-pluggable.pip ]; then \
+		pip install -U -r requirements/ultra-pluggable.pip; \
+	fi
 .PHONY: develop
 
 lint: venvforce

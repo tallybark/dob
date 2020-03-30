@@ -1,0 +1,18 @@
+# USAGE: Copy to `requirements/ultra-pluggable.pip`.
+#
+#        Then when you run `make develop` or `tox`, pip installs
+#        these dob plugins from local, editable sources, rather
+#        than from the PyPI server, or otherwise.
+#
+#        NOTE: Obviously, be sure to remove/comment any projects
+#        below that you did not checkout locally, or that you do
+#        not wish to have installed as editable.
+
+# These default paths assume you have every project checked out or symlinked
+# from the parent directory of this project. Edit as necessary for your user.
+
+-e ../dob-plugin-git-hip
+-e ../dob-plugin-hamster-dance
+-e ../dob-plugin-my-post-processor
+-e ../dob-plugin-stale-fact-goader
+

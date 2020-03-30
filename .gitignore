@@ -40,4 +40,6 @@ docs/_build/
 
 # User's local projects they want pip-installed --editable.
 requirements/ultra-editable.pip
+# Ditto for dob plugins.
+requirements/ultra-pluggable.pip
 
