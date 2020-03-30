@@ -14,15 +14,13 @@
 # These default paths assume you have every project checked out or symlinked
 # from the parent directory of this project. Edit as necessary for your user.
 
+-e ../ansi-escape-room
 -e ../click-hotoffthehamster
 -e ../click-hotoffthehamster-alias
--e ../ansi-escape-room
--e ../sqlalchemy-migrate
--e ../python-prompt-toolkit
-
 -e ../config-decorator
 -e ../human-friendly_pedantic-timedelta
 -e ../pep440-version-compare-cli
+-e ../sqlalchemy-migrate
 
 -e ../nark
 
