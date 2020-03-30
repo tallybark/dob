@@ -21,13 +21,14 @@ from ansiwrap import fill
 
 from click_hotoffthehamster._textwrap import TextWrapper
 
+
 class AnsiTextWrapper(TextWrapper):
     def fill(self, text):
         filled = fill(
-                text,
-                initial_indent=self.initial_indent,
-                subsequent_indent=self.subsequent_indent,
-            )
+            text,
+            initial_indent=self.initial_indent,
+            subsequent_indent=self.subsequent_indent,
+        )
         # The ansiwrap library returns empty when given empty.
         # The Python textwrap built return initial_indent when
         # given an empty string. And Click uses the initial_indent
