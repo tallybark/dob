@@ -63,10 +63,10 @@ requirements = [
     'nark >= 3.0.1, < 4',
     # The controller, config, and common output and error tossing code.
     #  https://github.com/hotoffthehamster/dob-bright
-    'dob-bright >= 1.0.0, < 2',
+    'dob-bright >= 1.0.3, < 2',
     # The so-called Facts "carousel" chrono-viewer.
     #  https://github.com/hotoffthehamster/dob-viewer
-    'dob-viewer >= 1.0.0, < 2',
+    'dob-viewer >= 1.0.1, < 2',
 ]
 
 # *** Minimal setup() function -- Prefer using config where possible.
