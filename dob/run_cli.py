@@ -28,8 +28,6 @@ from dob_bright.controller import Controller
 from dob_bright.termio import click_echo, echo_exit
 from dob_bright.termio.paging import set_paging
 
-from . import __package_name__ as package_name_dob
-from . import __resolve_vers__ as resolve_vers_dob
 from .clickux import help_strings
 from .clickux.aliasable_bunchy_plugin import ClickAliasableBunchyPluginGroup
 from .copyright import echo_copyright
@@ -52,15 +50,30 @@ pass_controller = click.make_pass_decorator(Controller, ensure=True)
 # *** [VERSION] Version command helper.
 # ***
 
-def dob_versions():
-    from nark import __package_name__ as package_name_nark
-    from nark import __resolve_vers__ as resolve_vers_nark
-    vers = '{} version {}\n{} version {}'.format(
-        package_name_dob,
-        resolve_vers_dob(),
-        package_name_nark,
-        resolve_vers_nark(),
-    )
+def dob_versions(include_all=False):
+    '''Return CLI version information, either for this package, or all HOTH packages.
+    '''
+    vers = ''
+    include_head = include_all
+    import importlib
+    # MAYBE/2020-04-01: Add config_decorator and pedantic_timedelta.
+    hothlibs = ['dob']
+    if include_all:
+        hothlibs += [
+            'dob_viewer',
+            'dob_prompt',
+            'dob_bright',
+            'nark',
+        ]
+    minlen = max([len(name) for name in hothlibs])
+    for hothlib in hothlibs:
+        mod = importlib.import_module(hothlib, package=None)
+        vers += '\n' if vers else ''
+        vers += '{name:{minlen}s} version {vers}'.format(
+            minlen=minlen,
+            name=mod.__package_name__,
+            vers=mod.get_version(include_head=include_head),
+        )
     return vers
 
 
@@ -206,7 +219,7 @@ def run(ctx, controller, v, verbose, verboser, color, pager, config, configfile)
 
     def _run_handle_version(ctx, show_version):
         if show_version:
-            echo_exit(ctx, dob_versions())
+            echo_exit(ctx, dob_versions(include_all=False))
 
     def _run_handle_without_command(ctx):
         # Because we set invoke_without_command, we have to check ourselves

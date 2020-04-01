@@ -124,14 +124,11 @@ def help(ctx, command=None):
 @run.command(help=help_strings.VERSION_HELP)
 @show_help_finally
 @flush_pager
-def version():
+@pass_controller
+def version(controller):
     """Show version information."""
-    _version()
-
-
-def _version():
-    """Show version information."""
-    click_echo(dob_versions())
+    include_all = controller.config['dev.catch_errors']
+    click_echo(dob_versions(include_all=include_all))
 
 
 # ***

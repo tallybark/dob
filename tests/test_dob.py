@@ -28,7 +28,7 @@ import nark
 
 from dob import (
     __package_name__,
-    __resolve_vers__,
+    get_version,
     cmds_list,
     details,
     dob
@@ -466,7 +466,7 @@ class TestDetails(object):
         out, err = capsys.readouterr()
         startswiths = (
             'You are running {} version {}'.format(
-                __package_name__, __resolve_vers__(),
+                __package_name__, get_version(),
             ),
             'Configuration file at: ',
             'Plugins directory at: ',

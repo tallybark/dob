@@ -26,8 +26,7 @@ from dob_bright.termio import ascii_art, attr, click_echo, fg, highlight_value
 
 from .clickux.plugin_group import ClickPluginGroup
 
-from . import __package_name__ as package_name_dob
-from . import __resolve_vers__ as resolve_vers_dob
+from . import get_version, __package_name__
 
 __all__ = (
     'echo_app_details',
@@ -52,8 +51,8 @@ def echo_app_details(controller, full=False):
         click_echo(_(
             "You are running {appname} version {version}"
         ).format(
-            appname=highlight_value(package_name_dob),
-            version=highlight_value(resolve_vers_dob()),
+            appname=highlight_value(__package_name__),
+            version=highlight_value(get_version()),
         ))
 
     def echo_config_path():
@@ -167,8 +166,8 @@ def echo_app_environs(controller):
             click_echo('DOB_{}="{}"'.format(key.upper(), val))
 
     def environs_add_appname_ver():
-        environs['appname'] = package_name_dob
-        environs['version'] = resolve_vers_dob()
+        environs['appname'] = __package_name__
+        environs['version'] = get_version()
 
     def environs_add_config_path():
         environs['conf'] = controller.configurable.config_path

@@ -25,11 +25,11 @@ from gettext import gettext as _
 from dob_bright.termio import click_echo
 
 from . import (
+    get_version,
     __arg0name__,
     __author_name__,
     __author_link__,
-    __package_name__,
-    __resolve_vers__
+    __package_name__
 )
 
 __all__ = (
@@ -48,7 +48,7 @@ def assemble_copyright():
     gpl3_notice_2018 = [
         'This is {pkgname} v{version}.'.format(
             pkgname=__package_name__,
-            version=__resolve_vers__(),
+            version=get_version(),
         ),
         '',
         'Copyright (C) {years} {aname} <{alink}>'.format(
