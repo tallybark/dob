@@ -63,13 +63,13 @@ help-main:
 	@echo "   cloc            \"count lines of code\""
 	@echo "   coverage        check code coverage quickly with the default Python"
 	@echo "   coverage-html   generate HTML coverage reference for every source file"
-	@echo "   view-coverage   open coverage docs in new tab (set BROWSER to specify app)"
 	@echo "   docs            generate Sphinx HTML documentation, including API docs"
 	@echo "   isort           run isort; sorts and groups imports in every module"
 	@echo "   lint            check style with flake8"
 	@echo "   test            run tests quickly with the default Python"
 	@echo "   test-all        run tests on every Python version with tox"
 	@echo "   test-one        run tests until the first one fails"
+	@echo "   view-coverage   open coverage docs in new tab (set BROWSER to specify app)"
 .PHONY: help-main
 
 venvforce:
@@ -96,12 +96,6 @@ clean-pyc:
 	find . -name '*~' -exec /bin/rm -f {} +
 	find . -name '__pycache__' -exec /bin/rm -fr {} +
 .PHONY: clean-pyc
-
-clean-docs:
-	$(MAKE) -C docs clean BUILDDIR=$(BUILDDIR)
-	/bin/rm -f docs/$(PROJNAME).*rst
-	/bin/rm -f docs/modules.rst
-.PHONY: clean-docs
 
 clean-test:
 	/bin/rm -fr .tox/
@@ -184,6 +178,12 @@ coverage-html: coverage coverage-to-html view-coverage
 view-coverage:
 	$(PYBROWSER) htmlcov/index.html
 .PHONY: view-coverage
+
+clean-docs:
+	$(MAKE) -C docs clean BUILDDIR=$(BUILDDIR)
+	/bin/rm -f docs/$(PROJNAME).*rst
+	/bin/rm -f docs/modules.rst
+.PHONY: clean-docs
 
 docs: docs-html
 	$(PYBROWSER) docs/_build/html/index.html
