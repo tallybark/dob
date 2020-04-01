@@ -116,12 +116,20 @@ If your database was created long ago by the original hamster,
     {legacy_path}{reset}
 
 Be sure to make a backup first, in case something goes wrong!
-
-See the project page for more information:
-
-  https://github.com/hotoffthehamster/nark
 """
 )
+# 2020-03-31: I had a link to the project page here but there's
+# no additional information there, so why bother. It read,
+#
+#   See the project page for more information:
+#
+#       https://github.com/hotoffthehamster/nark
+#
+# As for actual upgrade help online, there's only one spot, but
+# it says nothing more than what we've said here. It's at
+#
+#   https://dob.readthedocs.io/en/latest/usage.html#upgrade-hamster
+
 # USER: If your database was created more recently by the new `hamster-lib`
 # rewrite (2016-2017), there are 3 database changes to make. (lb): I did not
 # add an upgrade path from hamster-lib because it seemed like that project
