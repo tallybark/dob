@@ -213,7 +213,7 @@ def upgrade_legacy_database_file(ctx, controller, file_in, force):
         if controller.is_germinated:
             click_echo(ctx.get_help())
         else:
-            _instruct_upgrade(controller)
+            _instruct_upgrade(ctx, controller)
 
     def run_upgrade():
         try:
@@ -234,10 +234,10 @@ def upgrade_legacy_database_file(ctx, controller, file_in, force):
     return _upgrade_legacy_database_file()
 
 
-def _instruct_upgrade(controller):
+def _instruct_upgrade(ctx, controller):
     click_echo(
         '\n{}\n{}'.format(
-            NEWBIE_HELP_WELCOME,
+            NEWBIE_HELP_WELCOME(ctx),
             upgrade_legacy_database_instructions(controller),
         )
     )
