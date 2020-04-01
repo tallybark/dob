@@ -21,8 +21,6 @@ import sys
 
 import click_hotoffthehamster as click
 
-from nark import __package_name__ as package_name_nark
-from nark import __resolve_vers__ as resolve_vers_nark
 # BREADCRUMP: PROFILING
 from nark.helpers.dev.profiling import profile_elapsed, timefunct
 
@@ -55,6 +53,8 @@ pass_controller = click.make_pass_decorator(Controller, ensure=True)
 # ***
 
 def dob_versions():
+    from nark import __package_name__ as package_name_nark
+    from nark import __resolve_vers__ as resolve_vers_nark
     vers = '{} version {}\n{} version {}'.format(
         package_name_dob,
         resolve_vers_dob(),
