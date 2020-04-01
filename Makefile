@@ -216,8 +216,9 @@ servedocs: docs
 .PHONY: servedocs
 
 tox_commands_pre:
-	test -f "requirements/ultra-editable.pip" && \
-		pip install -U -r requirements/ultra-editable.pip
+	if [ -f "requirements/ultra-editable.pip" ]; then \
+		pip install -U -r requirements/ultra-editable.pip; \
+	fi
 .PHONY: tox_commands_pre
 
 release: venvforce clean
