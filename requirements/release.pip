@@ -31,7 +31,7 @@ setuptools >= 45.1.0
 # - "the blessed package to manage your versions by scm tags"
 #
 #   https://github.com/pypa/setuptools_scm/
-setuptools_scm >= 3.4.3
+setuptools_scm >= 3.5.0
 
 # - "generic virtualenv management and test command line tool"
 #
