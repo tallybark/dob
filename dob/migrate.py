@@ -145,7 +145,7 @@ def upgrade_legacy_database_instructions(controller):
     up_legacy_path = os.path.join(nark_path, up_legacy_rel)
     db_path = controller.config['db.path']
     instructions = UPGRADE_INSTRUCTIONS.format(
-        prog_name=os.path.basename(__arg0name__),
+        prog_name=__arg0name__,
         legacy_path="~/.local/share/hamster-applet/hamster.db",
         db_path=db_path,
         nark_path=nark_path,
