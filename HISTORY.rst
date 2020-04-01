@@ -22,6 +22,20 @@ History
 
 .. :changelog:
 
+3.0.1 (2020-04-01)
+==================
+
+* Bugfix: Downstream fix repairs demo command (which was breaking
+  because spaces in tags were not being converted properly to magic
+  class names, causing PTK to explode, and then dob to ask something
+  strange about okay-to-save).
+
+* Improve: Simplify version report for non-devs.
+
+* Docs: Runtime help fixes.
+
+* DX: Fix Travis-CI not-POSIX issue.
+
 3.0.0 (2020-03-30)
 ==================
 
