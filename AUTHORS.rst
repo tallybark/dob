@@ -65,7 +65,7 @@ derived from:
 `Desert <https://www.flaticon.com/free-icon/desert_190898>`__,
 by `Freepik <https://www.freepik.com/>`__,
 from `www.flaticon.com <https://www.flaticon.com/>`__,
-licensed by `CC 3.0 BY <http://creativecommons.org/licenses/by/3.0/>`__;
+licensed by `CC 3.0 BY <https://creativecommons.org/licenses/by/3.0/>`__;
 `Hamster Wheel <https://thenounproject.com/term/hamster-wheel/4739/>`__,
 by `Olivier Guin <https://thenounproject.com/olivierguin>`__,
 from `the Noun Project <https://thenounproject.com>`__; and
