@@ -77,17 +77,16 @@ exclude_patterns = [
 #   http://www.sphinx-doc.org/en/master/usage/extensions/index.html
 extensions = [
     'sphinx.ext.autodoc',
+    # For hyperlinks, e.g., :ref:`My Section Title`.
+    'sphinx.ext.autosectionlabel',
     'sphinx.ext.coverage',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.todo',
-    'sphinx.ext.viewcode',
     # Google style docstrings
     # https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
     # https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
     # https://google.github.io/styleguide/pyguide.html#383-functions-and-methods
     'sphinx.ext.napoleon',
-    # For hyperlinks, e.g., :ref:`My Section Title`.
-    'sphinx.ext.autosectionlabel',
+    'sphinx.ext.todo',
+    'sphinx.ext.viewcode',
 ]
 
 # Prevent non local image warnings from showing.
