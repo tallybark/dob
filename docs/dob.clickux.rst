@@ -60,14 +60,6 @@ dob.clickux.cmd\_options module
    :undoc-members:
    :show-inheritance:
 
-dob.clickux.echo\_assist module
--------------------------------
-
-.. automodule:: dob.clickux.echo_assist
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 dob.clickux.help\_command module
 --------------------------------
 
