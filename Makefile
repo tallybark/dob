@@ -189,9 +189,7 @@ docs: docs-html
 	$(PYBROWSER) docs/_build/html/index.html
 .PHONY: docs
 
-docs-html: venvforce
-	/bin/rm -f docs/$(PROJNAME).rst
-	/bin/rm -f docs/modules.rst
+docs-html: venvforce clean-docs
 	sphinx-apidoc -o docs/ $(PROJNAME)
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
