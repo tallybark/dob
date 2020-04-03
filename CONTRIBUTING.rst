@@ -5,6 +5,15 @@ Contributing
 .. |dob| replace:: ``dob``
 .. _dob: https://github.com/hotoffthehamster/dob
 
+.. |dob-viewer| replace:: ``dob-viewer``
+.. _dob-viewer: https://github.com/hotoffthehamster/dob-viewer
+
+.. |dob-prompt| replace:: ``dob-prompt``
+.. _dob-prompt: https://github.com/hotoffthehamster/dob-prompt
+
+.. |dob-bright| replace:: ``dob-bright``
+.. _dob-bright: https://github.com/hotoffthehamster/dob-bright
+
 .. |nark| replace:: ``nark``
 .. _nark: https://github.com/hotoffthehamster/nark
 
@@ -126,29 +135,36 @@ Getting Started
 Ready to contribute? Here's how to set up |dob|_
 for local development.
 
-1. Fork the |dob|_ and |nark|_ repos on GitHub.
+#. Dob is (for better and for worse) split across a number of projects.
+   Fork each of these projects on GitHub:
 
-   * Visit `<https://github.com/hotoffthehamster/dob>`__
-     and click *Fork*.
+   * |dob|_
 
-   * Visit `<https://github.com/hotoffthehamster/nark>`__
-     and click *Fork*.
+   * |dob-viewer|_
 
-2. Clone your fork locally.
+   * |dob-prompt|_
 
-   Open a local terminal, change to a directory you'd like to develop from,
-   and run the command::
+   * |dob-bright|_
 
-    $ git clone git@github.com:<your_login>/dob.git
+   * |nark|_
 
-    $ git clone git@github.com:<your_login>/nark.git
+#. Clone your forks locally.
 
-3. Install both projects into a Python virtual instance,
-   or |virtualenv|_.
+   For instance, open a terminal, change to a directory you'd like to
+   develop from, and then run the commands::
+
+    GH_URL=git@github.com:<your_user>
+    for repo in dob dob-viewer dob-prompt dob-bright nark; do
+      git clone ${GH_URL}/${repo}.git
+    done
+
+#. Prepare a Python virtual instance, or |virtualenv|_.
 
    First, ensure that you have |virtualenvwrapper|_ installed.
 
-   Next, set up a virtual environment for local development::
+#. Next, set up a virtual environment for local development. Assuming you're
+   still in the base directory where you cloned all the projects, change into
+   the ``dob/`` directory and make the virtual environment::
 
     $ cd dob/
     $ mkvirtualenv -a $(pwd) dob
@@ -158,47 +174,77 @@ for local development.
    to the ``dob/`` directory when we're in the virtual
    environment.
 
-   Next, set up your forks for local development::
+   *Note:* You can also specify the version of Python if you wish, e.g.,
+   add the option ``--python=/usr/bin/python3.8``.
 
-    (dob) $ cdproject
+#. Now, prepare a special requirements file so you can run *1* command to
+   install all five projects, rather than having to run the same command
+   *5* times from five different directories.
+
+   Copy the example file included in the project and rename it.
+
+   From the base ``dob/`` directory, run::
+
+    (dob) $ cp requirements/ultra-editable.pip.example requirements/ultra-editable.pip
+
+   If you're following the instructions here, you should not need to edit
+   the new file. But you might want to peak inside the file anyway to see
+   how it works.
+
+#. Finally, we're ready to install dob for local development!
+
+   From the base ``dob/`` directory, run::
+
     (dob) $ make develop
-    (dob) $ cd ../nark
-    (dob) $ make develop
 
-   *Hint:* As usual, run ``workon`` to activate the virtual environment, and
-   ``deactivate`` to leave it. E.g.,::
+   And that's it!
+   The make task will install dependencies from `PyPI <https://pypi.org/>`__,
+   as well as all the projects you sourced locally.
 
-    # Load the Python virtual instance.
-    $ workon dob
-    (dob) $
+   - *Hint:* As usual, run ``workon`` to activate the virtual environment, and
+     ``deactivate`` to leave it. E.g.,::
 
-    # Do your work.
-    (dob) $ ...
+       # Load the Python virtual instance.
+       $ workon dob
+       (dob) $
 
-    # Finish up.
-    (dob) $ deactivate
-    $
+       # Do your work.
+       (dob) $ ...
 
-4. Before starting work on a new feature or bug fix, make sure your
+       # Finish up.
+       (dob) $ deactivate
+       $
+
+#. Now that your local development environment is setup, you can do some real work!
+
+   However, before starting any work on a new feature or bug fix, make sure your
    ``develop`` branch is up to date with the official branch::
 
     (dob) $ cdproject
     (dob) $ git remote add upstream git@github.com:hotoffthehamster/dob.git
     (dob) $ git fetch upstream
     (dob) $ git checkout develop
-    (dob) $ git rebase upstream/develop
-    (dob) $ git push origin HEAD
+    (dob) $ git merge --ff-only upstream/develop
+    (dob) $ git push origin HEAD  # For good measure.
 
-   And then do the same for ../nark.
+   And also do the same for each of the other local projects.
 
-5. Create a branch for local development. If you are working on an known issue,
+   (If you're concerned that managing multiple repositories is a chore,
+   you're right! Which is why I like to use
+   `myrepos <https://myrepos.branchable.com/>`__
+   and `Oh, My Repos! <https://github.com/landonb/ohmyrepos>`__
+   to be able to run the same operation against multiple repositories
+   using a single command.)
+
+#. Now that you've updated your local code to the freshest upstream sources,
+   create a branch for local development. If you are working on an known issue,
    you may want to reference the Issue number in the branch name, e.g.,::
 
     $ git checkout -b feature/ISSUE-123-name-of-your-issue
 
-   Now you can add and edit code in your local working directory.
+   In any case, create a new branch, and start editing code.
 
-6. Do your work and make one or more sane, concise commits::
+#. Do your work and make one or more sane, concise commits::
 
     $ git add -p
     $ git commit -m "<Category>: <Short description of changes.>
@@ -255,7 +301,7 @@ for local development.
      `gitmoji <https://gitmoji.carloscuesta.me/>`__,
      but it's more concise, and less obtuse.)
 
-7. Throughout development, run tests and the linter -- and definitely before
+#. Throughout development, run tests and the linter -- and definitely before
    you submit a Pull Request.
 
    |dob|_ uses
@@ -263,19 +309,24 @@ for local development.
    |pytest|_ for unit testing, and
    |tox|_ for verifying against the many versions of Python.
 
-   You can run all of these tools with one command::
+   You can run all of these tools with one command
+   that should be familiar to seasoned Python developers::
+
+     $ tox
+
+   Or you can run the equivalent make task::
 
      $ make test-all
 
-   which simply executes |tox|_.
+   (which simply executes |tox|_).
 
    .. _rebase_and_squash:
 
-8. Rebase and squash your work, if necessary, before submitting a Pull Request.
+#. Rebase and squash your work, if necessary, before submitting a Pull Request.
 
    E.g., if the linter caught an error, rather than making a new commit
    with just the linting fix(es), make a temporary commit with the linting
-   fixes, and then squash that commit into the previous commit wherein
+   fixes, and then "fixup" that commit into the previous commit wherein
    you originally added the code that didn't lint.
 
    (*Note:* Rebasing is an intermediate Git skill.
@@ -303,43 +354,37 @@ for local development.
    First, add the linting fix::
 
     $ git add -A
-    $ git ci -m "Squash me!"
 
-   Next, start a rebase::
+   Then, use the ``fixup`` feature to tell Git which commit this belongs in::
 
-    $ git rebase -i 2e888c3
+    $ git ci --fixup=17d1e38
 
-   (*Note:* Use the SHA1 hash of the commit *after* the one you want squash into.)
+   Next, start a rebase, and use ``--autosquash``::
 
-   Git should open your default editor with a file that starts out like this::
+    $ git rebase --autosquash -i 2e888c3
 
-    pick 2e888c3 Bugfix: Oops! Did I do that?
+   (*Note:* Use the SHA1 hash of the commit *after* the first one you want
+   to be included in the rebase.)
+
+   Git should open your default editor with a file that look like this::
+
     pick 17d1e38 Feature: Add my new feature.
-    pick b1c07a4 Regression: Fix some old bug.
-    pick f05e080 Squash me!
-
-   Reorder the commit you want to squash so that it's after the commit
-   you want to combine it with, and change the command from ``pick`` to
-   ``squash`` (or ``s`` for short)::
-
-    pick 2e888c3 Bugfix: Oops! Did I do that?
-    pick 17d1e38 Feature: Add my new feature.
-    squash f05e080 Squash me!
+    fixup f05e080 fixup! Feature: Add my new feature.
     pick b1c07a4 Regression: Fix some old bug.
 
-   Save and close the file, and Git will rebase your work.
+   You'll notice that Git already reordered the commits and set the commit
+   in question to "fixup".
 
-   When Git rebases the commit being squashed, it will pop up your editor
-   again so you can edit the commit message of the new, squashed commit.
-   Delete the squash comment (``Squash me!``), and save and close the file.
+   You can just save and close the file and Git will complete the rebase.
 
-   Git should hopefully finish up and report, ``Successfully rebased and updated``.
+   - This is just one example of rebasing, and a rather advanced one at
+     that (I'm not sure how many people use ``--autosquash``, but I love
+     it!).
 
-   (If not, you can manually resolve any conflicts. Or, you can run
-   ``git rebase --abort`` to rollback to where you were before the rebase,
-   and you can look online for more help rebasing.)
+     Please search online or ask for help if you find yourself struggling
+     to understand and perform rebasing.
 
-9. Push the changes to your GitHub account.
+#. Push the changes to your GitHub account.
 
    After testing and linting, and double-checking that your new feature or
    bugfix works, and rebasing, and committing your changes, push them to
@@ -347,27 +392,31 @@ for local development.
 
     $ git push origin feature/ISSUE-123-name-of-your-issue
 
-   *Note:* If you pushed your work and then rebased, you may have to force-push::
+   *Note:* If you pushed your work previosuly and then rebased, you may
+   have to force-push::
 
     $ git push origin feature/ISSUE-123-name-of-your-issue --force
 
    .. _rebase_atop_develop:
 
-10. Finally,
-    `submit a pull request
-    <https://github.com/hotoffthehamster/dob/pulls>`_
-    through the GitHub website.
+#. Finally,
+   `submit a pull request
+   <https://github.com/hotoffthehamster/dob/pulls>`_
+   through the GitHub website.
 
-    *Important:* Please rebase your code against ``develop`` and resolve
-    merge conflicts, so that the main project maintainer does not have
-    to do so themselves. E.g.,::
+   *Important:* Please rebase your code against ``develop`` and resolve
+   merge conflicts, so that project maintainers does not have to do so
+   themselves. E.g.,::
 
-     $ git checkout feature/ISSUE-123-name-of-your-issue
-     $ git fetch upstream
-     $ git rebase upstream/develop
-     # Resolve any conflicts, then force-push.
-     $ git push origin HEAD --force
-     # And then open the Pull Request.
+    $ git checkout feature/ISSUE-123-name-of-your-issue
+    $ git fetch upstream
+    $ git rebase upstream/develop
+    # Resolve any conflicts...
+    $ git push origin HEAD --force
+    # And then open the Pull Request.
+
+(*Ansible users:* You might enjoy this Dob-dev setup role:
+https://github.com/landonb/zoidy_dob-dev.)
 
 =======================
 Pull Request Guidelines
@@ -415,7 +464,7 @@ Before you submit a pull request, check that it meets these guidelines:
 
      __ rebase_atop_develop_
 
-4. Run ``make test-all``.
+4. Run ``tox``.
 
    * 'nough said.
 
