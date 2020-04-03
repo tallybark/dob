@@ -1,27 +1,37 @@
-# USAGE: Copy to `requirements/ultra-editable.pip`.
+# USAGE: Copy this file to `requirements/ultra-editable.pip`.
 #
 #        Then when you run `make develop` or `tox`, pip installs
 #        each of the HOTH projects from local, editable sources,
 #        rather than from the PyPI server.
 #
-#        - I.e., ensure that your local changes to other projects
-#          are used when you run the code or run the tests!
+#        - This ensures that your local changes are used when you
+#          run the code or run the tests!
+
+# NOTE:  Be sure to comment/uncomment projects below as appropriate.
 #
-#        NOTE: Obviously, be sure to remove/comment any projects
-#        below that you did not checkout locally, or that you do
-#        not wish to have installed as editable.
+#        - The first set of projects are (fairly) stable HOTH libraries and
+#          forks that you may not need to checkout locally. But if you do,
+#          uncomment those projects below to have them installed as editable.
+#
+#        - The second set of the projects are the 4 projects (besides dob)
+#          that you will want to checkout locally to develop dob.
 
-# These default paths assume you have every project checked out or symlinked
-# from the parent directory of this project. Edit as necessary for your user.
+# NOTE:  Modify these paths as appropriate -- the default paths here assume
+#        that every project is checked out (or symlinked) from the parent
+#        directory (../) of the dob/ repo. Edit as necessary for your user.
 
--e ../ansi-escape-room
--e ../click-hotoffthehamster
--e ../click-hotoffthehamster-alias
--e ../config-decorator
--e ../human-friendly_pedantic-timedelta
--e ../pep440-version-compare-cli
--e ../python-prompt-toolkit
--e ../sqlalchemy-migrate-hotoffthehamster
+# *** HOTH libraries and forks.
+
+#  -e ../ansi-escape-room
+#  -e ../click-hotoffthehamster
+#  -e ../click-hotoffthehamster-alias
+#  -e ../config-decorator
+#  -e ../human-friendly_pedantic-timedelta
+#  -e ../pep440-version-compare-cli
+#  -e ../python-prompt-toolkit
+#  -e ../sqlalchemy-migrate-hotoffthehamster
+
+# *** dob libraries and nark.
 
 -e ../nark
 
