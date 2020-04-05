@@ -245,6 +245,6 @@ cloc:
 ifndef CLOC
 	$(error "Please install cloc from: https://github.com/AlDanial/cloc")
 endif
-	@cloc --exclude-dir=.git,_build,$(PROJNAME).egg-info,.pytest_cache .
+	@cloc --exclude-dir=build,dist,docs,$(PROJNAME).egg-info,.eggs,.git,htmlcov,.pytest_cache,.tox .
 .PHONY: cloc
 
