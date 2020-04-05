@@ -234,6 +234,10 @@ install: venvforce clean
 	python setup.py install
 .PHONY: install
 
+whoami:
+	@echo $(PROJNAME)
+.PHONY: whoami
+
 CLOC := $(shell command -v cloc 2> /dev/null)
 .PHONY: CLOC
 
