@@ -1,0 +1,5 @@
+# vim:tw=0:ts=2:sw=2:et:norl:ft=config
+[flake8]
+# Add a space after the path to make the output path easier to double-click-copy.
+format=%(path)s %(row)d:%(col)d: %(code)s %(text)s
+

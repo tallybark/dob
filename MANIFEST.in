@@ -39,6 +39,7 @@ graft tests
 # - NOTE: Order this like `git ls-files`, to keep it easy to maintain.
 exclude .coveragerc
 exclude .editorconfig
+exclude .flake8
 exclude .gitignore
 exclude .ignore.example
 exclude .readthedocs.yml
