@@ -17,6 +17,8 @@
 
 from gettext import gettext as _
 
+import time
+
 from dob_bright.termio import dob_in_user_warning
 
 __all__ = (
@@ -48,6 +50,7 @@ def compile_and_eval_source(py_path):
                 'ERROR: Could not compile source file at "{}": {}'
             ).format(py_path, str(err))
             dob_in_user_warning(msg)
+            time.sleep(2.666)
         return code
 
     def eval_source_code(code, eval_globals, py_path):
@@ -58,6 +61,7 @@ def compile_and_eval_source(py_path):
                 'ERROR: Could not eval compiled source at "{}": {}'
             ).format(py_path, str(err))
             dob_in_user_warning(msg)
+            time.sleep(2.666)
 
     return _compile_and_eval_source(py_path)
 
