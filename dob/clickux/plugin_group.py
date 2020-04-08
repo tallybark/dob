@@ -75,10 +75,14 @@ class ClickPluginGroup(click.Group):
             cmd = super(ClickPluginGroup, self).get_command(ctx, name)
         return cmd
 
-    def ensure_plugged_in(self):
+    def ensure_plugged_in(self, controller):
         if self.has_loaded:
             return
         self.get_commands_from_plugins(name=None)
+        # Redo the config now that the plugins are loaded (because when we
+        # first read the config, the plugins had not added their definitions
+        # yet, so any user plugin config was previously ignored).
+        controller.replay_config()
 
     def get_commands_from_plugins(self, name):
         cmds = set()
