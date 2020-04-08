@@ -2,17 +2,20 @@
 Concepts
 ########
 
+.. |dob| replace:: ``dob``
+.. _dob: https://github.com/hotoffthehamster/dob
+
 .. |hamster-cli| replace:: ``hamster-cli``
 .. _hamster-cli: https://github.com/projecthamster/hamster-cli
 
-This is a high-level, very general overview of basic ``dob`` concepts.
+This is a high-level, very general overview of basic |dob|_ concepts.
 
 (These concepts are essentially the same as those in
 `Legacy Hamster <https://github.com/projecthamster/hamster>`__,
 as well as in the stalled |hamster-cli|_ project.)
 
 Fact
-   The essence of ``dob`` is the *Fact*, an interval of time having a start
+   The essence of |dob|_ is the *Fact*, an interval of time having a start
    time and almost always having an end time (except for the *ongoing Fact*).
    A Fact may also be associated with a specific *Activity*,
    which itself is associated with a specific *Category*.
@@ -20,7 +23,7 @@ Fact
    Also, a Fact has a *Description*.
 
    No two Facts may occupy the same *time window*,
-   i.e., the start-to-end times of 2 different Facts may not overlap.
+   i.e., the start-to-end times of two separate Facts may not overlap.
 
 Factoid
    A *Factoid* is a string representation of a Fact. It can be parsed
@@ -49,10 +52,11 @@ Act\@Gory
    An *Act@Gory* (pronounced "act-eh-gory") is a documentation construct
    for the combined Activity and Category names for a given Fact. It is
    so-called because the ``dob`` CLI parser expects the user to specify
-   the activity with the at symbol. For instance, in the following Factoid,
+   the activity with the *at* (``@``) symbol.
+   For instance, in the following Factoid,
    ``at 08:00: Meeting@Work: I wish I was outside.``,
-   the Act\@Gory is ``Meeting@Work``. (Furthermore, ``Meeting`` is the
-   Activity, and ``Work`` is the Category, obviously).
+   the Act\@Gory is ``Meeting@Work`` (where ``Meeting`` is
+   the Activity and ``Work`` is the Category, naturally).
 
 Tag
    A *tag* is another way to label a Fact other than using an Act\@Gory.
@@ -62,21 +66,22 @@ Tag
    The user can apply more than one Tag to any Fact.
 
    Tags are not associated with any specific Activity or Category.
-   (Though the user could, e.g., search for Facts and restrict to a
-   specific Act\@Gory and specific Tag, so there will be an inherent
-   relationship between Tags and Activities simply by the act of being
-   associated with the same Fact; but outside of Facts themselves, there
-   is no relationship between Tags and Activities, like there is between
-   Activities and Categories).
+
+   - Though the user could, e.g., search for Facts and restrict to a
+     specific Act\@Gory, and to a specific Tag, so there will be an
+     inherent relationship between Tags and Activities simply by their
+     association to the same Fact. But outside of Facts themselves,
+     there is no relationship between Tags and Activities
+     (nor between Tags and Categories).
 
 Musings on Metadata
-   *How does the user know when to use an Activity or when to use a Tag?*
+   *How do I, the user, know when to use an Activity or when to use a Tag?*
 
    Essentially, at its core, a Tag is the same construct as an Act\@Gory:
    It's simply a string associated with a Fact.
 
    As such, a decent end user application will, for instance, enable the user
-   to search for Facts using Tag names just as easily as it will enable the
+   to search for Facts using Tag names just as easily as it will allow the
    user to search for Facts using Act\@Gory names.
 
    Really, what it boils down to is user preference.
