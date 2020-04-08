@@ -22,10 +22,21 @@ History
 
 .. :changelog:
 
+3.0.3 (2020-04-08)
+==================
+
+- Deps: Update versions to profit from library bug fixes.
+
+- Docs: Update contributing getting-started, and more.
+
+- Enhance: Pause briefly on plugin import error so user sees message.
+
+- Enhance: Pass path to plugins on eval, so they can load local assets.
+
 3.0.2 (2020-04-01)
 ==================
 
-- Fix issue emitting incorrect version information.
+- Bugfix: Incorrect version information emitted.
 
 3.0.1 (2020-04-01)
 ==================
