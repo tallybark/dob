@@ -276,7 +276,7 @@ def generate_facts_table(controller, facts, show_duration=True, include_usage=Fa
             fact_end = fact.end.strftime('%Y-%m-%d %H:%M')
         else:
             # FIXME: This is just the start of supporting open ended Fact in db.
-            fact_end = _('<ongoing>')
+            fact_end = _('<active>')
             # So that fact.delta() returns something.
             fact.end = controller.now
 

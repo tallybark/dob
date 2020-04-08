@@ -702,14 +702,14 @@ def usage_facts(controller, *args, **kwargs):
 @flush_pager
 @click.option(
     '-f', '--force', '--purge', is_flag=True,
-    help=_('Completely delete fact, rather than just marking deleted.'),
+    help=_('Completely delete Fact, rather than just marking deleted.'),
 )
 @pass_controller
 @induct_newbies
 @click.pass_context
 @post_processor
 def cancel(ctx, controller, force):
-    """Cancel 'ongoing fact'. Stop it without storing in the backend."""
+    """Cancel the active Fact. Do not store the Fact in the backend."""
     return cancel_fact(controller, purge=force)
 
 
@@ -720,7 +720,7 @@ def cancel(ctx, controller, force):
 @pass_controller
 @induct_newbies
 def current(controller):
-    """Display current *ongoing* fact."""
+    """Display the active Fact."""
     echo_ongoing_fact(controller)
 
 
@@ -731,7 +731,7 @@ def current(controller):
 @pass_controller
 @induct_newbies
 def latest(controller):
-    """Display last saved fact."""
+    """Display the last saved Fact."""
     echo_latest_ended(controller)
 
 
@@ -742,7 +742,7 @@ def latest(controller):
 @pass_controller
 @induct_newbies
 def show(controller):
-    """Display latest saved, or ongoing Fact."""
+    """Display the latest saved, or the active Fact."""
     echo_ongoing_or_ended(controller)
 
 

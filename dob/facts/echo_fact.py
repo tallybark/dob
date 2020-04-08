@@ -60,13 +60,13 @@ def echo_latest_ended(controller):
 
 def echo_ongoing_fact(controller):
     """
-    Return current *ongoing fact*.
+    Return current active Fact.
 
     Returns:
         None: If everything went alright.
 
     Raises:
-        click.ClickException: If we fail to fetch any *ongoing fact*.
+        click.ClickException: If we fail to fetch any active Fact.
     """
     echo_most_recent(
         controller,

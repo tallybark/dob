@@ -811,9 +811,12 @@ def ADD_FACT_AT(ctx):
         Starts new Fact, beginning now or at the time specified.
 
         \b
-        Might also stop the current ongoing fact if one exists and the
-        new fact starts after the current fact; or might change the stop
-        time of an existing fact if the two facts' time windows overlap.
+        This might stop the active fact, if one exists, and the time
+        specified comes after the active fact start time.
+
+        \b
+        Or this might change the start and/or stop time of other facts
+        if the fact being added overlaps other facts' time windows.
 
         {}
         """

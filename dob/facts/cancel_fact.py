@@ -28,13 +28,13 @@ __all__ = (
 
 def cancel_fact(controller, purge=False):
     """
-    Cancel current fact, either marking it deleted, or really removing it.
+    Cancel current Fact, either marking it deleted, or really removing it.
 
     Returns:
         None: If success.
 
     Raises:
-        KeyErŕor: No *ongoing fact* can be found.
+        KeyErŕor: No active Fact can be found.
     """
     try:
         fact = controller.facts.cancel_current_fact(purge=purge)

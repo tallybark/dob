@@ -16,7 +16,7 @@ as well as in the stalled |hamster-cli|_ project.)
 
 Fact
    The essence of |dob|_ is the *Fact*, an interval of time having a start
-   time and almost always having an end time (except for the *ongoing Fact*).
+   time and almost always having an end time (except for the *active Fact*).
    A Fact may also be associated with a specific *Activity*,
    which itself is associated with a specific *Category*.
    Facts may have zero or more *Tags* assigned to them.
@@ -96,22 +96,27 @@ Musings on Metadata
      But the application experience will be slightly different
      between the two approaches.
 
-Ongoing Fact
-   An *ongoing* (or *endless*) Fact has no end time, and its start time is
+Active Fact
+   An *active* Fact has no end time, and its start time is
    at or after all other Facts' end times.
 
-   There can be at most one ongoing Fact in the data store, and if it exists,
-   it's the latest Fact timewise amongst all others.
+   There can be at most one active Fact in the data store, and,
+   if it exists, it is the latest Fact chronologically.
 
    - In Legacy Hamster, the user could save any Fact without an end time.
-     And sometimes the application did so by accident (read: bug).
+     And sometimes the application did so by accident (*read: bug*).
      But having more than one unclosed Fact wreaks havoc when trying to do
      interesting things with the data, such as generating reports, or compiling
-     statistics. So ``dob`` imposes a limit of one such open-ended Fact.
-     Also, when upgrading a legacy database, ``dob`` will close any open Facts
+     statistics. As such, |dob|_ imposes a limit of one such open-ended Fact.
+     Also, when upgrading a legacy database, |dob|_ will close any open Facts
      it finds (making them *momentaneous* Facts instead).
 
-   - In stalled |hamster-cli|_, the ongoing Fact was instead called the
+     - An active Fact might also be considered *endless* or *ongoing*,
+       but an endless or ongoing Fact is not necessarily the active Fact.
+       An endless or ongoing Fact simply does not have an end time, and
+       in legacy Hamster, there could be many of these.
+
+   - In stalled |hamster-cli|_, the active Fact was instead called the
      *temporary fact*, or *tmp_fact*, and it was pickled and saved to a file
      on the file system, rather than stored in the database alongside other
      Facts. We shall speak of this imprudence no further.

@@ -99,7 +99,8 @@ def ADD_FACT_COMMON(ctx):
 
         You can also {italic}{appname}{reset} in real time, if you
         specify a start time but not an end time.
-        A Fact without an end time is considered {bold}active{reset}.
+        A Fact without an end time is considered the
+        {bold}active{reset} Fact.
 
         To avoid chaos, you can only {bold}start{reset} one Fact at
         a time. So there will only be one active Fact at a time
