@@ -37,7 +37,7 @@ def compile_and_eval_source(py_path):
         code = source_compile(py_text, py_path)
         if code is None:
             return set()
-        eval_globals = {}
+        eval_globals = globals()
         eval_source_code(code, eval_globals, py_path)
         return eval_globals
 
@@ -55,6 +55,10 @@ def compile_and_eval_source(py_path):
 
     def eval_source_code(code, eval_globals, py_path):
         try:
+            # Pass py_path to code being eval'd, so it can orientate.
+            # (lb): I tried passing `locals()` for second argument, but
+            # then plugins complain `name 'ConfigRoot' is not defined`.
+            eval_globals['__file__'] = py_path
             eval(code, eval_globals, eval_globals)
         except Exception as err:
             msg = _(
