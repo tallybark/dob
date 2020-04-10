@@ -34,6 +34,7 @@ __all__ = (
     #  'echo_config_value_section',
     #  'exit_error_no_setting',
     #  'fetch_config_object',
+    #  'fetch_config_objects',
     #  'error_exit_not_one',
     #  'config_parts_pop_value',
     #  'must_parts',
@@ -52,10 +53,7 @@ def echo_config_table(controller, section, keyname, **kwargs):
     sec_key_vals = []
 
     def _echo_config_table():
-        try:
-            conf_objs = controller.configurable.find_all(parts)
-        except AttributeError:
-            exit_error_no_setting(parts)
+        conf_objs = fetch_config_objects(controller, parts)
         for conf_obj in conf_objs:
             conf_obj.walk(visitor)
         echo_table()
@@ -146,10 +144,21 @@ def write_config_value(ctx, controller, parts):
 # *** [GET/SET] FETCH
 
 def fetch_config_object(controller, parts):
-    conf_objs = controller.configurable.find_all(parts)
+    conf_objs = fetch_config_objects(controller, parts)
     if len(conf_objs) == 1:
         return conf_objs[0]
     error_exit_not_one(parts, conf_objs)
+
+
+def fetch_config_objects(controller, parts):
+    try:
+        conf_objs = controller.configurable.find_all(parts)
+    except AttributeError:
+        exit_error_no_setting(parts)
+    except KeyError:
+        # Raised by configurable on unknown part(s).
+        exit_error_no_setting(parts)
+    return conf_objs
 
 
 def error_exit_not_one(parts, conf_objs):
