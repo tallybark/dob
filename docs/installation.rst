@@ -11,17 +11,13 @@ Installation
 .. |workon| replace:: ``workon``
 .. _workon: https://virtualenvwrapper.readthedocs.io/en/latest/command_ref.html?highlight=workon#workon
 
-To install system-wide, run as superuser:
+To install dob locally or to ensure it's up to date, simply run:
 
 .. code-block:: sh
 
-   $ pip3 install dob
+   $ pip3 install -U dob
 
-To install user-local, simply run:
-
-.. code-block:: sh
-
-    $ pip3 install -U dob
+Or run that command as superuser to install system-wide.
 
 To install within a |virtualenv|_, try:
 
