@@ -78,6 +78,7 @@ from .clickux.cmd_options import (
 from .clickux.help_command import help_command_help
 from .clickux.help_detect import show_help_finally, show_help_if_no_command
 from .clickux.induct_newbies import induct_newbies, insist_germinated
+from .clickux.plugin_group import ensure_plugged_in
 from .clickux.post_processor import post_processor
 from . import migrate
 from .cmds_list import activity as list_activity
@@ -306,7 +307,9 @@ def config_create(controller, force):
 @click.argument('section', nargs=1, default='')
 @click.argument('keyname', nargs=1, default='')
 @pass_controller
-def config_dump(controller, section='', keyname='', **kwargs):
+@click.pass_context
+@ensure_plugged_in
+def config_dump(ctx, controller, section='', keyname='', **kwargs):
     """"""
     echo_config_table(controller, section, keyname, **kwargs)
 
@@ -319,6 +322,7 @@ def config_dump(controller, section='', keyname='', **kwargs):
 @click.argument('parts', nargs=-1, metavar='[SECTION] KEYNAME VALUE')
 @pass_controller
 @click.pass_context
+@ensure_plugged_in
 def config_value_get(ctx, controller, parts):
     """"""
     echo_config_value(ctx, controller, parts)
@@ -332,6 +336,7 @@ def config_value_get(ctx, controller, parts):
 @click.argument('parts', nargs=-1, metavar='[SECTION] KEYNAME VALUE')
 @pass_controller
 @click.pass_context
+@ensure_plugged_in
 def config_value_set(ctx, controller, parts):
     """"""
     write_config_value(ctx, controller, parts)
@@ -343,7 +348,9 @@ def config_value_set(ctx, controller, parts):
 @show_help_finally
 @flush_pager
 @pass_controller
-def config_update(controller):
+@click.pass_context
+@ensure_plugged_in
+def config_update(ctx, controller):
     """Write "missing" key values to the user configuration file."""
     controller.round_out_config()
 

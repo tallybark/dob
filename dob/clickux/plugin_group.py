@@ -17,6 +17,7 @@
 
 """Click Group wrapper adds plugin support."""
 
+from functools import update_wrapper
 import glob
 import os
 
@@ -30,6 +31,7 @@ from dob_bright.termio import dob_in_user_warning
 from ..helpers.path import compile_and_eval_source
 
 __all__ = (
+    'ensure_plugged_in',
     'ClickPluginGroup',
     'PLUGINS_DIRNAME',
 )
@@ -126,4 +128,23 @@ class ClickPluginGroup(click.Group):
             if not cmd_name or obj.name == cmd_name:
                 cmds.add(obj)
         return cmds
+
+
+# ***
+
+def ensure_plugged_in(func):
+    """
+    """
+
+    def wrapper(ctx, controller, *args, **kwargs):
+        # Ensure plugins are loaded for Click functions decorated like:
+        #   @pass_controller
+        #   @click.pass_context
+        #   @ensure_plugged_in
+        # - ctx.parent is a click_hotoffthehamster.core.Context, and
+        #   ctx.parent.command is <ClickAliasableBunchyPluginGroup run>.
+        ctx.parent.command.ensure_plugged_in(controller)
+        func(ctx, controller, *args, **kwargs)
+
+    return update_wrapper(wrapper, func)
 
