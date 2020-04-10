@@ -160,8 +160,16 @@ def _generate_table_display(rows, plain_headers, color_headers, table_type):
         #       line up with the content rows! (lb): "A deal breaker!"
         ttable = texttable.Texttable()
         ttable.set_cols_align(["r", "l", "l", "l"])
+        #
+        term_width, _term_height = click.get_terminal_size()
+        # We could be deliberate about each column's width, e.g.,
+        #   ttable.set_cols_width(a, b, c, d)
+        # but the library does an excellent job on its own.
+        ttable.set_max_width(term_width)
+        #
         rows.insert(0, plain_headers)
         ttable.add_rows(rows)
+        #
         textable = ttable.draw()
         click_echo(textable)
 
