@@ -23,6 +23,32 @@
 [OhMyRepos]: https://github.com/landonb/ohmyrepos
     "OhMyRepos"
 
+## 3.0.4 (2020-04-10)
+
+- Bugfix: `config dump -T texttable` broken.
+
+- Improve: Make `texttable` use full terminal width.
+
+- Improve: Use `texttable` as `config dump` table default (better wrapping).
+
+- Improve: Ensure plugins loaded for `config` commands.
+
+- Enhance: Reload config after plugins loaded, to load plugin config.
+
+- Bugfix: `dob config get` with 2 or more parts stacktraces on unknown setting.
+
+- Enhance: Let user clear end time of final Fact. [dob-viewer]
+
+- Bugfix: Set end time before start, and dob crashes after alert. [dob-viewer]
+
+- Improve: Use fact_min_delta as min. width on neighbor time adjust. [dob-viewer]
+
+- Improve: Allow config to be reloaded, to support plugin config. [dob-bright]
+
+- Bugfix: Interactive editor `gg` (jump to first Fact) fails. [nark]
+
+- Bugfix: Allow Unicode characters in config values. [dob-bright]
+
 ## 3.0.3 (2020-04-08)
 
 - Deps: Update versions to profit from library bug fixes.
