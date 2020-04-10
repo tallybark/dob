@@ -32,6 +32,7 @@ __all__ = (
     # PRIVATE:
     #  'echo_config_value_setting',
     #  'echo_config_value_section',
+    #  'exit_error_no_setting',
     #  'fetch_config_object',
     #  'error_exit_not_one',
     #  'config_parts_pop_value',
@@ -54,9 +55,7 @@ def echo_config_table(controller, section, keyname, **kwargs):
         try:
             conf_objs = controller.configurable.find_all(parts)
         except AttributeError:
-            dob_in_user_exit(_(
-                'ERROR: Not a configuration setting: “{}”.'.format('.'.join(parts))
-            ))
+            exit_error_no_setting(parts)
         for conf_obj in conf_objs:
             conf_obj.walk(visitor)
         echo_table()
@@ -192,4 +191,10 @@ def must_be_config_setting(section_or_setting):
             'ERROR: Not a configuration setting: “{}”.'.format(section_or_setting._name)
         ))
     return section_or_setting
+
+
+def exit_error_no_setting(parts):
+    dob_in_user_exit(_(
+        'ERROR: Not a configuration setting: “{}”.'.format('.'.join(parts))
+    ))
 
