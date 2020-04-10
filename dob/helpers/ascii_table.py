@@ -148,7 +148,7 @@ def _generate_table_display(rows, plain_headers, color_headers, table_type):
         #       If you add color to your headers, their columns will not
         #       line up with the content rows! (lb): "A deal breaker!"
         ttable = texttable.Texttable()
-        ttable.set_cols_align(["l", "r"])
+        ttable.set_cols_align(["r", "l", "l", "l"])
         rows.insert(0, plain_headers)
         ttable.add_rows(rows)
         textable = ttable.draw()
