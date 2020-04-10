@@ -29,8 +29,8 @@ def post_processor(func):
     """
 
     def wrapper(ctx, controller, *args, **kwargs):
-        # Ensure that plugins are loaded, which may have functions
-        # decorated with @Controller.post_processor.
+        # Ensure that plugins are loaded. Plugins may have functions
+        # decorated with @Controller.post_processor to be called.
         # - ctx.parent is a click_hotoffthehamster.core.Context, and
         #   ctx.parent.command is <ClickAliasableBunchyPluginGroup run>.
         ctx.parent.command.ensure_plugged_in(controller)
