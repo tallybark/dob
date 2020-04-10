@@ -132,12 +132,23 @@ def _generate_table_truncate_cell_values(rows, trunccol, max_width):
 
 
 def _generate_table_display(rows, plain_headers, color_headers, table_type):
-    if table_type == 'tabulate':
+    """Generates and display a table in for format specified."""
+    def __generate_table_display():
+        if table_type == 'tabulate':
+            __generate_table_tabulate()
+        elif table_type == 'texttable':
+            __generate_table_texttable()
+        else:
+            assert table_type == 'friendly'
+            __generate_table_friendly()
+
+    def __generate_table_tabulate():
         tabulation = tabulate.tabulate(
             rows, headers=color_headers, tablefmt="fancy_grid",
         )
         click_echo(tabulation)
-    elif table_type == 'texttable':
+
+    def __generate_table_texttable():
         # PROS: Texttable wraps long lines by **default**!
         #       And within the same column!
         #         So you don't need to --truncate.
@@ -153,11 +164,13 @@ def _generate_table_display(rows, plain_headers, color_headers, table_type):
         ttable.add_rows(rows)
         textable = ttable.draw()
         click_echo(textable)
-    else:
-        assert table_type == 'friendly'
+
+    def __generate_table_friendly():
         # Haha, humanfriendly colors the header text green by default.
         friendly = format_pretty_table(rows, color_headers)
         click_echo(friendly)
+
+    __generate_table_display()
 
 
 def warn_if_truncated(controller, n_results, n_rows):
