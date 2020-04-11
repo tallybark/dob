@@ -542,7 +542,13 @@ handler, you can wrest terminal interactivity back with ``stty``:
 To test against other Python versions than what is setup in your |virtualenv|_,
 you can use |tox|_ and name an environment with the |envlist|_ option::
 
-    $ tox -e NAME_OR_ENVIRONMENT
+    $ tox -e <ENVIRONMENT>
+
+For instance::
+
+    $ tox -e py38
+
+The available environments are declared in ``tox.ini``.
 
 ===========
 Style Guide
