@@ -202,7 +202,7 @@ def details(controller, tmi):
 # ***
 
 @cmd_bunch_group_get_meta
-@run.command(help=help_strings.ENVIRONS_HELP)
+@run.command(aliases=['env'], help=help_strings.ENVIRONS_HELP)
 @show_help_finally
 @flush_pager
 @pass_controller
