@@ -2,7 +2,7 @@
 dob
 @@@
 
-.. image:: https://travis-ci.com/hotoffthehamster/dob.svg?branch=develop
+.. image:: https://api.travis-ci.com/hotoffthehamster/dob.svg?branch=develop
   :target: https://travis-ci.com/hotoffthehamster/dob
   :alt: Build Status
 
@@ -14,7 +14,7 @@ dob
   :target: https://dob.readthedocs.io/en/latest/
   :alt: Documentation Status
 
-.. image:: https://img.shields.io/github/release/hotoffthehamster/dob.svg?style=flat
+.. image:: https://img.shields.io/github/v/release/hotoffthehamster/dob.svg?style=flat
   :target: https://github.com/hotoffthehamster/dob/releases
   :alt: GitHub Release Status
 

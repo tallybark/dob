@@ -21,7 +21,7 @@ Credits
 .. _hamster-cli: https://github.com/projecthamster/hamster-cli
 
 .. |Landon Bouma| replace:: Landon Bouma
-.. _Landon Bouma: https://tallybark.com
+.. _Landon Bouma: https://www.tallybark.com/
 
 .. |HotOffThe Hamster| replace:: HotOffThe Hamster
 .. _HotOffThe Hamster: https://github.com/hotoffthehamster
