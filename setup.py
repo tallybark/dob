@@ -60,13 +60,13 @@ requirements = [
 
     # The heart of Hamster. (Ye olde `hamster-lib`).
     #  https://github.com/hotoffthehamster/nark
-    'nark >= 3.0.5, < 4',
+    'nark >= 3.0.7, < 4',
     # The controller, config, and common output and error tossing code.
     #  https://github.com/hotoffthehamster/dob-bright
-    'dob-bright >= 1.0.8, < 2',
+    'dob-bright >= 1.0.9, < 2',
     # The so-called Facts "carousel" chrono-viewer.
     #  https://github.com/hotoffthehamster/dob-viewer
-    'dob-viewer >= 1.0.7, < 2',
+    'dob-viewer >= 1.0.8, < 2',
 ]
 
 # *** Minimal setup() function -- Prefer using config where possible.
