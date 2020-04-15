@@ -28,16 +28,14 @@
 [dob-viewer]: https://github.com/hotoffthehamster/dob-viewer
     "`dob-viewer`"
 
-- Bugfix: Crash handling clock time parse error.
-  [[dob-viewer][]]
+- Bugfix: Crash handling clock time parse error. [[dob-viewer][]]
 
   - Usually specifying clock time is okay, e.g., '100' is interpreted
     as 1:00a. But the hour and minute components were not being
     bounds-checked, i.e., 0..59. So, e.g., trying to decode '090'
     would crash (rather than be reported as not-a-date).
 
-- Bugfix: Editor command handlers using stale "now".
-  [[dob-viewer][]]
+- Bugfix: Editor command handlers using stale "now". [[dob-viewer][]]
 
   - So, e.g., if you started dob at 5p, and now it's 6p, and the current
     Fact is active (no end time), pressing 'J' to jump back a day would
@@ -45,18 +43,15 @@
     important use cases where this was more harmful, but this is the
     most obvious one to highlight.)
 
-- Bugfix: Relative edit time feature broken/shadowed by delta-time bindings.
-  [[dob-viewer][]]
+- Bugfix: Relative edit time feature broken/shadowed by delta-time bindings. [[dob-viewer][]]
 
   - E.g., trying to type a relative time, say '+60', in the edit time widget
     was been intercepted by the newish delta-time feature. Consequently, the
     delta-time feature is now disabled when editing the start or end time.
 
-- Bugfix: Commando save (`:w`) hides status message ('Saved {} Facts').
-  [[dob-viewer][]]
+- Bugfix: Commando save (`:w`) hides status message ('Saved {} Facts'). [[dob-viewer][]]
 
-- Feature: Jump to date (using `G` or `gg` command modifier prefix).
-  [[dob-viewer][]]
+- Feature: Jump to date (using `G` or `gg` command modifier prefix). [[dob-viewer][]]
 
   - E.g., `20200410G` will jump to first Fact on 2020-04-10.
 
@@ -71,15 +66,13 @@
     Or type `2020/01/01 1400G` or more simply `2020010114G`
     to jump to 2p on New Year's day, 2020.
 
-- Feature: Wire backspace to command modifier, commando, and time-delta modes.
-  [[dob-viewer][]]
+- Feature: Wire backspace to command modifier, commando, and time-delta modes. [[dob-viewer][]]
 
   - Pressing backspace will (naturally) remove the last character typed
     from the command modifier/commando/time-delta being built, or it'll
     cancel the operation if nothing is left to remove.
 
-- Feature: Add true first/final Fact jump commands.
-  [[dob-viewer][]]
+- Feature: Add true first/final Fact jump commands. [[dob-viewer][]]
 
   - Because `G` and `gg` stop on FactsManager group boundaries
     (these are the contiguous Fact "windows" the editor uses to
@@ -92,47 +85,39 @@
 
   - The new commands are wired to `f` (final) and `F` (first) Fact jump.
 
-- Improve: Show command modifier or delta-time in status as user types.
-  [[dob-viewer][]]
+- Improve: Show command modifier or delta-time in status as user types. [[dob-viewer][]]
 
   - Might as well, because we already display the commando as it's built.
     And it provides context to the user, which could be a teachable moment,
     if the user is learning by mashing (keys).
 
-- Improve: Support allow-gap toggling.
-  [[dob-viewer][]]
+- Improve: Support allow-gap toggling. [[dob-viewer][]]
 
   - Now that the command modifier or time-delta is shown as a status
     message, it'll be obvious to the user if allow-gap is on or off.
     So pressing `!!` will first enable allow-gap, then disable it,
     rather than canceling the operation.
 
-- Improve: Let user allow-gap (e.g., `!`) before time-delta (`-`/`+`).
-  [[dob-viewer][]]
+- Improve: Let user allow-gap (e.g., `!`) before time-delta (`-`/`+`). [[dob-viewer][]]
 
   - E.g., in addition to `+10!<ENTER>`, `!+10<ENTER>` also now works.
 
-- Improve: Wire Ctrl-C to clear or cancel command modifier/commando/delta-time.
-  [[dob-viewer][]]
+- Improve: Wire Ctrl-C to clear or cancel command modifier/commando/delta-time. [[dob-viewer][]]
 
-- Improve: Allow Tab, in addition to Enter, to finish delta-time command.
-  [[dob-viewer][]]
+- Improve: Allow Tab, in addition to Enter, to finish delta-time command. [[dob-viewer][]]
 
   - Because Tab is the left hand's Enter.
 
-- Improve: Make easy to set end to "now" on active Fact (e.g., via `[` or `]`).
-  [[dob-viewer][]]
+- Improve: Make easy to set end to "now" on active Fact (e.g., via `[` or `]`). [[dob-viewer][]]
 
   - For active Fact, rather than the 1-minute decrement (`[`) and increment
     (`]`) operators using (now - 60 seconds) or (now + 60 seconds), just use
     now. (So if user wants to really remove 1 minute from now they can just
     press the key twice, e.g., `[[`, or use a count modifier, e.g., `1[`.)
 
-- Improve: Linger to show 'Saved' message on save-and-exit commando (`:wq`).
-  [[dob-viewer][]]
+- Improve: Linger to show 'Saved' message on save-and-exit commando (`:wq`). [[dob-viewer][]]
 
-- Improve: Pass carousel-active indicator to post processors.
-  [[dob-viewer][]]
+- Improve: Pass carousel-active indicator to post processors. [[dob-viewer][]]
 
   - So that plugins may behave differently when triggered by a save when dob
     is also quitting, versus a save from the interactive editor.
@@ -140,8 +125,7 @@
     - This is mostly useful so that a plugin does not errantly output any
       text to the display, which would mess up the editor interface.
 
-- Improve: Add "from" to Jump Fact time reference status message, for context.
-  [[dob-viewer][]]
+- Improve: Add "from" to Jump Fact time reference status message, for context. [[dob-viewer][]]
 
 ## 3.0.5 (2020-04-13)
 
