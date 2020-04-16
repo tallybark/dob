@@ -11,7 +11,7 @@
 [OhMyRepos]: https://github.com/landonb/ohmyrepos
     "OhMyRepos"
 
-## 3.0.6 (2020-04-13)
+## 3.0.7 (2020-04-16)
 
 [dob]: https://github.com/hotoffthehamster/dob
     "`dob`"
@@ -27,6 +27,91 @@
 
 [dob-viewer]: https://github.com/hotoffthehamster/dob-viewer
     "`dob-viewer`"
+
+- Feature: Let user define custom key bindings for pasting arbitrary factoids. [[dob-viewer][]]
+
+  - I.e., user can map their own keys to setting Fact metadata,
+    including the act@gory, tags, and the description.
+
+  - Usage: Add 2 settings to your user config for each custom mapping.
+
+    - One setting specifies the Factoid to parse,
+      and the other is the key binding to use.
+
+    - Nest them under a new `[custom-paste]` section. Use the prefixes,
+      `factoid_` and `mapping_`, and start numbering from `1`.
+
+    - For instance, within `~/.cache/dob/dob.conf`, here are
+      some custom mappings:
+
+      ```shell
+      [custom-paste]
+
+      # Paste act@gory and 2 tags:
+      factoid_1 = "Tea@Personal: #biscuit #zinger"
+      mapping_1 = f4
+
+      # Paste act@gory, 1 tag, and a description (if not already set):
+      factoid_2 = "Tickets@Project: #num-1234: Working on baloney."
+      mapping_2 = f5
+
+      # Paste a few tags (the @: is required):
+      factoid_3 = "@: #tag-1 #tag-2"
+      mapping_3 = f6
+
+      # Paste a mere description:
+      factoid_4 = "#this is not a tag"
+      mapping_4 = f7
+      ```
+
+      Then, just press `F4`, or `F5`, etc., to apply to the current Fact.
+
+      The user can choose whatever keybindings they want, and whatever metadata.
+
+      Note that there's an arbitrary limit of 28 such custom paste commands.
+
+  - See also `dob add --help` for a description of the Factoid format.
+
+    Or just follow the formats in the example above.
+
+- Feature: New command "shortcuts" (multiple command wrappers). [[dob-viewer][]]
+
+  - One command to copy the current Fact meta and paste to the final Fact.
+
+    - Currently mapped to `Ctrl-e`.
+
+  - One command to copy the current Fact meta, stop the final Fact,
+    and paste to the new active Fact.
+
+    - Currently mapped to `V`.
+
+  - One command to stop the final Fact, switch to the new active Fact,
+    and prompt for the act@gory.
+
+    - Currently mapped to `o`.
+
+- Bugfix: Entering date prefix but calling [count]-modified command crashes. [[dob-viewer][]]
+
+- Bugfix: Applying meaningless delta-time still marks Fact dirty nonetheless. [[dob-viewer][]]
+
+  - E.g., if Fact is 30 minutes wide, and you `+30<TAB>` to set end to
+    30 minutes past start, Fact Diff would show no change, but on quit,
+    dob would ask you to save.
+
+- Bugfix: Rift jumpers change to first/final real Fact, not gap Fact. [[dob-viewer][]]
+
+- UX: Swap `G`/`gg` and `f`/`F` command mappings. [[dob-viewer][]]
+
+- Improve?: Update active gap Fact status on the tick. [[dob-viewer][]]
+
+  - Updates X.XX in the text, "Gap Fact of X.XX mins. [edit to add]."
+
+  - Except change the precision to one, e.g., X.X mins, so it updates
+    less frequently. Otherwise, if hundredths place showing, the status
+    message and the Fact Diff end time (which shows \<now>) update at
+    slightly different rates, but similar enough that it looks weird.
+
+## 3.0.6 (2020-04-14)
 
 - Bugfix: Crash handling clock time parse error. [[dob-viewer][]]
 
