@@ -11,7 +11,7 @@
 [OhMyRepos]: https://github.com/landonb/ohmyrepos
     "OhMyRepos"
 
-## 3.0.7 (2020-04-16)
+## 3.0.8 (2020-04-17)
 
 [dob]: https://github.com/hotoffthehamster/dob
     "`dob`"
@@ -27,6 +27,12 @@
 
 [dob-viewer]: https://github.com/hotoffthehamster/dob-viewer
     "`dob-viewer`"
+
+- Docs: Document the interactive editor.
+
+- Improve: Remove requirement that custom paste config be numbered sequentially. [[dob-viewer][]]
+
+## 3.0.7 (2020-04-16)
 
 - Feature: Let user define custom key bindings for pasting arbitrary factoids. [[dob-viewer][]]
 

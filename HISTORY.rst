@@ -22,6 +22,14 @@ History
 
 .. :changelog:
 
+3.0.8 (2020-04-17)
+===================
+
+- Docs: Document the interactive editor.
+
+- Improve: Remove requirement that custom paste config be numbered sequentially.
+  [dob-viewer]
+
 3.0.7 (2020-04-16)
 ==================
 
