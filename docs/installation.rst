@@ -34,14 +34,15 @@ To develop on the project, link to the source files instead:
     $ rmvirtualenv dob
     $ git clone git@github.com:hotoffthehamster/dob.git
     $ cd dob
-    $ mkvirtualenv -a $(pwd) --python=/usr/bin/python3.6 dob
+    $ mkvirtualenv -a $(pwd) --python=/usr/bin/python3.8 dob
     (dob) $ make develop
 
 After creating the virtual environment,
-to start developing from a fresh terminal, run |workon|_:
+run |workon|_ to start developing from a fresh terminal:
 
 .. code-block:: sh
 
     $ workon dob
-    (dob) $ ...
+    (dob) $ dob --version
+    ...
 

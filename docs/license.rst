@@ -4,8 +4,8 @@ LICENSE
 
 This software —
 ``dob`` —
-is Copyright © 2018-2020 Landon Bouma,
-Copyright © 2015-2016 Eric Goller.
+is Copyright © 2018-2020 Landon Bouma.
+Some parts copyright © 2015-2016 Eric Goller.
 All rights reserved.
 
 This software is licensed under version 3

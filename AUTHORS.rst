@@ -45,7 +45,7 @@ Coupled Projects
 
 * And of course |dob|_'s hamster heart is furnished by |nark|_.
 
-Please see these projects docs for additional shout-outs and acknowledgements.
+Please see those projects' docs for additional shout-outs and acknowledgements.
 
 Others Credits
 ==============

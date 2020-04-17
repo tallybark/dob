@@ -1,6 +1,5 @@
-############
 Contributing
-############
+============
 
 .. |dob| replace:: ``dob``
 .. _dob: https://github.com/hotoffthehamster/dob
@@ -58,14 +57,17 @@ Contributions are welcome, and they are greatly appreciated!
 
 Every little bit helps, and credit will always be given (if so desired).
 
-=================
 How to Contribute
-=================
+-----------------
 
-You can contribute in many ways:
+First, please respect the `Code of Conduct`__ and each other.
+
+__ https://dob.readthedocs.io/en/latest/code-of-conduct.html
+
+Then, decide how you'd like to contribute:
 
 Report Bugs
------------
+^^^^^^^^^^^
 
 Report bugs at https://github.com/hotoffthehamster/dob/issues.
 
@@ -78,19 +80,19 @@ When reporting a bug, please include:
 * Detailed steps to reproduce the bug.
 
 Fix Bugs
---------
+^^^^^^^^
 
 Look through the GitHub issues for anything tagged with "bug".
 Pick one, assign yourself to it, and work on the issue.
 
 Implement Features
-------------------
+^^^^^^^^^^^^^^^^^^
 
 Look through the GitHub issues for anything tagged with "feature".
 Pick one, assign yourself to it, and work on the issue.
 
 Write Documentation
--------------------
+^^^^^^^^^^^^^^^^^^^
 
 If you find documentation out of date, missing, or confusing, please help
 us to improve it.
@@ -105,7 +107,7 @@ and the inline docstrings that generate the `API documentation
 We also appreciate reference from blog posts, articles, and other projects.
 
 Submit Feedback
----------------
+^^^^^^^^^^^^^^^
 
 The best way to send feedback is to file an issue at
 https://github.com/hotoffthehamster/dob/issues.
@@ -128,9 +130,8 @@ If you are proposing a feature:
 Please also feel free to email the author directly if you have any other
 questions or concerns. Response times may vary depending on season.
 
-===============
 Getting Started
-===============
+---------------
 
 Ready to contribute? Here's how to set up |dob|_
 for local development.
@@ -418,9 +419,8 @@ for local development.
 (*Ansible users:* You might enjoy this Dob-dev setup role:
 https://github.com/landonb/zoidy_dob-dev.)
 
-=======================
 Pull Request Guidelines
-=======================
+-----------------------
 
 Before you submit a pull request, check that it meets these guidelines:
 
@@ -468,9 +468,8 @@ Before you submit a pull request, check that it meets these guidelines:
 
    * 'nough said.
 
-==============
 Debugging Tips
-==============
+--------------
 
 To run one test or a subset of tests, you can specify a substring
 expression using the ``-k`` option with ``make test``::
@@ -550,14 +549,13 @@ For instance::
 
 The available environments are declared in ``tox.ini``.
 
-===========
 Style Guide
-===========
+-----------
 
 Code style should be readily apparent by reading existing code.
 
 Style Enforcement
------------------
+^^^^^^^^^^^^^^^^^
 
 The style of new code can be easily and incontrovertibly verified
 by running various developer tasks.
@@ -628,7 +626,7 @@ by running various developer tasks.
    other changes, e.g., ``git checkout -- setup.cfg``.
 
 Style Reference
----------------
+^^^^^^^^^^^^^^^
 
 The project style tracks as closely as possible to community conventions,
 mostly established in 2001 by Python's creator, Guido van Rossum, and others:
@@ -657,7 +655,7 @@ extension:
   Support for NumPy and Google style docstrings.
 
 Conventional Deviations
------------------------
+^^^^^^^^^^^^^^^^^^^^^^^
 
 The conventions outlined in `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_
 are enforced by the `Flake8 <http://flake8.pycqa.org/en/latest/>`__ linter, with
@@ -770,7 +768,7 @@ the existing linters, by way of not being features), including:
   * Use *six.text_type* to cast a string (to Unicode).
 
 Of Readability
---------------
+^^^^^^^^^^^^^^
 
 Concerning Writing *Tests, Docstrings, Comments, and Documentation*:
 
@@ -797,8 +795,8 @@ Concerning Writing *Tests, Docstrings, Comments, and Documentation*:
   (Which is not to say that docstrings have no utility! Just that docstrings
   are essentially worthless if what you documented has no test coverage, say.)
 
-Altogether Now
---------------
+Just run ``tox``
+^^^^^^^^^^^^^^^^
 
 Save for running |isort|_ (`see above`__),
 you can run all linter and test tasks with one 3-letter command:
@@ -813,13 +811,4 @@ Once this command is passing, you should be good to commit (or rebase) your
 work and to submit a `Pull Request`__.
 
 __ `Pull Request Guidelines`_
-
-===========================
-Contributor Code of Conduct
-===========================
-
-Please respect and adhere to the `Code of Conduct <code-of-conduct.html>`__
-(please also read it!).
-
-**🐹appy 🐹amster 🐹acking!!1**
 

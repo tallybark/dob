@@ -8,11 +8,16 @@ Basic Usage
 Start Fresh
 -----------
 
-Create the config and database, and run the interactive editor:
+Create the config and database:
 
 .. code-block:: Bash
 
    $ dob init
+
+Launch the interactive editor:
+
+.. code-block:: Bash
+
    $ dob edit
 
 .. _upgrade-legacy-database:
@@ -25,8 +30,8 @@ existing database, and then run the interactive editor:
 
 .. code-block:: Bash
 
-   $ legacy_db=~/.local/share/hamster-applet/hamster.db
-   $ dob store upgrade-legacy ${legacy_db}
+   $ legacy_db="~/.local/share/hamster-applet/hamster.db"
+   $ dob store upgrade-legacy "$legacy_db"
    $ dob edit
 
 More Help
