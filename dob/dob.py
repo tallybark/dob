@@ -99,10 +99,14 @@ from .facts.edit_fact import edit_fact_by_pk
 from .facts.export_facts import export_facts
 from .facts.import_facts import import_facts
 from .migrate import upgrade_legacy_database_file
-from .run_cli import dob_versions, pass_controller, run
+from .run_cli import dob_versions, pass_controller, pass_controller_context, run
 from .settings import echo_config_table, echo_config_value, write_config_value
 
 # __all__ = ( ... )  # So many. Too tedious to list.
+
+# ***
+# *** [HELP]
+# ***
 
 
 @cmd_bunch_group_get_meta
@@ -306,8 +310,7 @@ def config_create(controller, force):
 @cmd_options_table_renderer
 @click.argument('section', nargs=1, default='')
 @click.argument('keyname', nargs=1, default='')
-@pass_controller
-@click.pass_context
+@pass_controller_context
 @ensure_plugged_in
 def config_dump(ctx, controller, section='', keyname='', **kwargs):
     """"""
@@ -320,8 +323,7 @@ def config_dump(ctx, controller, section='', keyname='', **kwargs):
 @show_help_finally
 @flush_pager
 @click.argument('parts', nargs=-1, metavar='[SECTION] KEYNAME VALUE')
-@pass_controller
-@click.pass_context
+@pass_controller_context
 @ensure_plugged_in
 def config_value_get(ctx, controller, parts):
     """"""
@@ -334,8 +336,7 @@ def config_value_get(ctx, controller, parts):
 @show_help_finally
 @flush_pager
 @click.argument('parts', nargs=-1, metavar='[SECTION] KEYNAME VALUE')
-@pass_controller
-@click.pass_context
+@pass_controller_context
 @ensure_plugged_in
 def config_value_set(ctx, controller, parts):
     """"""
@@ -347,8 +348,7 @@ def config_value_set(ctx, controller, parts):
 @config_group.command('update', help=help_strings.CONFIG_UPDATE_HELP)
 @show_help_finally
 @flush_pager
-@pass_controller
-@click.pass_context
+@pass_controller_context
 @ensure_plugged_in
 def config_update(ctx, controller):
     """Write "missing" key values to the user configuration file."""
@@ -407,8 +407,7 @@ def store_url(controller):
 @click.argument('filename', nargs=1, type=click.File('r'), required=False)
 @click.option('-f', '--force', is_flag=True,
               help=help_strings.STORE_UPGRADE_FORCE_HELP)
-@pass_controller
-@click.pass_context
+@pass_controller_context
 @post_processor
 def upgrade_legacy(ctx, controller, force, filename=None):
     """Migrate a legacy "Hamster" database."""
@@ -424,9 +423,9 @@ def upgrade_legacy(ctx, controller, force, filename=None):
 @run.command('stats', help=help_strings.STATS_HELP)
 @show_help_finally
 @flush_pager
-@pass_controller
+@pass_controller_context
 @induct_newbies
-def nark_stats(controller):
+def nark_stats(ctx, controller):
     """List stats about the user's data."""
     echo_data_stats(controller)
 
@@ -442,8 +441,7 @@ def nark_stats(controller):
 @show_help_finally
 @show_help_if_no_command
 @flush_pager
-@pass_controller
-@click.pass_context
+@pass_controller_context
 def list_group(ctx, controller):
     """Base `list` group command run prior to any of the dob-list commands."""
     pass
@@ -459,9 +457,9 @@ def list_group(ctx, controller):
 @cmd_options_usage
 @cmd_options_table_view
 @cmd_options_limit_offset
-@pass_controller
+@pass_controller_context
 @induct_newbies
-def list_activities(controller, *args, usage=False, **kwargs):
+def list_activities(ctx, controller, *args, usage=False, **kwargs):
     """List matching activities, filtered and sorted."""
     category = postprocess_options_list_categoried(kwargs)
     postprocess_options_table_options(kwargs)
@@ -485,9 +483,9 @@ def list_activities(controller, *args, usage=False, **kwargs):
 @cmd_options_usage
 @cmd_options_table_view
 @cmd_options_limit_offset
-@pass_controller
+@pass_controller_context
 @induct_newbies
-def list_categories(controller, *args, usage=False, **kwargs):
+def list_categories(ctx, controller, *args, usage=False, **kwargs):
     """List matching categories, filtered and sorted."""
     postprocess_options_table_options(kwargs)
     if usage:
@@ -512,9 +510,9 @@ def list_categories(controller, *args, usage=False, **kwargs):
 @cmd_options_usage
 @cmd_options_table_view
 @cmd_options_limit_offset
-@pass_controller
+@pass_controller_context
 @induct_newbies
-def list_tags(controller, *args, usage=False, **kwargs):
+def list_tags(ctx, controller, *args, usage=False, **kwargs):
     """List all tags, with filtering and sorting options."""
     activity = postprocess_options_list_activitied(kwargs)
     category = postprocess_options_list_categoried(kwargs)
@@ -560,9 +558,9 @@ def generate_list_facts_command(func):
     @cmd_options_table_view
     @cmd_options_limit_offset
     @cmd_options_list_fact
-    @pass_controller
+    @pass_controller_context
     @induct_newbies
-    def dob_list_facts(controller, *args, doc, **kwargs):
+    def dob_list_facts(ctx, controller, *args, doc, **kwargs):
         _list_facts(controller, *args, block_format=doc, **kwargs)
     return update_wrapper(dob_list_facts, func)
 
@@ -596,8 +594,7 @@ def search_facts(controller, *args, **kwargs):
 @show_help_finally
 @show_help_if_no_command
 @flush_pager
-@pass_controller
-@click.pass_context
+@pass_controller_context
 def usage_group(ctx, controller):
     """Base `usage` group command run prior to any of the dob-usage commands."""
     pass
@@ -612,9 +609,9 @@ def usage_group(ctx, controller):
 @cmd_options_list_categoried
 @cmd_options_table_view
 @cmd_options_limit_offset
-@pass_controller
+@pass_controller_context
 @induct_newbies
-def usage_activities(controller, *args, **kwargs):
+def usage_activities(ctx, controller, *args, **kwargs):
     """List all activities. Provide optional filtering by name."""
     category = postprocess_options_list_categoried(kwargs)
     postprocess_options_table_options(kwargs)
@@ -634,9 +631,9 @@ def usage_activities(controller, *args, **kwargs):
 @cmd_options_search
 @cmd_options_table_view
 @cmd_options_limit_offset
-@pass_controller
+@pass_controller_context
 @induct_newbies
-def usage_categories(controller, *args, **kwargs):
+def usage_categories(ctx, controller, *args, **kwargs):
     """List all categories. Provide optional filtering by name."""
     postprocess_options_table_options(kwargs)
     usage_category.usage_categories(
@@ -656,9 +653,9 @@ def usage_categories(controller, *args, **kwargs):
 @cmd_options_list_categoried
 @cmd_options_table_view
 @cmd_options_limit_offset
-@pass_controller
+@pass_controller_context
 @induct_newbies
-def usage_tags(controller, *args, **kwargs):
+def usage_tags(ctx, controller, *args, **kwargs):
     """List all tags' usage counts, with filtering and sorting options."""
     activity = postprocess_options_list_activitied(kwargs)
     category = postprocess_options_list_categoried(kwargs)
@@ -682,9 +679,9 @@ def usage_tags(controller, *args, **kwargs):
 @cmd_options_list_categoried
 @cmd_options_table_view
 @cmd_options_limit_offset
-@pass_controller
+@pass_controller_context
 @induct_newbies
-def usage_facts(controller, *args, **kwargs):
+def usage_facts(ctx, controller, *args, **kwargs):
     """List all tags' usage counts, with filtering and sorting options."""
     activity = postprocess_options_list_activitied(kwargs)
     category = postprocess_options_list_categoried(kwargs)
@@ -711,9 +708,8 @@ def usage_facts(controller, *args, **kwargs):
     '-f', '--force', '--purge', is_flag=True,
     help=_('Completely delete Fact, rather than just marking deleted.'),
 )
-@pass_controller
+@pass_controller_context
 @induct_newbies
-@click.pass_context
 @post_processor
 def cancel(ctx, controller, force):
     """Cancel the active Fact. Do not store the Fact in the backend."""
@@ -724,9 +720,9 @@ def cancel(ctx, controller, force):
 @run.command('current', help=help_strings.CURRENT_HELP)
 @show_help_finally
 @flush_pager
-@pass_controller
+@pass_controller_context
 @induct_newbies
-def current(controller):
+def current(ctx, controller):
     """Display the active Fact."""
     echo_ongoing_fact(controller)
 
@@ -735,9 +731,9 @@ def current(controller):
 @run.command('latest', aliases=['last'], help=help_strings.LATEST_HELP)
 @show_help_finally
 @flush_pager
-@pass_controller
+@pass_controller_context
 @induct_newbies
-def latest(controller):
+def latest(ctx, controller):
     """Display the last saved Fact."""
     echo_latest_ended(controller)
 
@@ -746,9 +742,9 @@ def latest(controller):
 @run.command('show', help=help_strings.HELP_CMD_SHOW)
 @show_help_finally
 @flush_pager
-@pass_controller
+@pass_controller_context
 @induct_newbies
-def show(controller):
+def show(ctx, controller):
     """Display the latest saved, or the active Fact."""
     echo_ongoing_or_ended(controller)
 
@@ -761,9 +757,8 @@ def generate_add_fact_command(time_hint):
     def _generate_add_fact_command(func):
         @cmd_options_fact_add
         @cmd_options_fact_dryable
-        @pass_controller
+        @pass_controller_context
         @induct_newbies
-        @click.pass_context
         @post_processor
         def _add_fact(ctx, controller, *args, editor, **kwargs):
             return add_fact(
@@ -966,9 +961,8 @@ add_group_kwargs = {
 @cmd_options_factoid
 @cmd_options_fact_add
 @cmd_options_fact_dryable
-@pass_controller
+@pass_controller_context
 @induct_newbies
-@click.pass_context
 @post_processor
 def add_group(ctx, controller, *args, **kwargs):
     """Base `add` group command run prior to any of the dob-add commands."""
@@ -990,9 +984,8 @@ def add_group(ctx, controller, *args, **kwargs):
 @cmd_options_factoid
 @cmd_options_fact_add
 @cmd_options_fact_dryable
-@pass_controller
+@pass_controller_context
 @induct_newbies
-@click.pass_context
 @post_processor
 def add_help(*args, **kwargs):
     """Misdirecting "add --help" command to improve general help."""
@@ -1009,9 +1002,8 @@ def add_help(*args, **kwargs):
 @flush_pager
 @cmd_options_edit_item
 @cmd_options_fact_edit
-@pass_controller
+@pass_controller_context
 @induct_newbies
-@click.pass_context
 @post_processor
 def edit_group(ctx, controller, *args, **kwargs):
     """Base `edit` group command run prior to any of the dob-edit commands."""
@@ -1123,11 +1115,9 @@ def cmd_export_opt_output_default(controller):
 @cmd_options_limit_offset
 @cmd_options_list_activitied
 @cmd_options_list_categoried
-@pass_controller
+@pass_controller_context
 @induct_newbies
-def transcode_export(
-    controller, *args, output, format, **kwargs
-):
+def transcode_export(ctx, controller, *args, output, format, **kwargs):
     """Export all facts of within a given timewindow to a file of specified format."""
     def _transcode_export():
         activity = postprocess_options_list_activitied(kwargs)
@@ -1182,9 +1172,8 @@ def transcode_export(
               help=_('Leave working backup file after commit'))
 @cmd_options_fact_dryable
 @cmd_options_fact_import
-@pass_controller
+@pass_controller_context
 @induct_newbies
-@click.pass_context
 @post_processor
 def transcode_import(
     ctx,
@@ -1266,9 +1255,9 @@ def transcode_import(
 @run.command('complete', hidden=True, help=help_strings.COMPLETE_HELP)
 @show_help_finally
 @flush_pager
-@pass_controller
+@pass_controller_context
 @induct_newbies
-def complete(controller):
+def complete(ctx, controller):
     """Bash tab-completion helper."""
     controller.disable_logging()
     tab_complete(controller)
@@ -1283,8 +1272,7 @@ def complete(controller):
 @show_help_finally
 @show_help_if_no_command
 @flush_pager
-@pass_controller
-@click.pass_context
+@pass_controller_context
 def migrate_group(ctx, controller):
     """Base `migrate` group command run prior to any of the dob-migrate commands."""
     pass
@@ -1293,9 +1281,9 @@ def migrate_group(ctx, controller):
 @migrate_group.command('control', help=help_strings.MIGRATE_CONTROL_HELP)
 @show_help_finally
 @flush_pager
-@pass_controller
+@pass_controller_context
 @insist_germinated
-def migrate_control(controller):
+def migrate_control(ctx, controller):
     """Mark a database as under version control."""
     migrate.control(controller)
 
@@ -1303,9 +1291,9 @@ def migrate_control(controller):
 @migrate_group.command('down', help=help_strings.MIGRATE_DOWN_HELP)
 @show_help_finally
 @flush_pager
-@pass_controller
+@pass_controller_context
 @insist_germinated
-def migrate_downgrade(controller):
+def migrate_downgrade(ctx, controller):
     """Downgrade the database according to its migration version."""
     migrate.downgrade(controller)
 
@@ -1313,9 +1301,9 @@ def migrate_downgrade(controller):
 @migrate_group.command('up', help=help_strings.MIGRATE_UP_HELP)
 @show_help_finally
 @flush_pager
-@pass_controller
+@pass_controller_context
 @insist_germinated
-def migrate_upgrade(controller):
+def migrate_upgrade(ctx, controller):
     """Upgrade the database according to its migration version."""
     migrate.upgrade(controller)
 
@@ -1323,9 +1311,9 @@ def migrate_upgrade(controller):
 @migrate_group.command('version', help=help_strings.MIGRATE_VERSION_HELP)
 @show_help_finally
 @flush_pager
-@pass_controller
+@pass_controller_context
 @insist_germinated
-def migrate_version(controller):
+def migrate_version(ctx, controller):
     """Show migration information about the database."""
     migrate.version(controller)
 

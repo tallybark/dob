@@ -42,10 +42,10 @@ def backend_integrity(func):
     than not telling the user at all, I suppose.
     """
 
-    def wrapper(controller, *args, **kwargs):
+    def wrapper(ctx, controller, *args, **kwargs):
         version_must_be_latest(controller)
         time_must_be_gapless(controller)
-        func(controller, *args, **kwargs)
+        func(ctx, controller, *args, **kwargs)
 
     # ***
 
@@ -99,9 +99,9 @@ def insist_germinated(func):
     """
     """
 
-    def wrapper(controller, *args, **kwargs):
+    def wrapper(ctx, controller, *args, **kwargs):
         controller.insist_germinated(fact_cls=FactDressed)
-        func(controller, *args, **kwargs)
+        func(ctx, controller, *args, **kwargs)
 
     return wrapper
 

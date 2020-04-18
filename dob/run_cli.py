@@ -18,6 +18,7 @@
 """Defines the main Click Group."""
 
 import sys
+from functools import update_wrapper
 
 import click_hotoffthehamster as click
 
@@ -34,6 +35,7 @@ from .copyright import echo_copyright
 
 __all__ = (
     'pass_controller',
+    'pass_controller_context',
     'dob_versions',
     'run',
     # Private:
@@ -44,6 +46,18 @@ __all__ = (
 # Profiling: Controller is made during Command.invoke via click.MultiCommand.invoke.
 # Profiling: Controller calls _get_store: ~ 0.173 secs.
 pass_controller = click.make_pass_decorator(Controller, ensure=True)
+
+
+# ***
+
+def pass_controller_context(func):
+    @pass_controller
+    @click.pass_context
+    def _pass_context(ctx, controller, *args, **kwargs):
+        controller.ctx = ctx
+        func(ctx, controller, *args, **kwargs)
+
+    return update_wrapper(_pass_context, func)
 
 
 # ***
