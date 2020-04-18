@@ -4,7 +4,6 @@ Navigate (Jump) Facts
 
 Continuing along the Vim theme, use ``j`` and ``k`` to navigate Facts.
 
-=================================
 Jump to the next or previous Fact
 =================================
 
@@ -13,7 +12,6 @@ Jump to the next or previous Fact
 
 - Or use the ``left`` and ``right`` arrow keys.
 
-================================
 Jump forward or backward one day
 ================================
 
@@ -25,7 +23,6 @@ You can jump greater distances, too.
 
   You can also use ``Alt-left`` and ``Alt-right``, respectively.
 
-===========================================
 Jump all the way to the first or final Fact
 ===========================================
 
@@ -51,14 +48,12 @@ You can jump all the way backward or all the way forward in time
   the fact at time "now", whereas the ``f`` command ensures you always
   jump to a real Fact, be it the active Fact, or the last ended Fact.
 
-==================================
 Modify Jump commands with a prefix
 ==================================
 
 You can type a *count* prefix or a *date* prefix before the jump commands
 to change their behavior. *(Vim users should recognize this feature!)*
 
-==============
 Jump *n* Facts
 ==============
 
@@ -67,7 +62,6 @@ To jump more than one Fact at a time, add a count modifier to either the
 
 - For instance, to jump back five Facts, type ``5j``.
 
-=============
 Jump *n* days
 =============
 
@@ -76,7 +70,6 @@ of the ``J`` or ``K`` commands.
 
 - For instance, to jump forward six and a half days, type ``6.5K``.
 
-===============================
 Jump to a specific date or time
 ===============================
 

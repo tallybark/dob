@@ -2,7 +2,6 @@
 Exit, Save, and Undo/Redo
 #########################
 
-========
 Exit dob
 ========
 
@@ -20,7 +19,6 @@ looking at you, Vim).
 
 - Or type the Vim-esque colon-command ``:q`` followed by ``Enter``.
 
-====
 Save
 ====
 
@@ -30,7 +28,6 @@ If you guessed ``Ctrl-s``, you'd be right.
 
 - Or you can type ``:wq`` and ``Enter`` to write and quit.
 
-=========
 Undo/Redo
 =========
 

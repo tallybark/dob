@@ -27,7 +27,6 @@ And if you make some edits you don't care for, you can either
 quit the text editor without saving, or you can save and quit the
 text editor, and then use the undo feature in dob (e.g., press ``Ctrl-z``).
 
-===============================
 Text Editor Syntax Highlighting
 ===============================
 

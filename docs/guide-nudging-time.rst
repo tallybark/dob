@@ -5,7 +5,6 @@ Nudge Start and End Time
 In addition to editing the time directly as described earlier,
 you can use a number of special commands to nudge time.
 
-=============================
 Setting the end time to "now"
 =============================
 
@@ -59,7 +58,6 @@ you can press ``right`` to go to what's called a gap Fact.
   anything — set the Activity, apply Tags, edit the description,
   or set the end time — the Fact can then be saved.
 
-===================
 Add and Remove time
 ===================
 
@@ -102,7 +100,6 @@ To nudge both the start time and end time forward by one minute, press
 To decrement both the start and end times by one minute, press
 ``Ctrl-Shift-left``.
 
-=====================
 Set time by reference
 =====================
 
@@ -132,7 +129,6 @@ To use hours instead, terminate the command with ``h``.
 - For example, to set the end 90 minutes after the start,
   you could type ``+1.5h``.
 
-=============================
 Whether to leave a gap or not
 =============================
 

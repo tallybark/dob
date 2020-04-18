@@ -2,7 +2,6 @@
 Copy and Paste Metadata
 #######################
 
-===================
 Copy/Paste Metadata
 ===================
 
@@ -25,7 +24,6 @@ adding a prefix key before ``Ctrl-c``:
 
 Then just ``Ctrl-v`` paste like you normally would.
 
-======================
 Ornate Paste Shortcuts
 ======================
 
@@ -43,7 +41,6 @@ You can also paste-forward the current Fact's metadata to a *new* Fact.
   dob will copy the current Fact's metadata, jump to the final fact,
   stop it, go "right" to the new active Fact, and then paste the metadata.
 
-=====================
 Custom Paste Commands
 =====================
 

@@ -25,7 +25,6 @@ You can change the Activity, Category, and Tags using the Awesome Prompt.
 Finally, you can edit the description using your normal text editor, as
 previously described.
 
-============================
 Edit Start Time and End Time
 ============================
 
@@ -61,7 +60,6 @@ more convenient ways to change a Fact's start and end time.
 
 __ https://dob.readthedocs.io/en/latest/guide-nudging-time.html
 
-=================================
 Edit Activity, Category, and Tags
 =================================
 

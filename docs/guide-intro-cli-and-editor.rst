@@ -2,7 +2,6 @@
 Run the Interactive Editor
 ##########################
 
-============
 CLI Commands
 ============
 
@@ -29,7 +28,6 @@ documented in the CLI, we'll focus here on describing how to use the
 interactive editor. We'll leave it as an exercise for the user to
 read the CLI help.
 
-==================
 Interactive Editor
 ==================
 
@@ -67,7 +65,6 @@ You can press ``?`` in the app to see a short list of commands and keys.
 But a more complete list of editor commands is actually in the config —
 because all of the key bindings in the editor are configurable!
 
-========================
 Set your own keybindings
 ========================
 
@@ -128,7 +125,6 @@ Note, too, that dob supports *multiple* mappings to the same command.
     $ dob config get editor-keys jump_day_dec
     [["J"], ["escape", "left"]]
 
-========================================
 Show all editor commands and keybindings
 ========================================
 

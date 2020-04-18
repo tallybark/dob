@@ -15,7 +15,6 @@ terminal using the CLI, or you can open the config file.
 We recommend using the CLI to see all the settings. The config file may not
 contain settings that have not been changed from their default.
 
-===============
 Dump the config
 ===============
 
@@ -40,7 +39,6 @@ You'll notice that each config setting belongs to a section, has a name, has a
 current value (with the default value shown in <brackets> if different), and
 a bit of help.
 
-=====================
 Dump a config section
 =====================
 
@@ -55,7 +53,6 @@ them after the command. E.g.,::
   |         |               |                 | it can determine highlighting         |
   ...
 
-=====================
 Dump a single setting
 =====================
 
@@ -69,7 +66,6 @@ Or, to see a single setting's entry, include the setting name::
   |         |           |                 | in output.                                |
   +---------+-----------+-----------------+-------------------------------------------+
 
-===========================
 Get and set config settings
 ===========================
 
@@ -86,7 +82,6 @@ To change the value of a setting, use the ``set`` command. For instance::
 
 You can also edit config settings directly in the config file itself.
 
-=====================
 Find your config file
 =====================
 
@@ -114,7 +109,6 @@ Obviously, you'll find the config at the path shown after "Configuration file at
   to use a symlink at the config file path, and then put the real file in
   your private repo.
 
-==========================
 Change settings at runtime
 ==========================
 
