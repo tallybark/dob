@@ -109,6 +109,19 @@ Obviously, you'll find the config at the path shown after "Configuration file at
   to use a symlink at the config file path, and then put the real file in
   your private repo.
 
+Populate your config file
+=========================
+
+Each ``config set`` command will write one value to your config file,
+but if you'd like to add all settings to your config file, so you can
+see them all, run ``config update``::
+
+   $ dob config update
+
+Then open your config file, and you should see all settings therein.
+
+Note that any comments you may have added to the config file will be preserved.
+
 Change settings at runtime
 ==========================
 
