@@ -28,6 +28,8 @@ import click_hotoffthehamster as click
 from dob_bright.config.app_dirs import AppDirs
 from dob_bright.termio import dob_in_user_warning
 
+from dob_viewer.config import pause_on_error_message_maybe
+
 from ..helpers.path import compile_and_eval_source
 
 __all__ = (
@@ -57,7 +59,7 @@ class ClickPluginGroup(click.Group):
     def list_commands(self, ctx):
         """Return list of commands."""
         set_names = set()
-        for cmd in self.get_commands_from_plugins(name=None):
+        for cmd in self.get_commands_from_plugins(ctx, name=None):
             set_names.add(cmd.name)
         cmd_names = super(ClickPluginGroup, self).list_commands(ctx)
         return cmd_names
@@ -73,33 +75,39 @@ class ClickPluginGroup(click.Group):
         if cmd is None:
             # (lb): Profiling: Loading plugins [2018-07-15: I have 3]: 0.139 secs.
             #       So only call if necessary.
-            self.get_commands_from_plugins(name)
+            self.get_commands_from_plugins(ctx, name)
             cmd = super(ClickPluginGroup, self).get_command(ctx, name)
         return cmd
 
     def ensure_plugged_in(self, controller):
         if self.has_loaded:
             return
-        self.get_commands_from_plugins(name=None)
+        self.get_commands_from_plugins(controller.ctx, name=None)
         # Redo the config now that the plugins are loaded (because when we
         # first read the config, the plugins had not added their definitions
         # yet, so any user plugin config was previously ignored).
         controller.replay_config()
 
-    def get_commands_from_plugins(self, name):
+    def get_commands_from_plugins(self, ctx, name):
+        pause_on_error_pending = False
         cmds = set()
         for py_path in self.plugin_paths:
             try:
                 files_cmds = self.open_source_eval_and_poke_around(py_path, name)
-                # (lb): Use a set, because if different plugins all import the
-                # same object, e.g., `from dob.run_cli import run`, we dont'
-                # want to return multiple matches.
-                cmds |= files_cmds
+                if files_cmds:
+                    # (lb): We use a set, because if different plugins all import
+                    # the same object, e.g., `from dob.run_cli import run`, we do
+                    # not want to return multiple matches.
+                    cmds |= files_cmds
+                else:
+                    pause_on_error_pending |= True
             except Exception as err:
                 msg = _(
                     'ERROR: Could not open plugins file "{}": {}'
                 ).format(py_path, str(err))
                 dob_in_user_warning(msg)
+        if pause_on_error_pending:
+            pause_on_error_message_maybe(ctx)
         self.has_loaded = True
         return list(cmds)
 

@@ -17,8 +17,6 @@
 
 from gettext import gettext as _
 
-import time
-
 from dob_bright.termio import dob_in_user_warning
 
 __all__ = (
@@ -31,15 +29,16 @@ def compile_and_eval_source(py_path):
     def _compile_and_eval_source(py_path):
         with open(py_path, 'r') as py_text:
             eval_globals = compile_and_eval_module(py_text, py_path)
-        return eval_globals
+            return eval_globals
 
     def compile_and_eval_module(py_text, py_path):
         code = source_compile(py_text, py_path)
         if code is None:
-            return set()
+            return {}
         eval_globals = globals()
-        eval_source_code(code, eval_globals, py_path)
-        return eval_globals
+        if eval_source_code(code, eval_globals, py_path):
+            return eval_globals
+        return {}
 
     def source_compile(py_text, py_path):
         try:
@@ -50,22 +49,23 @@ def compile_and_eval_source(py_path):
                 'ERROR: Could not compile source file at "{}": {}'
             ).format(py_path, str(err))
             dob_in_user_warning(msg)
-            time.sleep(2.666)
         return code
 
     def eval_source_code(code, eval_globals, py_path):
+        # Pass py_path to code being eval'd, so it can orientate.
+        # (lb): I tried passing `locals()` for second argument, but
+        # then plugins complain `name 'ConfigRoot' is not defined`.
+        eval_globals['__file__'] = py_path
         try:
-            # Pass py_path to code being eval'd, so it can orientate.
-            # (lb): I tried passing `locals()` for second argument, but
-            # then plugins complain `name 'ConfigRoot' is not defined`.
-            eval_globals['__file__'] = py_path
             eval(code, eval_globals, eval_globals)
         except Exception as err:
             msg = _(
                 'ERROR: Could not eval compiled source at "{}": {}'
             ).format(py_path, str(err))
             dob_in_user_warning(msg)
-            time.sleep(2.666)
+            return False
+        else:
+            return True
 
     return _compile_and_eval_source(py_path)
 
