@@ -320,9 +320,9 @@ def config_create(ctx, controller, force):
     controller.create_config(force)
 
 
-# *** [CONFIG] DUMP
+# *** [CONFIG] SHOW
 
-@config_group.command('dump', aliases=['list'], help=help_strings.CONFIG_DUMP_HELP)
+@config_group.command('show', aliases=['dump'], help=help_strings.CONFIG_SHOW_HELP)
 @show_help_finally
 @flush_pager
 @cmd_options_table_renderer
@@ -330,7 +330,7 @@ def config_create(ctx, controller, force):
 @click.argument('keyname', nargs=1, default='')
 @pass_controller_context
 @ensure_plugged_in
-def config_dump(ctx, controller, table_type, section='', keyname=''):
+def config_show(ctx, controller, table_type, section='', keyname=''):
     """"""
     echo_config_table(controller, table_type, section, keyname)
 

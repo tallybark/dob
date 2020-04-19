@@ -71,7 +71,7 @@ Set your own keybindings
 To see the list of editor commands and their keybindings,
 look under the ``editor-keys`` section, e.g.,::
 
-  $ dob config dump editor-keys
+  $ dob config show editor-keys
   +-------------+-----------------------+----------------------+----------------------+
   |   Section   |         Name          |   Value <Default>    |         Help         |
   +=============+=======================+======================+======================+
@@ -128,12 +128,12 @@ Note, too, that dob supports *multiple* mappings to the same command.
 Show all editor commands and keybindings
 ========================================
 
-If you'd like to page the (long) config-dump output, you could, say,
+If you'd like to page the (long) ``config show`` output, you could, say,
 pipe it to ``less``, or you could specify a global CLI option, ``--pager``.
 
 For example, these two commands are essentially equivalent::
 
-  $ dob config dump editor-keys | less
+  $ dob config show editor-keys | less
 
-  $ dob --pager config dump editor-keys
+  $ dob --pager config show editor-keys
 

@@ -15,14 +15,14 @@ terminal using the CLI, or you can open the config file.
 We recommend using the CLI to see all the settings. The config file may not
 contain settings that have not been changed from their default.
 
-Dump the config
+Show the config
 ===============
 
-Run the ``config dump`` command to see all the settings you can change.
+Run the ``config show`` command to see all the settings you can change.
 
 For example::
 
-  $ dob config dump
+  $ dob config show
   +---------+----------+-------------------------------+------------------------------+
   | Section |   Name   |        Value <Default>        |             Help             |
   +=========+==========+===============================+==============================+
@@ -42,10 +42,10 @@ a bit of help.
 Dump a config section
 =====================
 
-You can restrict the dump to a section or even a specific setting by specifying
-them after the command. E.g.,::
+You can restrict to a section or even a specific setting by specifying them
+after the command. E.g.,::
 
-  $ dob config dump term
+  $ dob config show term
   +---------+---------------+-----------------+---------------------------------------+
   | Section |     Name      | Value <Default> |                 Help                  |
   +=========+===============+=================+=======================================+
@@ -58,7 +58,7 @@ Dump a single setting
 
 Or, to see a single setting's entry, include the setting name::
 
-  $ dob config dump term use_color
+  $ dob config show term use_color
   +---------+-----------+-----------------+-------------------------------------------+
   | Section |   Name    | Value <Default> |                   Help                    |
   +=========+===========+=================+===========================================+

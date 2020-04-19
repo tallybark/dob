@@ -487,7 +487,7 @@ def CONFIG_GROUP_HELP(ctx):
         option:
 
           \b
-          {codehi}{rawname} config dump{reset}
+          {codehi}{rawname} config show{reset}
 
           - If you think your config file is missing values, you can
         update it with missing settings by running (naturally) the
@@ -497,7 +497,7 @@ def CONFIG_GROUP_HELP(ctx):
           {codehi}{rawname} config update{reset}
 
             - But you should not care about the contents of the config file
-        if you stick to using {codehi}{rawname} config dump{reset} and
+        if you stick to using {codehi}{rawname} config show{reset} and
         {codehi}{rawname} config set{reset} commands.
 
             - Although you might care about the config file contents if you'd
@@ -523,13 +523,6 @@ CONFIG_CREATE_HELP = _(
 CONFIG_CREATE_FORCE_HELP = _command_create_force_help(_('config file'))
 
 
-CONFIG_DUMP_HELP = _(
-    """
-    Prints all config settings, including names, values, and help.
-    """
-)
-
-
 CONFIG_EDIT_HELP = _(
     """
     Opens the config file in your preferred $EDITOR.
@@ -547,6 +540,13 @@ CONFIG_GET_HELP = _(
 CONFIG_SET_HELP = _(
     """
     Writes a configuration value to the config file.
+    """
+)
+
+
+CONFIG_SHOW_HELP = _(
+    """
+    Prints all config settings, including names, values, and help.
     """
 )
 
