@@ -24,7 +24,7 @@ from click_hotoffthehamster.exceptions import MissingParameter
 from config_decorator.key_chained_val import KeyChainedValue
 
 from dob_bright.termio import click_echo, dob_in_user_exit
-from dob_bright.termio.ascii_table import generate_table
+from dob_bright.termio.config_table import echo_config_decorator_table
 
 __all__ = (
     'echo_config_table',
@@ -49,54 +49,8 @@ __all__ = (
 def echo_config_table(controller, table_type, section, keyname):
     """"""
     parts = list(filter(None, (section, keyname)))
-
-    sec_key_vals = []
-
-    def _echo_config_table():
-        conf_objs = fetch_config_objects(controller, parts)
-        for conf_obj in conf_objs:
-            conf_obj.walk(visitor)
-        echo_table()
-
-    def visitor(condec, keyval):
-        # MAYBE: Option to show hidden config.
-        # MAYBE: Option to show generated config.
-        if keyval.hidden:
-            return
-
-        val_def = str(keyval.value)
-        if val_def != str(keyval.default):
-            val_def += val_def and ' ' or ''
-            val_def += encode_default(str(keyval.default))
-        sec_key_vals.append((
-            condec.section_path(sep='.'),
-            keyval.name,
-            val_def,
-            keyval.doc,
-        ))
-
-    def echo_table():
-        headers = (
-            _("Section"),
-            _("Name"),
-            _("Value {}").format(encode_default(_("Default"))),
-            _("Help"),
-        )
-        generate_table(
-            sec_key_vals,
-            headers,
-            table_type=table_type,
-            truncate=False,
-            trunccol=0,
-        )
-
-    def encode_default(text):
-        # 2019-11-30: (lb): I switched from [square brackets] to <angle brackets>
-        # to avoid JSON-encoded lists being [[double bracketed]] (which triggered
-        # extra mental cycles upon sight).
-        return '<{}>'.format(text)
-
-    _echo_config_table()
+    conf_objs = fetch_config_objects(controller, parts)
+    echo_config_decorator_table(conf_objs, table_type)
 
 
 # *** [EDIT] CONFIG
