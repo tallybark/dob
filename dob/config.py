@@ -46,7 +46,7 @@ __all__ = (
 
 # *** [DUMP] TABLE
 
-def echo_config_table(controller, section, keyname, **kwargs):
+def echo_config_table(controller, table_type, section, keyname):
     """"""
     parts = list(filter(None, (section, keyname)))
 
@@ -85,7 +85,7 @@ def echo_config_table(controller, section, keyname, **kwargs):
         generate_table(
             sec_key_vals,
             headers,
-            table_type=kwargs['table_type'],
+            table_type=table_type,
             truncate=False,
             trunccol=0,
         )
@@ -192,11 +192,11 @@ def config_parts_pop_value(ctx, parts):
     return parts, value
 
 
-def must_parts(ctx, parts, param_hint, param_type='argument', **kwargs):
+def must_parts(ctx, parts, param_hint, param_type='argument'):
     parts = list(parts)
     if not parts:
         raise MissingParameter(
-            ctx=ctx, param_hint=param_hint, param_type=param_type, **kwargs,
+            ctx=ctx, param_hint=param_hint, param_type=param_type,
         )
     return parts
 

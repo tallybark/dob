@@ -330,9 +330,9 @@ def config_create(ctx, controller, force):
 @click.argument('keyname', nargs=1, default='')
 @pass_controller_context
 @ensure_plugged_in
-def config_dump(ctx, controller, section='', keyname='', **kwargs):
+def config_dump(ctx, controller, table_type, section='', keyname=''):
     """"""
-    echo_config_table(controller, section, keyname, **kwargs)
+    echo_config_table(controller, table_type, section, keyname)
 
 
 # *** [CONFIG] EDIT
@@ -342,9 +342,9 @@ def config_dump(ctx, controller, section='', keyname='', **kwargs):
 @flush_pager
 @pass_controller_context
 @ensure_plugged_in
-def config_edit(ctx, controller, **kwargs):
+def config_edit(ctx, controller):
     """"""
-    edit_config_file(controller, **kwargs)
+    edit_config_file(controller)
 
 
 # *** [CONFIG] GET
