@@ -517,9 +517,9 @@ CONFIG_CREATE_FORCE_HELP = _(
 )
 
 
-CONFIG_DUMP_HELP = _(
+CONFIG_EDIT_HELP = _(
     """
-    Prints all config settings, including names, values, and help.
+    Opens the config file in your preferred $EDITOR.
     """
 )
 

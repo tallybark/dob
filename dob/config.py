@@ -15,6 +15,8 @@
 # If you lost the GNU General Public License that ships with this software
 # repository (read the 'LICENSE' file), see <http://www.gnu.org/licenses/>.
 
+import editor
+
 from gettext import gettext as _
 
 from click_hotoffthehamster.exceptions import MissingParameter
@@ -28,6 +30,7 @@ from .helpers.ascii_table import generate_table
 __all__ = (
     'echo_config_table',
     'echo_config_value',
+    'edit_config_file',
     'write_config_value',
     # PRIVATE:
     #  'echo_config_value_setting',
@@ -43,8 +46,6 @@ __all__ = (
 
 
 # *** [DUMP] TABLE
-
-# FIXME/2019-11-17: BUGBUG: (lb): `-T texttable` is broken.
 
 def echo_config_table(controller, section, keyname, **kwargs):
     """"""
@@ -97,6 +98,13 @@ def echo_config_table(controller, section, keyname, **kwargs):
         return '<{}>'.format(text)
 
     _echo_config_table()
+
+
+# *** [EDIT] CONFIG
+
+def edit_config_file(controller):
+    editor.edit(filename=controller.configurable.config_path)
+    # If we cared, could call `edited = editor.edit().decode()`, but we're all done!
 
 
 # *** [GET] ECHO

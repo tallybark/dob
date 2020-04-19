@@ -88,7 +88,12 @@ from .cmds_usage import activity as usage_activity
 from .cmds_usage import category as usage_category
 from .cmds_usage import tag as usage_tag
 from .complete import tab_complete
-from .config import echo_config_table, echo_config_value, write_config_value
+from .config import (
+    echo_config_table,
+    echo_config_value,
+    edit_config_file,
+    write_config_value
+)
 from .copyright import echo_copyright, echo_license
 from .demo import demo_config, demo_dob
 from .details import echo_app_details, echo_app_environs, echo_data_stats
@@ -319,6 +324,18 @@ def config_create(ctx, controller, force):
 def config_dump(ctx, controller, section='', keyname='', **kwargs):
     """"""
     echo_config_table(controller, section, keyname, **kwargs)
+
+
+# *** [CONFIG] EDIT
+
+@config_group.command('edit', help=help_strings.CONFIG_EDIT_HELP)
+@show_help_finally
+@flush_pager
+@pass_controller_context
+@ensure_plugged_in
+def config_edit(ctx, controller, **kwargs):
+    """"""
+    edit_config_file(controller, **kwargs)
 
 
 # *** [CONFIG] GET
