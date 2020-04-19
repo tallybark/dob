@@ -80,7 +80,6 @@ from .clickux.help_detect import show_help_finally, show_help_if_no_command
 from .clickux.induct_newbies import induct_newbies, insist_germinated
 from .clickux.plugin_group import ensure_plugged_in
 from .clickux.post_processor import post_processor
-from . import migrate
 from .cmds_list import activity as list_activity
 from .cmds_list import category as list_category
 from .cmds_list import fact as list_fact
@@ -99,7 +98,11 @@ from .facts.echo_fact import echo_latest_ended, echo_ongoing_fact, echo_ongoing_
 from .facts.edit_fact import edit_fact_by_pk
 from .facts.export_facts import export_facts
 from .facts.import_facts import import_facts
+from .migrate import control as migrate_control
+from .migrate import downgrade as migrate_downgrade
+from .migrate import upgrade as migrate_upgrade
 from .migrate import upgrade_legacy_database_file
+from .migrate import version as migrate_version
 from .run_cli import dob_versions, pass_controller, pass_controller_context, run
 
 # __all__ = ( ... )  # So many. Too tedious to list.
@@ -1283,9 +1286,9 @@ def migrate_group(ctx, controller):
 @flush_pager
 @pass_controller_context
 @insist_germinated
-def migrate_control(ctx, controller):
+def _migrate_control(ctx, controller):
     """Mark a database as under version control."""
-    migrate.control(controller)
+    migrate_control(controller)
 
 
 @migrate_group.command('down', help=help_strings.MIGRATE_DOWN_HELP)
@@ -1293,9 +1296,9 @@ def migrate_control(ctx, controller):
 @flush_pager
 @pass_controller_context
 @insist_germinated
-def migrate_downgrade(ctx, controller):
+def _migrate_downgrade(ctx, controller):
     """Downgrade the database according to its migration version."""
-    migrate.downgrade(controller)
+    migrate_downgrade(controller)
 
 
 @migrate_group.command('up', help=help_strings.MIGRATE_UP_HELP)
@@ -1303,9 +1306,9 @@ def migrate_downgrade(ctx, controller):
 @flush_pager
 @pass_controller_context
 @insist_germinated
-def migrate_upgrade(ctx, controller):
+def _migrate_upgrade(ctx, controller):
     """Upgrade the database according to its migration version."""
-    migrate.upgrade(controller)
+    migrate_upgrade(controller)
 
 
 @migrate_group.command('version', help=help_strings.MIGRATE_VERSION_HELP)
@@ -1313,9 +1316,9 @@ def migrate_upgrade(ctx, controller):
 @flush_pager
 @pass_controller_context
 @insist_germinated
-def migrate_version(ctx, controller):
+def _migrate_version(ctx, controller):
     """Show migration information about the database."""
-    migrate.version(controller)
+    migrate_version(controller)
 
 
 # 2018-07-15 14:00ish: To loaded: 0.440 secs.
