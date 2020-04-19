@@ -36,7 +36,6 @@ format_pretty_table = lazy_import.lazy_callable(
 
 __all__ = (
     'generate_table',
-    'warn_if_truncated',
 )
 
 
@@ -179,11 +178,4 @@ def _generate_table_display(rows, plain_headers, color_headers, table_type):
         click_echo(friendly)
 
     __generate_table_display()
-
-
-def warn_if_truncated(controller, n_results, n_rows):
-    if n_results > n_rows:
-        controller.client_logger.warning(_(
-            'Too many facts to process quickly! Found: {} / Shown: {}'
-        ).format(format(n_results, ','), format(n_rows, ',')))
 

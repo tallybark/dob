@@ -31,7 +31,7 @@ from ..clickux.query_assist import (
     hydrate_activity,
     hydrate_category
 )
-from ..helpers.ascii_table import generate_table, warn_if_truncated
+from ..helpers.ascii_table import generate_table
 
 __all__ = (
     'list_facts',
@@ -147,13 +147,19 @@ def list_facts(
         #   We should offer a --limit/--offset feature.
         #   We could also fail if too many records; or find a better library.
         generate_table(table, headers, table_type, truncate, trunccol=desc_col_idx)
-        warn_if_truncated(controller, len(results), len(table))
+        logger_warn_if_truncated(controller, len(results), len(table))
 
     def write_out(line=''):
         if out_file is not None:
             out_file.write(line + "\n")
         else:
             click_echo(line)
+
+    def logger_warn_if_truncated(controller, n_results, n_rows):
+        if n_results > n_rows:
+            controller.client_logger.warning(_(
+                'Too many facts to process quickly! Found: {} / Shown: {}'
+            ).format(format(n_results, ','), format(n_rows, ',')))
 
     _list_facts()
 
