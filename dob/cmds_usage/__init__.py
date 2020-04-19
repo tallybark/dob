@@ -21,7 +21,7 @@ from gettext import gettext as _
 
 from pedantic_timedelta import PedanticTimedelta
 
-from ..helpers.ascii_table import generate_table
+from dob_bright.termio.ascii_table import generate_table
 
 __all__ = ('generate_usage_table', )
 

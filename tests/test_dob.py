@@ -26,6 +26,8 @@ import pytest
 
 import nark
 
+from dob_bright.termio import ascii_table
+
 from dob import (
     __package_name__,
     get_version,
@@ -38,7 +40,6 @@ from dob.facts.add_fact import add_fact
 from dob.facts.cancel_fact import cancel_fact
 from dob.facts.echo_fact import echo_ongoing_fact
 from dob.facts.export_facts import export_facts
-from dob.helpers import ascii_table
 
 
 from . import truncate_to_whole_seconds

@@ -17,12 +17,13 @@
 
 from gettext import gettext as _
 
+from dob_bright.termio.ascii_table import generate_table
+
 from ..clickux.query_assist import (
     error_exit_no_results,
     hydrate_activity,
     hydrate_category
 )
-from ..helpers.ascii_table import generate_table
 
 __all__ = ('list_tags', )
 

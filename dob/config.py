@@ -24,8 +24,7 @@ from click_hotoffthehamster.exceptions import MissingParameter
 from config_decorator.key_chained_val import KeyChainedValue
 
 from dob_bright.termio import click_echo, dob_in_user_exit
-
-from .helpers.ascii_table import generate_table
+from dob_bright.termio.ascii_table import generate_table
 
 __all__ = (
     'echo_config_table',
