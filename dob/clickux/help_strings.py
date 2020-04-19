@@ -78,6 +78,16 @@ def common_format():
 
 
 # ***
+
+def _command_create_force_help(what):
+    return _(
+        """
+        If specified, overwrite {} if is exists.
+        """.format(what)
+    )
+
+
+# ***
 # *** [BARE] Command help.
 # ***
 
@@ -510,9 +520,12 @@ CONFIG_CREATE_HELP = _(
 )
 
 
-CONFIG_CREATE_FORCE_HELP = _(
+CONFIG_CREATE_FORCE_HELP = _command_create_force_help(_('config file'))
+
+
+CONFIG_DUMP_HELP = _(
     """
-    If specified, overwrite config file if is exists.
+    Prints all config settings, including names, values, and help.
     """
 )
 
@@ -546,6 +559,190 @@ CONFIG_UPDATE_HELP = _(
 
 
 # ***
+# *** [STYLES] Commands help.
+# ***
+
+def STYLES_GROUP_HELP(ctx):
+    _help = _(
+        """
+        Manages editor styles (centering, dimensions, coloring, etc.).
+
+        The easiest way to use styles is to choose one of the built-in
+        styles and set it in your config.
+
+        {underlined}Built-in Styles{reset}
+
+        To view the list of styles, run:
+
+          \b
+          {codehi}{rawname} styles list{reset}
+
+        {underlined}Activate a Style{reset}
+
+        Assign the style you'd like to enable to `editor.styling`.
+
+        For instance, to choose the 'night' style, which looks good on
+        a dark background, run:
+
+          \b
+          {codehi}{rawname} config set editor styling night{reset}
+
+        Or, to make the 'light' style active for a light background:
+
+          \b
+          {codehi}{rawname} config set editor styling light{reset}
+
+        {underlined}Design your own Style{reset}
+
+        dob styles are managed using a typical config file.
+
+        Each section in the config file is one style.
+
+        To enable a custom style, set editor.styling to its section
+        name in the config file.
+
+        To get started, create a styles file populated using a
+        built-in style as a start.
+
+        For example, to use the 'night' style as a base, run:
+
+          \b
+          {codehi}{rawname} styles create night{reset}
+
+        Or, to start from scratch, use the 'default' style,
+        or leave the style unspecified:
+
+          \b
+          {codehi}{rawname} styles create{reset}
+
+        {underlined}Design your own Rules{reset}
+
+        dob style rules are also managed using a config file.
+
+        Each section in the rules file represents a single rule.
+
+        Each rule defines one or more metadata values to match
+        against your Facts, and if a rule matches, any styles
+        it declares are applied to the interactive components.
+
+        Each rule can also have a code block executed by eval.
+
+        To generate a rules file with one example rule added,
+        run:
+
+          \b
+          {codehi}{rawname} rules create{reset}
+
+        {underlined}Edit Styles and Rules{reset}
+
+        You can load the style file easily into your $EDITOR
+        from dob:
+
+          \b
+          {codehi}{rawname} styles edit{reset}
+
+        As well as the rules file:
+
+          \b
+          {codehi}{rawname} rules edit{reset}
+
+        Or you could open them yourself. Their paths are listed
+        in the config, e.g.:
+
+          \b
+          $ {codehi}{rawname} config get editor styles_fpath{reset}
+          /home/user/.config/dob/styling/styles.conf
+
+          \b
+          $ {codehi}{rawname} config get editor stylit_fpath{reset}
+          /home/user/.config/dob/styling/stylit.conf
+
+        {underlined}Writing Styles and Rules{reset}
+
+        Use the 'show' command to view the list of styles and rule
+        settings and their descriptions:
+
+          \b
+          {codehi}{rawname} styles show{reset}
+
+          \b
+          {codehi}{rawname} rules show{reset}
+
+        In addition to the styles and rules listed, you can also
+        add additional settings.
+
+        Each user-created style setting is named with a class name of
+        your choosing, or it's named to match one of the special class
+        names added automatically based on each Fact's metadata.
+
+        The value for each user-created style setting is a space-separated
+        list of class name of style strings, as recognized by Python Prompt
+        Toolkit and Pygments.
+        """.format(
+            **common_format()
+        )
+    )
+    return _help
+
+
+STYLES_CREATE_HELP = _(
+    """
+    Writes a new styles config file populated with basic styles options.
+
+    You can overwrite an existing styles config file using --force.
+    """
+)
+
+
+STYLES_CREATE_FORCE_HELP = _command_create_force_help(_('styles file'))
+
+
+STYLES_CONF_HELP = _(
+    """
+    Prints the styles file, a section from it, or an internal style.
+
+    If no name is specified, prints the styles.conf file, in one exists.
+    This includes any comments, too.
+
+    If a name is specified, the matching section from the styles.conf
+    file is printed, if one is found, including comments.
+
+    Otherwise, dob looks for an internally-defined style with the
+    matching name and prints that.
+
+    On error, prints an error message.
+    """
+)
+
+
+STYLES_EDIT_HELP = _(
+    """
+    Opens the styles config file in your preferred $EDITOR.
+    """
+)
+
+
+STYLES_LIST_HELP = _(
+    """
+    Displays a list of built-in and user-declared style names.
+
+    You can activate a style by assigning its value to `editor.styling`.
+
+    For example, to use the 'night' style, run:
+
+        $ dob config set editor styling night
+    """
+)
+
+
+STYLES_SHOW_HELP = _(
+    """
+    Shows a table of basic style config settings and their descriptions.
+    """
+)
+
+
+# ***
 # *** [STORE] Commands help.
 # ***
 
@@ -565,11 +762,7 @@ STORE_CREATE_HELP = _(
 )
 
 
-STORE_CREATE_FORCE_HELP = _(
-    """
-    If specified, recreate data store if is exists.
-    """
-)
+STORE_CREATE_FORCE_HELP = _command_create_force_help(_('data store'))
 
 
 STORE_PATH_HELP = _(

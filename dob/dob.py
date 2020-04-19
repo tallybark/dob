@@ -37,6 +37,13 @@ from dob_bright.termio.errors import dob_in_user_exit, dob_in_user_warning
 from dob_bright.termio.paging import flush_pager
 
 from dob_viewer.crud.fact_dressed import FactDressed
+from dob_viewer.config.styling.styles_boss import (
+    create_styles_conf,
+    echo_styles_conf,
+    echo_styles_list,
+    echo_styles_table,
+    edit_styles_conf
+)
 
 from .clickux import help_strings
 from .clickux import help_string_add_fact
@@ -68,6 +75,8 @@ from .clickux.cmd_options import (
     cmd_options_list_categoried,
     cmd_options_list_fact,
     cmd_options_search,
+    cmd_options_styles_internal,
+    cmd_options_styles_named,
     cmd_options_table_renderer,
     cmd_options_table_view,
     cmd_options_usage,
@@ -374,6 +383,92 @@ def config_value_set(ctx, controller, parts):
 def config_update(ctx, controller):
     """Write "missing" key values to the user configuration file."""
     controller.round_out_config()
+
+
+# ***
+# *** [STYLES] Commands.
+# ***
+
+@cmd_bunch_group_get_meta
+@run.group('styles', help=help_strings.STYLES_GROUP_HELP, **run_group_kwargs)
+@show_help_finally
+@show_help_if_no_command
+@flush_pager
+@click.pass_context
+def styles_group(ctx):
+    """Base `styles` group command run prior to any of the dob-styles commands."""
+    pass  # The command group decorator prints help if no subcommand called.
+
+
+# *** [STYLES] CREATE
+
+@styles_group.command('create', aliases=['new'], help=help_strings.STYLES_CREATE_HELP)
+@show_help_finally
+@flush_pager
+@cmd_options_styles_named
+@click.option('-f', '--force', is_flag=True, help=help_strings.STYLES_CREATE_FORCE_HELP)
+@pass_controller_context
+@ensure_plugged_in
+def styles_create(ctx, controller, name, force):
+    """"""
+    create_styles_conf(controller, name, force)
+
+
+# *** [STYLES] CONF
+
+@styles_group.command('conf', help=help_strings.STYLES_CONF_HELP)
+@show_help_finally
+@flush_pager
+@cmd_options_styles_named
+@cmd_options_styles_internal
+# (lb): Cannot specify click.option name, and if just -a and --all, click uses
+# all as the function parameter, which shadows the built-in. So add --complete.
+@click.option('-a', '--complete', '--all', is_flag=True,
+              help=_('Include all possible settings, even those not set by the style.'))
+@pass_controller_context
+@ensure_plugged_in
+def styles_conf(ctx, controller, name, internal, complete):
+    """"""
+    echo_styles_conf(controller, name, internal, complete)
+
+
+# *** [STYLES] EDIT
+
+@styles_group.command('edit', help=help_strings.STYLES_EDIT_HELP)
+@show_help_finally
+@flush_pager
+@pass_controller_context
+@ensure_plugged_in
+def styles_edit(ctx, controller):
+    """"""
+    edit_styles_conf(controller)
+
+
+# *** [STYLES] LIST
+
+@styles_group.command('list', help=help_strings.STYLES_LIST_HELP)
+@show_help_finally
+@flush_pager
+@cmd_options_styles_internal
+@pass_controller_context
+@ensure_plugged_in
+def styles_list(ctx, controller, internal):
+    """"""
+    echo_styles_list(controller, internal)
+
+
+# *** [STYLES] SHOW
+
+@styles_group.command('show', aliases=['dump'], help=help_strings.STYLES_SHOW_HELP)
+@show_help_finally
+@flush_pager
+@cmd_options_styles_named
+@cmd_options_table_renderer
+@pass_controller_context
+@ensure_plugged_in
+def styles_show(ctx, controller, name, table_type):
+    """"""
+    echo_styles_table(controller, name, table_type)
 
 
 # ***

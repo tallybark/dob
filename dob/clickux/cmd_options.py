@@ -32,6 +32,8 @@ __all__ = (
     'cmd_options_list_categoried',
     'cmd_options_list_fact',
     'cmd_options_search',
+    'cmd_options_styles_internal',
+    'cmd_options_styles_named',
     'cmd_options_table_view',
     'cmd_options_usage',
     'cmd_options_edit_item',
@@ -553,4 +555,41 @@ def cmd_options_edit_item(func):
     for option in reversed(_cmd_options_edit_item):
         func = option(func)
     return func
+
+
+# ***
+# *** [STYLES] Options.
+# ***
+
+_cmd_options_styles_internal = [
+    click.option(
+        '-i', '--internal', is_flag=True,
+        help=_(
+            'Print pristine or internal style settings, not raw styles.conf section. '
+            'If the named style is also a section in styles.conf, '
+            'this exclude comments, and it reorders the settings. '
+            'Otherwise, if not in styles.conf, the matching internal style is located.'
+        )
+    ),
+]
+
+
+def cmd_options_styles_internal(func):
+    for option in reversed(_cmd_options_styles_internal):
+        func = option(func)
+    return func
+
+
+_cmd_options_styles_named = [
+    click.argument('name', nargs=1, default='', metavar=_('[STYLE_NAME]')),
+]
+
+
+def cmd_options_styles_named(func):
+    for option in reversed(_cmd_options_styles_named):
+        func = option(func)
+    return func
+
+
+
 
