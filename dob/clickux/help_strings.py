@@ -519,7 +519,7 @@ CONFIG_CREATE_FORCE_HELP = _(
 
 CONFIG_DUMP_HELP = _(
     """
-    Prints a list of configurable settings, including names, values, and help.
+    Prints all config settings, including names, values, and help.
     """
 )
 
