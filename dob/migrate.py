@@ -22,10 +22,9 @@ import sys
 from gettext import gettext as _
 
 from nark import __file__ as nark___file__
+from nark.helpers.app_dirs import ensure_directory_exists
 
 from dob_bright.help_newbs import NEWBIE_HELP_WELCOME
-# Profiling: load AppDirs: ~ 0.011 secs.
-from dob_bright.config.app_dirs import AppDirs
 from dob_bright.termio import (
     attr,
     click_echo,
@@ -203,7 +202,7 @@ def upgrade_legacy_database_file(ctx, controller, file_in, force):
     def must_copy_new_db_to_db_path():
         try:
             db_dir = os.path.dirname(db_path)
-            AppDirs._ensure_directory_exists(db_dir)
+            ensure_directory_exists(db_dir)
             shutil.copyfile(file_in.name, db_path)
         except Exception as err:
             msg = _('Failed to copy new database to ‘{}’').format(str(err))

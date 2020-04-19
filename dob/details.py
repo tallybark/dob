@@ -21,6 +21,7 @@ from gettext import gettext as _
 
 from nark.items.fact import Fact
 
+# Profiling: load AppDirs: ~ 0.011 secs.
 from dob_bright.config.app_dirs import AppDirs
 from dob_bright.termio import ascii_art, attr, click_echo, fg, highlight_value
 
