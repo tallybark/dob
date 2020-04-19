@@ -299,8 +299,9 @@ def config_group(ctx):
 @flush_pager
 @click.option('-f', '--force', is_flag=True,
               help=help_strings.CONFIG_CREATE_FORCE_HELP)
-@pass_controller
-def config_create(controller, force):
+@pass_controller_context
+@ensure_plugged_in
+def config_create(ctx, controller, force):
     """"""
     controller.create_config(force)
 
