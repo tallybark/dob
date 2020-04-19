@@ -89,6 +89,7 @@ from .cmds_usage import activity as usage_activity
 from .cmds_usage import category as usage_category
 from .cmds_usage import tag as usage_tag
 from .complete import tab_complete
+from .config import echo_config_table, echo_config_value, write_config_value
 from .copyright import echo_copyright, echo_license
 from .demo import demo_config, demo_dob
 from .details import echo_app_details, echo_app_environs, echo_data_stats
@@ -100,14 +101,13 @@ from .facts.export_facts import export_facts
 from .facts.import_facts import import_facts
 from .migrate import upgrade_legacy_database_file
 from .run_cli import dob_versions, pass_controller, pass_controller_context, run
-from .settings import echo_config_table, echo_config_value, write_config_value
 
 # __all__ = ( ... )  # So many. Too tedious to list.
+
 
 # ***
 # *** [HELP]
 # ***
-
 
 @cmd_bunch_group_get_meta
 @run.command(help=help_strings.HELP_HELP)
