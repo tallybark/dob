@@ -655,7 +655,7 @@ def STYLES_GROUP_HELP(ctx):
           /home/user/.config/dob/styling/styles.conf
 
           \b
-          $ {codehi}{rawname} config get editor stylit_fpath{reset}
+          $ {codehi}{rawname} config get editor rules_fpath{reset}
           /home/user/.config/dob/styling/rules.conf
 
         {underlined}Writing Styles and Rules{reset}
