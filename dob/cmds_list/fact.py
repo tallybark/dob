@@ -24,7 +24,7 @@ import click_hotoffthehamster as click
 
 from nark.helpers.parse_time import parse_dated
 
-from dob_bright.termio import click_echo, colorize
+from dob_bright.termio import click_echo, stylize
 from dob_bright.termio.ascii_table import generate_table
 
 from ..clickux.query_assist import (
@@ -98,7 +98,7 @@ def list_facts(
             output_fact_block(fact, colorful, cut_width)
             if sep_width:
                 write_out()
-                write_out(colorize(rule * sep_width, 'indian_red_1c'))
+                write_out(stylize(rule * sep_width, 'indian_red_1c'))
 
     def output_rule_width():
         if not rule:
