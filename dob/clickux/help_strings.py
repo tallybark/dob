@@ -387,7 +387,7 @@ def INIT_HELP_OVERVIEW(ctx):
 def CONFIG_GROUP_HELP(ctx):
     _help = _(
         """
-        Commands for managing user configurable values.
+        Manages user config settings (including editor key bindings).
 
         Some application behavior can be changed via config values.
 
@@ -832,7 +832,7 @@ RULES_SHOW_HELP = _(
 
 STORE_GROUP_HELP = _(
     """
-    Commands for managing the database file.
+    Manages the database file.
     """
 )
 
