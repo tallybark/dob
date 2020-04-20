@@ -63,7 +63,8 @@ from .clickux.bunchy_help import (
     cmd_bunch_group_datastore,
     cmd_bunch_group_dbms,
     cmd_bunch_group_add_fact,
-    cmd_bunch_group_ongoing_fact
+    cmd_bunch_group_ongoing_fact,
+    cmd_bunch_group_personalize
 )
 from .clickux.cmd_options import (
     OptionWithDynamicHelp,
@@ -397,7 +398,7 @@ def config_update(ctx, controller):
 # *** [STYLES] Commands.
 # ***
 
-@cmd_bunch_group_get_meta
+@cmd_bunch_group_personalize
 @run.group('styles', help=help_strings.STYLES_GROUP_HELP, **run_group_kwargs)
 @show_help_finally
 @show_help_if_no_command
@@ -483,7 +484,7 @@ def styles_show(ctx, controller, name, table_type):
 # *** [RULES] Commands.
 # ***
 
-@cmd_bunch_group_get_meta
+@cmd_bunch_group_personalize
 @run.group('rules', help=help_strings.RULES_GROUP_HELP, **run_group_kwargs)
 @show_help_finally
 @show_help_if_no_command

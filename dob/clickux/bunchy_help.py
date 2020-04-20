@@ -30,6 +30,7 @@ __all__ = (
     'cmd_bunch_group_dbms',
     'cmd_bunch_group_add_fact',
     'cmd_bunch_group_ongoing_fact',
+    'cmd_bunch_group_personalize',
     'cmd_bunch_group_plugin',
 )
 
@@ -43,15 +44,19 @@ def help_header_introducing():
 
 
 def help_header_edit():
-    return help_header_format(_('Popular Commands'))
+    return help_header_format(_('Editor Commands'))
+
+
+def help_header_personalize():
+    return help_header_format(_('Personalize Editor'))
 
 
 def help_header_get_meta():
-    return help_header_format(_('Runtime Commands'))
+    return help_header_format(_('General Commands'))
 
 
 def help_header_datastore():
-    return help_header_format(_('Report Fact Commands'))
+    return help_header_format(_('Report Commands'))
 
 
 def help_header_dbms():
@@ -81,6 +86,11 @@ def cmd_bunch_group_introducing(cmd):
 
 def cmd_bunch_group_edit(cmd):
     run.add_to_bunch(cmd, help_header_edit, 200)
+    return cmd
+
+
+def cmd_bunch_group_personalize(cmd):
+    run.add_to_bunch(cmd, help_header_personalize, 250)
     return cmd
 
 
