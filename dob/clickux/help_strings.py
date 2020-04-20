@@ -656,7 +656,7 @@ def STYLES_GROUP_HELP(ctx):
 
           \b
           $ {codehi}{rawname} config get editor stylit_fpath{reset}
-          /home/user/.config/dob/styling/stylit.conf
+          /home/user/.config/dob/styling/rules.conf
 
         {underlined}Writing Styles and Rules{reset}
 
@@ -779,10 +779,10 @@ RULES_CONF_HELP = _(
     """
     Prints the rules file, or a single rule if a rule name is supplied.
 
-    If no name is specified, prints the stylit.conf file, in one exists.
+    If no name is specified, prints the rules.conf file, in one exists.
     This includes any comments, too.
 
-    If a name is specified, the matching section from the stylit.conf
+    If a name is specified, the matching section from the rules.conf
     file is printed, if one is found, including comments.
 
     On error, prints an error message.
