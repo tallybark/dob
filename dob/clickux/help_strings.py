@@ -743,6 +743,90 @@ STYLES_SHOW_HELP = _(
 
 
 # ***
+# *** [RULES] Commands help.
+# ***
+
+def RULES_GROUP_HELP(ctx):
+    _help = _(
+        """
+        Manages style rules (to customize style for matching Facts).
+
+        See the styles help for detailed information:
+
+          \b
+          {codehi}{rawname} styles --help{reset}
+        """.format(
+            **common_format()
+        )
+    )
+    return _help
+
+
+RULES_CREATE_HELP = _(
+    """
+    Writes a new rules file populated with an example rule.
+
+    You can overwrite an existing style rules file using --force.
+    """
+)
+
+
+RULES_CREATE_FORCE_HELP = _command_create_force_help(_('style rules'))
+
+
+RULES_CONF_HELP = _(
+    """
+    Prints the rules file, or a single rule if a rule name is supplied.
+
+    If no name is specified, prints the stylit.conf file, in one exists.
+    This includes any comments, too.
+
+    If a name is specified, the matching section from the stylit.conf
+    file is printed, if one is found, including comments.
+
+    On error, prints an error message.
+    """
+)
+
+
+RULES_EDIT_HELP = _(
+    """
+    Opens the rules file in your preferred $EDITOR.
+    """
+)
+
+
+RULES_LIST_HELP = _(
+    """
+    Displays a list of user-defined rule names.
+
+    Each rule is enabled by default.
+
+    To disable a rule, edit the rules file and
+    set the rule's 'enabled' setting to False.
+
+    Use the `rules conf` command to see the rules for each
+    rule listed by this command, or use `styles conf <rule>`
+    or `styles show <rule> to see the ruleset for a single
+    rule.
+    """
+)
+
+
+RULES_SHOW_HELP = _(
+    """
+    Shows rule settings in a table, including name, default value,
+    and description.
+
+    If no name is supplied, an example ruleset is displayed.
+
+    Otherwise, the named rule is fetched from the rules file
+    and displayed.
+    """
+)
+
+
+# ***
 # *** [STORE] Commands help.
 # ***
 

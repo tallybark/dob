@@ -591,5 +591,17 @@ def cmd_options_styles_named(func):
     return func
 
 
+# ***
+# *** [RULES] Options.
+# ***
 
+_cmd_options_rule_name = [
+    click.argument('name', nargs=1, default='', metavar=_('[RULE_NAME]')),
+]
+
+
+def cmd_options_rule_name(func):
+    for option in reversed(_cmd_options_rule_name):
+        func = option(func)
+    return func
 
