@@ -45,6 +45,7 @@ def echo_fact(fact):
         attr('reset'),
     ))
     click.echo('{}{}{}{}'.format(
+        # FIXME: (lb): Replace hardcoding. Assign from styles.conf. #styling
         fg('steel_blue_1b'),
         attr('bold'),
         fact.friendly_str(description_sep='\n\n'),

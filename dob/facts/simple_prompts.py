@@ -108,6 +108,7 @@ def must_confirm_fact_edits(controller, conflicts, yes, dry):
         return [con for con in conflicts if 'stopped' not in con[0].dirty_reasons]
 
     def echo_confirmation_banner(conflicts):
+        # FIXME: (lb): Replace hardcoded styles. Assign from styles.conf. #styling
         click.echo()
         click.echo(_(
             'Found {}{}{} {}. '

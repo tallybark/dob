@@ -149,9 +149,8 @@ def upgrade_legacy_database_instructions(controller):
         db_path=db_path,
         nark_path=nark_path,
         up_legacy_path=up_legacy_path,
-        # green=(fg('light_green') + attr('bold')),
+        # FIXME: (lb): Replace hardcoded styles. Assign from styles.conf. #styling
         mintgreen=(fg('spring_green_2a') + attr('bold')),
-        # magenta_2a=(fg('magenta_2a') + attr('bold')),
         reset=attr('reset'),
     )
     return instructions

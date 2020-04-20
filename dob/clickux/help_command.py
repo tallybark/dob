@@ -58,6 +58,7 @@ ERROR: No such command: “{command}”
                 ).format(
                     command=' '.join(parts),
                     helpcmd=' '.join([ctx.command_path] + parts[:-1]),
+                    # FIXME: (lb): Replace hardcoded. Assign from styles.conf. #styling
                     codehi=(fg('turquoise_2') or ''),
                     reset=(attr('reset') or ''),
                 ).strip(), exitcode=1)

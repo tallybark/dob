@@ -63,6 +63,7 @@ def common_format():
     # and fg and attr will return empty strings if called when module is
     # sourced. So wait until help strings are built and it's known if color
     # or not.
+    # FIXME: (lb): Replace hardcoded styles. Assign from styles.conf. #styling
     common_format = {
         'appname': highlight_value(__package_name__),
         'rawname': __package_name__,
