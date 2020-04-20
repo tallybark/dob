@@ -827,6 +827,54 @@ RULES_SHOW_HELP = _(
 
 
 # ***
+# *** [IGNORE] Commands help.
+# ***
+
+def IGNORE_GROUP_HELP(ctx):
+    _help = _(
+        """
+        Manages ignore lists (to exclude matching names from prompts).
+        """.format(
+            **common_format()
+        )
+    )
+    return _help
+
+
+IGNORE_CREATE_HELP = _(
+    """
+    Writes a new ignore file populated with example sections.
+
+    You can overwrite an existing ignore file using --force.
+    """
+)
+
+
+IGNORE_CREATE_FORCE_HELP = _command_create_force_help(_('ignore file'))
+
+
+IGNORE_EDIT_HELP = _(
+    """
+    Opens the ignore file in your preferred $EDITOR.
+    """
+)
+
+
+IGNORE_LIST_HELP = _(
+    """
+    Displays the list of ignore file section names.
+    """
+)
+
+
+IGNORE_SHOW_HELP = _(
+    """
+    Shows ignore rules in a table.
+    """
+)
+
+
+# ***
 # *** [STORE] Commands help.
 # ***
 

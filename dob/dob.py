@@ -37,6 +37,12 @@ from dob_bright.termio.errors import dob_in_user_exit, dob_in_user_warning
 from dob_bright.termio.paging import flush_pager
 
 from dob_viewer.crud.fact_dressed import FactDressed
+from dob_viewer.config.styling.ignore_boss import (
+    create_ignore_conf,
+    echo_ignore_sections,
+    echo_ignore_table,
+    edit_ignore_file
+)
 from dob_viewer.config.styling.rules_boss import (
     create_rules_conf,
     echo_rules_conf,
@@ -561,6 +567,72 @@ def rules_list(ctx, controller):
 def rules_show(ctx, controller, name, table_type):
     """"""
     echo_rules_table(controller, name, table_type)
+
+
+# ***
+# *** [IGNORE] Commands.
+# ***
+
+@cmd_bunch_group_personalize
+@run.group('ignore', help=help_strings.IGNORE_GROUP_HELP, **run_group_kwargs)
+@show_help_finally
+@show_help_if_no_command
+@flush_pager
+@click.pass_context
+def ignore_group(ctx):
+    """Base `ignore` group command run prior to any of the dob-ignore commands."""
+    pass  # The command group decorator prints help if no subcommand called.
+
+
+# *** [IGNORE] CREATE
+
+@ignore_group.command('create', aliases=['new'], help=help_strings.IGNORE_CREATE_HELP)
+@show_help_finally
+@flush_pager
+@click.option('-f', '--force', is_flag=True, help=help_strings.IGNORE_CREATE_FORCE_HELP)
+@pass_controller_context
+@ensure_plugged_in
+def ignore_create(ctx, controller, force):
+    """"""
+    create_ignore_conf(controller, force)
+
+
+# *** [IGNORE] EDIT
+
+@ignore_group.command('edit', help=help_strings.IGNORE_EDIT_HELP)
+@show_help_finally
+@flush_pager
+@pass_controller_context
+@ensure_plugged_in
+def ignore_edit(ctx, controller):
+    """"""
+    edit_ignore_file(controller)
+
+
+# *** [IGNORE] LIST
+
+@ignore_group.command('list', help=help_strings.IGNORE_LIST_HELP)
+@show_help_finally
+@flush_pager
+@pass_controller_context
+@ensure_plugged_in
+def ignore_list(ctx, controller):
+    """"""
+    echo_ignore_sections(controller)
+
+
+# *** [IGNORE] SHOW
+
+@ignore_group.command('show', aliases=['dump'], help=help_strings.IGNORE_SHOW_HELP)
+@show_help_finally
+@flush_pager
+@cmd_options_rule_name
+@cmd_options_table_renderer
+@pass_controller_context
+@ensure_plugged_in
+def ignore_show(ctx, controller, name, table_type):
+    """"""
+    echo_ignore_table(controller, name, table_type)
 
 
 # ***
