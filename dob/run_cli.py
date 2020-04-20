@@ -223,7 +223,8 @@ def run(ctx, controller, v, verbose, verboser, color, pager, config, configfile)
         ctx.color = color
 
     def _setup_tty_style(controller):
-        apply_styles(controller)
+        # Cache the style conf for the Carousel (if `dob edit` called). #PROFILING
+        controller.style_conf = apply_styles(controller)
 
     def _run_handle_banner():
         # (lb): I find the greeting annoying, and somewhat boastful.
