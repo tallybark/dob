@@ -37,20 +37,20 @@ from dob_bright.termio.errors import dob_in_user_exit, dob_in_user_warning
 from dob_bright.termio.paging import flush_pager
 
 from dob_viewer.crud.fact_dressed import FactDressed
-from dob_viewer.config.styling.ignore_boss import (
+from dob_viewer.config.styling.ignore_cmds import (
     create_ignore_conf,
     echo_ignore_sections,
     echo_ignore_table,
     edit_ignore_file
 )
-from dob_viewer.config.styling.rules_boss import (
+from dob_viewer.config.styling.rules_cmds import (
     create_rules_conf,
     echo_rules_conf,
     echo_rule_names,
     echo_rules_table,
     edit_rules_conf
 )
-from dob_viewer.config.styling.styles_boss import (
+from dob_viewer.config.styling.styles_cmds import (
     create_styles_conf,
     echo_styles_conf,
     echo_styles_list,
