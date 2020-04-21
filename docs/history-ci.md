@@ -11,7 +11,7 @@
 [OhMyRepos]: https://github.com/landonb/ohmyrepos
     "OhMyRepos"
 
-## 3.0.8 (2020-04-17)
+## 3.0.9 (2020-04-20)
 
 [dob]: https://github.com/hotoffthehamster/dob
     "`dob`"
@@ -28,7 +28,90 @@
 [dob-viewer]: https://github.com/hotoffthehamster/dob-viewer
     "`dob-viewer`"
 
-- Docs: Document the interactive editor.
+- Feature: New `dob config edit` command, to get straight to the point. [[dob][]]
+
+- Feature: New `dob styles` commands. [[dob][]]
+
+  ```shell
+  dob styles --help
+  dob styles create
+  dob styles conf
+  dob styles edit
+  dob styles list
+  dob styles show
+  ```
+
+- Feature: New `dob rules` commands. [[dob][]]
+
+  ```shell
+  dob rules --help
+  dob rules create
+  dob rules conf
+  dob rules edit
+  dob rules list
+  dob rules show
+  ```
+
+- Feature: New `dob ignore` commands. [[dob][]]
+
+  ```shell
+  dob ignore --help
+  dob ignore create
+  dob ignore edit
+  dob ignore list
+  dob ignore show
+  ```
+
+- UX: Prefer config-show over config-dump. [[dob][]]
+
+- Docs: Add section on config file populate command. [[dob][]]
+
+- Improve: Ensure plugins loaded on config-create, too. [[dob][]]
+
+- Bugfix: Import `FactsDiff` display broken. [[dob-viewer][]]
+
+- Bugfix: 'value-tags' class missing from hash-and-label tag parts' styles. [[dob-viewer][]]
+
+- Feature: New `dob styles` commands. [[dob-viewer][]]
+
+- Feature: New `dob rules` commands. [[dob-viewer][]]
+
+- Feature: New `dob ignore` commands. [[dob-viewer][]]
+
+- Feature: Make tags_tuples parts styleable (for `git edit`). [[dob-viewer][]]
+
+- Feature: Make factoid parts styleable (for `git show`). [[dob-viewer][]]
+
+- Tweak: Update 'night' style settings. [[dob-viewer][]]
+
+- Enhance: Apply 'value-tags' class to tags diff parts. [[dob-viewer][]]
+
+- API: Rename functions; move functions between libraries. [[dob-viewer][]]
+
+- API: Update renamed config setting: `stylit_fpath` → `rules_fpath`. [[dob-viewer][]]
+
+- Improve: Option to exclude section column from config table. [[dob-bright][]]
+
+- Improve: Do not assume ASCII table width. [[dob-bright][]]
+
+- UX: Change difficult to read 'red' warning text to 'yellow'. [[dob-bright][]]
+
+  (Though really should be made configurable. Yellow works
+  better on a dark background.)
+
+- Harden: Prevent stylize from failing on user input. [[dob-bright][]]
+
+- API: Rename to avoid confusion/match other usage: `stylit` → `rules`. [[dob-bright][]]
+
+- Library: Refactor, Relocate, and DRY work. [[dob-bright][]]
+
+- API: De-scope function for broader usage. [[nark][]]
+
+- API: Rename function: oid_colorize → oid_stylize. [[nark][]]
+
+## 3.0.8 (2020-04-17)
+
+- Docs: Document the interactive editor. [[dob][]]
 
 - Improve: Remove requirement that custom paste config be numbered sequentially. [[dob-viewer][]]
 
