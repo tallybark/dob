@@ -29,7 +29,7 @@ from dob_bright.controller import Controller
 from dob_bright.termio import click_echo, echo_exit
 from dob_bright.termio.paging import set_paging
 
-from dob_viewer.config.styling.apply_styles import apply_styles
+from dob_viewer.config.styling.apply_styles import pre_apply_style_conf
 
 from .clickux import help_strings
 from .clickux.aliasable_bunchy_plugin import ClickAliasableBunchyPluginGroup
@@ -202,7 +202,7 @@ def run(ctx, controller, v, verbose, verboser, color, pager, config, configfile)
             controller.config['term.use_color'] = False
         _setup_tty_paging(controller)
         _setup_tty_color(ctx, controller)
-        _setup_tty_style(controller)
+        pre_apply_style_conf(controller)
 
     def _setup_tty_paging(controller):
         use_pager = pager
@@ -221,10 +221,6 @@ def run(ctx, controller, v, verbose, verboser, color, pager, config, configfile)
         # to be color-aware ourselves. (So setting ctx.color here is more of a
         # formality than something that actually does anything.)
         ctx.color = color
-
-    def _setup_tty_style(controller):
-        # Cache the style conf for the Carousel (if `dob edit` called). #PROFILING
-        controller.style_conf = apply_styles(controller)
 
     def _run_handle_banner():
         # (lb): I find the greeting annoying, and somewhat boastful.
