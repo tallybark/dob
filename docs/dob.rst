@@ -24,6 +24,14 @@ dob.complete module
    :undoc-members:
    :show-inheritance:
 
+dob.config module
+-----------------
+
+.. automodule:: dob.config
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dob.copyright module
 --------------------
 
@@ -76,14 +84,6 @@ dob.run\_cli module
 -------------------
 
 .. automodule:: dob.run_cli
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-dob.settings module
--------------------
-
-.. automodule:: dob.settings
    :members:
    :undoc-members:
    :show-inheritance:

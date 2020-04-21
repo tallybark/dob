@@ -4,14 +4,6 @@ dob.helpers package
 Submodules
 ----------
 
-dob.helpers.ascii\_table module
--------------------------------
-
-.. automodule:: dob.helpers.ascii_table
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 dob.helpers.path module
 -----------------------
 
