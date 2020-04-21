@@ -15,8 +15,6 @@
 # If you lost the GNU General Public License that ships with this software
 # repository (read the 'LICENSE' file), see <http://www.gnu.org/licenses/>.
 
-import editor
-
 from gettext import gettext as _
 
 from click_hotoffthehamster.exceptions import MissingParameter
@@ -25,6 +23,8 @@ from config_decorator.key_chained_val import KeyChainedValue
 
 from dob_bright.termio import click_echo, dob_in_user_exit
 from dob_bright.termio.config_table import echo_config_decorator_table
+
+from dob_viewer.crud.interrogate import run_editor_safe
 
 __all__ = (
     'echo_config_table',
@@ -56,8 +56,7 @@ def echo_config_table(controller, table_type, section, keyname):
 # *** [EDIT] CONFIG
 
 def edit_config_file(controller):
-    editor.edit(filename=controller.configurable.config_path)
-    # If we cared, could call `edited = editor.edit().decode()`, but we're all done!
+    run_editor_safe(filename=controller.configurable.config_path)
 
 
 # *** [GET] ECHO
