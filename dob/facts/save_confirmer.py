@@ -69,8 +69,9 @@ def prompt_and_save_confirmer(
     def persist_facts():
         if not edit_facts:
             return
-        record_edited_facts()
+        saved_facts = record_edited_facts()
         celebrate()
+        return saved_facts
 
     def record_edited_facts():
         task_descrip = _('Saving facts')
@@ -111,6 +112,8 @@ def prompt_and_save_confirmer(
         #       either via @post_processor, or by calling it directly.
 
         progress and progress.click_echo_current_task('')
+
+        return new_and_edited
 
     def persist_fact(fact, other_edits, is_first_fact, is_final_fact):
         new_and_edited = [fact, ]
