@@ -106,12 +106,9 @@ def edit_fact_by_pk(
             )
 
     def fact_from_key_relative(key):
-        # FIXME/2018-06-10: (lb): This is crudely implemented, and won't
-        # work in edges cases (e.g., if you add a fact, then edit another
-        # fact, then `edit -1`, you'll edit the fact you edited, and not
-        # the latest fact, as this feature should work.
         offset = -1 - key
         old_facts = controller.facts.get_all(
+            sort_col='start',
             sort_order='desc',
             limit=1,
             offset=offset,
