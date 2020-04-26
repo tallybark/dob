@@ -321,6 +321,14 @@ for local development.
 
    (which simply executes |tox|_).
 
+   - Note that ``tox`` downloads and uses *released* packages, so you
+     might want to run ``make test`` instead (which calls ``py.test``
+     directly) to test against local changes to included packages.
+
+     E.g., if you make changes to ``nark`` but have not released them
+     yet, to test ``dob``, you should use ``make test`` or ``py.test``,
+     not ``make test-all`` or ``tox``.
+
    .. _rebase_and_squash:
 
 #. Rebase and squash your work, if necessary, before submitting a Pull Request.
