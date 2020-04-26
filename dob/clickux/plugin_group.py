@@ -28,8 +28,6 @@ import click_hotoffthehamster as click
 from dob_bright.config.app_dirs import AppDirs
 from dob_bright.termio import dob_in_user_warning
 
-from dob_viewer.config import pause_on_error_message_maybe
-
 from ..helpers.path import compile_and_eval_source
 
 __all__ = (
@@ -89,7 +87,6 @@ class ClickPluginGroup(click.Group):
         controller.replay_config()
 
     def get_commands_from_plugins(self, ctx, name):
-        pause_on_error_pending = False
         cmds = set()
         for py_path in self.plugin_paths:
             try:
@@ -99,15 +96,11 @@ class ClickPluginGroup(click.Group):
                     # the same object, e.g., `from dob.run_cli import run`, we do
                     # not want to return multiple matches.
                     cmds |= files_cmds
-                else:
-                    pause_on_error_pending |= True
             except Exception as err:
                 msg = _(
                     'ERROR: Could not open plugins file "{}": {}'
                 ).format(py_path, str(err))
                 dob_in_user_warning(msg)
-        if pause_on_error_pending:
-            pause_on_error_message_maybe(ctx)
         self.has_loaded = True
         return list(cmds)
 
