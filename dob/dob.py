@@ -1304,16 +1304,6 @@ def edit_fact_by_key(
     **kwargs
 ):
     def _edit_fact_by_key():
-
-        if controller.config['editor.centered']:
-            click.clear()
-            # (lb): Revisit this? A little hacky.
-            # Newlines seem to nudge Carousel centered.
-            # Not sure why 3 is magic number, or if always.
-            click.echo()
-            click.echo()
-            click.echo()
-
         keys = assemble_keys()
         return process_edit_command(keys)
 
