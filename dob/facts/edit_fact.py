@@ -19,8 +19,9 @@ from gettext import gettext as _
 
 import click_hotoffthehamster as click
 
-from dob_bright.termio import dob_in_user_exit
+from dob_bright.termio import dob_in_user_exit, dob_in_user_warning
 
+from dob_viewer.crud.fact_dressed import FactDressed
 from dob_viewer.crud.interrogate import ask_edit_with_editor, ask_user_for_edits
 
 from .save_backedup import prompt_and_save_backedup
@@ -40,8 +41,8 @@ def edit_fact_by_pk(
     def _edit_fact_by_pk():
         old_fact = fact_from_key(key)
         if old_fact is None:
-            return None
-        unedited = old_fact.copy()
+            return warn_nothing_found(key)
+        unedited = old_fact.copy() if old_fact else None
         # Pre-run Awesome Prompt and/or $EDITOR.
         # Then run the Interactive Editor Carousel, the star
         # of the show; or show the $EDITOR if nothing else done.
@@ -85,16 +86,15 @@ def edit_fact_by_pk(
         return edited_facts
 
     def fact_from_key(key):
-        if not key:
-            # (lb): This had been a happy path, e.g.,:
-            #   return None
-            # but really the caller should verify first, eh.
-            assert False
-
         if key > 0:
             return fact_from_key_pk(key)
-        else:
-            return fact_from_key_relative(key)
+        return fact_from_key_relative_or_new(key)
+
+    def fact_from_key_relative_or_new(key):
+        old_fact = fact_from_key_relative(key)
+        if old_fact or key > 0:
+            return old_fact
+        return FactDressed.new_gap_fact(start=controller.now)
 
     def fact_from_key_pk(key):
         try:
@@ -115,6 +115,14 @@ def edit_fact_by_pk(
             deleted=False,
         )
         return old_facts[0] if old_facts else None
+
+    def warn_nothing_found(key):
+        if key > 0:
+            msg = _('No Fact found with ID “{}”.'.format(key))
+        else:
+            msg = _('There are not that many Facts.')
+        dob_in_user_warning(msg)
+        return None
 
     # ***
 
