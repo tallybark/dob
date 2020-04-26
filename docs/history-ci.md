@@ -11,7 +11,7 @@
 [OhMyRepos]: https://github.com/landonb/ohmyrepos
     "OhMyRepos"
 
-## 3.0.10 (2020-04-25)
+## 3.0.11 (2020-04-26)
 
 [dob]: https://github.com/hotoffthehamster/dob
     "`dob`"
@@ -27,6 +27,14 @@
 
 [dob-viewer]: https://github.com/hotoffthehamster/dob-viewer
     "`dob-viewer`"
+
+- Bugfix: Windows support, aka upgrade to sqlalchemy 1.3. [[nark][]]
+
+- Bugfix: Ensure warnings not cleared before awaiting acknowledgment. [[dob-viewer][]]
+
+- Bugfix: Config settings path shows incorrectly when displaying errors. [[dob-bright][]]
+
+## 3.0.10 (2020-04-25)
 
 - Bugfix: ``dob edit`` fails when no config, rather than printing message. [[dob-bright][]]
 

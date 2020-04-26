@@ -22,6 +22,18 @@ History
 
 .. :changelog:
 
+3.0.11 (2020-04-26)
+===================
+
+- Bugfix: Windows support, aka upgrade to sqlalchemy 1.3.
+  [nark]
+
+- Bugfix: Ensure warnings not cleared before awaiting acknowledgment.
+  [dob-viewer]
+
+- Bugfix: Config settings path shows incorrectly when displaying errors.
+  [dob-bright]
+
 3.0.10 (2020-04-25)
 ===================
 
