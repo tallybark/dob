@@ -22,6 +22,107 @@ History
 
 .. :changelog:
 
+3.0.10 (2020-04-25)
+===================
+
+- Bugfix: ``dob edit`` fails when no config, rather than printing message.
+  [dob-bright]
+
+  - Also affects other commands that require the config.
+
+  - E.g., this happens if the user has not called ``dob init``.
+
+    In other words, this affects new users.
+
+- Bugfix: ``dob edit`` does nothing after ``dob init`` on empty database.
+  [dob]
+
+  - User should not be forced to dob-add a Fact before running the
+    interactive Carousel. Instead, we can start with a basic gap Fact.
+
+- Bugfix: Config created by ``dob init`` crashes subsequent dob commands.
+  [nark]
+
+  - The internal log level values were being writ to the config file,
+    rather than the friendly level names.
+
+- Bugfix: Config file errors crash dob.
+  [dob-bright]
+
+  - But rather than just catch one error, print it, and exit,
+    collect all errors, print them all, and then just keep chugging,
+    choosing to use default values rather then exiting.
+
+  - User will have option to bail before running Carousel, which now
+    requires the user's acknowledgement of the errors.
+
+- Bugfix: ``dob edit`` shows most recently edited Fact.
+  [dob]
+
+  - It should show the most recent Fact. So sort by start.
+
+- Bugfix: Print error rather than crash on ``$EDITOR`` fail.
+  [dob-viewer]
+
+  - Use case: User sets their ``EDITOR`` environment variable to
+    a bad path, or adds arguments (which is not supported -- but
+    one could use an intermediate shell script wrapper to add args).
+
+- Bugfix: Post-processors not called after dob-add.
+  [dob]
+
+  - Use case: On Carousel save, the export-commit plugin post processor
+    is triggered. The same should happen after editing/adding Facts through
+    the ``dob add`` family of commands, e.g., ``dob from xx to xx: A test!``
+
+- Bugfix: Part-specific styles not appearing until after focus.
+  [dob-viewer]
+
+  - Use case: Run ``dob edit`` and note the start and end time widget
+    styles. Now shift focus to one of the widgets, and then away.
+
+    - Depending on how the style is configured, the look of the widget
+      after shifting focus away from it does not look like how it
+      originally looked.
+
+- Regression: Cannot enter colon (for clock time) in time widgets.
+  [dob-viewer]
+
+  - Solution: Only enable colon commands when content has focus.
+
+- Feature: Set app background color via ``label = <>`` in styles.conf.
+  [dob-viewer]
+
+  - PTK already assigns 'class:label' to every widget. This updates the
+    style-clobbering calls to maintain the label. Thus, user could add,
+    say, ``label = 'bg:#00AA66'`` to their ``styles.conf``, to give the
+    app a uniform background color.
+
+- Improve: Require confirmation after printing errors on Carousel startup.
+  [dob-viewer]
+
+  - Instead of pausing after printing error messages, require user to
+    confirm. Otherwise, user may not have time to read the errors. Also,
+    after quitting Carousel, errors are still off-screen (up-screen).
+
+- Improve: Make easier to base styles off 'night' and 'light' base styles.
+  [dob-viewer]
+
+  - Rather than assign the base color to all classes, which makes it
+    difficult to override them in styles.conf (because user is then
+    forced to override the highest-order class for every widget),
+    leave all the class styles empty except for the lowest ordered
+    class, which is common to all widgets, class:label.
+
+- Improve: Use no precision in 'Gap Fact of' text until duration > 60 seconds.
+  [dob-viewer]
+
+  - Otherwise the footer status message updates too frequently,
+    is too distracting.
+
+- Improve: Warn when syntax errors found in style config.
+  [dob-viewer]
+
 3.0.9 (2020-04-20)
 ==================
 
