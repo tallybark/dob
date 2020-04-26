@@ -32,6 +32,14 @@ dob.config module
    :undoc-members:
    :show-inheritance:
 
+dob.controller module
+---------------------
+
+.. automodule:: dob.controller
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dob.copyright module
 --------------------
 
