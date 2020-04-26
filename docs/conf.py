@@ -44,8 +44,6 @@ sys.path.insert(0, project_root)
 # ┃                                                                     ┃
 # ┃ YOU/DEV: Customize this import and these strings for your project.  ┃
 
-import dob
-
 project_dist = 'dob'
 package_name = 'dob'
 project_ghuser = 'hotoffthehamster'
