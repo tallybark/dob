@@ -110,17 +110,20 @@ Status
 
 * You can |demo-dob|_ to see how awesome it is!
 
-* You could also start using ``dob``, but just be aware it
-  has not been vetted yet for a larger audience — we've only
-  tested on one OS so far!
+* You can also start using ``dob``!
+
+  But just be aware that it has not been vetted yet for a larger
+  audience — you might still encounter a few issues. But please
+  report them, and we'll get them fixed.
 
   We just don't want you to have a bad first experience.
 
   Aka, *you've been warned!*
 
-We'll stop calling dob a beta once it's been tested on more OSes.
+  (Nonetheless, the ``dob`` beta uses a backup file judiciously,
+  so if it does crash, you should not lose any unsaved data.)
 
-But dob is already feature-rich, and it's used daily (hourly!) by
+dob is already feature-rich, and it's used daily (hourly!) by
 the authors.
 
 To see what all the fuss is about, you can ``pip3 install dob``
@@ -128,6 +131,28 @@ and run ``dob demo`` right now to try it out.
 
 Or, keep reading for an overview of dob, a list of its features,
 and then detailed documentation of the interactive editor commands.
+
+OS Support
+==========
+
+``dob`` runs on any operating system that supports Python,
+including Linux, macOS, and Windows.
+
+Please see the |install-guide|_ for help getting setup.
+
+###########
+Quick Start
+###########
+
+If you want to dive right in (after running the demo to get acquainted), try::
+
+   $ dob init
+   $ dob edit
+
+The ``init`` command creates a config file and the database,
+and the ``edit`` command runs the interactive editor.
+
+You can also run ``dob --help`` to see an overview of all commands.
 
 #####
 Ethos
@@ -197,6 +222,8 @@ Features
 - Includes command shortcuts -- common command sequences mapped to a single keypress.
 
 - Runs on the latest Python (3.6, 3.7, and 3.8).
+
+- Broad desktop OS support -- runs on Linux, macOS, and Windows.
 
 - Suitably tested (though coverage could be better).
 
