@@ -25,14 +25,12 @@ import click_hotoffthehamster as click
 # BREADCRUMP: PROFILING
 from nark.helpers.dev.profiling import profile_elapsed, timefunct
 
-from dob_bright.controller import Controller
 from dob_bright.termio import click_echo, echo_exit
 from dob_bright.termio.paging import set_paging
 
-from dob_viewer.config.styling.apply_styles import pre_apply_style_conf
-
 from .clickux import help_strings
 from .clickux.aliasable_bunchy_plugin import ClickAliasableBunchyPluginGroup
+from .controller import DobController
 from .copyright import echo_copyright
 
 __all__ = (
@@ -47,7 +45,7 @@ __all__ = (
 
 # Profiling: Controller is made during Command.invoke via click.MultiCommand.invoke.
 # Profiling: Controller calls _get_store: ~ 0.173 secs.
-pass_controller = click.make_pass_decorator(Controller, ensure=True)
+pass_controller = click.make_pass_decorator(DobController, ensure=True)
 
 
 # ***
@@ -202,7 +200,7 @@ def run(ctx, controller, v, verbose, verboser, color, pager, config, configfile)
             controller.config['term.use_color'] = False
         _setup_tty_paging(controller)
         _setup_tty_color(ctx, controller)
-        pre_apply_style_conf(controller)
+        controller.pre_apply_style_conf()
 
     def _setup_tty_paging(controller):
         use_pager = pager
