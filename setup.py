@@ -24,16 +24,6 @@ requirements = [
     # (lb): I considered adding this to Click, but Click has no dependencies!
     #       So let's keep it pure.
     'ansiwrap >= 0.8.4, < 1',
-    # (lb): Click may be the best optparser of any language I've used.
-    #  https://github.com/pallets/click
-    #    'click',
-    #  - Still, had to make one adjustment, and too impatient to ask for a pull...
-    #  https://github.com/hotoffthehamster/click
-    'click-hotoffthehamster >= 7.1.1, < 8',
-    # Indispensable aliases support for Click.
-    #  Upstream at: https://github.com/click-contrib/click-aliases
-    #  Released at: https://github.com/hotoffthehamster/click-hotoffthehamster-alias
-    'click-hotoffthehamster-alias >= 1.0.2, < 2',
     # Vocabulary word pluralizer.
     #  https://github.com/ixmatus/inflector
     'Inflector >= 3.0.1, < 4',
@@ -43,10 +33,6 @@ requirements = [
     # what's truly backward incompatible or not... we'll let our tests figure it out.
     #  'humanfriendly >= 8.1, < 9',
     'humanfriendly',
-    # Elapsed timedelta formatter, e.g., "1.25 days".
-    # - Imports as `pedantic_timedelta`.
-    #  https://github.com/hotoffthehamster/human-friendly_pedantic-timedelta
-    'human-friendly_pedantic-timedelta >= 2.0.0, < 3',
     # https://github.com/mnmelo/lazy_import
     'lazy_import >= 0.2.2, < 1',
     # Tabulate is one of the many table formatter choices.
@@ -56,17 +42,31 @@ requirements = [
     #  https://github.com/bufordtaylor/python-texttable
     'texttable >= 1.6.2, < 2',
 
-    # *** Hamster packages.
+    # *** HOTH packages.
 
+    # (lb): Click may be the best optparser of any language I've used.
+    #  https://github.com/pallets/click
+    #    'click',
+    #  - Still, had to make one adjustment, and too impatient to ask for a pull...
+    #  https://github.com/hotoffthehamster/click
+    'click-hotoffthehamster == 7.1.1',
+    # Indispensable aliases support for Click.
+    #  Upstream at: https://github.com/click-contrib/click-aliases
+    #  Released at: https://github.com/hotoffthehamster/click-hotoffthehamster-alias
+    'click-hotoffthehamster-alias == 1.0.2',
+    # Elapsed timedelta formatter, e.g., "1.25 days".
+    # - Imports as `pedantic_timedelta`.
+    #  https://github.com/hotoffthehamster/human-friendly_pedantic-timedelta
+    'human-friendly_pedantic-timedelta == 2.0.0',
     # The heart of Hamster. (Ye olde `hamster-lib`).
     #  https://github.com/hotoffthehamster/nark
-    'nark >= 3.1.1, < 3.2',
+    'nark == 3.2.1',
     # The controller, config, and common output and error tossing code.
     #  https://github.com/hotoffthehamster/dob-bright
-    'dob-bright >= 1.1.1, < 1.2',
+    'dob-bright == 1.2.1',
     # The so-called Facts "carousel" chrono-viewer.
     #  https://github.com/hotoffthehamster/dob-viewer
-    'dob-viewer >= 1.1.2, < 1.2',
+    'dob-viewer == 1.2.0',
 ]
 
 # *** Minimal setup() function -- Prefer using config where possible.
