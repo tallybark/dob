@@ -38,6 +38,9 @@ dob
 .. |install-guide| replace:: installation guide
 .. _install-guide: https://dob.readthedocs.io/en/latest/installation.html
 
+.. |update-path| replace:: update ``PATH`` or find where ``pip`` installs ``dob``
+.. _update-path: https://dob.readthedocs.io/en/latest/installation.html#update-path
+
 |dob|_ is an interactive, terminal-based time tracking application.
 
 You'll find Vim-like navigation,
@@ -61,17 +64,7 @@ The best way to learn ``dob`` is to run the demo:
 
 For other setup options, read the |install-guide|_.
 
-- Hint: You might need to update ``PATH``, or to figure out where ``pip``
-  installs ``dob`` to run it.
-
-  E.g., on Linux, ``pip`` installs to ``~/.local/bin``, so you could
-  either update ``PATH``::
-
-    export PATH=$PATH:$HOME/.local/bin
-
-  or you could just run ``~/.local/bin/dob`` directly.
-
-  See the |install-guide|_ for more help.
+- Hint: You might need to |update-path|_.
 
 ##########
 Quick Peak
