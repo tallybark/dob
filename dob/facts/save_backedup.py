@@ -16,6 +16,7 @@
 # or visit <http://www.gnu.org/licenses/>.
 
 import os
+import platform
 import traceback
 
 from gettext import gettext as _
@@ -96,9 +97,13 @@ def prompt_and_save_backedup(
         if not backup:
             return None
         backup_path, backup_link = get_import_ephemeral_backup_path()
-        backup_f = None
         log_msg = _("Creating backup at {0}").format(backup_path)
         controller.client_logger.info(log_msg)
+        backup_f = backup_file_open(backup_path)
+        backup_file_symlink(backup_path, backup_link)
+        return backup_f
+
+    def backup_file_open(backup_path):
         try:
             backup_f = open(backup_path, 'w')
         except Exception as err:
@@ -107,6 +112,14 @@ def prompt_and_save_backedup(
                 .format(backup_path, str(err))
             )
             dob_in_user_exit(msg)
+        return backup_f
+
+    def backup_file_symlink(backup_path, backup_link):
+        if platform.system() == 'Windows':
+            # Windows only recently added symlinks, and even then, you need
+            # privileges or to enable a special switch. But whatever, this
+            # symlink is only a convenience. It's not necessary.
+            return
         try:
             # NOTE: os.remove removes the file being linked; we want unlink.
             #   We also want lexists, not exists, to get True for broken links.
@@ -114,11 +127,10 @@ def prompt_and_save_backedup(
             os.symlink(backup_path, backup_link)
         except Exception as err:
             msg = (
-                'Failed to remove temporary backup file link at "{}": {}'
+                'Failed to setup temporary backup file link at "{}": {}'
                 .format(backup_link, str(err))
             )
             dob_in_user_warning(msg)
-        return backup_f
 
     IMPORT_BACKUP_DIR = 'carousel'
 
