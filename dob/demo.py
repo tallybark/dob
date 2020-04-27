@@ -19,6 +19,7 @@
 
 from gettext import gettext as _
 
+import os
 import tempfile
 from datetime import timedelta
 from functools import update_wrapper
@@ -66,6 +67,16 @@ def demo_dob(controller):
             demo_facts.append(saved_fact)
 
         prompt_and_save_confirmer(controller, edit_facts=demo_facts, dry=False)
+
+        # Remove the temporary file that _demo_prep created, that we could
+        # not let tempfile delete on garbage collection, because Windows.
+        # Note that SQLAlchemy's db reference causes Windows to complain
+        # on unlink, so explicitly close the session first. Otherwise, e.g.,:
+        #   PermissionError: [WinError 32] The process cannot access the file
+        #   because it is being used by another process:
+        #     'C:\\Users\\IEUser\\AppData\\Local\\Temp\\dob-demo-vr5mi28q.sqlite'
+        controller.store.session.close()
+        os.unlink(controller.config['db.path'])
 
     return _demo_dob()
 
@@ -721,10 +732,15 @@ def _demo_prep(controller):
         return tmpfile
 
     def create_temporary_file():
+        # (lb): Windows does not allow NamedTemporaryFile to be opened twice,
+        # so close here, without allowing it to be deleted, and then the store
+        # will reopen it. We'll remove it when the user ends the demo.
         tmpfile = tempfile.NamedTemporaryFile(
             prefix='dob-demo-',
             suffix='.sqlite',
+            delete=False,
         )
+        tmpfile.close()
         return tmpfile
 
     def demoize_config(db_path):
