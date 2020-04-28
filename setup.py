@@ -66,7 +66,7 @@ requirements = [
     'dob-bright == 1.2.1',
     # The so-called Facts "carousel" chrono-viewer.
     #  https://github.com/hotoffthehamster/dob-viewer
-    'dob-viewer == 1.2.0',
+    'dob-viewer == 1.2.1',
 ]
 
 # *** Minimal setup() function -- Prefer using config where possible.
