@@ -11,7 +11,7 @@
 [OhMyRepos]: https://github.com/landonb/ohmyrepos
     "OhMyRepos"
 
-## 3.0.11 (2020-04-26)
+## 3.0.12 (2020-04-28)
 
 [dob]: https://github.com/hotoffthehamster/dob
     "`dob`"
@@ -27,6 +27,21 @@
 
 [dob-viewer]: https://github.com/hotoffthehamster/dob-viewer
     "`dob-viewer`"
+
+- Bugfix: Windows: `dob demo` broken. [[dob][]]
+
+- Bugfix: Windows: Run `notepad.exe` if `EDITOR` not set. [[dob-viewer][]]
+
+  - Normally if `EDITOR` is not set, the system's `sensible-editor`
+    command will run Nano or Vi, neither of which is available on Windows.
+    Consequently, on Windows, when `EDITOR` is not set, dob displays a
+    warning, awaits acknowledgment, and then runs the Carousel again.
+
+- Bugfix: Windows: Temporary file path broken because colon. [[dob-viewer][]]
+
+- Bugfix: Windows: dob shows backup file symlink error. [[dob][]]
+
+## 3.0.11 (2020-04-26)
 
 - Bugfix: Windows support, aka upgrade to sqlalchemy 1.3. [[nark][]]
 
