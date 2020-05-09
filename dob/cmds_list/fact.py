@@ -190,10 +190,6 @@ def search_facts(
             return get_all(since, until)
 
     def get_all(since, until):
-        # Convert the since and until time strings to datetimes.
-        since = parse_dated(since, controller.now) if since else None
-        until = parse_dated(until, controller.now) if until else None
-
         results = controller.facts.get_all(
             since=since, until=until, *args, **kwargs
         )
