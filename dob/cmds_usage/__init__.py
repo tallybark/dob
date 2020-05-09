@@ -40,7 +40,7 @@ def generate_usage_table(
     for activity, count, duration in results:
         (
             tm_fmttd, tm_scale, tm_units,
-        ) = PedanticTimedelta(days=duration).time_format_scaled()
+        ) = PedanticTimedelta(days=duration or 0).time_format_scaled()
         value, units = tm_fmttd.split(' ')
         max_width_tm_value = max(max_width_tm_value, len(value))
         max_width_tm_units = max(max_width_tm_units, len(units))
