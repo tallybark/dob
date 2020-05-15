@@ -28,9 +28,9 @@ __all__ = (
     'cmd_options_fact_edit',
     'cmd_options_fact_import',
     'cmd_options_limit_offset',
-    'cmd_options_list_activitied',
-    'cmd_options_list_categoried',
     'cmd_options_list_fact',
+    'cmd_options_results_match_activity',
+    'cmd_options_results_match_category',
     'cmd_options_search',
     'cmd_options_styles_internal',
     'cmd_options_styles_named',
@@ -429,7 +429,7 @@ def cmd_options_list_fact(func):
 # *** [LIST ACTIVITY|LIST TAG] Options.
 # ***
 
-_cmd_options_list_categoried = [
+_cmd_options_results_match_category = [
     click.option(
         '-c', '--category',
         help=_('Restrict results by matching category name.'),
@@ -437,8 +437,8 @@ _cmd_options_list_categoried = [
 ]
 
 
-def cmd_options_list_categoried(func):
-    for option in reversed(_cmd_options_list_categoried):
+def cmd_options_results_match_category(func):
+    for option in reversed(_cmd_options_results_match_category):
         func = option(func)
     return func
 
@@ -455,7 +455,7 @@ def postprocess_options_list_categoried(kwargs):
 # *** [QUERY MATCH] Options.
 # ***
 
-_cmd_options_list_activitied = [
+_cmd_options_results_match_activity = [
     click.option(
         '-a', '--activity',
         help=_('Restrict results by matching activity name.'),
@@ -463,8 +463,8 @@ _cmd_options_list_activitied = [
 ]
 
 
-def cmd_options_list_activitied(func):
-    for option in reversed(_cmd_options_list_activitied):
+def cmd_options_results_match_activity(func):
+    for option in reversed(_cmd_options_results_match_activity):
         func = option(func)
     return func
 

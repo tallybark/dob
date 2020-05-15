@@ -85,9 +85,9 @@ from .clickux.cmd_options import (
     cmd_options_factoid_verify_end,
     cmd_options_factoid_verify_both,
     cmd_options_limit_offset,
-    cmd_options_list_activitied,
-    cmd_options_list_categoried,
     cmd_options_list_fact,
+    cmd_options_results_match_activity,
+    cmd_options_results_match_category,
     cmd_options_rule_name,
     cmd_options_search,
     cmd_options_styles_internal,
@@ -733,7 +733,7 @@ def list_group(ctx, controller):
 @show_help_finally
 @flush_pager
 @cmd_options_search
-@cmd_options_list_categoried
+@cmd_options_results_match_category
 @cmd_options_usage
 @cmd_options_table_view
 @cmd_options_limit_offset
@@ -785,8 +785,8 @@ def list_categories(ctx, controller, *args, usage=False, **kwargs):
 @show_help_finally
 @flush_pager
 @cmd_options_search
-@cmd_options_list_activitied
-@cmd_options_list_categoried
+@cmd_options_results_match_activity
+@cmd_options_results_match_category
 @cmd_options_usage
 @cmd_options_table_view
 @cmd_options_limit_offset
@@ -832,8 +832,8 @@ def _list_facts(controller, *args, usage=False, **kwargs):
 
 def generate_list_facts_command(func):
     @cmd_options_search
-    @cmd_options_list_activitied
-    @cmd_options_list_categoried
+    @cmd_options_results_match_activity
+    @cmd_options_results_match_category
     @cmd_options_usage
     @cmd_options_table_view
     @cmd_options_limit_offset
@@ -886,7 +886,7 @@ def usage_group(ctx, controller):
 @show_help_finally
 @flush_pager
 @cmd_options_search
-@cmd_options_list_categoried
+@cmd_options_results_match_category
 @cmd_options_table_view
 @cmd_options_limit_offset
 @pass_controller_context
@@ -929,8 +929,8 @@ def usage_categories(ctx, controller, *args, **kwargs):
 @show_help_finally
 @flush_pager
 @cmd_options_search
-@cmd_options_list_activitied
-@cmd_options_list_categoried
+@cmd_options_results_match_activity
+@cmd_options_results_match_category
 @cmd_options_table_view
 @cmd_options_limit_offset
 @pass_controller_context
@@ -955,8 +955,8 @@ def usage_tags(ctx, controller, *args, **kwargs):
 @show_help_finally
 @flush_pager
 @cmd_options_search
-@cmd_options_list_activitied
-@cmd_options_list_categoried
+@cmd_options_results_match_activity
+@cmd_options_results_match_category
 @cmd_options_table_view
 @cmd_options_limit_offset
 @pass_controller_context
@@ -1383,8 +1383,8 @@ def cmd_export_opt_output_default(controller):
 @click.option('--ical', is_flag=True, help=_('Alias for `--format ical`'))
 @cmd_options_search
 @cmd_options_limit_offset
-@cmd_options_list_activitied
-@cmd_options_list_categoried
+@cmd_options_results_match_activity
+@cmd_options_results_match_category
 @pass_controller_context
 @induct_newbies
 def transcode_export(ctx, controller, *args, output, format, **kwargs):
