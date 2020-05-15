@@ -37,8 +37,8 @@ __all__ = (
     'cmd_options_table_view',
     'cmd_options_usage',
     'cmd_options_edit_item',
-    'postprocess_options_list_activitied',
-    'postprocess_options_list_categoried',
+    'postprocess_options_match_activity',
+    'postprocess_options_match_category',
     'postprocess_options_table_options',
     'OptionWithDynamicHelp',
     # Private:
@@ -443,7 +443,7 @@ def cmd_options_results_match_activity(func):
     return func
 
 
-def postprocess_options_list_activitied(kwargs):
+def postprocess_options_match_activity(kwargs):
     activity = kwargs['activity'] if kwargs['activity'] else ''
     del kwargs['activity']
     return activity
@@ -467,7 +467,7 @@ def cmd_options_results_match_category(func):
     return func
 
 
-def postprocess_options_list_categoried(kwargs):
+def postprocess_options_match_category(kwargs):
     # This little dance is so category_name is never None, but '',
     # because get_all() distinguishes between category=None and =''.
     category = kwargs['category'] if kwargs['category'] else ''

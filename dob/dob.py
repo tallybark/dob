@@ -95,8 +95,8 @@ from .clickux.cmd_options import (
     cmd_options_table_renderer,
     cmd_options_table_view,
     cmd_options_usage,
-    postprocess_options_list_activitied,
-    postprocess_options_list_categoried,
+    postprocess_options_match_activity,
+    postprocess_options_match_category,
     postprocess_options_table_options
 )
 from .clickux.help_command import help_command_help
@@ -741,7 +741,7 @@ def list_group(ctx, controller):
 @induct_newbies
 def list_activities(ctx, controller, *args, usage=False, **kwargs):
     """List matching activities, filtered and sorted."""
-    category = postprocess_options_list_categoried(kwargs)
+    category = postprocess_options_match_category(kwargs)
     postprocess_options_table_options(kwargs)
     if usage:
         handler = usage_activity.usage_activities
@@ -794,8 +794,8 @@ def list_categories(ctx, controller, *args, usage=False, **kwargs):
 @induct_newbies
 def list_tags(ctx, controller, *args, usage=False, **kwargs):
     """List all tags, with filtering and sorting options."""
-    activity = postprocess_options_list_activitied(kwargs)
-    category = postprocess_options_list_categoried(kwargs)
+    activity = postprocess_options_match_activity(kwargs)
+    category = postprocess_options_match_category(kwargs)
     postprocess_options_table_options(kwargs)
     if usage:
         handler = usage_tag.usage_tags
@@ -815,8 +815,8 @@ def list_tags(ctx, controller, *args, usage=False, **kwargs):
 def _list_facts(controller, *args, usage=False, **kwargs):
     """List matching facts, filtered and sorted."""
     """Fetch facts matching certain criteria."""
-    activity = postprocess_options_list_activitied(kwargs)
-    category = postprocess_options_list_categoried(kwargs)
+    activity = postprocess_options_match_activity(kwargs)
+    category = postprocess_options_match_category(kwargs)
     postprocess_options_table_options(kwargs)
     # FIXME: (lb): Should probably impose limit by default
     #          (without, my terminal hangs for a long while).
@@ -893,7 +893,7 @@ def usage_group(ctx, controller):
 @induct_newbies
 def usage_activities(ctx, controller, *args, **kwargs):
     """List all activities. Provide optional filtering by name."""
-    category = postprocess_options_list_categoried(kwargs)
+    category = postprocess_options_match_category(kwargs)
     postprocess_options_table_options(kwargs)
     usage_activity.usage_activities(
         controller,
@@ -937,8 +937,8 @@ def usage_categories(ctx, controller, *args, **kwargs):
 @induct_newbies
 def usage_tags(ctx, controller, *args, **kwargs):
     """List all tags' usage counts, with filtering and sorting options."""
-    activity = postprocess_options_list_activitied(kwargs)
-    category = postprocess_options_list_categoried(kwargs)
+    activity = postprocess_options_match_activity(kwargs)
+    category = postprocess_options_match_category(kwargs)
     postprocess_options_table_options(kwargs)
     usage_tag.usage_tags(
         controller,
@@ -963,8 +963,8 @@ def usage_tags(ctx, controller, *args, **kwargs):
 @induct_newbies
 def usage_facts(ctx, controller, *args, **kwargs):
     """List all tags' usage counts, with filtering and sorting options."""
-    activity = postprocess_options_list_activitied(kwargs)
-    category = postprocess_options_list_categoried(kwargs)
+    activity = postprocess_options_match_activity(kwargs)
+    category = postprocess_options_match_category(kwargs)
     postprocess_options_table_options(kwargs)
     list_fact.list_facts(
         controller,
@@ -1390,8 +1390,8 @@ def cmd_export_opt_output_default(controller):
 def transcode_export(ctx, controller, *args, output, format, **kwargs):
     """Export all facts of within a given timewindow to a file of specified format."""
     def _transcode_export():
-        activity = postprocess_options_list_activitied(kwargs)
-        category = postprocess_options_list_categoried(kwargs)
+        activity = postprocess_options_match_activity(kwargs)
+        category = postprocess_options_match_category(kwargs)
         export_facts(
             controller,
             *args,
