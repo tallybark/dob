@@ -426,6 +426,30 @@ def cmd_options_list_fact(func):
 
 
 # ***
+# *** [QUERY MATCH] Options.
+# ***
+
+_cmd_options_results_match_activity = [
+    click.option(
+        '-a', '--activity',
+        help=_('Restrict results by matching activity name.'),
+    ),
+]
+
+
+def cmd_options_results_match_activity(func):
+    for option in reversed(_cmd_options_results_match_activity):
+        func = option(func)
+    return func
+
+
+def postprocess_options_list_activitied(kwargs):
+    activity = kwargs['activity'] if kwargs['activity'] else ''
+    del kwargs['activity']
+    return activity
+
+
+# ***
 # *** [LIST ACTIVITY|LIST TAG] Options.
 # ***
 
@@ -449,30 +473,6 @@ def postprocess_options_list_categoried(kwargs):
     category = kwargs['category'] if kwargs['category'] else ''
     del kwargs['category']
     return category
-
-
-# ***
-# *** [QUERY MATCH] Options.
-# ***
-
-_cmd_options_results_match_activity = [
-    click.option(
-        '-a', '--activity',
-        help=_('Restrict results by matching activity name.'),
-    ),
-]
-
-
-def cmd_options_results_match_activity(func):
-    for option in reversed(_cmd_options_results_match_activity):
-        func = option(func)
-    return func
-
-
-def postprocess_options_list_activitied(kwargs):
-    activity = kwargs['activity'] if kwargs['activity'] else ''
-    del kwargs['activity']
-    return activity
 
 
 # ***
