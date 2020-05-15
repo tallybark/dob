@@ -154,12 +154,11 @@ CONTEXT_SETTINGS = dict(
               help=help_strings.GLOBAL_OPT_VERBOSE)
 @click.option('-VV', '--verboser', is_flag=True, hidden=True,
               help=help_strings.GLOBAL_OPT_VERBOSER)
-# (lb): 2019-11-19: Trying -X, like you're PAINTING the screen.
-@click.option('-C', '--color/--no-color', '-X', default=None,
+@click.option('-X', '--color/--no-color', '-X', default=None,
               help=help_strings.GLOBAL_OPT_COLOR_NO_COLOR)
 @click.option('-P', '--pager/--no-pager', default=None,
               help=help_strings.GLOBAL_OPT_PAGER_NO_PAGER)
-@click.option('-c', '--config', multiple=True, metavar='KEY=VALUE',
+@click.option('-C', '--config', multiple=True, metavar='KEY=VALUE',
               help=help_strings.GLOBAL_OPT_CONFIG)
 # (lb): We could use `type=click.File('r')` here. Or not.
 @click.option('-F', '--configfile', metavar='PATH',

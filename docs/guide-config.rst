@@ -137,9 +137,9 @@ If you want to change configuration settings on the fly, you can do that, too.
 
     DOB_CONFIG_DB_ENGINE=sqlite dob stats
 
-  or using a global CLI option, ``-c``, e.g.,::
+  or using a global CLI option, ``-C``, e.g.,::
 
-    dob -c db.engine=sqlite stats
+    dob -C db.engine=sqlite stats
 
 Refer to ``dob config --help`` for more details.
 

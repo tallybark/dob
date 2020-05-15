@@ -42,6 +42,7 @@ __all__ = (
     'postprocess_options_table_options',
     'OptionWithDynamicHelp',
     # Private:
+    #   '_cmd_options_*'...,
     #   '_postprocess_options_table_option_order_to_sort_col',
     #   '_postprocess_options_table_options_asc_desc_to_sort_order',
 )
@@ -102,7 +103,7 @@ def cmd_options_limit_offset(func):
 
 
 # ***
-# *** [TABLE BASIC] Options.
+# *** [TABLE STYLE] Options.
 # ***
 
 _cmd_options_table_renderer = [
@@ -121,7 +122,7 @@ def cmd_options_table_renderer(func):
 
 
 # ***
-# *** [TABLE FANCY] Options.
+# *** [RESULTS DATA DISPLAY] Options.
 # ***
 
 _cmd_options_table_truncols = [
@@ -138,13 +139,21 @@ def cmd_options_table_truncols(func):
     return func
 
 
+# ***
+# *** [RESULTS ORDER] Options.
+# ***
+
 _cmd_options_table_order = [
     click.option(
-        '-A', '--asc', is_flag=True, default=None,
+        # (lb): -a/-A are used for matching/grouping by Activity in the query,
+        #      and because --asc is the default, the single-char command for
+        #      this option just be the "opposite" of the counterpart option,
+        #      i.e., given -d/--desc, what's the "opposite"/toggle of -d? -D.
+        '-D', '--asc', is_flag=True, default=None,
         help=_('Sort by ascending column value.'),
     ),
     click.option(
-        '-D', '--desc', is_flag=True, default=None,
+        '-d', '--desc', is_flag=True, default=None,
         help=_('Sort by descending column value.'),
     ),
     click.option(
@@ -163,7 +172,7 @@ def cmd_options_table_order(func):
     return func
 
 
-# *** Combining last 3 table-related options into one convenient wrapper.
+# *** Combining last 3 table- and results-related options into one convenient wrapper.
 
 def cmd_options_table_view(func):
     for option in reversed(
@@ -422,15 +431,7 @@ def cmd_options_list_fact(func):
 
 _cmd_options_list_categoried = [
     click.option(
-        # (lb): For years, had -c/--category for the list subcommands, but
-        # then I wanted to add -c/--config global option, which could work
-        # because how Click parses options. But that seems confusing.
-        # A -c/--config alternative could be -s/--setting?
-        # Or, if you think cateGory, and that a category is much like a group,
-        # then -g might seem like a reasonable shorthand for --cateGory.
-        # I'll keep my eye on this... maybe -s/--setting makes more sense...
-        # '-c', '--category',
-        '-g', '--category',
+        '-c', '--category',
         help=_('Restrict results by matching category name.'),
     ),
 ]
@@ -451,7 +452,7 @@ def postprocess_options_list_categoried(kwargs):
 
 
 # ***
-# *** [LIST TAG] Options.
+# *** [QUERY MATCH] Options.
 # ***
 
 _cmd_options_list_activitied = [

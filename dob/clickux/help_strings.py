@@ -419,11 +419,11 @@ def CONFIG_GROUP_HELP(ctx):
           {codehi}{rawname} COMMAND ...{reset}
 
         - You can alternatively specify the configuration file location
-        using the {codehi}-C/--configfile{reset} global option, e.g.,
+        using the {codehi}-F/--configfile{reset} global option, e.g.,
         using shorthand:
 
           \b
-          {codehi}{rawname} -C path/to/{rawname}.conf COMMAND ...{reset}
+          {codehi}{rawname} -F path/to/{rawname}.conf COMMAND ...{reset}
 
           or using --option=value longhand:
 
@@ -454,11 +454,11 @@ def CONFIG_GROUP_HELP(ctx):
         - If a config value is specified via the command line, that value is
         preferred over all other values.
 
-          - You can specify config values using the {codehi}-c/--config{reset}
+          - You can specify config values using the {codehi}-C/--config{reset}
         option, e.g.,
 
           \b
-          {codehi}{rawname} -c db.engine=sqlite stats{reset}
+          {codehi}{rawname} -C db.engine=sqlite stats{reset}
 
         {underlined}Config Command Overview{reset}
 
