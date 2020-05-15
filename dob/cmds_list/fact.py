@@ -66,13 +66,13 @@ def list_facts(
     category = hydrate_category(controller, filter_category)
 
     def _list_facts():
+        kwargs['sort_col'] = sort_col()
         results = search_facts(
             controller,
             *args,
             include_usage=include_usage,
             activity=activity,
             category=category,
-            sort_col=sort_col(),
             **kwargs
         )
         if not results:
@@ -83,11 +83,12 @@ def list_facts(
             output_table(results)
 
     def sort_col():
-        if 'sort_col' in kwargs:
-            return ''
-        if not include_usage:
-            return ''
-        return 'time'
+        try:
+            return kwargs['sort_col']
+        except KeyError:
+            if not include_usage:
+                return ''
+            return 'time'
 
     def output_block(results):
         colorful = controller.config['term.use_color']

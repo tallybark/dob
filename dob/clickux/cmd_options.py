@@ -157,9 +157,9 @@ _cmd_options_table_order = [
         help=_('Sort by descending column value.'),
     ),
     click.option(
-        '-o', '--order', '--sort', default='',
+        '-o', '--order', '--sort', default='start',
         type=click.Choice([
-            '', 'name', 'activity', 'category', 'tag', 'fact', 'start', 'usage', 'time',
+            'name', 'activity', 'category', 'tag', 'fact', 'start', 'usage', 'time',
         ]),
         help=_('Order by column (may depend on query).'),
     ),
