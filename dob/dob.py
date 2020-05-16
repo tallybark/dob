@@ -95,8 +95,9 @@ from .clickux.cmd_options import (
     cmd_options_search_match_tagnames,
     cmd_options_styles_internal,
     cmd_options_styles_named,
+    cmd_options_table_order,
     cmd_options_table_renderer,
-    cmd_options_table_view,
+    cmd_options_table_truncols,
     postprocess_options_match_activity,
     postprocess_options_match_category,
     postprocess_options_match_tagnames,
@@ -738,9 +739,11 @@ def list_group(ctx, controller):
 @cmd_options_search_basics
 @cmd_options_search_match_category
 @cmd_options_search_match_tagnames
-@cmd_options_results_show_usage
-@cmd_options_table_view
+@cmd_options_table_order
 @cmd_options_limit_offset
+@cmd_options_results_show_usage
+@cmd_options_table_renderer
+@cmd_options_table_truncols
 @pass_controller_context
 @induct_newbies
 def list_activities(ctx, controller, *args, show_usage=False, **kwargs):
@@ -768,9 +771,11 @@ def list_activities(ctx, controller, *args, show_usage=False, **kwargs):
 @flush_pager
 @cmd_options_search_match_activity
 @cmd_options_search_match_tagnames
-@cmd_options_results_show_usage
-@cmd_options_table_view
+@cmd_options_table_order
 @cmd_options_limit_offset
+@cmd_options_results_show_usage
+@cmd_options_table_renderer
+@cmd_options_table_truncols
 @pass_controller_context
 @induct_newbies
 def list_categories(ctx, controller, *args, show_usage=False, **kwargs):
@@ -799,9 +804,11 @@ def list_categories(ctx, controller, *args, show_usage=False, **kwargs):
 @cmd_options_search_basics
 @cmd_options_search_match_activity
 @cmd_options_search_match_category
-@cmd_options_results_show_usage
-@cmd_options_table_view
+@cmd_options_table_order
 @cmd_options_limit_offset
+@cmd_options_results_show_usage
+@cmd_options_table_renderer
+@cmd_options_table_truncols
 @pass_controller_context
 @induct_newbies
 def list_tags(ctx, controller, *args, show_usage=False, **kwargs):
@@ -849,11 +856,13 @@ def generate_list_facts_command(func):
     @cmd_options_search_match_activity
     @cmd_options_search_match_category
     @cmd_options_search_match_tagnames
-    @cmd_options_results_show_usage
-    @cmd_options_table_view
+    @cmd_options_table_order
     @cmd_options_limit_offset
-    @cmd_options_list_fact
+    @cmd_options_results_show_usage
     @cmd_options_results_hide_duration
+    @cmd_options_table_renderer
+    @cmd_options_table_truncols
+    @cmd_options_list_fact
     @pass_controller_context
     @induct_newbies
     def dob_list_facts(ctx, controller, *args, doc, **kwargs):
@@ -904,8 +913,10 @@ def usage_group(ctx, controller):
 @cmd_options_search_basics
 @cmd_options_search_match_category
 @cmd_options_search_match_tagnames
-@cmd_options_table_view
+@cmd_options_table_order
 @cmd_options_limit_offset
+@cmd_options_table_renderer
+@cmd_options_table_truncols
 @pass_controller_context
 @induct_newbies
 def usage_activities(ctx, controller, *args, **kwargs):
@@ -930,8 +941,10 @@ def usage_activities(ctx, controller, *args, **kwargs):
 @cmd_options_search_basics
 @cmd_options_search_match_activity
 @cmd_options_search_match_tagnames
-@cmd_options_table_view
+@cmd_options_table_order
 @cmd_options_limit_offset
+@cmd_options_table_renderer
+@cmd_options_table_truncols
 @pass_controller_context
 @induct_newbies
 def usage_categories(ctx, controller, *args, **kwargs):
@@ -956,8 +969,10 @@ def usage_categories(ctx, controller, *args, **kwargs):
 @cmd_options_search_basics
 @cmd_options_search_match_activity
 @cmd_options_search_match_category
-@cmd_options_table_view
+@cmd_options_table_order
 @cmd_options_limit_offset
+@cmd_options_table_renderer
+@cmd_options_table_truncols
 @pass_controller_context
 @induct_newbies
 def usage_tags(ctx, controller, *args, **kwargs):
@@ -983,8 +998,10 @@ def usage_tags(ctx, controller, *args, **kwargs):
 @cmd_options_search_match_activity
 @cmd_options_search_match_category
 @cmd_options_search_match_tagnames
-@cmd_options_table_view
+@cmd_options_table_order
 @cmd_options_limit_offset
+@cmd_options_table_renderer
+@cmd_options_table_truncols
 @pass_controller_context
 @induct_newbies
 def usage_facts(ctx, controller, *args, **kwargs):
@@ -1417,7 +1434,7 @@ def cmd_export_opt_output_default(controller):
 @pass_controller_context
 @induct_newbies
 def transcode_export(ctx, controller, *args, output, format, **kwargs):
-    """Export all facts of within a given timewindow to a file of specified format."""
+    """Export all facts of within a given time window to a file of specified format."""
     def _transcode_export():
         activity = postprocess_options_match_activity(kwargs)
         category = postprocess_options_match_category(kwargs)
