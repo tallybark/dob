@@ -20,7 +20,6 @@ from gettext import gettext as _
 import click_hotoffthehamster as click
 
 __all__ = (
-    'cmd_options_limit_offset',
     'cmd_options_list_fact',
     'cmd_options_results_chop',
     'cmd_options_results_group_by',
@@ -35,6 +34,7 @@ __all__ = (
     # 'cmd_options_search_item_key',
     # 'cmd_options_search_item_name',
     # 'cmd_options_search_time_window',
+    'cmd_options_search_limit_offset',
     'cmd_options_search_match_activity',
     'cmd_options_search_match_category',
     'cmd_options_search_match_tagnames',
@@ -365,7 +365,7 @@ def _postprocess_options_results_options_asc_desc_to_sort_order(kwargs):
 # *** [SEARCH RESULTS] Limit and Offset.
 # ***
 
-_cmd_options_limit_offset = [
+_cmd_options_search_limit_offset = [
     click.option(
         '-L', '--limit', default=0, show_default=False,
         help=_('Limit the number of records to fetch.'),
@@ -377,8 +377,8 @@ _cmd_options_limit_offset = [
 ]
 
 
-def cmd_options_limit_offset(func):
-    for option in reversed(_cmd_options_limit_offset):
+def cmd_options_search_limit_offset(func):
+    for option in reversed(_cmd_options_search_limit_offset):
         func = option(func)
     return func
 
