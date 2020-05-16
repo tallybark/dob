@@ -220,7 +220,7 @@ _cmd_options_table_order = [
         #      this option just be the "opposite" of the counterpart option,
         #      i.e., given -d/--desc, what's the "opposite"/toggle of -d? -D.
         '-D', '--asc', is_flag=True, default=None,
-        help=_('Sort by ascending column value.'),
+        help=_('Sort by ascending column value [default].'),
     ),
     click.option(
         '-d', '--desc', is_flag=True, default=None,
@@ -469,11 +469,11 @@ def cmd_options_fact_dryable(func):
 _cmd_options_list_fact = [
     click.option(
         '-w', '--doc', '--document', is_flag=True,
-        help='Output Facts in multi-line block document format, not table.',
+        help='Format results as importable Factoid blocks.',
     ),
     click.option(
         '-r', '--rule', '--sep', nargs=1, default='',
-        help=_('Separate Facts with a horizontal rule.'),
+        help=_('Separate Factoids with a horizontal rule.'),
     ),
 ]
 
