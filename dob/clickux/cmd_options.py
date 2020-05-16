@@ -27,6 +27,7 @@ __all__ = (
     'cmd_options_fact_import',
     'cmd_options_limit_offset',
     'cmd_options_list_fact',
+    'cmd_options_results_hide_duration',
     'cmd_options_results_show_usage',
     'cmd_options_search_basics',
     # 'cmd_options_search_deleted_hidden',
@@ -474,10 +475,6 @@ _cmd_options_list_fact = [
         '-r', '--rule', '--sep', nargs=1, default='',
         help=_('Separate Facts with a horizontal rule.'),
     ),
-    click.option(
-        '-S', '--span/--no-span', default=True, show_default=True,
-        help=_('Show Fact elapsed time.'),
-    ),
 ]
 
 
@@ -551,6 +548,24 @@ _cmd_options_results_show_usage = [
 
 def cmd_options_results_show_usage(func):
     for option in reversed(_cmd_options_results_show_usage):
+        func = option(func)
+    return func
+
+
+# ***
+# *** [RESULTS HIDE] Duration.
+# ***
+
+_cmd_options_results_hide_duration = [
+    click.option(
+        '-N', '--hide-duration', is_flag=True,
+        help=_('Show Fact elapsed time.'),
+    ),
+]
+
+
+def cmd_options_results_hide_duration(func):
+    for option in reversed(_cmd_options_results_hide_duration):
         func = option(func)
     return func
 

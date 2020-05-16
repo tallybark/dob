@@ -86,6 +86,7 @@ from .clickux.cmd_options import (
     cmd_options_factoid_verify_both,
     cmd_options_limit_offset,
     cmd_options_list_fact,
+    cmd_options_results_hide_duration,
     cmd_options_results_show_usage,
     cmd_options_rule_name,
     cmd_options_search_basics,
@@ -838,6 +839,7 @@ def generate_list_facts_command(func):
     @cmd_options_table_view
     @cmd_options_limit_offset
     @cmd_options_list_fact
+    @cmd_options_results_hide_duration
     @pass_controller_context
     @induct_newbies
     def dob_list_facts(ctx, controller, *args, doc, **kwargs):

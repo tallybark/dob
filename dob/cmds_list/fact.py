@@ -50,7 +50,7 @@ def list_facts(
     truncate=False,
     block_format=None,
     rule='',
-    span=False,
+    hide_duration=False,
     out_file=None,
     term_width=None,
     *args,
@@ -128,7 +128,7 @@ def list_facts(
                 include_id=include_id,
                 colorful=colorful,
                 cut_width=cut_width,
-                show_elapsed=span,
+                show_elapsed=not hide_duration,
             )
         )
 
@@ -136,7 +136,7 @@ def list_facts(
         table, headers = generate_facts_table(
             controller,
             results,
-            show_duration=span,
+            show_duration=not hide_duration,
             include_usage=include_usage,
         )
         # 2018-06-08: headers is:
@@ -248,7 +248,7 @@ def generate_facts_table(controller, facts, show_duration=True, include_usage=Fa
 
     for fact in facts:
         if include_usage:
-            # It's tuple: the Fact, the count, and the span.
+            # It's tuple: the Fact, the count, and the duration (aka span).
             #  _span = fact[2]  # Should be same/similar to what we calculate.
             # The count column was faked (static count), so the table
             # has the same columns as the act/cat/tag usage tables.
