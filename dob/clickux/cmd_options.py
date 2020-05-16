@@ -648,7 +648,7 @@ def postprocess_options_match_tagnames(kwargs):
 _cmd_options_results_show_usage = [
     click.option(
         '-U', '--show-usage', is_flag=True,
-        help=_('Include usage count (like usage command).'),
+        help=_('Show usage count (like usage command).'),
     ),
 ]
 
