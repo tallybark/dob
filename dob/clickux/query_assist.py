@@ -52,6 +52,9 @@ def error_exit_no_results(item_type):
 
 def hydrate_activity(controller, activity_name):
     """Fetch an activity from the back end."""
+    # The get_all function triggers off activity is None to find
+    # activities in the database that are None. So use activity = False
+    # to mean that user has not requested any activity matching.
     activity = False
     if activity_name:
         # FIXME: (lb): This raises KeyError if no exact match found.

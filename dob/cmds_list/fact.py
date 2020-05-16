@@ -221,10 +221,15 @@ def generate_facts_table(controller, facts, show_duration=True, include_usage=Fa
         'category': _("Category"),
         'tags': _("Tags"),
         'description': _("Description"),
-
     }
     columns = [
-        'key', 'start', 'end', 'activity', 'category', 'tags', 'description',
+        'key',
+        'start',
+        'end',
+        'activity',
+        'category',
+        'tags',
+        'description',
     ]
 
     if show_duration:

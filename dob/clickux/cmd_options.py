@@ -174,7 +174,11 @@ def cmd_options_limit_offset(func):
 _cmd_options_table_renderer = [
     click.option(
         '-T', '--table-type', default='texttable', show_default=True,
-        type=click.Choice(['tabulate', 'texttable', 'friendly']),
+        type=click.Choice([
+            'tabulate',
+            'texttable',
+            'friendly',
+        ]),
         help=_('ASCII table formatter.'),
     ),
 ]
