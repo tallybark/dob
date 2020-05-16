@@ -33,7 +33,7 @@ def list_tags(
     filter_activity='',
     filter_category='',
     table_type='friendly',
-    truncate=False,
+    chop=False,
     **kwargs
 ):
     """
@@ -56,5 +56,5 @@ def list_tags(
     for tag in results:
         tag_names.append((tag.name,))
 
-    generate_table(tag_names, headers, table_type, truncate, trunccol=0)
+    generate_table(tag_names, headers, table_type, truncate=chop, trunccol=0)
 

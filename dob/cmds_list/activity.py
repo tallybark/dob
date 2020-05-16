@@ -28,7 +28,7 @@ def list_activities(
     controller,
     filter_category='',
     table_type='friendly',
-    truncate=False,
+    chop=False,
     **kwargs
 ):
     """
@@ -60,5 +60,5 @@ def list_activities(
             category_name = None
         actegories.append((activity.name, category_name))
 
-    generate_table(actegories, headers, table_type, truncate, trunccol=0)
+    generate_table(actegories, headers, table_type, truncate=chop, trunccol=0)
 

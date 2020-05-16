@@ -30,7 +30,7 @@ def generate_usage_table(
     results,
     name_fmttr=lambda item: item.name,
     table_type='friendly',
-    truncate=False,
+    chop=False,
 ):
     headers = (_("Name"), _("Uses"), _("Total Time"))
 
@@ -55,5 +55,5 @@ def generate_usage_table(
 
         rows.append((name_fmttr(item), count, span))
 
-    generate_table(rows, headers, table_type, truncate, trunccol=0)
+    generate_table(rows, headers, table_type, truncate=chop, trunccol=0)
 

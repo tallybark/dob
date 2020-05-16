@@ -33,7 +33,7 @@ def usage_tags(
     filter_activity='',
     filter_category='',
     table_type='friendly',
-    truncate=False,
+    chop=False,
     **kwargs
 ):
     """
@@ -51,5 +51,5 @@ def usage_tags(
     if not results:
         error_exit_no_results(_('tags'))
 
-    generate_usage_table(results, table_type=table_type, truncate=truncate)
+    generate_usage_table(results, table_type=table_type, chop=chop)
 

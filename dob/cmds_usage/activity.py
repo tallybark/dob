@@ -27,7 +27,7 @@ def usage_activities(
     controller,
     filter_category='',
     table_type='friendly',
-    truncate=False,
+    chop=False,
     **kwargs
 ):
     """
@@ -59,6 +59,6 @@ def usage_activities(
         results,
         name_fmttr=name_fmttr,
         table_type=table_type,
-        truncate=truncate,
+        chop=chop,
     )
 

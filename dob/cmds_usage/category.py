@@ -26,7 +26,7 @@ __all__ = ('usage_categories', )
 def usage_categories(
     controller,
     table_type='friendly',
-    truncate=False,
+    chop=False,
     **kwargs
 ):
     """
@@ -40,5 +40,5 @@ def usage_categories(
     if not results:
         error_exit_no_results(_('categories'))
 
-    generate_usage_table(results, table_type=table_type, truncate=truncate)
+    generate_usage_table(results, table_type=table_type, chop=chop)
 

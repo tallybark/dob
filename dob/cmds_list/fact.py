@@ -47,7 +47,7 @@ def list_facts(
     filter_activity='',
     filter_category='',
     table_type='friendly',
-    truncate=False,
+    chop=False,
     block_format=None,
     rule='',
     hide_duration=False,
@@ -107,7 +107,7 @@ def list_facts(
         return terminal_width()
 
     def output_truncate_at():
-        if not truncate:
+        if not chop:
             return None
         return terminal_width()
 
@@ -147,7 +147,7 @@ def list_facts(
         #   Use --limit/--offset or other ways of filter filter
         #   We should offer a --limit/--offset feature.
         #   We could also fail if too many records; or find a better library.
-        generate_table(table, headers, table_type, truncate, trunccol=desc_col_idx)
+        generate_table(table, headers, table_type, truncate=chop, trunccol=desc_col_idx)
         logger_warn_if_truncated(controller, len(results), len(table))
 
     def write_out(line=''):

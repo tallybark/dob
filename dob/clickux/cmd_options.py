@@ -190,8 +190,8 @@ def cmd_options_table_renderer(func):
 
 _cmd_options_table_truncols = [
     click.option(
-        '-t', '--truncate', is_flag=True,
-        help=_('Truncate long activity@category names.'),
+        '-p', '--chop', '--truncate', is_flag=True,
+        help=_('Truncate long names.'),
     ),
 ]
 

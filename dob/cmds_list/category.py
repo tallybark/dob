@@ -27,7 +27,7 @@ __all__ = ('list_categories', )
 def list_categories(
     controller,
     table_type='friendly',
-    truncate=False,
+    chop=False,
     **kwargs
 ):
     """
@@ -46,5 +46,5 @@ def list_categories(
     for category in results:
         category_names.append((category.name,))
 
-    generate_table(category_names, headers, table_type, truncate, trunccol=0)
+    generate_table(category_names, headers, table_type, truncate=chop, trunccol=0)
 
