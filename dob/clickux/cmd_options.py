@@ -29,7 +29,11 @@ __all__ = (
     'cmd_options_list_fact',
     'cmd_options_results_match_activity',
     'cmd_options_results_match_category',
-    'cmd_options_search',
+    'cmd_options_search_basics',
+    # 'cmd_options_search_deleted_hidden',
+    # 'cmd_options_search_item_key',
+    # 'cmd_options_search_item_name',
+    # 'cmd_options_search_time_window',
     'cmd_options_styles_internal',
     'cmd_options_styles_named',
     'cmd_options_table_view',
@@ -49,7 +53,7 @@ __all__ = (
 # *** [TIME RANGE] Options.
 # ***
 
-_cmd_options_search = [
+_cmd_options_search_time_window = [
     click.option(
         '-s', '--since', '--after',
         metavar='TIME',
@@ -60,23 +64,80 @@ _cmd_options_search = [
         metavar='TIME',
         help=_('Show items older than a specific date.'),
     ),
+]
+
+
+def cmd_options_search_time_window(func):
+    for option in reversed(_cmd_options_search_time_window):
+        func = option(func)
+    return func
+
+
+# ***
+# *** [ITEM ID] Option.
+# ***
+
+_cmd_options_search_item_key = [
+    click.option(
+        '-k', '--key',
+        metavar='ID',
+        help=_('The database key of the item.'),
+    ),
+]
+
+
+def cmd_options_search_item_key(func):
+    for option in reversed(_cmd_options_search_item_key):
+        func = option(func)
+    return func
+
+
+# ***
+# *** [ITEM NAME] Option.
+# ***
+
+_cmd_options_search_item_name = [
+    click.argument('search_term', nargs=-1, default=None),
+]
+
+
+def cmd_options_search_item_name(func):
+    for option in reversed(_cmd_options_search_item_name):
+        func = option(func)
+    return func
+
+
+
+# ***
+# *** [DELETED/HIDDEN] Option.
+# ***
+
+_cmd_options_search_deleted_hidden = [
     click.option(
         '--deleted', is_flag=True, help=_('Show deleted items.'),
     ),
     click.option(
         '--hidden', is_flag=True, help=_('Show hidden items.'),
     ),
-    click.option(
-        '-k', '--key',
-        metavar='ID',
-        help=_('The database key of the item.'),
-    ),
-    click.argument('search_term', nargs=-1, default=None),
 ]
 
 
-def cmd_options_search(func):
-    for option in reversed(_cmd_options_search):
+def cmd_options_search_deleted_hidden(func):
+    for option in reversed(_cmd_options_search_deleted_hidden):
+        func = option(func)
+    return func
+
+
+# *** Combine recent sets of options into one convenient @decorator.
+
+def cmd_options_search_basics(func):
+    for option in (
+        _cmd_options_search_time_window
+        + _cmd_options_search_item_key
+        + _cmd_options_search_item_name
+        # FIXME/2020-05-16: (lb): Cleanup these options upon broader cleanup.
+        #  + _cmd_options_search_deleted_hidden
+    ):
         func = option(func)
     return func
 

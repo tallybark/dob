@@ -89,7 +89,7 @@ from .clickux.cmd_options import (
     cmd_options_results_match_activity,
     cmd_options_results_match_category,
     cmd_options_rule_name,
-    cmd_options_search,
+    cmd_options_search_basics,
     cmd_options_styles_internal,
     cmd_options_styles_named,
     cmd_options_table_renderer,
@@ -732,7 +732,7 @@ def list_group(ctx, controller):
 @list_group.command('activities', help=help_strings.LIST_ACTIVITIES_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_search
+@cmd_options_search_basics
 @cmd_options_results_match_category
 @cmd_options_usage
 @cmd_options_table_view
@@ -784,7 +784,7 @@ def list_categories(ctx, controller, *args, usage=False, **kwargs):
 @list_group.command('tags', help=help_strings.LIST_TAGS_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_search
+@cmd_options_search_basics
 @cmd_options_results_match_activity
 @cmd_options_results_match_category
 @cmd_options_usage
@@ -831,7 +831,7 @@ def _list_facts(controller, *args, usage=False, **kwargs):
 
 
 def generate_list_facts_command(func):
-    @cmd_options_search
+    @cmd_options_search_basics
     @cmd_options_results_match_activity
     @cmd_options_results_match_category
     @cmd_options_usage
@@ -885,7 +885,7 @@ def usage_group(ctx, controller):
 @usage_group.command('activities', help=help_strings.USAGE_ACTIVITIES_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_search
+@cmd_options_search_basics
 @cmd_options_results_match_category
 @cmd_options_table_view
 @cmd_options_limit_offset
@@ -908,7 +908,7 @@ def usage_activities(ctx, controller, *args, **kwargs):
 @usage_group.command('categories', help=help_strings.USAGE_CATEGORIES_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_search
+@cmd_options_search_basics
 @cmd_options_table_view
 @cmd_options_limit_offset
 @pass_controller_context
@@ -928,7 +928,7 @@ def usage_categories(ctx, controller, *args, **kwargs):
 @usage_group.command('tags', help=help_strings.USAGE_TAGS_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_search
+@cmd_options_search_basics
 @cmd_options_results_match_activity
 @cmd_options_results_match_category
 @cmd_options_table_view
@@ -954,7 +954,7 @@ def usage_tags(ctx, controller, *args, **kwargs):
 @usage_group.command('facts', help=help_strings.USAGE_FACTS_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_search
+@cmd_options_search_basics
 @cmd_options_results_match_activity
 @cmd_options_results_match_category
 @cmd_options_table_view
@@ -1381,7 +1381,7 @@ def cmd_export_opt_output_default(controller):
 @click.option('--tsv', is_flag=True, help=_('Alias for `--format tsv`'))
 @click.option('--xml', is_flag=True, help=_('Alias for `--format xml`'))
 @click.option('--ical', is_flag=True, help=_('Alias for `--format ical`'))
-@cmd_options_search
+@cmd_options_search_basics
 @cmd_options_limit_offset
 @cmd_options_results_match_activity
 @cmd_options_results_match_category
