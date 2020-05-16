@@ -22,7 +22,7 @@ import click_hotoffthehamster as click
 __all__ = (
     'cmd_options_list_fact',
     'cmd_options_results_chop',
-    'cmd_options_results_group_by',
+    'cmd_options_results_group',
     'cmd_options_results_group_activity',
     'cmd_options_results_group_category',
     'cmd_options_results_group_tagnames',
@@ -224,19 +224,21 @@ def postprocess_options_match_tagnames(kwargs):
 # *** [RESULTS GROUP] Option.
 # ***
 
-_cmd_options_results_group_by = [
+_cmd_options_results_group = [
     click.option(
         '-g', '--group', multiple=True,
         type=click.Choice([
-            'activity', 'category', 'tags',
+            'activity',
+            'category',
+            'tags',
         ]),
         help=_('Group results by specified attribute(s).'),
     ),
 ]
 
 
-def cmd_options_results_group_by(func):
-    for option in reversed(_cmd_options_results_group_by):
+def cmd_options_results_group(func):
+    for option in reversed(_cmd_options_results_group):
         func = option(func)
     return func
 

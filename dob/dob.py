@@ -91,10 +91,10 @@ from .clickux.cmd_options import (
 from .clickux.cmd_options_search import (
     cmd_options_list_fact,
     cmd_options_results_chop,
+    cmd_options_results_group,
     cmd_options_results_group_activity,
     cmd_options_results_group_category,
     cmd_options_results_group_tagnames,
-    cmd_options_results_group_by,
     cmd_options_results_hide_duration,
     cmd_options_results_show_usage,
     cmd_options_results_sort_order,
@@ -812,7 +812,7 @@ def list_categories(ctx, controller, *args, show_usage=False, **kwargs):
 @cmd_options_search_match_category
 @cmd_options_results_group_activity
 @cmd_options_results_group_category
-@cmd_options_results_group_by
+@cmd_options_results_group
 @cmd_options_results_sort_order
 @cmd_options_search_limit_offset
 @cmd_options_results_show_usage
@@ -868,7 +868,7 @@ def generate_list_facts_command(func):
     @cmd_options_results_group_activity
     @cmd_options_results_group_category
     @cmd_options_results_group_tagnames
-    @cmd_options_results_group_by
+    @cmd_options_results_group
     @cmd_options_results_sort_order
     @cmd_options_search_limit_offset
     @cmd_options_results_show_usage
@@ -928,7 +928,7 @@ def usage_group(ctx, controller):
 @cmd_options_search_match_tagnames
 @cmd_options_results_group_category
 @cmd_options_results_group_tagnames
-@cmd_options_results_group_by
+@cmd_options_results_group
 @cmd_options_results_sort_order
 @cmd_options_search_limit_offset
 @cmd_options_results_chop
@@ -959,7 +959,7 @@ def usage_activities(ctx, controller, *args, **kwargs):
 @cmd_options_search_match_tagnames
 @cmd_options_results_group_activity
 @cmd_options_results_group_tagnames
-@cmd_options_results_group_by
+@cmd_options_results_group
 @cmd_options_results_sort_order
 @cmd_options_search_limit_offset
 @cmd_options_results_chop
@@ -990,7 +990,7 @@ def usage_categories(ctx, controller, *args, **kwargs):
 @cmd_options_search_match_category
 @cmd_options_results_group_activity
 @cmd_options_results_group_category
-@cmd_options_results_group_by
+@cmd_options_results_group
 @cmd_options_results_sort_order
 @cmd_options_search_limit_offset
 @cmd_options_results_chop
@@ -1023,7 +1023,7 @@ def usage_tags(ctx, controller, *args, **kwargs):
 @cmd_options_results_group_activity
 @cmd_options_results_group_category
 @cmd_options_results_group_tagnames
-@cmd_options_results_group_by
+@cmd_options_results_group
 @cmd_options_results_sort_order
 @cmd_options_search_limit_offset
 @cmd_options_results_chop
@@ -1460,7 +1460,7 @@ def cmd_export_opt_output_default(controller):
 @cmd_options_results_group_activity
 @cmd_options_results_group_category
 @cmd_options_results_group_tagnames
-@cmd_options_results_group_by
+@cmd_options_results_group
 @pass_controller_context
 @induct_newbies
 def transcode_export(ctx, controller, *args, output, format, **kwargs):
