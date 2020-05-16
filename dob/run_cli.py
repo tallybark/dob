@@ -154,7 +154,7 @@ CONTEXT_SETTINGS = dict(
               help=help_strings.GLOBAL_OPT_VERBOSE)
 @click.option('-VV', '--verboser', is_flag=True, hidden=True,
               help=help_strings.GLOBAL_OPT_VERBOSER)
-@click.option('-X', '--color/--no-color', '-X', default=None,
+@click.option('-X', '--color/--no-color', default=None,
               help=help_strings.GLOBAL_OPT_COLOR_NO_COLOR)
 @click.option('-P', '--pager/--no-pager', default=None,
               help=help_strings.GLOBAL_OPT_PAGER_NO_PAGER)
