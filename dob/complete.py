@@ -218,15 +218,16 @@ def choices_activities(
     controller,
     incomplete='',
     whitespace_ok=False,
-    filter_category=False,
-    filter_activity='',
+    # 2020-05-16: These two options unused:
+    match_category=False,
+    match_activity='',
 ):
     """Suggest activities."""
 
     acty = controller.activities.get_all_by_usage(
         sort_col='start',
-        category=filter_category,
-        activity=filter_activity,
+        category=match_category,
+        activity=match_activity,
     )
 
     choices = [

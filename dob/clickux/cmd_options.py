@@ -36,12 +36,14 @@ __all__ = (
     # 'cmd_options_search_time_window',
     'cmd_options_search_match_activity',
     'cmd_options_search_match_category',
+    'cmd_options_search_match_tagnames',
     'cmd_options_styles_internal',
     'cmd_options_styles_named',
     'cmd_options_table_view',
     'cmd_options_edit_item',
     'postprocess_options_match_activity',
     'postprocess_options_match_category',
+    'postprocess_options_match_tagnames',
     'postprocess_options_table_options',
     # Private:
     #   '_cmd_options_*'...,
@@ -485,7 +487,7 @@ def cmd_options_list_fact(func):
 
 
 # ***
-# *** [QUERY MATCH] Options.
+# *** [SEARCH MATCH] Activity.
 # ***
 
 _cmd_options_search_match_activity = [
@@ -509,7 +511,7 @@ def postprocess_options_match_activity(kwargs):
 
 
 # ***
-# *** [LIST ACTIVITY|LIST TAG] Options.
+# *** [SEARCH MATCH] Category.
 # ***
 
 _cmd_options_search_match_category = [
@@ -532,6 +534,30 @@ def postprocess_options_match_category(kwargs):
     category = kwargs['category'] if kwargs['category'] else ''
     del kwargs['category']
     return category
+
+
+# ***
+# *** [SEARCH MATCH] Tag names.
+# ***
+
+_cmd_options_search_match_tagnames = [
+    click.option(
+        '-t', '--tag', multiple=True,
+        help=_('Restrict results by matching tag name(s).'),
+    ),
+]
+
+
+def cmd_options_search_match_tagnames(func):
+    for option in reversed(_cmd_options_search_match_tagnames):
+        func = option(func)
+    return func
+
+
+def postprocess_options_match_tagnames(kwargs):
+    tagnames = kwargs['tag'] if kwargs['tag'] else tuple()
+    del kwargs['tag']
+    return tagnames
 
 
 # ***

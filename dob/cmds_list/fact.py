@@ -44,8 +44,9 @@ def list_facts(
     controller,
     include_id=False,
     include_usage=False,
-    filter_activity='',
-    filter_category='',
+    match_activity='',
+    match_category='',
+    match_tagnames=[],
     table_type='friendly',
     chop=False,
     block_format=None,
@@ -62,8 +63,8 @@ def list_facts(
     Returns:
         None: If success.
     """
-    activity = hydrate_activity(controller, filter_activity)
-    category = hydrate_category(controller, filter_category)
+    activity = hydrate_activity(controller, match_activity)
+    category = hydrate_category(controller, match_category)
 
     def _list_facts():
         kwargs['sort_col'] = sort_col()
@@ -73,6 +74,7 @@ def list_facts(
             include_usage=include_usage,
             activity=activity,
             category=category,
+            tagnames=match_tagnames,
             **kwargs
         )
         if not results:

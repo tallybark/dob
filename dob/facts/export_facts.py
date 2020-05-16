@@ -43,8 +43,9 @@ def export_facts(
     hidden=False,
     key=None,
     search_term='',
-    filter_activity='',
-    filter_category='',
+    match_activity='',
+    match_category='',
+    match_tagnames=[],
     sort_order='desc',
     limit='',
     offset='',
@@ -72,8 +73,8 @@ def export_facts(
 
         filepath = resolve_filepath(file_out, to_format)
 
-        activity = hydrate_activity(controller, filter_activity)
-        category = hydrate_category(controller, filter_category)
+        activity = hydrate_activity(controller, match_activity)
+        category = hydrate_category(controller, match_category)
 
         facts = search_facts(
             controller,

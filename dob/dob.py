@@ -92,12 +92,14 @@ from .clickux.cmd_options import (
     cmd_options_search_basics,
     cmd_options_search_match_activity,
     cmd_options_search_match_category,
+    cmd_options_search_match_tagnames,
     cmd_options_styles_internal,
     cmd_options_styles_named,
     cmd_options_table_renderer,
     cmd_options_table_view,
     postprocess_options_match_activity,
     postprocess_options_match_category,
+    postprocess_options_match_tagnames,
     postprocess_options_table_options
 )
 from .clickux.help_command import help_command_help
@@ -735,6 +737,7 @@ def list_group(ctx, controller):
 @flush_pager
 @cmd_options_search_basics
 @cmd_options_search_match_category
+@cmd_options_search_match_tagnames
 @cmd_options_results_show_usage
 @cmd_options_table_view
 @cmd_options_limit_offset
@@ -743,6 +746,7 @@ def list_group(ctx, controller):
 def list_activities(ctx, controller, *args, show_usage=False, **kwargs):
     """List matching activities, filtered and sorted."""
     category = postprocess_options_match_category(kwargs)
+    tagnames = postprocess_options_match_tagnames(kwargs)
     postprocess_options_table_options(kwargs)
     if show_usage:
         handler = usage_activity.usage_activities
@@ -751,7 +755,8 @@ def list_activities(ctx, controller, *args, show_usage=False, **kwargs):
     handler(
         controller,
         *args,
-        filter_category=category,
+        match_category=category,
+        match_tagnames=tagnames,
         **kwargs
     )
 
@@ -761,6 +766,8 @@ def list_activities(ctx, controller, *args, show_usage=False, **kwargs):
 @list_group.command('categories', help=help_strings.LIST_CATEGORIES_HELP)
 @show_help_finally
 @flush_pager
+@cmd_options_search_match_activity
+@cmd_options_search_match_tagnames
 @cmd_options_results_show_usage
 @cmd_options_table_view
 @cmd_options_limit_offset
@@ -768,6 +775,8 @@ def list_activities(ctx, controller, *args, show_usage=False, **kwargs):
 @induct_newbies
 def list_categories(ctx, controller, *args, show_usage=False, **kwargs):
     """List matching categories, filtered and sorted."""
+    activity = postprocess_options_match_activity(kwargs)
+    tagnames = postprocess_options_match_tagnames(kwargs)
     postprocess_options_table_options(kwargs)
     if show_usage:
         handler = usage_category.usage_categories
@@ -776,6 +785,8 @@ def list_categories(ctx, controller, *args, show_usage=False, **kwargs):
     handler(
         controller,
         *args,
+        match_activity=activity,
+        match_tagnames=tagnames,
         **kwargs,
     )
 
@@ -805,8 +816,8 @@ def list_tags(ctx, controller, *args, show_usage=False, **kwargs):
     handler(
         controller,
         *args,
-        filter_activity=activity,
-        filter_category=category,
+        match_activity=activity,
+        match_category=category,
         **kwargs,
     )
 
@@ -818,6 +829,7 @@ def _list_facts(controller, *args, show_usage=False, **kwargs):
     """Fetch facts matching certain criteria."""
     activity = postprocess_options_match_activity(kwargs)
     category = postprocess_options_match_category(kwargs)
+    tagnames = postprocess_options_match_tagnames(kwargs)
     postprocess_options_table_options(kwargs)
     # FIXME: (lb): Should probably impose limit by default
     #          (without, my terminal hangs for a long while).
@@ -825,8 +837,9 @@ def _list_facts(controller, *args, show_usage=False, **kwargs):
         controller,
         *args,
         include_usage=show_usage,
-        filter_activity=activity,
-        filter_category=category,
+        match_activity=activity,
+        match_category=category,
+        match_tagnames=tagnames,
         **kwargs,
     )
 
@@ -835,6 +848,7 @@ def generate_list_facts_command(func):
     @cmd_options_search_basics
     @cmd_options_search_match_activity
     @cmd_options_search_match_category
+    @cmd_options_search_match_tagnames
     @cmd_options_results_show_usage
     @cmd_options_table_view
     @cmd_options_limit_offset
@@ -889,6 +903,7 @@ def usage_group(ctx, controller):
 @flush_pager
 @cmd_options_search_basics
 @cmd_options_search_match_category
+@cmd_options_search_match_tagnames
 @cmd_options_table_view
 @cmd_options_limit_offset
 @pass_controller_context
@@ -896,11 +911,13 @@ def usage_group(ctx, controller):
 def usage_activities(ctx, controller, *args, **kwargs):
     """List all activities. Provide optional filtering by name."""
     category = postprocess_options_match_category(kwargs)
+    tagnames = postprocess_options_match_tagnames(kwargs)
     postprocess_options_table_options(kwargs)
     usage_activity.usage_activities(
         controller,
         *args,
-        filter_category=category,
+        match_category=category,
+        match_tagnames=tagnames,
         **kwargs
     )
 
@@ -911,16 +928,22 @@ def usage_activities(ctx, controller, *args, **kwargs):
 @show_help_finally
 @flush_pager
 @cmd_options_search_basics
+@cmd_options_search_match_activity
+@cmd_options_search_match_tagnames
 @cmd_options_table_view
 @cmd_options_limit_offset
 @pass_controller_context
 @induct_newbies
 def usage_categories(ctx, controller, *args, **kwargs):
     """List all categories. Provide optional filtering by name."""
+    activity = postprocess_options_match_activity(kwargs)
+    tagnames = postprocess_options_match_tagnames(kwargs)
     postprocess_options_table_options(kwargs)
     usage_category.usage_categories(
         controller,
         *args,
+        match_activity=activity,
+        match_tagnames=tagnames,
         **kwargs
     )
 
@@ -945,8 +968,8 @@ def usage_tags(ctx, controller, *args, **kwargs):
     usage_tag.usage_tags(
         controller,
         *args,
-        filter_activity=activity,
-        filter_category=category,
+        match_activity=activity,
+        match_category=category,
         **kwargs,
     )
 
@@ -959,6 +982,7 @@ def usage_tags(ctx, controller, *args, **kwargs):
 @cmd_options_search_basics
 @cmd_options_search_match_activity
 @cmd_options_search_match_category
+@cmd_options_search_match_tagnames
 @cmd_options_table_view
 @cmd_options_limit_offset
 @pass_controller_context
@@ -967,13 +991,15 @@ def usage_facts(ctx, controller, *args, **kwargs):
     """List all tags' usage counts, with filtering and sorting options."""
     activity = postprocess_options_match_activity(kwargs)
     category = postprocess_options_match_category(kwargs)
+    tagnames = postprocess_options_match_tagnames(kwargs)
     postprocess_options_table_options(kwargs)
     list_fact.list_facts(
         controller,
         *args,
         include_usage=True,
-        filter_activity=activity,
-        filter_category=category,
+        match_activity=activity,
+        match_category=category,
+        match_tagnames=tagnames,
         **kwargs,
     )
 
@@ -1387,6 +1413,7 @@ def cmd_export_opt_output_default(controller):
 @cmd_options_limit_offset
 @cmd_options_search_match_activity
 @cmd_options_search_match_category
+@cmd_options_search_match_tagnames
 @pass_controller_context
 @induct_newbies
 def transcode_export(ctx, controller, *args, output, format, **kwargs):
@@ -1394,13 +1421,15 @@ def transcode_export(ctx, controller, *args, output, format, **kwargs):
     def _transcode_export():
         activity = postprocess_options_match_activity(kwargs)
         category = postprocess_options_match_category(kwargs)
+        tagnames = postprocess_options_match_tagnames(kwargs)
         export_facts(
             controller,
             *args,
             to_format=consolidate_format_options(),
             file_out=output,
-            filter_activity=activity,
-            filter_category=category,
+            match_activity=activity,
+            match_category=category,
+            match_tagnames=tagnames,
             **kwargs
         )
 

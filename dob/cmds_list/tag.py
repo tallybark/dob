@@ -30,8 +30,8 @@ __all__ = ('list_tags', )
 
 def list_tags(
     controller,
-    filter_activity='',
-    filter_category='',
+    match_activity='',
+    match_category='',
     table_type='friendly',
     chop=False,
     **kwargs
@@ -42,8 +42,8 @@ def list_tags(
     Returns:
         None: If success.
     """
-    activity = hydrate_activity(controller, filter_activity)
-    category = hydrate_category(controller, filter_category)
+    activity = hydrate_activity(controller, match_activity)
+    category = hydrate_category(controller, match_category)
     results = controller.tags.get_all(
         activity=activity, category=category, **kwargs
     )

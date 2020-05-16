@@ -25,7 +25,7 @@ __all__ = ('usage_activities', )
 
 def usage_activities(
     controller,
-    filter_category='',
+    match_category='',
     table_type='friendly',
     chop=False,
     **kwargs
@@ -39,7 +39,7 @@ def usage_activities(
     Returns:
         None: If success.
     """
-    category = hydrate_category(controller, filter_category)
+    category = hydrate_category(controller, match_category)
     results = controller.activities.get_all_by_usage(
         category=category, **kwargs
     )

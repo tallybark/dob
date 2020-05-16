@@ -26,7 +26,7 @@ __all__ = ('list_activities', )
 
 def list_activities(
     controller,
-    filter_category='',
+    match_category='',
     table_type='friendly',
     chop=False,
     **kwargs
@@ -40,9 +40,10 @@ def list_activities(
     Returns:
         None: If success.
     """
-    category = hydrate_category(controller, filter_category)
+    category = hydrate_category(controller, match_category)
     results = controller.activities.get_all(
-        category=category, **kwargs
+        category=category,
+        **kwargs
     )
 
     if not results:
