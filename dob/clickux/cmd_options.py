@@ -50,11 +50,11 @@ __all__ = (
     'postprocess_options_match_activity',
     'postprocess_options_match_category',
     'postprocess_options_match_tagnames',
-    'postprocess_options_table_options',
+    'postprocess_options_results_options',
     # Private:
     #   '_cmd_options_*'...,
-    #   '_postprocess_options_table_option_order_to_sort_col',
-    #   '_postprocess_options_table_options_asc_desc_to_sort_order',
+    #   '_postprocess_options_results_options_order_to_sort_col',
+    #   '_postprocess_options_results_options_asc_desc_to_sort_order',
 )
 
 
@@ -251,19 +251,19 @@ def cmd_options_table_order(func):
 # *** [POST PROCESS] Options.
 # ***
 
-def postprocess_options_table_options(kwargs):
-    _postprocess_options_table_option_order_to_sort_col(kwargs)
-    _postprocess_options_table_options_asc_desc_to_sort_order(kwargs)
+def postprocess_options_results_options(kwargs):
+    _postprocess_options_results_options_order_to_sort_col(kwargs)
+    _postprocess_options_results_options_asc_desc_to_sort_order(kwargs)
 
 
-def _postprocess_options_table_option_order_to_sort_col(kwargs):
+def _postprocess_options_results_options_order_to_sort_col(kwargs):
     kwargs['sort_col'] = kwargs['order']
     del kwargs['order']
     if not kwargs['sort_col']:
         del kwargs['sort_col']
 
 
-def _postprocess_options_table_options_asc_desc_to_sort_order(kwargs):
+def _postprocess_options_results_options_asc_desc_to_sort_order(kwargs):
     if kwargs['desc']:
         sort_order = 'desc'
     elif kwargs['asc']:

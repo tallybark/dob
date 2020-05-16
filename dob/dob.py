@@ -105,7 +105,7 @@ from .clickux.cmd_options import (
     postprocess_options_match_activity,
     postprocess_options_match_category,
     postprocess_options_match_tagnames,
-    postprocess_options_table_options
+    postprocess_options_results_options
 )
 from .clickux.help_command import help_command_help
 from .clickux.help_detect import show_help_finally, show_help_if_no_command
@@ -754,7 +754,7 @@ def list_activities(ctx, controller, *args, show_usage=False, **kwargs):
     """List matching activities, filtered and sorted."""
     category = postprocess_options_match_category(kwargs)
     tagnames = postprocess_options_match_tagnames(kwargs)
-    postprocess_options_table_options(kwargs)
+    postprocess_search_results_options(kwargs)
     if show_usage:
         handler = usage_activity.usage_activities
     else:
@@ -786,7 +786,7 @@ def list_categories(ctx, controller, *args, show_usage=False, **kwargs):
     """List matching categories, filtered and sorted."""
     activity = postprocess_options_match_activity(kwargs)
     tagnames = postprocess_options_match_tagnames(kwargs)
-    postprocess_options_table_options(kwargs)
+    postprocess_options_results_options(kwargs)
     if show_usage:
         handler = usage_category.usage_categories
     else:
@@ -822,7 +822,7 @@ def list_tags(ctx, controller, *args, show_usage=False, **kwargs):
     """List all tags, with filtering and sorting options."""
     activity = postprocess_options_match_activity(kwargs)
     category = postprocess_options_match_category(kwargs)
-    postprocess_options_table_options(kwargs)
+    postprocess_options_results_options(kwargs)
     if show_usage:
         handler = usage_tag.usage_tags
     else:
@@ -844,7 +844,7 @@ def _list_facts(controller, *args, show_usage=False, **kwargs):
     activity = postprocess_options_match_activity(kwargs)
     category = postprocess_options_match_category(kwargs)
     tagnames = postprocess_options_match_tagnames(kwargs)
-    postprocess_options_table_options(kwargs)
+    postprocess_options_results_options(kwargs)
     # FIXME: (lb): Should probably impose limit by default
     #          (without, my terminal hangs for a long while).
     list_fact.list_facts(
@@ -937,7 +937,7 @@ def usage_activities(ctx, controller, *args, **kwargs):
     """List all activities. Provide optional filtering by name."""
     category = postprocess_options_match_category(kwargs)
     tagnames = postprocess_options_match_tagnames(kwargs)
-    postprocess_options_table_options(kwargs)
+    postprocess_options_results_options(kwargs)
     usage_activity.usage_activities(
         controller,
         *args,
@@ -968,7 +968,7 @@ def usage_categories(ctx, controller, *args, **kwargs):
     """List all categories. Provide optional filtering by name."""
     activity = postprocess_options_match_activity(kwargs)
     tagnames = postprocess_options_match_tagnames(kwargs)
-    postprocess_options_table_options(kwargs)
+    postprocess_options_results_options(kwargs)
     usage_category.usage_categories(
         controller,
         *args,
@@ -999,7 +999,7 @@ def usage_tags(ctx, controller, *args, **kwargs):
     """List all tags' usage counts, with filtering and sorting options."""
     activity = postprocess_options_match_activity(kwargs)
     category = postprocess_options_match_category(kwargs)
-    postprocess_options_table_options(kwargs)
+    postprocess_options_results_options(kwargs)
     usage_tag.usage_tags(
         controller,
         *args,
@@ -1033,7 +1033,7 @@ def usage_facts(ctx, controller, *args, **kwargs):
     activity = postprocess_options_match_activity(kwargs)
     category = postprocess_options_match_category(kwargs)
     tagnames = postprocess_options_match_tagnames(kwargs)
-    postprocess_options_table_options(kwargs)
+    postprocess_options_results_options(kwargs)
     list_fact.list_facts(
         controller,
         *args,
