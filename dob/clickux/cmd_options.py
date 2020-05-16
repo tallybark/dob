@@ -140,9 +140,9 @@ def cmd_options_search_deleted_hidden(func):
 # *** Combine recent sets of options into one convenient @decorator.
 
 def cmd_options_search_basics(func):
-    for option in (
-        _cmd_options_search_time_window
-        + _cmd_options_search_item_key
+    for option in reversed(
+        _cmd_options_search_item_key
+        + _cmd_options_search_time_window
         + _cmd_options_search_item_name
         # FIXME/2020-05-16: (lb): Cleanup these options upon broader cleanup.
         #  + _cmd_options_search_deleted_hidden
