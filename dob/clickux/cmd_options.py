@@ -208,6 +208,13 @@ def cmd_options_table_truncols(func):
 
 _cmd_options_table_order = [
     click.option(
+        '-o', '--order', '--sort', default='start',
+        type=click.Choice([
+            'name', 'activity', 'category', 'tag', 'fact', 'start', 'usage', 'time',
+        ]),
+        help=_('Order by column (may depend on query).'),
+    ),
+    click.option(
         # (lb): -a/-A are used for matching/grouping by Activity in the query,
         #      and because --asc is the default, the single-char command for
         #      this option just be the "opposite" of the counterpart option,
@@ -218,13 +225,6 @@ _cmd_options_table_order = [
     click.option(
         '-d', '--desc', is_flag=True, default=None,
         help=_('Sort by descending column value.'),
-    ),
-    click.option(
-        '-o', '--order', '--sort', default='start',
-        type=click.Choice([
-            'name', 'activity', 'category', 'tag', 'fact', 'start', 'usage', 'time',
-        ]),
-        help=_('Order by column (may depend on query).'),
     ),
 ]
 
@@ -239,9 +239,9 @@ def cmd_options_table_order(func):
 
 def cmd_options_table_view(func):
     for option in reversed(
-        _cmd_options_table_truncols
+        _cmd_options_table_order
         + _cmd_options_table_renderer
-        + _cmd_options_table_order
+        + _cmd_options_table_truncols
     ):
         func = option(func)
     return func
