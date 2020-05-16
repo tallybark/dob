@@ -46,7 +46,6 @@ __all__ = (
     'cmd_options_styles_named',
     'cmd_options_table_order',
     'cmd_options_table_renderer',
-    # 'cmd_options_table_view',
     'cmd_options_edit_item',
     'postprocess_options_match_activity',
     'postprocess_options_match_category',
@@ -248,17 +247,9 @@ def cmd_options_table_order(func):
     return func
 
 
-# *** Combining last 3 table- and results-related options into one convenient wrapper.
-
-def cmd_options_table_view(func):
-    for option in reversed(
-        _cmd_options_table_order
-        + _cmd_options_table_renderer
-        + _cmd_options_results_chop
-    ):
-        func = option(func)
-    return func
-
+# ***
+# *** [POST PROCESS] Options.
+# ***
 
 def postprocess_options_table_options(kwargs):
     _postprocess_options_table_option_order_to_sort_col(kwargs)
