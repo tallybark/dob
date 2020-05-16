@@ -84,6 +84,11 @@ from .clickux.cmd_options import (
     cmd_options_factoid_verify_start,
     cmd_options_factoid_verify_end,
     cmd_options_factoid_verify_both,
+    cmd_options_rule_name,
+    cmd_options_styles_internal,
+    cmd_options_styles_named
+)
+from .clickux.cmd_options_search import (
     cmd_options_limit_offset,
     cmd_options_list_fact,
     cmd_options_results_chop,
@@ -94,13 +99,10 @@ from .clickux.cmd_options import (
     cmd_options_results_hide_duration,
     cmd_options_results_show_usage,
     cmd_options_results_sort_order,
-    cmd_options_rule_name,
     cmd_options_search_basics,
     cmd_options_search_match_activity,
     cmd_options_search_match_category,
     cmd_options_search_match_tagnames,
-    cmd_options_styles_internal,
-    cmd_options_styles_named,
     cmd_options_table_renderer,
     postprocess_options_match_activity,
     postprocess_options_match_category,
