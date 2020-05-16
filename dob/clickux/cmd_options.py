@@ -51,11 +51,13 @@ __all__ = (
 
 _cmd_options_search = [
     click.option(
-        '--since', '--after',
+        '-s', '--since', '--after',
+        metavar='TIME',
         help=_('Show items more recent than a specific date.'),
     ),
     click.option(
-        '--until', '--before',
+        '-u', '--until', '--before',
+        metavar='TIME',
         help=_('Show items older than a specific date.'),
     ),
     click.option(
@@ -65,7 +67,9 @@ _cmd_options_search = [
         '--hidden', is_flag=True, help=_('Show hidden items.'),
     ),
     click.option(
-        '-k', '--key', help=_('The database key of the item.'),
+        '-k', '--key',
+        metavar='ID',
+        help=_('The database key of the item.'),
     ),
     click.argument('search_term', nargs=-1, default=None),
 ]
