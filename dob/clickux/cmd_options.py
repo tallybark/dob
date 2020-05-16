@@ -27,6 +27,7 @@ __all__ = (
     'cmd_options_fact_import',
     'cmd_options_limit_offset',
     'cmd_options_list_fact',
+    'cmd_options_results_chop',
     'cmd_options_results_group_by',
     'cmd_options_results_group_activity',
     'cmd_options_results_group_category',
@@ -45,7 +46,6 @@ __all__ = (
     'cmd_options_styles_named',
     'cmd_options_table_order',
     'cmd_options_table_renderer',
-    'cmd_options_table_truncols',
     # 'cmd_options_table_view',
     'cmd_options_edit_item',
     'postprocess_options_match_activity',
@@ -201,7 +201,7 @@ def cmd_options_table_renderer(func):
 # *** [RESULTS DATA DISPLAY] Options.
 # ***
 
-_cmd_options_table_truncols = [
+_cmd_options_results_chop = [
     click.option(
         '-p', '--chop', '--truncate', is_flag=True,
         help=_('Truncate long names.'),
@@ -209,8 +209,8 @@ _cmd_options_table_truncols = [
 ]
 
 
-def cmd_options_table_truncols(func):
-    for option in reversed(_cmd_options_table_truncols):
+def cmd_options_results_chop(func):
+    for option in reversed(_cmd_options_results_chop):
         func = option(func)
     return func
 
@@ -254,7 +254,7 @@ def cmd_options_table_view(func):
     for option in reversed(
         _cmd_options_table_order
         + _cmd_options_table_renderer
-        + _cmd_options_table_truncols
+        + _cmd_options_results_chop
     ):
         func = option(func)
     return func
