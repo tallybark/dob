@@ -172,8 +172,6 @@ def list_facts(
 def search_facts(
     controller,
     key=None,
-    since=None,
-    until=None,
     *args,
     **kwargs
 ):
@@ -186,19 +184,10 @@ def search_facts(
 
         FIXME: Keep documenting...
     """
-    def _search_facts():
-        if key:
-            return [controller.facts.get(pk=key)]
-        else:
-            return get_all(since, until)
-
-    def get_all(since, until):
-        results = controller.facts.get_all(
-            since=since, until=until, *args, **kwargs
-        )
-        return results
-
-    return _search_facts()
+    if key:
+        return [controller.facts.get(pk=key)]
+    else:
+        return controller.facts.get_all(*args, **kwargs)
 
 
 # ***
