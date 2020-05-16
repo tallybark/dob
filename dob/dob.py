@@ -1514,7 +1514,7 @@ def transcode_export(ctx, controller, *args, output, format, **kwargs):
               help=_('With --output, split facts with a horizontal rule'))
 @click.option('--backup/--no-backup', '-B', default=True, show_default=True,
               help=_('Keep plaintext backup of edited facts until committed'))
-@click.option('-X', '--leave-backup', is_flag=True,
+@click.option('-b', '--leave-backup', is_flag=True,
               help=_('Leave working backup file after commit'))
 @cmd_options_fact_dryable
 @cmd_options_fact_import
