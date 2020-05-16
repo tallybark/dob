@@ -746,8 +746,8 @@ def list_group(ctx, controller):
 @cmd_options_results_sort_order
 @cmd_options_limit_offset
 @cmd_options_results_show_usage
-@cmd_options_table_renderer
 @cmd_options_results_chop
+@cmd_options_table_renderer
 @pass_controller_context
 @induct_newbies
 def list_activities(ctx, controller, *args, show_usage=False, **kwargs):
@@ -778,8 +778,8 @@ def list_activities(ctx, controller, *args, show_usage=False, **kwargs):
 @cmd_options_results_sort_order
 @cmd_options_limit_offset
 @cmd_options_results_show_usage
-@cmd_options_table_renderer
 @cmd_options_results_chop
+@cmd_options_table_renderer
 @pass_controller_context
 @induct_newbies
 def list_categories(ctx, controller, *args, show_usage=False, **kwargs):
@@ -814,8 +814,8 @@ def list_categories(ctx, controller, *args, show_usage=False, **kwargs):
 @cmd_options_results_sort_order
 @cmd_options_limit_offset
 @cmd_options_results_show_usage
-@cmd_options_table_renderer
 @cmd_options_results_chop
+@cmd_options_table_renderer
 @pass_controller_context
 @induct_newbies
 def list_tags(ctx, controller, *args, show_usage=False, **kwargs):
@@ -871,8 +871,8 @@ def generate_list_facts_command(func):
     @cmd_options_limit_offset
     @cmd_options_results_show_usage
     @cmd_options_results_hide_duration
-    @cmd_options_table_renderer
     @cmd_options_results_chop
+    @cmd_options_table_renderer
     @cmd_options_list_fact
     @pass_controller_context
     @induct_newbies
@@ -929,8 +929,8 @@ def usage_group(ctx, controller):
 @cmd_options_results_group_by
 @cmd_options_results_sort_order
 @cmd_options_limit_offset
-@cmd_options_table_renderer
 @cmd_options_results_chop
+@cmd_options_table_renderer
 @pass_controller_context
 @induct_newbies
 def usage_activities(ctx, controller, *args, **kwargs):
@@ -960,8 +960,8 @@ def usage_activities(ctx, controller, *args, **kwargs):
 @cmd_options_results_group_by
 @cmd_options_results_sort_order
 @cmd_options_limit_offset
-@cmd_options_table_renderer
 @cmd_options_results_chop
+@cmd_options_table_renderer
 @pass_controller_context
 @induct_newbies
 def usage_categories(ctx, controller, *args, **kwargs):
@@ -991,8 +991,8 @@ def usage_categories(ctx, controller, *args, **kwargs):
 @cmd_options_results_group_by
 @cmd_options_results_sort_order
 @cmd_options_limit_offset
-@cmd_options_table_renderer
 @cmd_options_results_chop
+@cmd_options_table_renderer
 @pass_controller_context
 @induct_newbies
 def usage_tags(ctx, controller, *args, **kwargs):
@@ -1024,8 +1024,8 @@ def usage_tags(ctx, controller, *args, **kwargs):
 @cmd_options_results_group_by
 @cmd_options_results_sort_order
 @cmd_options_limit_offset
-@cmd_options_table_renderer
 @cmd_options_results_chop
+@cmd_options_table_renderer
 @pass_controller_context
 @induct_newbies
 def usage_facts(ctx, controller, *args, **kwargs):
