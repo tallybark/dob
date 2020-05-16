@@ -72,8 +72,8 @@ from .clickux.bunchy_help import (
     cmd_bunch_group_ongoing_fact,
     cmd_bunch_group_personalize
 )
+from .clickux.cmd_option_dynamic_help import OptionWithDynamicHelp
 from .clickux.cmd_options import (
-    OptionWithDynamicHelp,
     cmd_options_edit_item,
     cmd_options_fact_add,
     cmd_options_fact_dryable,

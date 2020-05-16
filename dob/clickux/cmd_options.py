@@ -15,8 +15,6 @@
 # You can find the GNU General Public License reprinted in the file titled 'LICENSE',
 # or visit <http://www.gnu.org/licenses/>.
 
-import inspect
-
 from gettext import gettext as _
 
 import click_hotoffthehamster as click
@@ -40,7 +38,6 @@ __all__ = (
     'postprocess_options_match_activity',
     'postprocess_options_match_category',
     'postprocess_options_table_options',
-    'OptionWithDynamicHelp',
     # Private:
     #   '_cmd_options_*'...,
     #   '_postprocess_options_table_option_order_to_sort_col',
@@ -491,36 +488,6 @@ def cmd_options_usage(func):
     for option in reversed(_cmd_options_usage):
         func = option(func)
     return func
-
-
-class OptionWithDynamicHelp(click.Option):
-    def __init__(self, *args, **kwargs):
-        self.temporary_ctx = None
-        super(OptionWithDynamicHelp, self).__init__(*args, **kwargs)
-
-    @property
-    def default(self):
-        if not inspect.isfunction(self._default):
-            return self._default
-        controller = self.temporary_ctx.obj if self.temporary_ctx else None
-        return self._default(controller)
-
-    @default.setter
-    def default(self, default):
-        self._default = default
-
-    def get_default(self, ctx):
-        self.temporary_ctx = ctx
-        df = super(OptionWithDynamicHelp, self).get_default(ctx)
-        self.temporary_ctx = None
-        return df
-
-    def get_help_record(self, ctx):
-        # (lb): <Ahhh'ack!> gesundheit
-        self.temporary_ctx = ctx
-        hr = super(OptionWithDynamicHelp, self).get_help_record(ctx)
-        self.temporary_ctx = None
-        return hr
 
 
 # ***

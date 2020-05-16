@@ -1,0 +1,55 @@
+# This file exists within 'dob':
+#
+#   https://github.com/hotoffthehamster/dob
+#
+# Copyright © 2018-2020 Landon Bouma, © 2015-2016 Eric Goller.  All rights reserved.
+#
+# 'dob' is free software: you can redistribute it and/or modify it under the terms
+# of the GNU General Public License  as  published by the Free Software Foundation,
+# either version 3  of the License,  or  (at your option)  any   later    version.
+#
+# 'dob' is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+# without even the implied warranty of MERCHANTABILITY  or  FITNESS FOR A PARTICULAR
+# PURPOSE.  See  the  GNU General Public License  for  more details.
+#
+# You can find the GNU General Public License reprinted in the file titled 'LICENSE',
+# or visit <http://www.gnu.org/licenses/>.
+
+import inspect
+
+import click_hotoffthehamster as click
+
+__all__ = (
+    'OptionWithDynamicHelp',
+)
+
+
+class OptionWithDynamicHelp(click.Option):
+    def __init__(self, *args, **kwargs):
+        self.temporary_ctx = None
+        super(OptionWithDynamicHelp, self).__init__(*args, **kwargs)
+
+    @property
+    def default(self):
+        if not inspect.isfunction(self._default):
+            return self._default
+        controller = self.temporary_ctx.obj if self.temporary_ctx else None
+        return self._default(controller)
+
+    @default.setter
+    def default(self, default):
+        self._default = default
+
+    def get_default(self, ctx):
+        self.temporary_ctx = ctx
+        df = super(OptionWithDynamicHelp, self).get_default(ctx)
+        self.temporary_ctx = None
+        return df
+
+    def get_help_record(self, ctx):
+        # (lb): <Ahhh'ack!> gesundheit
+        self.temporary_ctx = ctx
+        hr = super(OptionWithDynamicHelp, self).get_help_record(ctx)
+        self.temporary_ctx = None
+        return hr
+
