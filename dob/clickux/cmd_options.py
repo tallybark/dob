@@ -34,6 +34,7 @@ __all__ = (
     'cmd_options_results_group_tagnames',
     'cmd_options_results_hide_duration',
     'cmd_options_results_show_usage',
+    'cmd_options_results_sort_order',
     'cmd_options_search_basics',
     # 'cmd_options_search_deleted_hidden',
     # 'cmd_options_search_item_key',
@@ -44,7 +45,6 @@ __all__ = (
     'cmd_options_search_match_tagnames',
     'cmd_options_styles_internal',
     'cmd_options_styles_named',
-    'cmd_options_table_order',
     'cmd_options_table_renderer',
     'cmd_options_edit_item',
     'postprocess_options_match_activity',
@@ -218,7 +218,7 @@ def cmd_options_results_chop(func):
 # *** [RESULTS ORDER] Options.
 # ***
 
-_cmd_options_table_order = [
+_cmd_options_results_sort_order = [
     click.option(
         '-o', '--order', '--sort', default='start',
         type=click.Choice([
@@ -241,8 +241,8 @@ _cmd_options_table_order = [
 ]
 
 
-def cmd_options_table_order(func):
-    for option in reversed(_cmd_options_table_order):
+def cmd_options_results_sort_order(func):
+    for option in reversed(_cmd_options_results_sort_order):
         func = option(func)
     return func
 

@@ -93,6 +93,7 @@ from .clickux.cmd_options import (
     cmd_options_results_group_by,
     cmd_options_results_hide_duration,
     cmd_options_results_show_usage,
+    cmd_options_results_sort_order,
     cmd_options_rule_name,
     cmd_options_search_basics,
     cmd_options_search_match_activity,
@@ -100,7 +101,6 @@ from .clickux.cmd_options import (
     cmd_options_search_match_tagnames,
     cmd_options_styles_internal,
     cmd_options_styles_named,
-    cmd_options_table_order,
     cmd_options_table_renderer,
     postprocess_options_match_activity,
     postprocess_options_match_category,
@@ -743,7 +743,7 @@ def list_group(ctx, controller):
 @cmd_options_search_basics
 @cmd_options_search_match_category
 @cmd_options_search_match_tagnames
-@cmd_options_table_order
+@cmd_options_results_sort_order
 @cmd_options_limit_offset
 @cmd_options_results_show_usage
 @cmd_options_table_renderer
@@ -775,7 +775,7 @@ def list_activities(ctx, controller, *args, show_usage=False, **kwargs):
 @flush_pager
 @cmd_options_search_match_activity
 @cmd_options_search_match_tagnames
-@cmd_options_table_order
+@cmd_options_results_sort_order
 @cmd_options_limit_offset
 @cmd_options_results_show_usage
 @cmd_options_table_renderer
@@ -811,7 +811,7 @@ def list_categories(ctx, controller, *args, show_usage=False, **kwargs):
 @cmd_options_results_group_activity
 @cmd_options_results_group_category
 @cmd_options_results_group_by
-@cmd_options_table_order
+@cmd_options_results_sort_order
 @cmd_options_limit_offset
 @cmd_options_results_show_usage
 @cmd_options_table_renderer
@@ -867,7 +867,7 @@ def generate_list_facts_command(func):
     @cmd_options_results_group_category
     @cmd_options_results_group_tagnames
     @cmd_options_results_group_by
-    @cmd_options_table_order
+    @cmd_options_results_sort_order
     @cmd_options_limit_offset
     @cmd_options_results_show_usage
     @cmd_options_results_hide_duration
@@ -927,7 +927,7 @@ def usage_group(ctx, controller):
 @cmd_options_results_group_category
 @cmd_options_results_group_tagnames
 @cmd_options_results_group_by
-@cmd_options_table_order
+@cmd_options_results_sort_order
 @cmd_options_limit_offset
 @cmd_options_table_renderer
 @cmd_options_results_chop
@@ -958,7 +958,7 @@ def usage_activities(ctx, controller, *args, **kwargs):
 @cmd_options_results_group_activity
 @cmd_options_results_group_tagnames
 @cmd_options_results_group_by
-@cmd_options_table_order
+@cmd_options_results_sort_order
 @cmd_options_limit_offset
 @cmd_options_table_renderer
 @cmd_options_results_chop
@@ -989,7 +989,7 @@ def usage_categories(ctx, controller, *args, **kwargs):
 @cmd_options_results_group_activity
 @cmd_options_results_group_category
 @cmd_options_results_group_by
-@cmd_options_table_order
+@cmd_options_results_sort_order
 @cmd_options_limit_offset
 @cmd_options_table_renderer
 @cmd_options_results_chop
@@ -1022,7 +1022,7 @@ def usage_tags(ctx, controller, *args, **kwargs):
 @cmd_options_results_group_category
 @cmd_options_results_group_tagnames
 @cmd_options_results_group_by
-@cmd_options_table_order
+@cmd_options_results_sort_order
 @cmd_options_limit_offset
 @cmd_options_table_renderer
 @cmd_options_results_chop
