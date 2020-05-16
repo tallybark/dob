@@ -27,6 +27,10 @@ __all__ = (
     'cmd_options_fact_import',
     'cmd_options_limit_offset',
     'cmd_options_list_fact',
+    'cmd_options_results_group_by',
+    'cmd_options_results_group_activity',
+    'cmd_options_results_group_category',
+    'cmd_options_results_group_tagnames',
     'cmd_options_results_hide_duration',
     'cmd_options_results_show_usage',
     'cmd_options_search_basics',
@@ -489,6 +493,85 @@ _cmd_options_list_fact = [
 
 def cmd_options_list_fact(func):
     for option in reversed(_cmd_options_list_fact):
+        func = option(func)
+    return func
+
+
+# ***
+# *** [RESULTS GROUP] Option.
+# ***
+
+# Maybe I want `--group activity`, etc.
+_cmd_options_results_group_by = [
+    click.option(
+        '-g', '--group', multiple=True,
+        type=click.Choice([
+            'activity', 'category', 'tags',
+        ]),
+        help=_('Group results by specified attribute(s).'),
+    ),
+]
+
+
+def cmd_options_results_group_by(func):
+    for option in reversed(_cmd_options_results_group_by):
+        func = option(func)
+    return func
+
+
+# ***
+# *** [RESULTS GROUP] Activity.
+# ***
+
+_cmd_options_results_group_activity = [
+    click.option(
+        '-A', '--group-activity', is_flag=True,
+        help=_('Group results by activity name.'),
+    ),
+]
+
+
+def cmd_options_results_group_activity(func):
+    for option in reversed(_cmd_options_results_group_activity):
+        func = option(func)
+    return func
+
+
+# ***
+# *** [RESULTS GROUP] Category.
+# ***
+
+_cmd_options_results_group_category = [
+    # There's a global -C/--config option, but globals need to be
+    # specified before the command name (just how Click works), so
+    # this re-usage of the same single -C option is perfectly fine.
+    click.option(
+        '-C', '--group-category', is_flag=True,
+        help=_('Group results by category name.'),
+    ),
+]
+
+
+def cmd_options_results_group_category(func):
+    for option in reversed(_cmd_options_results_group_category):
+        func = option(func)
+    return func
+
+
+# ***
+# *** [RESULTS GROUP] Tags.
+# ***
+
+_cmd_options_results_group_tagnames = [
+    click.option(
+        '-T', '--group-tags', is_flag=True,
+        help=_('Group results by tag names.'),
+    ),
+]
+
+
+def cmd_options_results_group_tagnames(func):
+    for option in reversed(_cmd_options_results_group_tagnames):
         func = option(func)
     return func
 
