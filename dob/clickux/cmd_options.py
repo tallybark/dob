@@ -27,13 +27,13 @@ __all__ = (
     'cmd_options_fact_import',
     'cmd_options_limit_offset',
     'cmd_options_list_fact',
-    'cmd_options_results_match_activity',
-    'cmd_options_results_match_category',
     'cmd_options_search_basics',
     # 'cmd_options_search_deleted_hidden',
     # 'cmd_options_search_item_key',
     # 'cmd_options_search_item_name',
     # 'cmd_options_search_time_window',
+    'cmd_options_search_match_activity',
+    'cmd_options_search_match_category',
     'cmd_options_styles_internal',
     'cmd_options_styles_named',
     'cmd_options_table_view',
@@ -491,7 +491,7 @@ def cmd_options_list_fact(func):
 # *** [QUERY MATCH] Options.
 # ***
 
-_cmd_options_results_match_activity = [
+_cmd_options_search_match_activity = [
     click.option(
         '-a', '--activity',
         help=_('Restrict results by matching activity name.'),
@@ -499,8 +499,8 @@ _cmd_options_results_match_activity = [
 ]
 
 
-def cmd_options_results_match_activity(func):
-    for option in reversed(_cmd_options_results_match_activity):
+def cmd_options_search_match_activity(func):
+    for option in reversed(_cmd_options_search_match_activity):
         func = option(func)
     return func
 
@@ -515,7 +515,7 @@ def postprocess_options_match_activity(kwargs):
 # *** [LIST ACTIVITY|LIST TAG] Options.
 # ***
 
-_cmd_options_results_match_category = [
+_cmd_options_search_match_category = [
     click.option(
         '-c', '--category',
         help=_('Restrict results by matching category name.'),
@@ -523,8 +523,8 @@ _cmd_options_results_match_category = [
 ]
 
 
-def cmd_options_results_match_category(func):
-    for option in reversed(_cmd_options_results_match_category):
+def cmd_options_search_match_category(func):
+    for option in reversed(_cmd_options_search_match_category):
         func = option(func)
     return func
 
