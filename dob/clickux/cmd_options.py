@@ -27,6 +27,7 @@ __all__ = (
     'cmd_options_fact_import',
     'cmd_options_limit_offset',
     'cmd_options_list_fact',
+    'cmd_options_results_show_usage',
     'cmd_options_search_basics',
     # 'cmd_options_search_deleted_hidden',
     # 'cmd_options_search_item_key',
@@ -37,7 +38,6 @@ __all__ = (
     'cmd_options_styles_internal',
     'cmd_options_styles_named',
     'cmd_options_table_view',
-    'cmd_options_usage',
     'cmd_options_edit_item',
     'postprocess_options_match_activity',
     'postprocess_options_match_category',
@@ -538,19 +538,19 @@ def postprocess_options_match_category(kwargs):
 
 
 # ***
-# *** [USAGE] Options.
+# *** [RESULTS SHOW] Usage.
 # ***
 
-_cmd_options_usage = [
+_cmd_options_results_show_usage = [
     click.option(
-        '-u', '--usage', is_flag=True,
-        help=_('Include usage (just like usage command!).'),
+        '-U', '--show-usage', is_flag=True,
+        help=_('Include usage count (like usage command).'),
     ),
 ]
 
 
-def cmd_options_usage(func):
-    for option in reversed(_cmd_options_usage):
+def cmd_options_results_show_usage(func):
+    for option in reversed(_cmd_options_results_show_usage):
         func = option(func)
     return func
 

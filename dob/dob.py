@@ -86,6 +86,7 @@ from .clickux.cmd_options import (
     cmd_options_factoid_verify_both,
     cmd_options_limit_offset,
     cmd_options_list_fact,
+    cmd_options_results_show_usage,
     cmd_options_rule_name,
     cmd_options_search_basics,
     cmd_options_search_match_activity,
@@ -94,7 +95,6 @@ from .clickux.cmd_options import (
     cmd_options_styles_named,
     cmd_options_table_renderer,
     cmd_options_table_view,
-    cmd_options_usage,
     postprocess_options_match_activity,
     postprocess_options_match_category,
     postprocess_options_table_options
@@ -734,16 +734,16 @@ def list_group(ctx, controller):
 @flush_pager
 @cmd_options_search_basics
 @cmd_options_search_match_category
-@cmd_options_usage
+@cmd_options_results_show_usage
 @cmd_options_table_view
 @cmd_options_limit_offset
 @pass_controller_context
 @induct_newbies
-def list_activities(ctx, controller, *args, usage=False, **kwargs):
+def list_activities(ctx, controller, *args, show_usage=False, **kwargs):
     """List matching activities, filtered and sorted."""
     category = postprocess_options_match_category(kwargs)
     postprocess_options_table_options(kwargs)
-    if usage:
+    if show_usage:
         handler = usage_activity.usage_activities
     else:
         handler = list_activity.list_activities
@@ -760,15 +760,15 @@ def list_activities(ctx, controller, *args, usage=False, **kwargs):
 @list_group.command('categories', help=help_strings.LIST_CATEGORIES_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_usage
+@cmd_options_results_show_usage
 @cmd_options_table_view
 @cmd_options_limit_offset
 @pass_controller_context
 @induct_newbies
-def list_categories(ctx, controller, *args, usage=False, **kwargs):
+def list_categories(ctx, controller, *args, show_usage=False, **kwargs):
     """List matching categories, filtered and sorted."""
     postprocess_options_table_options(kwargs)
-    if usage:
+    if show_usage:
         handler = usage_category.usage_categories
     else:
         handler = list_category.list_categories
@@ -787,17 +787,17 @@ def list_categories(ctx, controller, *args, usage=False, **kwargs):
 @cmd_options_search_basics
 @cmd_options_search_match_activity
 @cmd_options_search_match_category
-@cmd_options_usage
+@cmd_options_results_show_usage
 @cmd_options_table_view
 @cmd_options_limit_offset
 @pass_controller_context
 @induct_newbies
-def list_tags(ctx, controller, *args, usage=False, **kwargs):
+def list_tags(ctx, controller, *args, show_usage=False, **kwargs):
     """List all tags, with filtering and sorting options."""
     activity = postprocess_options_match_activity(kwargs)
     category = postprocess_options_match_category(kwargs)
     postprocess_options_table_options(kwargs)
-    if usage:
+    if show_usage:
         handler = usage_tag.usage_tags
     else:
         handler = list_tag.list_tags
@@ -812,7 +812,7 @@ def list_tags(ctx, controller, *args, usage=False, **kwargs):
 
 # *** FACTS.
 
-def _list_facts(controller, *args, usage=False, **kwargs):
+def _list_facts(controller, *args, show_usage=False, **kwargs):
     """List matching facts, filtered and sorted."""
     """Fetch facts matching certain criteria."""
     activity = postprocess_options_match_activity(kwargs)
@@ -823,7 +823,7 @@ def _list_facts(controller, *args, usage=False, **kwargs):
     list_fact.list_facts(
         controller,
         *args,
-        include_usage=usage,
+        include_usage=show_usage,
         filter_activity=activity,
         filter_category=category,
         **kwargs,
@@ -834,7 +834,7 @@ def generate_list_facts_command(func):
     @cmd_options_search_basics
     @cmd_options_search_match_activity
     @cmd_options_search_match_category
-    @cmd_options_usage
+    @cmd_options_results_show_usage
     @cmd_options_table_view
     @cmd_options_limit_offset
     @cmd_options_list_fact
