@@ -33,7 +33,8 @@ from dob import (
     get_version,
     cmds_list,
     details,
-    dob
+    dob,
+    facts_format
 )
 from dob.cmds_list.fact import search_facts
 from dob.facts.add_fact import add_fact
@@ -537,13 +538,13 @@ class TestLicense(object):
 class TestGenerateTable(object):
     def test_generate_table(self, controller, fact):
         """Make sure the table contains all expected fact data."""
-        table, header = cmds_list.fact.generate_facts_table(controller, [fact])
+        table, header = facts_format.tabular.generate_facts_table(controller, [fact])
         assert table[0].start == fact.start.strftime('%Y-%m-%d %H:%M')
         assert table[0].activity == fact.activity.name
 
     def test_header(self, controller):
         """Make sure the tables header matches our expectation."""
-        table, header = cmds_list.fact.generate_facts_table(controller, [])
+        table, header = facts_format.tabular.generate_facts_table(controller, [])
         assert len(header) == 8
 
 
