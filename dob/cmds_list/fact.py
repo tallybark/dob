@@ -43,15 +43,15 @@ __all__ = (
 def list_facts(
     controller,
     include_id=False,
-    include_usage=False,
     match_activity='',
     match_category='',
     match_tagnames=[],
-    table_type='friendly',
+    show_usage=False,
+    hide_duration=False,
     chop=False,
+    table_type='friendly',
     block_format=None,
     rule='',
-    hide_duration=False,
     out_file=None,
     term_width=None,
     *args,
@@ -71,7 +71,7 @@ def list_facts(
         results = search_facts(
             controller,
             *args,
-            include_usage=include_usage,
+            include_usage=show_usage,
             activity=activity,
             category=category,
             tagnames=match_tagnames,
@@ -88,7 +88,7 @@ def list_facts(
         try:
             return kwargs['sort_col']
         except KeyError:
-            if not include_usage:
+            if not show_usage:
                 return ''
             return 'time'
 
@@ -139,7 +139,7 @@ def list_facts(
             controller,
             results,
             show_duration=not hide_duration,
-            include_usage=include_usage,
+            include_usage=show_usage,
         )
         # 2018-06-08: headers is:
         #   ['Key', 'Start', 'End', 'Activity', 'Category', 'Tags', 'Description',]
@@ -192,14 +192,14 @@ def search_facts(
 
 # ***
 
-def generate_facts_table(controller, facts, show_duration=True, include_usage=False):
+def generate_facts_table(controller, facts, show_duration=True, show_usage=False):
     """
     Create a nice looking table representing a set of fact instances.
 
     Returns a (table, header) tuple. 'table' is a list of ``TableRow``
     instances representing a single fact.
     """
-    show_duration = show_duration or include_usage
+    show_duration = show_duration or show_usage
 
     # If you want to change the order just adjust the dict.
     headers = {
@@ -243,7 +243,7 @@ def generate_facts_table(controller, facts, show_duration=True, include_usage=Fa
     row_limit = 1001
 
     for fact in facts:
-        if include_usage:
+        if not show_usage and not group_by_specified:
             # It's tuple: the Fact, the count, and the duration (aka span).
             #  _span = fact[2]  # Should be same/similar to what we calculate.
             # The count column was faked (static count), so the table

@@ -45,7 +45,9 @@ def list_tags(
     activity = hydrate_activity(controller, match_activity)
     category = hydrate_category(controller, match_category)
     results = controller.tags.get_all(
-        activity=activity, category=category, **kwargs
+        activity=activity,
+        category=category,
+        **kwargs
     )
 
     if not results:

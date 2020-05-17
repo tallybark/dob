@@ -840,7 +840,7 @@ def list_tags(ctx, controller, *args, show_usage=False, **kwargs):
 
 # *** FACTS.
 
-def _list_facts(controller, *args, show_usage=False, **kwargs):
+def _list_facts(controller, *args, **kwargs):
     """List matching facts, filtered and sorted."""
     """Fetch facts matching certain criteria."""
     activity = postprocess_options_match_activity(kwargs)
@@ -852,7 +852,6 @@ def _list_facts(controller, *args, show_usage=False, **kwargs):
     list_fact.list_facts(
         controller,
         *args,
-        include_usage=show_usage,
         match_activity=activity,
         match_category=category,
         match_tagnames=tagnames,
