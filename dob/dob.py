@@ -91,10 +91,7 @@ from .clickux.cmd_options import (
 from .clickux.cmd_options_search import (
     cmd_options_any_search_query,
     cmd_options_table_renderer,
-    postprocess_options_match_activity,
-    postprocess_options_match_category,
-    postprocess_options_match_tagnames,
-    postprocess_options_results_options
+    postprocess_options_normalize_search_args
 )
 from .clickux.help_command import help_command_help
 from .clickux.help_detect import show_help_finally, show_help_if_no_command
@@ -736,7 +733,7 @@ def list_activities(ctx, controller, *args, show_usage=False, **kwargs):
     """List matching activities, filtered and sorted."""
     category = postprocess_options_match_category(kwargs)
     tagnames = postprocess_options_match_tagnames(kwargs)
-    postprocess_search_results_options(kwargs)
+    postprocess_options_results_options(kwargs)
     if show_usage:
         handler = usage_activity.usage_activities
     else:
@@ -760,20 +757,12 @@ def list_activities(ctx, controller, *args, show_usage=False, **kwargs):
 @induct_newbies
 def list_categories(ctx, controller, *args, show_usage=False, **kwargs):
     """List matching categories, filtered and sorted."""
-    activity = postprocess_options_match_activity(kwargs)
-    tagnames = postprocess_options_match_tagnames(kwargs)
-    postprocess_options_results_options(kwargs)
+    postprocess_options_normalize_search_args(kwargs)
     if show_usage:
         handler = usage_category.usage_categories
     else:
         handler = list_category.list_categories
-    handler(
-        controller,
-        *args,
-        match_activity=activity,
-        match_tagnames=tagnames,
-        **kwargs,
-    )
+    handler(controller, *args, **kwargs)
 
 
 # *** TAGS.
@@ -781,25 +770,20 @@ def list_categories(ctx, controller, *args, show_usage=False, **kwargs):
 @list_group.command('tags', help=help_strings.LIST_TAGS_HELP)
 @show_help_finally
 @flush_pager
+# TESTME/2020-05-16: group_target seems peculiar: it's not enabled on
+# list-act or list-cat; but it could be interesting (to see what tags
+# you use on which act@gories).
 @cmd_options_any_search_query(match_target='tags', group_target='tags')
 @pass_controller_context
 @induct_newbies
 def list_tags(ctx, controller, *args, show_usage=False, **kwargs):
     """List all tags, with filtering and sorting options."""
-    activity = postprocess_options_match_activity(kwargs)
-    category = postprocess_options_match_category(kwargs)
-    postprocess_options_results_options(kwargs)
+    postprocess_options_normalize_search_args(kwargs)
     if show_usage:
         handler = usage_tag.usage_tags
     else:
         handler = list_tag.list_tags
-    handler(
-        controller,
-        *args,
-        match_activity=activity,
-        match_category=category,
-        **kwargs,
-    )
+    handler(controller, *args, **kwargs)
 
 
 # *** FACTS.
@@ -807,20 +791,10 @@ def list_tags(ctx, controller, *args, show_usage=False, **kwargs):
 def _list_facts(controller, *args, **kwargs):
     """List matching facts, filtered and sorted."""
     """Fetch facts matching certain criteria."""
-    activity = postprocess_options_match_activity(kwargs)
-    category = postprocess_options_match_category(kwargs)
-    tagnames = postprocess_options_match_tagnames(kwargs)
-    postprocess_options_results_options(kwargs)
+    postprocess_options_normalize_search_args(kwargs)
     # FIXME: (lb): Should probably impose limit by default
     #          (without, my terminal hangs for a long while).
-    list_fact.list_facts(
-        controller,
-        *args,
-        match_activity=activity,
-        match_category=category,
-        match_tagnames=tagnames,
-        **kwargs,
-    )
+    list_fact.list_facts(controller, *args, **kwargs)
 
 
 def generate_list_facts_command(func):
@@ -877,16 +851,7 @@ def usage_group(ctx, controller):
 @induct_newbies
 def usage_activities(ctx, controller, *args, **kwargs):
     """List all activities. Provide optional filtering by name."""
-    category = postprocess_options_match_category(kwargs)
-    tagnames = postprocess_options_match_tagnames(kwargs)
-    postprocess_options_results_options(kwargs)
-    usage_activity.usage_activities(
-        controller,
-        *args,
-        match_category=category,
-        match_tagnames=tagnames,
-        **kwargs
-    )
+    usage_activity.usage_activities(controller, *args, **kwargs)
 
 
 # *** CATEGORIES.
@@ -899,16 +864,8 @@ def usage_activities(ctx, controller, *args, **kwargs):
 @induct_newbies
 def usage_categories(ctx, controller, *args, **kwargs):
     """List all categories. Provide optional filtering by name."""
-    activity = postprocess_options_match_activity(kwargs)
-    tagnames = postprocess_options_match_tagnames(kwargs)
-    postprocess_options_results_options(kwargs)
-    usage_category.usage_categories(
-        controller,
-        *args,
-        match_activity=activity,
-        match_tagnames=tagnames,
-        **kwargs
-    )
+    postprocess_options_normalize_search_args(kwargs)
+    usage_category.usage_categories(controller, *args, **kwargs)
 
 
 # *** TAGS.
@@ -921,16 +878,8 @@ def usage_categories(ctx, controller, *args, **kwargs):
 @induct_newbies
 def usage_tags(ctx, controller, *args, **kwargs):
     """List all tags' usage counts, with filtering and sorting options."""
-    activity = postprocess_options_match_activity(kwargs)
-    category = postprocess_options_match_category(kwargs)
-    postprocess_options_results_options(kwargs)
-    usage_tag.usage_tags(
-        controller,
-        *args,
-        match_activity=activity,
-        match_category=category,
-        **kwargs,
-    )
+    postprocess_options_normalize_search_args(kwargs)
+    usage_tag.usage_tags(controller, *args, **kwargs)
 
 
 # *** FACTS.
@@ -943,17 +892,11 @@ def usage_tags(ctx, controller, *args, **kwargs):
 @induct_newbies
 def usage_facts(ctx, controller, *args, **kwargs):
     """List all tags' usage counts, with filtering and sorting options."""
-    activity = postprocess_options_match_activity(kwargs)
-    category = postprocess_options_match_category(kwargs)
-    tagnames = postprocess_options_match_tagnames(kwargs)
-    postprocess_options_results_options(kwargs)
+    postprocess_options_normalize_search_args(kwargs)
     list_fact.list_facts(
         controller,
         *args,
         include_usage=True,
-        match_activity=activity,
-        match_category=category,
-        match_tagnames=tagnames,
         **kwargs,
     )
 

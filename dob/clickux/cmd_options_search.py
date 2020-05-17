@@ -25,12 +25,12 @@ __all__ = (
     # Some other commands share use of the ASCII output table feature.
     'cmd_options_table_renderer',
     # Argument parsing helpers, to facilitate **kwargs passing.
-    'postprocess_options_match_activity',
-    'postprocess_options_match_category',
-    'postprocess_options_match_tagnames',
-    'postprocess_options_results_options',
+    'postprocess_options_normalize_search_args',
     # Private:
     #   '_cmd_options_*',  # Module variables.
+    #   '_postprocess_options_match_activity',
+    #   '_postprocess_options_match_category',
+    #   '_postprocess_options_match_tagnames',
     #   '_postprocess_options_results_options_order_to_sort_col',
     #   '_postprocess_options_results_options_asc_desc_to_sort_order',
 )
@@ -104,10 +104,11 @@ _cmd_options_search_match_activity = [
 ]
 
 
-def postprocess_options_match_activity(kwargs):
+def _postprocess_options_match_activity(kwargs):
     activity = kwargs['activity'] if kwargs['activity'] else ''
     del kwargs['activity']
-    return activity
+    if activity:
+        kwargs['match_activity'] = activity
 
 
 # ***
@@ -122,12 +123,13 @@ _cmd_options_search_match_category = [
 ]
 
 
-def postprocess_options_match_category(kwargs):
+def _postprocess_options_match_category(kwargs):
     # This little dance is so category_name is never None, but '',
     # because get_all() distinguishes between category=None and =''.
     category = kwargs['category'] if kwargs['category'] else ''
     del kwargs['category']
-    return category
+    if category:
+        kwargs['match_category'] = category
 
 
 # ***
@@ -142,10 +144,11 @@ _cmd_options_search_match_tagnames = [
 ]
 
 
-def postprocess_options_match_tagnames(kwargs):
+def _postprocess_options_match_tagnames(kwargs):
     tagnames = kwargs['tag'] if kwargs['tag'] else tuple()
     del kwargs['tag']
-    return tagnames
+    if tagnames:
+        kwargs['match_tagnames'] = tagnames
 
 
 # ***
@@ -235,10 +238,6 @@ _cmd_options_results_sort_order = [
 # *** [POST PROCESS] Sort/Order Options.
 # ***
 
-def postprocess_options_results_options(kwargs):
-    _postprocess_options_results_options_order_to_sort_col(kwargs)
-    _postprocess_options_results_options_asc_desc_to_sort_order(kwargs)
-
 
 def _postprocess_options_results_options_order_to_sort_col(kwargs):
     kwargs['sort_col'] = kwargs['order']
@@ -323,6 +322,18 @@ _cmd_options_output_factoids_hrule = [
         help=_('Separate Factoids with a horizontal rule.'),
     ),
 ]
+
+
+# ***
+# *** [POST PROCESS] Adjust **kwargs.
+# ***
+
+def postprocess_options_normalize_search_args(kwargs):
+    _postprocess_options_match_activity(kwargs)
+    _postprocess_options_match_category(kwargs)
+    _postprocess_options_match_tagnames(kwargs)
+    _postprocess_options_results_options_order_to_sort_col(kwargs)
+    _postprocess_options_results_options_asc_desc_to_sort_order(kwargs)
 
 
 # ***
