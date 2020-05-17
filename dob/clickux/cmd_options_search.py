@@ -20,31 +20,17 @@ from gettext import gettext as _
 import click_hotoffthehamster as click
 
 __all__ = (
-    'cmd_options_list_fact',
-    'cmd_options_results_chop',
-    'cmd_options_results_group',
-    'cmd_options_results_group_activity',
-    'cmd_options_results_group_category',
-    'cmd_options_results_group_tagnames',
-    'cmd_options_results_hide_duration',
-    'cmd_options_results_show_usage',
-    'cmd_options_results_sort_order',
-    'cmd_options_search_basics',
-    # 'cmd_options_search_deleted_hidden',
-    # 'cmd_options_search_item_key',
-    # 'cmd_options_search_item_name',
-    # 'cmd_options_search_time_window',
-    'cmd_options_search_limit_offset',
-    'cmd_options_search_match_activity',
-    'cmd_options_search_match_category',
-    'cmd_options_search_match_tagnames',
+    # One decorator is all you need for each list and usage command.
+    'cmd_options_any_search_query',
+    # Some other commands share use of the ASCII output table feature.
     'cmd_options_table_renderer',
+    # Argument parsing helpers, to facilitate **kwargs passing.
     'postprocess_options_match_activity',
     'postprocess_options_match_category',
     'postprocess_options_match_tagnames',
     'postprocess_options_results_options',
     # Private:
-    #   '_cmd_options_*'...,
+    #   '_cmd_options_*',  # Module variables.
     #   '_postprocess_options_results_options_order_to_sort_col',
     #   '_postprocess_options_results_options_asc_desc_to_sort_order',
 )
@@ -63,12 +49,6 @@ _cmd_options_search_item_key = [
 ]
 
 
-def cmd_options_search_item_key(func):
-    for option in reversed(_cmd_options_search_item_key):
-        func = option(func)
-    return func
-
-
 # ***
 # *** [SEARCH QUERY] Item Name.
 # ***
@@ -76,12 +56,6 @@ def cmd_options_search_item_key(func):
 _cmd_options_search_item_name = [
     click.argument('search_term', nargs=-1, default=None),
 ]
-
-
-def cmd_options_search_item_name(func):
-    for option in reversed(_cmd_options_search_item_name):
-        func = option(func)
-    return func
 
 
 # ***
@@ -102,28 +76,6 @@ _cmd_options_search_time_window = [
 ]
 
 
-def cmd_options_search_time_window(func):
-    for option in reversed(_cmd_options_search_time_window):
-        func = option(func)
-    return func
-
-
-# ***
-# *** [SEARCH QUERY] Item ID, Name, and Time Window.
-# ***
-
-# *** Combine recent sets of options into one convenient @decorator.
-
-def cmd_options_search_basics(func):
-    for option in reversed(
-        _cmd_options_search_item_key
-        + _cmd_options_search_item_name
-        + _cmd_options_search_time_window
-    ):
-        func = option(func)
-    return func
-
-
 # ***
 # *** [SEARCH QUERY] Deleted and Hidden.
 # ***
@@ -140,12 +92,6 @@ _cmd_options_search_deleted_hidden = [
 ]
 
 
-def cmd_options_search_deleted_hidden(func):
-    for option in reversed(_cmd_options_search_deleted_hidden):
-        func = option(func)
-    return func
-
-
 # ***
 # *** [SEARCH MATCH] Activity.
 # ***
@@ -156,12 +102,6 @@ _cmd_options_search_match_activity = [
         help=_('Restrict results by matching activity name.'),
     ),
 ]
-
-
-def cmd_options_search_match_activity(func):
-    for option in reversed(_cmd_options_search_match_activity):
-        func = option(func)
-    return func
 
 
 def postprocess_options_match_activity(kwargs):
@@ -182,12 +122,6 @@ _cmd_options_search_match_category = [
 ]
 
 
-def cmd_options_search_match_category(func):
-    for option in reversed(_cmd_options_search_match_category):
-        func = option(func)
-    return func
-
-
 def postprocess_options_match_category(kwargs):
     # This little dance is so category_name is never None, but '',
     # because get_all() distinguishes between category=None and =''.
@@ -206,12 +140,6 @@ _cmd_options_search_match_tagnames = [
         help=_('Restrict results by matching tag name(s).'),
     ),
 ]
-
-
-def cmd_options_search_match_tagnames(func):
-    for option in reversed(_cmd_options_search_match_tagnames):
-        func = option(func)
-    return func
 
 
 def postprocess_options_match_tagnames(kwargs):
@@ -237,12 +165,6 @@ _cmd_options_results_group = [
 ]
 
 
-def cmd_options_results_group(func):
-    for option in reversed(_cmd_options_results_group):
-        func = option(func)
-    return func
-
-
 # ***
 # *** [RESULTS GROUP] Activity.
 # ***
@@ -253,12 +175,6 @@ _cmd_options_results_group_activity = [
         help=_('Group results by activity name.'),
     ),
 ]
-
-
-def cmd_options_results_group_activity(func):
-    for option in reversed(_cmd_options_results_group_activity):
-        func = option(func)
-    return func
 
 
 # ***
@@ -276,12 +192,6 @@ _cmd_options_results_group_category = [
 ]
 
 
-def cmd_options_results_group_category(func):
-    for option in reversed(_cmd_options_results_group_category):
-        func = option(func)
-    return func
-
-
 # ***
 # *** [RESULTS GROUP] Tags.
 # ***
@@ -292,12 +202,6 @@ _cmd_options_results_group_tagnames = [
         help=_('Group results by tag names.'),
     ),
 ]
-
-
-def cmd_options_results_group_tagnames(func):
-    for option in reversed(_cmd_options_results_group_tagnames):
-        func = option(func)
-    return func
 
 
 # ***
@@ -325,12 +229,6 @@ _cmd_options_results_sort_order = [
         help=_('Sort by descending column value.'),
     ),
 ]
-
-
-def cmd_options_results_sort_order(func):
-    for option in reversed(_cmd_options_results_sort_order):
-        func = option(func)
-    return func
 
 
 # ***
@@ -379,12 +277,6 @@ _cmd_options_search_limit_offset = [
 ]
 
 
-def cmd_options_search_limit_offset(func):
-    for option in reversed(_cmd_options_search_limit_offset):
-        func = option(func)
-    return func
-
-
 # ***
 # *** [RESULTS HIDE] Duration.
 # ***
@@ -395,12 +287,6 @@ _cmd_options_results_hide_duration = [
         help=_('Show Fact elapsed time.'),
     ),
 ]
-
-
-def cmd_options_results_hide_duration(func):
-    for option in reversed(_cmd_options_results_hide_duration):
-        func = option(func)
-    return func
 
 
 # ***
@@ -415,12 +301,6 @@ _cmd_options_results_show_usage = [
 ]
 
 
-def cmd_options_results_show_usage(func):
-    for option in reversed(_cmd_options_results_show_usage):
-        func = option(func)
-    return func
-
-
 # ***
 # *** [SEARCH RESULTS] Chop/Truncate.
 # ***
@@ -433,44 +313,11 @@ _cmd_options_results_chop = [
 ]
 
 
-def cmd_options_results_chop(func):
-    for option in reversed(_cmd_options_results_chop):
-        func = option(func)
-    return func
-
-
-# ***
-# *** [RESULTS FORMAT] Table Type.
-# ***
-
-_cmd_options_table_renderer = [
-    click.option(
-        '-T', '--table-type', default='texttable', show_default=True,
-        type=click.Choice([
-            'tabulate',
-            'texttable',
-            'friendly',
-        ]),
-        help=_('ASCII table formatter.'),
-    ),
-]
-
-
-def cmd_options_table_renderer(func):
-    for option in reversed(_cmd_options_table_renderer):
-        func = option(func)
-    return func
-
-
 # ***
 # *** [RESULTS FORMAT] Factoid Format.
 # ***
 
-_cmd_options_list_fact = [
-    click.option(
-        '-w', '--doc', '--document', is_flag=True,
-        help='Format results as importable Factoid blocks.',
-    ),
+_cmd_options_output_factoids_hrule = [
     click.option(
         '-r', '--rule', '--sep', nargs=1, default='',
         help=_('Separate Factoids with a horizontal rule.'),
@@ -478,8 +325,77 @@ _cmd_options_list_fact = [
 ]
 
 
-def cmd_options_list_fact(func):
-    for option in reversed(_cmd_options_list_fact):
-        func = option(func)
-    return func
+# ***
+# *** [ALL TOGETHER NOW] One @decorator is all you need.
+# ***
+
+# *** One @decorator for all your search command option needs.
+
+def cmd_options_any_search_query(match_target=None, group_target=None):
+    def _cmd_options_any_search_query():
+        options = []
+        append_cmd_options_search_basics(options)
+        append_cmd_options_match_target(options)
+        append_cmd_options_group_target(options)
+        append_cmd_options_results_sort_limit(options)
+        if match_target != 'export':
+            append_cmd_options_results_adjust_values(options)
+            append_cmd_options_tablular_format(options)
+            append_cmd_options_factoids_format(options)
+
+        def _cmd_options_search_query(func):
+            for option in reversed(options):
+                func = option(func)
+            return func
+
+        return _cmd_options_search_query
+
+    def append_cmd_options_search_basics(options):
+        options.extend(_cmd_options_search_item_key)
+        options.extend(_cmd_options_search_item_name)
+        options.extend(_cmd_options_search_time_window)
+
+    def append_cmd_options_match_target(options):
+        if match_target is None:
+            return
+
+        if match_target != 'activity':
+            options.extend(_cmd_options_search_match_activity)
+        if match_target != 'category':
+            options.extend(_cmd_options_search_match_category)
+        if match_target != 'tags':
+            options.extend(_cmd_options_search_match_tagnames)
+
+    def append_cmd_options_group_target(options):
+        if group_target is None:
+            return
+
+        if group_target != 'activity':
+            options.extend(_cmd_options_results_group_activity)
+        if group_target != 'category':
+            options.extend(_cmd_options_results_group_category)
+        if group_target != 'tags':
+            options.extend(_cmd_options_results_group_tagnames)
+        options.extend(_cmd_options_results_group)
+
+    def append_cmd_options_results_sort_limit(options):
+        options.extend(_cmd_options_results_sort_order)
+        options.extend(_cmd_options_search_limit_offset)
+
+    def append_cmd_options_results_adjust_values(options):
+        options.extend(_cmd_options_results_show_usage)
+    # FIXME/2020-05-16 20:44: This was not revealed for non-Fact, but seems applicable:
+        options.extend(_cmd_options_results_hide_duration)
+        options.extend(_cmd_options_results_chop)
+
+    def append_cmd_options_tablular_format(options):
+        options.extend(_cmd_options_table_renderer)
+
+    def append_cmd_options_factoids_format(options):
+        if match_target != 'fact':
+            return
+
+        options.extend(_cmd_options_output_factoids_hrule)
+
+    return _cmd_options_any_search_query()
 

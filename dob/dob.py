@@ -89,20 +89,7 @@ from .clickux.cmd_options import (
     cmd_options_styles_named
 )
 from .clickux.cmd_options_search import (
-    cmd_options_list_fact,
-    cmd_options_results_chop,
-    cmd_options_results_group,
-    cmd_options_results_group_activity,
-    cmd_options_results_group_category,
-    cmd_options_results_group_tagnames,
-    cmd_options_results_hide_duration,
-    cmd_options_results_show_usage,
-    cmd_options_results_sort_order,
-    cmd_options_search_basics,
-    cmd_options_search_limit_offset,
-    cmd_options_search_match_activity,
-    cmd_options_search_match_category,
-    cmd_options_search_match_tagnames,
+    cmd_options_any_search_query,
     cmd_options_table_renderer,
     postprocess_options_match_activity,
     postprocess_options_match_category,
@@ -742,14 +729,7 @@ def list_group(ctx, controller):
 @list_group.command('activities', help=help_strings.LIST_ACTIVITIES_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_search_basics
-@cmd_options_search_match_category
-@cmd_options_search_match_tagnames
-@cmd_options_results_sort_order
-@cmd_options_search_limit_offset
-@cmd_options_results_show_usage
-@cmd_options_results_chop
-@cmd_options_table_renderer
+@cmd_options_any_search_query(match_target='activity', group_target=None)
 @pass_controller_context
 @induct_newbies
 def list_activities(ctx, controller, *args, show_usage=False, **kwargs):
@@ -775,13 +755,7 @@ def list_activities(ctx, controller, *args, show_usage=False, **kwargs):
 @list_group.command('categories', help=help_strings.LIST_CATEGORIES_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_search_match_activity
-@cmd_options_search_match_tagnames
-@cmd_options_results_sort_order
-@cmd_options_search_limit_offset
-@cmd_options_results_show_usage
-@cmd_options_results_chop
-@cmd_options_table_renderer
+@cmd_options_any_search_query(match_target='category', group_target=None)
 @pass_controller_context
 @induct_newbies
 def list_categories(ctx, controller, *args, show_usage=False, **kwargs):
@@ -807,17 +781,7 @@ def list_categories(ctx, controller, *args, show_usage=False, **kwargs):
 @list_group.command('tags', help=help_strings.LIST_TAGS_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_search_basics
-@cmd_options_search_match_activity
-@cmd_options_search_match_category
-@cmd_options_results_group_activity
-@cmd_options_results_group_category
-@cmd_options_results_group
-@cmd_options_results_sort_order
-@cmd_options_search_limit_offset
-@cmd_options_results_show_usage
-@cmd_options_results_chop
-@cmd_options_table_renderer
+@cmd_options_any_search_query(match_target='tags', group_target='tags')
 @pass_controller_context
 @induct_newbies
 def list_tags(ctx, controller, *args, show_usage=False, **kwargs):
@@ -860,21 +824,7 @@ def _list_facts(controller, *args, **kwargs):
 
 
 def generate_list_facts_command(func):
-    @cmd_options_search_basics
-    @cmd_options_search_match_activity
-    @cmd_options_search_match_category
-    @cmd_options_search_match_tagnames
-    @cmd_options_results_group_activity
-    @cmd_options_results_group_category
-    @cmd_options_results_group_tagnames
-    @cmd_options_results_group
-    @cmd_options_results_sort_order
-    @cmd_options_search_limit_offset
-    @cmd_options_results_show_usage
-    @cmd_options_results_hide_duration
-    @cmd_options_results_chop
-    @cmd_options_table_renderer
-    @cmd_options_list_fact
+    @cmd_options_any_search_query(match_target='fact', group_target='fact')
     @pass_controller_context
     @induct_newbies
     def dob_list_facts(ctx, controller, *args, doc, **kwargs):
@@ -922,16 +872,7 @@ def usage_group(ctx, controller):
 @usage_group.command('activities', help=help_strings.USAGE_ACTIVITIES_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_search_basics
-@cmd_options_search_match_category
-@cmd_options_search_match_tagnames
-@cmd_options_results_group_category
-@cmd_options_results_group_tagnames
-@cmd_options_results_group
-@cmd_options_results_sort_order
-@cmd_options_search_limit_offset
-@cmd_options_results_chop
-@cmd_options_table_renderer
+@cmd_options_any_search_query(match_target='activity', group_target='activity')
 @pass_controller_context
 @induct_newbies
 def usage_activities(ctx, controller, *args, **kwargs):
@@ -953,16 +894,7 @@ def usage_activities(ctx, controller, *args, **kwargs):
 @usage_group.command('categories', help=help_strings.USAGE_CATEGORIES_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_search_basics
-@cmd_options_search_match_activity
-@cmd_options_search_match_tagnames
-@cmd_options_results_group_activity
-@cmd_options_results_group_tagnames
-@cmd_options_results_group
-@cmd_options_results_sort_order
-@cmd_options_search_limit_offset
-@cmd_options_results_chop
-@cmd_options_table_renderer
+@cmd_options_any_search_query(match_target='category', group_target='category')
 @pass_controller_context
 @induct_newbies
 def usage_categories(ctx, controller, *args, **kwargs):
@@ -984,16 +916,7 @@ def usage_categories(ctx, controller, *args, **kwargs):
 @usage_group.command('tags', help=help_strings.USAGE_TAGS_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_search_basics
-@cmd_options_search_match_activity
-@cmd_options_search_match_category
-@cmd_options_results_group_activity
-@cmd_options_results_group_category
-@cmd_options_results_group
-@cmd_options_results_sort_order
-@cmd_options_search_limit_offset
-@cmd_options_results_chop
-@cmd_options_table_renderer
+@cmd_options_any_search_query(match_target='tags', group_target='tags')
 @pass_controller_context
 @induct_newbies
 def usage_tags(ctx, controller, *args, **kwargs):
@@ -1015,18 +938,7 @@ def usage_tags(ctx, controller, *args, **kwargs):
 @usage_group.command('facts', help=help_strings.USAGE_FACTS_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_search_basics
-@cmd_options_search_match_activity
-@cmd_options_search_match_category
-@cmd_options_search_match_tagnames
-@cmd_options_results_group_activity
-@cmd_options_results_group_category
-@cmd_options_results_group_tagnames
-@cmd_options_results_group
-@cmd_options_results_sort_order
-@cmd_options_search_limit_offset
-@cmd_options_results_chop
-@cmd_options_table_renderer
+@cmd_options_any_search_query(match_target='fact', group_target='fact')
 @pass_controller_context
 @induct_newbies
 def usage_facts(ctx, controller, *args, **kwargs):
@@ -1451,15 +1363,7 @@ def cmd_export_opt_output_default(controller):
 @click.option('--tsv', is_flag=True, help=_('Alias for `--format tsv`'))
 @click.option('--xml', is_flag=True, help=_('Alias for `--format xml`'))
 @click.option('--ical', is_flag=True, help=_('Alias for `--format ical`'))
-@cmd_options_search_basics
-@cmd_options_search_limit_offset
-@cmd_options_search_match_activity
-@cmd_options_search_match_category
-@cmd_options_search_match_tagnames
-@cmd_options_results_group_activity
-@cmd_options_results_group_category
-@cmd_options_results_group_tagnames
-@cmd_options_results_group
+@cmd_options_any_search_query(match_target='export', group_target='export')
 @pass_controller_context
 @induct_newbies
 def transcode_export(ctx, controller, *args, output, format, **kwargs):
