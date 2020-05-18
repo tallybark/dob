@@ -19,6 +19,8 @@ from gettext import gettext as _
 
 import click_hotoffthehamster as click
 
+from ..facts_format.tabular import FACT_TABLE_HEADERS
+
 __all__ = (
     # One decorator is all you need for each list and usage command.
     'cmd_options_any_search_query',
@@ -31,6 +33,8 @@ __all__ = (
     #   '_postprocess_options_match_activity',
     #   '_postprocess_options_match_category',
     #   '_postprocess_options_match_tagnames',
+    #   '_postprocess_options_matching',
+    #   '_postprocess_options_grouping',
     #   '_postprocess_options_results_options_order_to_sort_col',
     #   '_postprocess_options_results_options_asc_desc_to_sort_order',
 )
@@ -168,6 +172,13 @@ _cmd_options_results_group = [
 ]
 
 
+def _postprocess_options_grouping(kwargs):
+    kwargs['group_activity'] = kwargs['group_activity'] or 'activity' in kwargs['group']
+    kwargs['group_category'] = kwargs['group_category'] or 'category' in kwargs['group']
+    kwargs['group_tagnames'] = kwargs['group_tags'] or 'tags' in kwargs['group']
+    del kwargs['group']
+
+
 # ***
 # *** [RESULTS GROUP] Activity.
 # ***
@@ -277,25 +288,58 @@ _cmd_options_search_limit_offset = [
 
 
 # ***
+# *** [RESULTS HIDE] Description.
+# ***
+
+_cmd_options_results_hide_description = [
+    click.option(
+        '-P', '--hide-description', is_flag=True,
+        help=_('Hide Fact description.'),
+    ),
+]
+
+
+# ***
 # *** [RESULTS HIDE] Duration.
 # ***
 
 _cmd_options_results_hide_duration = [
     click.option(
         '-N', '--hide-duration', is_flag=True,
-        help=_('Show Fact elapsed time.'),
+        help=_('Hide Fact duration.'),
     ),
 ]
 
 
 # ***
-# *** [RESULTS SHOW] Usage.
+# *** [RESULTS HIDE/SHOW] Usage.
 # ***
+
+_cmd_options_results_hide_usage = [
+    click.option(
+        '-U', '--hide-usage', is_flag=True,
+        help=_('Hide usage count (like ‘list’ command).'),
+    ),
+]
+
 
 _cmd_options_results_show_usage = [
     click.option(
         '-U', '--show-usage', is_flag=True,
-        help=_('Show usage count (like usage command).'),
+        help=_('Show usage count (like ‘usage’ command).'),
+    ),
+]
+
+
+# ***
+# *** [RESULTS CUSTOM] Columns.
+# ***
+
+_cmd_options_results_show_columns = [
+    click.option(
+        '-l', '--column', multiple=True,
+        type=click.Choice(FACT_TABLE_HEADERS.keys()),
+        help=_('Specify custom report columns.'),
     ),
 ]
 
@@ -313,12 +357,81 @@ _cmd_options_results_chop = [
 
 
 # ***
+# *** [RESULTS FORMAT] Option.
+# ***
+
+_cmd_options_output_format = [
+    click.option(
+        '-F', '--format', multiple=True,
+        type=click.Choice([
+            'tabular',
+            'factoid',
+        ]),
+        help=_('Results display format.'),
+    ),
+]
+
+
+def _postprocess_options_formatter(kwargs):
+    kwargs['format_tabular'] = kwargs['format_tabular'] or 'tabular' in kwargs['format']
+    kwargs['format_factoid'] = kwargs['format_factoid'] or 'factoid' in kwargs['format']
+    del kwargs['format']
+
+
+# ***
+# *** [RESULTS FORMAT] Tabular.
+# ***
+
+_cmd_options_output_format_tabular = [
+    click.option(
+        '-r', '--format-tabular', is_flag=True,
+        help=_('Output results in an ASCII table.'),
+    ),
+]
+
+
+# ***
+# *** [RESULTS FORMAT] Factoid.
+# ***
+
+_cmd_options_output_format_factoid = [
+    click.option(
+        '-f', '--format-factoid', is_flag=True,
+        help=_('Output importable Factoid blocks.'),
+    ),
+]
+
+
+# ***
+# *** [RESULTS FORMAT] Table Type.
+# ***
+
+_cmd_options_table_renderer = [
+    click.option(
+        '-E', '--table-type', default='texttable', show_default=True,
+        type=click.Choice([
+            'texttable',
+            'tabulate',
+            'friendly',
+        ]),
+        help=_('ASCII table formatter.'),
+    ),
+]
+
+
+def cmd_options_table_renderer(func):
+    for option in reversed(_cmd_options_table_renderer):
+        func = option(func)
+    return func
+
+
+# ***
 # *** [RESULTS FORMAT] Factoid Format.
 # ***
 
 _cmd_options_output_factoids_hrule = [
     click.option(
-        '-r', '--rule', '--sep', nargs=1, default='',
+        '-R', '--factoid-rule', '--sep', nargs=1, default='',
         help=_('Separate Factoids with a horizontal rule.'),
     ),
 ]
@@ -328,12 +441,18 @@ _cmd_options_output_factoids_hrule = [
 # *** [POST PROCESS] Adjust **kwargs.
 # ***
 
-def postprocess_options_normalize_search_args(kwargs):
+def _postprocess_options_matching(kwargs):
     _postprocess_options_match_activity(kwargs)
     _postprocess_options_match_category(kwargs)
     _postprocess_options_match_tagnames(kwargs)
+
+
+def postprocess_options_normalize_search_args(kwargs):
+    _postprocess_options_matching(kwargs)
+    _postprocess_options_grouping(kwargs)
     _postprocess_options_results_options_order_to_sort_col(kwargs)
     _postprocess_options_results_options_asc_desc_to_sort_order(kwargs)
+    _postprocess_options_formatter(kwargs)
 
 
 # ***
@@ -351,6 +470,7 @@ def cmd_options_any_search_query(match_target=None, group_target=None):
         append_cmd_options_results_sort_limit(options)
         if match_target != 'export':
             append_cmd_options_results_adjust_values(options)
+            append_cmd_options_output_formatters(options)
             append_cmd_options_tablular_format(options)
             append_cmd_options_factoids_format(options)
 
@@ -394,16 +514,33 @@ def cmd_options_any_search_query(match_target=None, group_target=None):
         options.extend(_cmd_options_search_limit_offset)
 
     def append_cmd_options_results_adjust_values(options):
-        options.extend(_cmd_options_results_show_usage)
-    # FIXME/2020-05-16 20:44: This was not revealed for non-Fact, but seems applicable:
+        # Search results report output column values hide/show options.
+        if match_target == 'usage':
+            options.extend(_cmd_options_results_hide_usage)
+        else:
+            options.extend(_cmd_options_results_show_usage)
+        options.extend(_cmd_options_results_hide_description)
         options.extend(_cmd_options_results_hide_duration)
+        # (lb): I sorta wanna hide final_start and final_end by default.
+        # - But then I'm afraid no one would find them.
+        # - So instead, supply --column option to fine-tune the output.
+        options.extend(_cmd_options_results_show_columns)
+        # A cell value truncate... option.
         options.extend(_cmd_options_results_chop)
+
+    def append_cmd_options_output_formatters(options):
+        if match_target not in ('fact', 'usage'):
+            return
+
+        options.extend(_cmd_options_output_format_tabular)
+        options.extend(_cmd_options_output_format_factoid)
+        options.extend(_cmd_options_output_format)
 
     def append_cmd_options_tablular_format(options):
         options.extend(_cmd_options_table_renderer)
 
     def append_cmd_options_factoids_format(options):
-        if match_target != 'fact':
+        if match_target not in ('fact', 'usage'):
             return
 
         options.extend(_cmd_options_output_factoids_hrule)

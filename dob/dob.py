@@ -792,8 +792,6 @@ def _list_facts(controller, *args, **kwargs):
     """List matching facts, filtered and sorted."""
     """Fetch facts matching certain criteria."""
     postprocess_options_normalize_search_args(kwargs)
-    # FIXME: (lb): Should probably impose limit by default
-    #          (without, my terminal hangs for a long while).
     list_fact.list_facts(controller, *args, **kwargs)
 
 
@@ -801,8 +799,8 @@ def generate_list_facts_command(func):
     @cmd_options_any_search_query(match_target='fact', group_target='fact')
     @pass_controller_context
     @induct_newbies
-    def dob_list_facts(ctx, controller, *args, doc, **kwargs):
-        _list_facts(controller, *args, block_format=doc, **kwargs)
+    def dob_list_facts(ctx, controller, *args, **kwargs):
+        _list_facts(controller, *args, **kwargs)
     return update_wrapper(dob_list_facts, func)
 
 
@@ -887,7 +885,7 @@ def usage_tags(ctx, controller, *args, **kwargs):
 @usage_group.command('facts', help=help_strings.USAGE_FACTS_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_any_search_query(match_target='fact', group_target='fact')
+@cmd_options_any_search_query(match_target='usage', group_target='usage')
 @pass_controller_context
 @induct_newbies
 def usage_facts(ctx, controller, *args, **kwargs):
@@ -896,7 +894,7 @@ def usage_facts(ctx, controller, *args, **kwargs):
     list_fact.list_facts(
         controller,
         *args,
-        include_usage=True,
+        show_usage=True,
         **kwargs,
     )
 

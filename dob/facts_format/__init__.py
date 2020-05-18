@@ -17,3 +17,20 @@
 
 """Top-level package module for output format modules."""
 
+from gettext import gettext as _
+
+from dob_bright.termio import dob_in_user_warning
+
+__all__ = (
+    'echo_warn_if_truncated',
+)
+
+
+def echo_warn_if_truncated(controller, n_results, n_rows):
+    if n_results <= n_rows:
+        return
+
+    dob_in_user_warning(_(
+        'Showed only {} of {} results. Use `-C term.row_limit=0` to see all results.'
+    ).format(format(n_results, ','), format(n_rows, ',')))
+

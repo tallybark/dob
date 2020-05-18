@@ -21,6 +21,8 @@ import click_hotoffthehamster as click
 
 from dob_bright.termio import click_echo, stylize
 
+from . import echo_warn_if_truncated
+
 __all__ = (
     'output_factoid_list',
 )
@@ -29,14 +31,18 @@ __all__ = (
 def output_factoid_list(
     controller,
     results,
+    row_limit,
     factoid_rule='',
     out_file=None,
     term_width=None,
+    **kwargs
 ):
     def _output_factoid_list():
         colorful = controller.config['term.use_color']
         sep_width = output_rule_width()
         cut_width = output_truncate_at()
+        n_out = 0
+        partial_out = False
         for idx, fact in enumerate(results):
             n_out += 1
             if row_limit and row_limit > 0 and n_out > row_limit:
@@ -48,6 +54,9 @@ def output_factoid_list(
             if sep_width:
                 write_out()
                 write_out(stylize(factoid_rule * sep_width, 'indian_red_1c'))
+
+        if partial_out:
+            echo_warn_if_truncated(controller, n_out, len(results))
 
     def output_rule_width():
         if not factoid_rule:
