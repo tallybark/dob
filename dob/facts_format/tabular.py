@@ -82,6 +82,7 @@ FACT_TABLE_HEADERS = {
     'final_end': _("Final End"),
     'activities': _("Activities"),
     'actegories': _("Actegories"),
+    'categories': _("Categories"),
     # Use singular column header when Act@Cat aggregated b/c group_tags.
     'tag': _("Tag"),
 }
@@ -114,6 +115,7 @@ def generate_facts_table(
     i_final_end = FactManager.RESULT_GRP_INDEX['final_end']
     i_activities = FactManager.RESULT_GRP_INDEX['activities']
     i_actegories = FactManager.RESULT_GRP_INDEX['actegories']
+    i_categories = FactManager.RESULT_GRP_INDEX['categories']
 
     def _generate_facts_table():
         test_result = results[0] if results else None
@@ -191,13 +193,21 @@ def generate_facts_table(
         columns = []
 
         if aggregate_cols[i_activities] not in [0, None]:
+            # group_category
             columns.append('category')
             columns.append('activities')
             columns.append('tags')
         elif aggregate_cols[i_actegories] not in [0, None]:
+            # group_tags
             columns.append('tag')
             columns.append('actegories')
+        elif aggregate_cols[i_categories] not in [0, None]:
+            # group_activity
+            columns.append('activity')
+            columns.append('categories')
+            columns.append('tags')
         else:
+            # Nothing grouped, or group_activity and group_category.
             columns.append('activity')
             columns.append('category')
             columns.append('tags')
@@ -221,8 +231,10 @@ def generate_facts_table(
         cols_shim[i_group_count] = 1
         cols_shim[i_first_start] = fact.start
         cols_shim[i_final_end] = fact.end
-        cols_shim[i_activities] = 0  # 0 is what get_all uses to mean not used.
-        cols_shim[i_actegories] = 0  # 0 is what get_all uses to mean not used.
+        # 0 is what get_all uses in place of group_concat (which emits a string).
+        cols_shim[i_activities] = 0
+        cols_shim[i_actegories] = 0
+        cols_shim[i_categories] = 0
         return cols_shim
 
     # ***
@@ -252,6 +264,7 @@ def generate_facts_table(
             final_end,
             activities,
             actegories,
+            categories,
         ) = fact_etc
 
         table_row = {}
@@ -260,7 +273,9 @@ def generate_facts_table(
 
         prepare_start(table_row, fact)
         prepare_end(table_row, fact)
-        prepare_activity_and_category(table_row, fact, activities, actegories)
+        prepare_activity_and_category(
+            table_row, fact, activities, actegories, categories,
+        )
         prepare_duration(table_row, fact, duration)
         prepare_group_count(table_row, group_count)
         prepare_first_start(table_row, first_start)
@@ -309,7 +324,9 @@ def generate_facts_table(
 
     # +++
 
-    def prepare_activity_and_category(table_row, fact, activities, actegories):
+    def prepare_activity_and_category(
+        table_row, fact, activities, actegories, categories,
+    ):
         if activities not in [None, 0]:
             prepare_category(table_row, fact)
             prepare_activities(table_row, activities)
@@ -317,6 +334,10 @@ def generate_facts_table(
         elif actegories not in [None, 0]:
             prepare_actegories(table_row, actegories)
             prepare_tagname(table_row, fact)
+        elif categories not in [None, 0]:
+            prepare_activity(table_row, fact)
+            prepare_categories(table_row, categories)
+            prepare_tagnames(table_row, fact)
         else:
             prepare_activity(table_row, fact)
             prepare_category(table_row, fact)
@@ -330,6 +351,9 @@ def generate_facts_table(
 
     def prepare_actegories(table_row, actegories):
         table_row['actegories'] = _(', ').join(sorted(actegories))
+
+    def prepare_categories(table_row, categories):
+        table_row['categories'] = _(', ').join(sorted(categories))
 
     def prepare_category(table_row, fact):
         if fact.category:
@@ -561,6 +585,7 @@ def generate_facts_table(
             'description',
             'actegories',
             'activities',
+            'categories',
             'tags',
         ]:
             try:
