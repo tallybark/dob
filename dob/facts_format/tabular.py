@@ -16,6 +16,7 @@
 # or visit <http://www.gnu.org/licenses/>.
 
 from collections import namedtuple
+from collections.abc import Iterable
 
 from gettext import gettext as _
 
@@ -107,25 +108,33 @@ def generate_facts_table(
 
     include_usage = show_usage or custom_columns
 
-    # MAGIC_NUMBER 86400 seconds/day, to convert between timedelta
-    # (seconds) and SQLite julianday computation (days).
-    SECONDS_IN_DAY = 86400.0
+    i_duration = FactManager.RESULT_GRP_INDEX['duration']
+    i_group_count = FactManager.RESULT_GRP_INDEX['group_count']
+    i_first_start = FactManager.RESULT_GRP_INDEX['first_start']
+    i_final_end = FactManager.RESULT_GRP_INDEX['final_end']
+    i_activities = FactManager.RESULT_GRP_INDEX['activities']
+    i_actegories = FactManager.RESULT_GRP_INDEX['actegories']
 
     def _generate_facts_table():
-        fact_results, gross_totals = unpack_results()
-        headers, TableRow = prepare_columns(fact_results)
+        test_result = results[0] if results else None
+        headers, TableRow = prepare_columns(test_result)
+
+        gross_totals = initial_gross()
 
         table = []
         n_row = 0
-        for result in fact_results:
+        for result in results:
             n_row += 1
-            if row_limit > 0 and n_row > row_limit:
+            if row_limit and row_limit > 0 and n_row > row_limit:
                 break
 
-            table_row = prepare_row(result)
+            fact_etc = prepare_fact_and_aggs_list(result)
+            table_row = prepare_row(fact_etc)
             table.append(TableRow(**table_row))
 
-        table_row = prepare_gross(gross_totals)
+            update_gross(fact_etc, gross_totals)
+
+        table_row = produce_gross(gross_totals)
         if table_row is not None:
             empty_row = {key: '' for key in table_row.copy().keys()}
             table.append(TableRow(**empty_row))
@@ -137,28 +146,104 @@ def generate_facts_table(
 
     # ***
 
-    def unpack_results():
-        # The nark query result is always a tuple:
-        # - The results, and the gross_totals.
-        fact_results, gross_totals = results
-        return fact_results, gross_totals
-
-    def prepare_columns(fact_results):
-        columns[:] = assemble_columns(fact_results)
+    def prepare_columns(test_result):
+        columns[:] = assemble_columns(test_result)
         headers = [FACT_TABLE_HEADERS[column] for column in columns]
         TableRow = namedtuple('TableRow', columns)
         return headers, TableRow
 
+    # +++
+
+    def assemble_columns(test_result):
+        if custom_columns:
+            # Cull list of duplicates, retaining order.
+            seen = set()
+            seen_add = seen.add
+            return [
+                col for col in custom_columns
+                if not (col in seen or seen_add(col))
+            ]
+        elif not is_grouped:
+            return assemble_columns_single_fact()
+
+        if test_result and isinstance(test_result, Iterable):
+            _fact, *aggregate_cols = test_result
+        else:
+            aggregate_cols = group_cols_shim(test_result)
+        return assemble_columns_grouped_facts(aggregate_cols)
+
+    def assemble_columns_single_fact():
+        columns = [
+            'key',
+            'start',
+            'end',
+            'activity',
+            'category',
+            'tags',
+        ]
+        if show_description:
+            columns.append('description')
+        if show_duration:
+            columns.append('duration')
+        return columns
+
+    def assemble_columns_grouped_facts(aggregate_cols):
+        columns = []
+
+        if aggregate_cols[i_activities] not in [0, None]:
+            columns.append('category')
+            columns.append('activities')
+            columns.append('tags')
+        elif aggregate_cols[i_actegories] not in [0, None]:
+            columns.append('tag')
+            columns.append('actegories')
+        else:
+            columns.append('activity')
+            columns.append('category')
+            columns.append('tags')
+
+        if show_duration:
+            columns.append('duration')
+
+        if include_usage:
+            columns.append('group_count')
+            columns.append('first_start')
+            columns.append('final_end')
+
+        return columns
+
+    # +++
+
+    def group_cols_shim(fact):
+        cols_shim = [None] * len(FactManager.RESULT_GRP_INDEX)
+        # Because julianday, expects days. MAGIC_NUMBER: 86400 secs/day.
+        cols_shim[i_duration] = fact.delta().total_seconds() / 86400.0
+        cols_shim[i_group_count] = 1
+        cols_shim[i_first_start] = fact.start
+        cols_shim[i_final_end] = fact.end
+        cols_shim[i_activities] = 0  # 0 is what get_all uses to mean not used.
+        cols_shim[i_actegories] = 0  # 0 is what get_all uses to mean not used.
+        return cols_shim
+
     # ***
 
-    def prepare_row(result):
-        if not is_grouped and not include_usage:
-            # The result is the result. Fake None values for the lack of any
-            # aggregate values, so that we can blindly unpack variables next.
-            result = [result]
-            result.extend(group_cols_shim())
-        # else, each result is a tuple: First the Fact, and then the
-        #       aggregate columns (see FactManager.RESULT_GRP_INDEX).
+    def prepare_fact_and_aggs_list(result):
+        # Get ready to unpack the Fact and the aggregate columns by first
+        # ensuring that the result is unpackable (but creating the aggregate
+        # columns if necessary).
+        # - We could deduce the structure of the result by checking our bools:
+        #     if not is_grouped and not include_usage:
+        #   but checking if an iterable seems more robust/readable.
+        if isinstance(result, Iterable):
+            # Already packed.
+            return result
+        # The result is a simple Fact. Create the equivalent aggregate columns.
+        aggregate_cols = group_cols_shim(test_result)
+        return result, *aggregate_cols
+
+    def prepare_row(fact_etc):
+        # Each result is a tuple: First the Fact, and then the
+        # aggregate columns (see FactManager.RESULT_GRP_INDEX).
         (
             fact,
             duration,
@@ -167,7 +252,7 @@ def generate_facts_table(
             final_end,
             activities,
             actegories,
-        ) = result
+        ) = fact_etc
 
         table_row = {}
 
@@ -185,71 +270,6 @@ def generate_facts_table(
         row_slice = unprepare_unmentioned_columns(table_row)
 
         return row_slice
-
-    def group_cols_shim():
-        return [None] * len(FactManager.RESULT_GRP_INDEX)
-
-    # ***
-
-    def assemble_columns(fact_results):
-        if custom_columns:
-            # Cull list of duplicates, retaining order.
-            seen = set()
-            seen_add = seen.add
-            return [
-                col for col in custom_columns
-                if not (col in seen or seen_add(col))
-            ]
-        elif not is_grouped:
-            return assemble_columns_single_fact()
-
-        if fact_results:
-            _fact, *any_aggregates = fact_results[0]
-        else:
-            any_aggregates = group_cols_shim()
-        return assemble_columns_grouped_facts(any_aggregates)
-
-    def assemble_columns_single_fact():
-        columns = [
-            'key',
-            'start',
-            'end',
-            'activity',
-            'category',
-            'tags',
-        ]
-        if show_description:
-            columns.append('description')
-        if show_duration:
-            columns.append('duration')
-        return columns
-
-    def assemble_columns_grouped_facts(any_aggregates):
-        columns = []
-
-        i_activities = FactManager.RESULT_GRP_INDEX['activities']
-        i_actegories = FactManager.RESULT_GRP_INDEX['actegories']
-        if any_aggregates[i_activities] not in [None, 0]:
-            columns.append('category')
-            columns.append('activities')
-            columns.append('tags')
-        elif any_aggregates[i_actegories] not in [None, 0]:
-            columns.append('tag')
-            columns.append('actegories')
-        else:
-            columns.append('activity')
-            columns.append('category')
-            columns.append('tags')
-
-        if show_duration:
-            columns.append('duration')
-
-        if include_usage:
-            columns.append('group_count')
-            columns.append('first_start')
-            columns.append('final_end')
-
-        return columns
 
     # ***
 
@@ -344,20 +364,39 @@ def generate_facts_table(
         # Note that the 'duration' will be similar to fact.format_delta()
         # unless is_grouped, in which case 'duration' is an aggregate value.
         # But in either case, the 'duration' in the results is expressed in days.
-
         if not duration:
             delta_f = fact.format_delta(style='')
         else:
-            style = ''  # Use pedantic_timedelta.
-            # - MAYBE/2020-05-18: Set precision, etc.:
-            #     delta_f = format_delta(
-            #       duration, style='', field_width=0, precision=2, abbreviate=None,
-            #     )
-            # - The duration was computed by julianday math, so it's in days,
-            #   and format_delta expects seconds, so convert to the latter.
-            durasecs = duration * SECONDS_IN_DAY
-            delta_f = format_delta(durasecs, style=style)
+            delta_f = format_duration_days(duration)
         table_row['duration'] = delta_f
+
+    def format_duration_days(duration):
+        # - MAGIC_NUMBER: 86400 seconds/day, to convert between timedelta
+        #                 (seconds) and SQLite julianday computation (days).
+        SECONDS_IN_DAY = 86400.0
+
+        # - The duration was computed by julianday math, so it's in days,
+        #   and format_delta expects seconds, so convert to the latter.
+        durasecs = duration * SECONDS_IN_DAY
+
+        # Use pedantic_timedelta to format the duration.
+        style = ''
+        # MAGIC_NUMBERS: Specify the formatted field width and precision.
+        # - Use a field width so the column values align --
+        #   a field_width of 4 will align most values, e.g.,
+        #        aligned:        not aligned:
+        #       12.5 hours       12.5 hours
+        #        1.0 mins.       1.0 mins.
+        # - Also set precision=1, as the default, 2, is more precision
+        #   than the user needs.
+        #   - I also think that looking at, say, "7.02 minutes" is more
+        #     complicated/distracting than seeing "7.0 minutes". My brain
+        #     pauses longer to digest the hundredths place, but the extra
+        #     information is of no value to me.
+        delta_f = format_delta(
+            durasecs, style=style, field_width=4, precision=1,
+        )
+        return delta_f
 
     # +++
 
@@ -412,7 +451,54 @@ def generate_facts_table(
 
     # ***
 
-    def prepare_gross(gross_totals):
+    def initial_gross():
+        # MAGIC_ARRAY: Create aggregate values of all results.
+        # These are the indices of this results aggregate:
+        #   0: Durations summation.
+        #   1: Group count count.
+        #   2: First first_start.
+        #   3: Final final_end.
+        #   Skip: Activities, Actegories.
+        # - See: FactManager.RESULT_GRP_INDEX.
+        gross_totals = [0, 0, None, None]
+        return gross_totals
+
+    # +++
+
+    def update_gross(fact_etc, gross_totals):
+        _fact, *cols = fact_etc
+        duration = cols[i_duration]
+        group_count = cols[i_group_count]
+        first_start = cols[i_first_start]
+        final_end = cols[i_final_end]
+        update_gross_values(
+            gross_totals, duration, group_count, first_start, final_end,
+        )
+
+    def update_gross_values(
+        gross_totals, duration, group_count, first_start, final_end,
+    ):
+        gross_totals[i_duration] += duration
+
+        gross_totals[i_group_count] += group_count
+
+        if gross_totals[i_first_start] is None:
+            gross_totals[i_first_start] = first_start
+        else:
+            gross_totals[i_first_start] = min(
+                gross_totals[i_first_start], first_start,
+            )
+
+        if gross_totals[i_final_end] is None:
+            gross_totals[i_final_end] = final_end
+        else:
+            gross_totals[i_final_end] = max(
+                gross_totals[i_final_end], final_end,
+            )
+
+    # +++
+
+    def produce_gross(gross_totals):
         if gross_totals is None:
             return None
 
@@ -429,34 +515,35 @@ def generate_facts_table(
         #     but figure out the first non-gross_totals column (from
         #     'columns') and write 'TOTAL' to just that one cell.
         table_row = {name: _('TOTAL') for name in columns}
-        # Now set values for appropriate columns.
-        prepare_gross_duration(gross_totals, table_row)
-        prepare_gross_group_count(gross_totals, table_row)
-        prepare_gross_first_start(gross_totals, table_row)
-        prepare_gross_final_end(gross_totals, table_row)
-        return table_row
 
-    def prepare_gross_duration(gross_totals, table_row):
+        # Now set values for appropriate columns.
+        produce_gross_duration(gross_totals, table_row)
+        produce_gross_group_count(gross_totals, table_row)
+        produce_gross_first_start(gross_totals, table_row)
+        produce_gross_final_end(gross_totals, table_row)
+
+        # Remove columns that may be omitted.
+        row_slice = unprepare_unmentioned_columns(table_row)
+
+        return row_slice
+
+    def produce_gross_duration(gross_totals, table_row):
         if not show_duration:
             return
 
-        i_duration = FactManager.RESULT_GRP_INDEX['duration']
         # The SQLite aggregate result is in (julian)days, but the
         # timedelta is specified in seconds, so convert to the latter.
-        durasecs = gross_totals[i_duration] * SECONDS_IN_DAY
-        delta_f = format_delta(durasecs, style='')
+        delta_f = format_duration_days(gross_totals[i_duration])
         table_row['duration'] = delta_f
+        return delta_f
 
-    def prepare_gross_group_count(gross_totals, table_row):
-        i_group_count = FactManager.RESULT_GRP_INDEX['group_count']
+    def produce_gross_group_count(gross_totals, table_row):
         table_row['group_count'] = gross_totals[i_group_count]
 
-    def prepare_gross_first_start(gross_totals, table_row):
-        i_first_start = FactManager.RESULT_GRP_INDEX['first_start']
+    def produce_gross_first_start(gross_totals, table_row):
         table_row['first_start'] = gross_totals[i_first_start]
 
-    def prepare_gross_final_end(gross_totals, table_row):
-        i_final_end = FactManager.RESULT_GRP_INDEX['final_end']
+    def produce_gross_final_end(gross_totals, table_row):
         table_row['final_end'] = gross_totals[i_final_end]
 
         return table_row
