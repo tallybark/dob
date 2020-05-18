@@ -41,7 +41,7 @@ requirements = [
     #    'click',
     #  - Still, had to make one adjustment, and too impatient to ask for a pull...
     #  https://github.com/hotoffthehamster/click
-    'click-hotoffthehamster == 7.1.1',
+    'click-hotoffthehamster >= 7.1.1, <= 7.1.2',
     # Indispensable aliases support for Click.
     #  Upstream at: https://github.com/click-contrib/click-aliases
     #  Released at: https://github.com/hotoffthehamster/click-hotoffthehamster-alias
@@ -49,16 +49,16 @@ requirements = [
     # Elapsed timedelta formatter, e.g., "1.25 days".
     # - Imports as `pedantic_timedelta`.
     #  https://github.com/hotoffthehamster/human-friendly_pedantic-timedelta
-    'human-friendly_pedantic-timedelta == 2.0.0',
+    'human-friendly_pedantic-timedelta >= 2.0.0, <= 2.0.10',
     # The heart of Hamster. (Ye olde `hamster-lib`).
     #  https://github.com/hotoffthehamster/nark
-    'nark == 3.2.1',
+    'nark > 3.2.1, < 3.2.3',  # I.e., release 3.2.2, or whatever dev's running.
     # The controller, config, and common output and error tossing code.
     #  https://github.com/hotoffthehamster/dob-bright
-    'dob-bright == 1.2.1',
+    'dob-bright > 1.2.2, < 1.2.4',  # I.e., release 1.2.3, or dev's intermediate.
     # The so-called Facts "carousel" chrono-viewer.
     #  https://github.com/hotoffthehamster/dob-viewer
-    'dob-viewer == 1.2.1',
+    'dob-viewer > 1.2.2, < 1.2.4',  # I.e., release 1.2.3, or dev's intermediate.
 ]
 
 # *** Minimal setup() function -- Prefer using config where possible.
