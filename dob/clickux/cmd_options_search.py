@@ -364,6 +364,7 @@ _cmd_options_output_format = [
     click.option(
         '-F', '--format', multiple=True,
         type=click.Choice([
+            'journal',
             'tabular',
             'factoid',
         ]),
@@ -373,9 +374,22 @@ _cmd_options_output_format = [
 
 
 def _postprocess_options_formatter(kwargs):
+    kwargs['format_journal'] = kwargs['format_journal'] or 'journal' in kwargs['format']
     kwargs['format_tabular'] = kwargs['format_tabular'] or 'tabular' in kwargs['format']
     kwargs['format_factoid'] = kwargs['format_factoid'] or 'factoid' in kwargs['format']
     del kwargs['format']
+
+
+# ***
+# *** [RESULTS FORMAT] Journal.
+# ***
+
+_cmd_options_output_format_journal = [
+    click.option(
+        '-j', '--format-journal', is_flag=True,
+        help=_('Output results in Journal format.'),
+    ),
+]
 
 
 # ***
@@ -532,6 +546,7 @@ def cmd_options_any_search_query(match_target=None, group_target=None):
         if match_target not in ('fact', 'usage'):
             return
 
+        options.extend(_cmd_options_output_format_journal)
         options.extend(_cmd_options_output_format_tabular)
         options.extend(_cmd_options_output_format_factoid)
         options.extend(_cmd_options_output_format)
