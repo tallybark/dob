@@ -38,8 +38,12 @@ def output_ascii_table(
     controller,
     results,
     row_limit,
-    is_grouped,
     includes_extras,
+    is_grouped=False,
+    group_activity=False,
+    group_category=False,
+    group_tags=False,
+    group_days=False,
     hide_usage=False,
     hide_duration=False,
     hide_description=False,
@@ -48,21 +52,23 @@ def output_ascii_table(
     table_type='friendly',
     sort_cols=None,
     sort_orders=None,
-    group_days=False,
 ):
     table, headers, desc_col_idx = generate_facts_table(
         controller,
         results,
         row_limit,
-        is_grouped,
         includes_extras,
+        is_grouped=is_grouped,
+        group_activity=group_activity,
+        group_category=group_category,
+        group_tags=group_tags,
+        group_days=group_days,
         show_usage=not hide_usage,
         show_duration=not hide_duration,
         show_description=not hide_description,
         custom_columns=custom_columns,
         sort_cols=sort_cols,
         sort_orders=sort_orders,
-        group_days=group_days,
     )
 
     generate_table(
@@ -111,8 +117,13 @@ def generate_facts_table(
     controller,
     results,
     row_limit,
-    is_grouped,
     includes_extras,
+    # An indication of how the results are grouped, to help processing.
+    is_grouped=False,
+    group_activity=False,
+    group_category=False,
+    group_tags=False,
+    group_days=False,
     # The user can pick some columns to hide/show:
     show_usage=True,
     show_duration=True,
@@ -121,7 +132,6 @@ def generate_facts_table(
     custom_columns=None,
     sort_cols=None,
     sort_orders=None,
-    group_days=False,
 ):
     """
     Prepares Facts for display in an ASCII table.

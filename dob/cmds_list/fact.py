@@ -38,6 +38,10 @@ __all__ = (
 def list_facts(
     controller,
     # CLI --options.
+    group_activity=False,
+    group_category=False,
+    group_tags=False,
+    group_days=False,
     hide_usage=False,
     hide_duration=False,
     hide_description=False,
@@ -76,10 +80,10 @@ def list_facts(
 
     def must_grouping_allowed():
         is_grouped = (
-            get_kwargs('group_activity')
-            or get_kwargs('group_category')
-            or get_kwargs('group_tags')
-            or get_kwargs('group_days')
+            group_activity
+            or group_category
+            or group_tags
+            or group_days
         )
         if is_grouped and format_factoid:
             dob_in_user_exit(_(
@@ -125,6 +129,10 @@ def list_facts(
             controller,
             *args,
             include_extras=include_extras,
+            group_activity=group_activity,
+            group_category=group_category,
+            group_tags=group_tags,
+            group_days=group_days,
             **kwargs
         )
 
@@ -161,8 +169,12 @@ def list_facts(
                 controller,
                 results,
                 row_limit=row_limit,
-                is_grouped=is_grouped,
                 includes_extras=includes_extras,
+                is_grouped=is_grouped,
+                group_activity=group_activity,
+                group_category=group_category,
+                group_tags=group_tags,
+                group_days=group_days,
                 hide_usage=hide_usage,
                 hide_duration=hide_duration,
                 hide_description=hide_description,
@@ -171,7 +183,6 @@ def list_facts(
                 table_type='journal' if format_journal else table_type,
                 sort_cols=get_kwargs('sort_cols'),
                 sort_orders=get_kwargs('sort_orders'),
-                group_days=get_kwargs('group_days'),
             )
 
     def suss_row_limit():
