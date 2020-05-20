@@ -36,10 +36,11 @@ def list_categories(
     Returns:
         None: If success.
     """
+    err_context = _('categories')
+
     results = controller.categories.get_all(**kwargs)
 
-    if not results:
-        error_exit_no_results(_('categories'))
+    results or error_exit_no_results(err_context)
 
     headers = (_("Name"),)
     category_names = []

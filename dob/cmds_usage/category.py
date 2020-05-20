@@ -17,14 +17,19 @@
 
 from gettext import gettext as _
 
+from ..clickux.query_assist import (
+    error_exit_no_results
+)
+
 from . import generate_usage_table
-from ..clickux.query_assist import error_exit_no_results
 
 __all__ = ('usage_categories', )
 
 
 def usage_categories(
     controller,
+    hide_usage=False,
+    hide_duration=False,
     table_type='friendly',
     chop=False,
     **kwargs
@@ -35,10 +40,25 @@ def usage_categories(
     Returns:
         None: If success.
     """
-    results = controller.categories.get_all_by_usage(**kwargs)
+    def _usage_categories():
+        err_context = _('categories')
 
-    if not results:
-        error_exit_no_results(_('categories'))
+        results = controller.categories.get_all_by_usage(
+            **kwargs
+        )
 
-    generate_usage_table(results, table_type=table_type, chop=chop)
+        results or error_exit_no_results(err_context)
+
+        generate_usage_table(
+            results,
+            table_type=table_type,
+            chop=chop,
+            name_header=_("Category Name"),
+            hide_usage=hide_usage,
+            hide_duration=hide_duration,
+        )
+
+    # ***
+
+    _usage_categories()
 

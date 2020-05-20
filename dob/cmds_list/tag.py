@@ -21,8 +21,8 @@ from dob_bright.termio.ascii_table import generate_table
 
 from ..clickux.query_assist import (
     error_exit_no_results,
-    hydrate_activity,
-    hydrate_category
+    must_hydrate_activity,
+    must_hydrate_category
 )
 
 __all__ = ('list_tags', )
@@ -42,16 +42,19 @@ def list_tags(
     Returns:
         None: If success.
     """
-    activity = hydrate_activity(controller, match_activity)
-    category = hydrate_category(controller, match_category)
+    err_context = _('tags')
+
+    activity = must_hydrate_activity(controller, match_activity, err_context)
+
+    category = must_hydrate_category(controller, match_category, err_context)
+
     results = controller.tags.get_all(
         activity=activity,
         category=category,
         **kwargs
     )
 
-    if not results:
-        error_exit_no_results(_('tags'))
+    results or error_exit_no_results(err_context)
 
     headers = (_("Name"),)
     tag_names = []

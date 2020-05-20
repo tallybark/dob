@@ -28,7 +28,7 @@ __all__ = (
 
 # ***
 
-def error_exit_no_results(item_type):
+def error_exit_no_results(item_type, more_msg=None):
     # MAYBE: (lb): Should we exit on error?
     #              Print message but not error?
     #              Print empty table?
@@ -39,7 +39,8 @@ def error_exit_no_results(item_type):
     #        pipeline would only see empty string or empty table
     #        on stdin, and never a message, so that post-processing
     #        won't die on unexpected error message string.
-    msg = _('No {} were found for the specified query.').format(item_type)
+    more_msg = ': {}'.format(more_msg) if more_msg else ''
+    msg = _('No {} were found for the specified query{}.').format(item_type, more_msg)
     # (lb): I sorta like the message, not table, on no results,
     # because you can tell quicker that nothing was found. I.e.,
     # when I see an empty tell, I spend a nanosecond scanning it
@@ -65,6 +66,15 @@ def hydrate_activity(controller, activity_name):
     return activity
 
 
+def must_hydrate_activity(controller, match_activity, item_being_searched):
+    try:
+        activity = hydrate_activity(controller, match_activity)
+    except KeyError as err:
+        error_exit_no_results(item_being_searched, str(err))
+    else:
+        return activity
+
+
 # ***
 
 def hydrate_category(controller, category_name):
@@ -77,4 +87,13 @@ def hydrate_category(controller, category_name):
         result = controller.categories.get_by_name(category_name)
         category = result if result else False
     return category
+
+
+def must_hydrate_category(controller, match_category, item_being_searched):
+    try:
+        category = hydrate_category(controller, match_category)
+    except KeyError as err:
+        error_exit_no_results(item_being_searched, str(err))
+    else:
+        return category
 

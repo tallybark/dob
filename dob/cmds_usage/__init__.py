@@ -30,30 +30,63 @@ def generate_usage_table(
     results,
     name_fmttr=lambda item: item.name,
     table_type='friendly',
+    name_header=None,
+    hide_usage=False,
+    hide_duration=False,
     chop=False,
 ):
-    headers = (_("Name"), _("Uses"), _("Total Time"))
+    def generate_usage_table():
+        staged = []
+        max_width_tm_value = 0
+        max_width_tm_units = 0
+        for item, count, duration in results:
+            (
+                tm_fmttd, tm_scale, tm_units,
+            ) = PedanticTimedelta(days=duration or 0).time_format_scaled()
+            value, units = tm_fmttd.split(' ')
+            max_width_tm_value = max(max_width_tm_value, len(value))
+            max_width_tm_units = max(max_width_tm_units, len(units))
+            staged.append((item, count, tm_fmttd))
 
-    staged = []
-    max_width_tm_value = 0
-    max_width_tm_units = 0
-    for activity, count, duration in results:
-        (
-            tm_fmttd, tm_scale, tm_units,
-        ) = PedanticTimedelta(days=duration or 0).time_format_scaled()
-        value, units = tm_fmttd.split(' ')
-        max_width_tm_value = max(max_width_tm_value, len(value))
-        max_width_tm_units = max(max_width_tm_units, len(units))
-        staged.append((activity, count, tm_fmttd))
+        rows = []
+        for item, count, tm_fmttd in staged:
+            value, units = tm_fmttd.split(' ')
+            span = '{0:>{1}} {2:^{3}}'.format(
+                value, max_width_tm_value, units, max_width_tm_units,
+            )
 
-    rows = []
-    for item, count, tm_fmttd in staged:
-        value, units = tm_fmttd.split(' ')
-        span = '{0:>{1}} {2:^{3}}'.format(
-            value, max_width_tm_value, units, max_width_tm_units,
-        )
+            rows.append((name_fmttr(item), count, span))
 
-        rows.append((name_fmttr(item), count, span))
+        culled = cull_results(rows)
 
-    generate_table(rows, headers, table_type, truncate=chop, trunccol=0)
+        headers = prepare_headers()
+
+        generate_table(culled, headers, table_type, truncate=chop, trunccol=0)
+
+    def cull_results(results):
+        if not hide_usage and not hide_duration:
+            return results
+
+        resulted = []
+        for result in results:
+            newr = [result[0]]
+            if not hide_usage:
+                newr.append(result[1])
+            if not hide_duration:
+                newr.append(result[2])
+            resulted.append(newr)
+        return resulted
+
+    def prepare_headers():
+        first_header = name_header
+        if first_header is None:
+            first_header = _("Name")
+        headers = [first_header]
+        if not hide_usage:
+            headers.append(_("Uses"))
+        if not hide_duration:
+            headers.append(_("Total Time"))
+        return headers
+
+    generate_usage_table()
 

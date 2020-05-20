@@ -19,7 +19,10 @@ from gettext import gettext as _
 
 from dob_bright.termio.ascii_table import generate_table
 
-from ..clickux.query_assist import error_exit_no_results, hydrate_category
+from ..clickux.query_assist import (
+    error_exit_no_results,
+    must_hydrate_category
+)
 
 __all__ = ('list_activities', )
 
@@ -40,18 +43,17 @@ def list_activities(
     Returns:
         None: If success.
     """
-    category = hydrate_category(controller, match_category)
-    results = controller.activities.get_all(
-        category=category,
-        **kwargs
-    )
+    err_context = _('activities')
 
-    if not results:
-        error_exit_no_results(_('activities'))
+    category = must_hydrate_category(controller, match_category, err_context)
+
+    results = controller.activities.get_all(category=category, **kwargs)
+
+    results or error_exit_no_results(err_context)
 
     # This is sorta like `dob usage activity`, except we use
-    # separate columns for the activity name and category name,
-    # rather than combining as activity@category.
+    # separate columns for the Activity name and Category name,
+    # rather than combining them as Activity@Category.
     headers = (_("Activity"), _("Category"))
     actegories = []
     for activity in results:

@@ -90,9 +90,10 @@ _cmd_options_search_deleted_hidden = [
     click.option(
         '--deleted', is_flag=True, help=_('Show deleted items.'),
     ),
-    click.option(
-        '--hidden', is_flag=True, help=_('Show hidden items.'),
-    ),
+    # FIXME/2020-05-20: Scrub hidden from everywhere.
+    # click.option(
+    #     '--hidden', is_flag=True, help=_('Show hidden items.'),
+    # ),
 ]
 
 

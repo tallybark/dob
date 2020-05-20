@@ -17,8 +17,12 @@
 
 from gettext import gettext as _
 
+from ..clickux.query_assist import (
+    error_exit_no_results,
+    must_hydrate_category
+)
+
 from . import generate_usage_table
-from ..clickux.query_assist import error_exit_no_results, hydrate_category
 
 __all__ = ('usage_activities', )
 
@@ -26,6 +30,8 @@ __all__ = ('usage_activities', )
 def usage_activities(
     controller,
     match_category='',
+    hide_usage=False,
+    hide_duration=False,
     table_type='friendly',
     chop=False,
     **kwargs
@@ -39,13 +45,24 @@ def usage_activities(
     Returns:
         None: If success.
     """
-    category = hydrate_category(controller, match_category)
-    results = controller.activities.get_all_by_usage(
-        category=category, **kwargs
-    )
+    def _usage_activities():
+        err_context = _('activities')
 
-    if not results:
-        error_exit_no_results(_('activities'))
+        category = must_hydrate_category(controller, match_category, err_context)
+
+        results = controller.activities.get_all_by_usage(category=category, **kwargs)
+
+        results or error_exit_no_results(err_context)
+
+        generate_usage_table(
+            results,
+            name_fmttr=name_fmttr,
+            table_type=table_type,
+            chop=chop,
+            name_header=_("Activity@Category"),
+            hide_usage=hide_usage,
+            hide_duration=hide_duration,
+        )
 
     def name_fmttr(activity):
         if activity.category:
@@ -55,10 +72,7 @@ def usage_activities(
         actegory = '{}@{}'.format(activity.name, category_name)
         return actegory
 
-    generate_usage_table(
-        results,
-        name_fmttr=name_fmttr,
-        table_type=table_type,
-        chop=chop,
-    )
+    # ***
+
+    _usage_activities()
 

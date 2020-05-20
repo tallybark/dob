@@ -19,8 +19,8 @@ from gettext import gettext as _
 
 from ..clickux.query_assist import (
     error_exit_no_results,
-    hydrate_activity,
-    hydrate_category
+    must_hydrate_activity,
+    must_hydrate_category
 )
 
 from . import generate_usage_table
@@ -32,6 +32,8 @@ def usage_tags(
     controller,
     match_activity='',
     match_category='',
+    hide_usage=False,
+    hide_duration=False,
     table_type='friendly',
     chop=False,
     **kwargs
@@ -42,14 +44,30 @@ def usage_tags(
     Returns:
         None: If success.
     """
-    activity = hydrate_activity(controller, match_activity)
-    category = hydrate_category(controller, match_category)
-    results = controller.tags.get_all_by_usage(
-        activity=activity, category=category, **kwargs
-    )
+    def _usage_tags():
+        err_context = _('tags')
 
-    if not results:
-        error_exit_no_results(_('tags'))
+        activity = must_hydrate_activity(controller, match_activity, err_context)
+        category = must_hydrate_category(controller, match_category, err_context)
 
-    generate_usage_table(results, table_type=table_type, chop=chop)
+        results = controller.tags.get_all_by_usage(
+            activity=activity,
+            category=category,
+            **kwargs
+        )
+
+        results or error_exit_no_results(err_context)
+
+        generate_usage_table(
+            results,
+            table_type=table_type,
+            chop=chop,
+            name_header=_("Tag Name"),
+            hide_usage=hide_usage,
+            hide_duration=hide_duration,
+        )
+
+    # ***
+
+    _usage_tags()
 
