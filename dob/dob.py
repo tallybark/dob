@@ -119,7 +119,11 @@ from .facts.add_fact import add_fact
 from .facts.cancel_fact import cancel_fact
 from .facts.echo_fact import echo_latest_ended, echo_ongoing_fact, echo_ongoing_or_ended
 from .facts.edit_fact import edit_fact_by_pk
-from .facts.export_facts import export_facts
+from .facts.export_facts import (
+    export_facts,
+    CMD_EXPORT_OPT_FORMAT_CHOICES,
+    CMD_EXPORT_OPT_FORMAT_DEFAULT
+)
 from .facts.import_facts import import_facts
 from .migrate import control as migrate_control
 from .migrate import downgrade as migrate_downgrade
@@ -1268,12 +1272,6 @@ def edit_fact_by_key(
 # ***
 # *** [EXPORT] Command.
 # ***
-
-CMD_EXPORT_OPT_FORMAT_CHOICES = ['csv', 'tsv', 'xml', 'ical']
-
-
-CMD_EXPORT_OPT_FORMAT_DEFAULT = 'csv'
-
 
 def cmd_export_opt_output_default(controller):
     if controller is not None:

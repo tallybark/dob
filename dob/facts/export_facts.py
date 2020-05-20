@@ -30,7 +30,17 @@ from ..cmds_list.fact import search_facts
 
 __all__ = (
     'export_facts',
+    'CMD_EXPORT_OPT_FORMAT_CHOICES',
+    'CMD_EXPORT_OPT_FORMAT_DEFAULT',
 )
+
+
+# MAYBE/2020-05-20: Have export formats register with this module,
+# to make easier to add/remove formats...
+CMD_EXPORT_OPT_FORMAT_CHOICES = ['csv', 'tsv', 'xml', 'ical']
+
+
+CMD_EXPORT_OPT_FORMAT_DEFAULT = 'csv'
 
 
 def export_facts(
@@ -98,20 +108,18 @@ def export_facts(
         export_formatted(facts, filepath, to_format)
 
     def must_verify_format(to_format):
-        accepted_formats = ['csv', 'tsv', 'ical', 'xml']
-        # (lb): An old hamster-lib comment:
-        #   [TODO]
-        #   Once nark has a proper 'export' register available we should be able
-        #   to streamline this.
-        # (lb): I think the comment means that formats should be registered
-        # with nark (like how plugins register). And then we wouldn't need
-        # a hard-coded accepted_formats lookup.
-        if to_format not in accepted_formats:
-            message = _("Unrecocgnized export format received")
-            controller.client_logger.info(message)
-            raise click.ClickException(message)
+        if to_format in CMD_EXPORT_OPT_FORMAT_CHOICES:
+            return
+
+        message = _("Unrecocgnized export format received: {}").format(to_format)
+        controller.client_logger.info(message)
+        raise click.ClickException(message)
 
     def resolve_since_until(since, until):
+        # EXPLAIN/2020-05-20: (lb): What's the point of this?
+        # To convert '' to None... except I think I fixed function
+        # that uses since and until to do a truthy check first, so
+        # this function probably unnecessary.
         if not since:
             since = None
         if not until:
