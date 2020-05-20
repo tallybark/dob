@@ -51,10 +51,11 @@ def list_activities(
     headers = (_("Activity Name"), _("Category Name"))
     actegories = []
     for activity in results:
-        if activity.category:
+        try:
             category_name = activity.category.name
-        else:
+        except AttributeError:
             category_name = None
+
         actegories.append((activity.name, category_name))
 
     generate_table(actegories, headers, table_type, truncate=chop, trunccol=0)
