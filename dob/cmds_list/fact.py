@@ -50,8 +50,6 @@ def list_facts(
     factoid_rule='',
     out_file=None,
     term_width=None,
-    # 2020-05-20: (lb): include_id is not (currently) used (and not CLI --option).
-    include_id=False,
     # args is search term(s), if any.
     *args,
     # kwargs is pass-through CLI --options for get_all, including:
@@ -151,7 +149,6 @@ def list_facts(
                 controller,
                 results,
                 row_limit=row_limit,
-                include_id=include_id,
                 hide_duration=hide_duration,
                 chop=chop,
                 factoid_rule=factoid_rule,
