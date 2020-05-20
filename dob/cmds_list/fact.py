@@ -181,7 +181,7 @@ def list_facts(
         # Limit the number of rows dumped, unless user specified --limit,
         # or if not dumping to the terminal.
         row_limit = None
-        if sys.stdin.isatty() and get_kwargs('limit') is None:
+        if out_file is None and sys.stdin.isatty() and get_kwargs('limit') is None:
             row_limit = controller.config['term.row_limit']
         return row_limit
 
