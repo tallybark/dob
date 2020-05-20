@@ -29,6 +29,7 @@ from dob_bright.termio.ascii_table import generate_table
 __all__ = (
     'generate_facts_table',
     'output_ascii_table',
+    'report_table_columns',
 )
 
 
@@ -72,26 +73,35 @@ def output_ascii_table(
 
 # ***
 
+_ReportColumn = namedtuple('_ReportColumn', ('column', 'header', 'option'))
+
 FACT_TABLE_HEADERS = {
     # Fact attributes.
-    'key': _("Key"),
-    'start': _("Start"),
-    'end': _("End"),
-    'activity': _("Activity"),
-    'category': _("Category"),
-    'tags': _("Tags"),
-    'description': _("Description"),
+    'key': _ReportColumn('key', _("Key"), True),
+    'start': _ReportColumn('start', _("Start"), True),
+    'end': _ReportColumn('end', _("End"), True),
+    'activity': _ReportColumn('activity', _("Activity"), True),
+    'category': _ReportColumn('category', _("Category"), True),
+    'tags': _ReportColumn('tags', _("Tags"), True),
+    'description': _ReportColumn('description', _("Description"), True),
     # Group-by aggregates. See: FactManager.RESULT_GRP_INDEX.
-    'duration': _("Duration"),
-    'group_count': _("Uses"),
-    'first_start': _("First Start"),
-    'final_end': _("Final End"),
-    'activities': _("Activities"),
-    'actegories': _("Actegories"),
-    'categories': _("Categories"),
-    # Use singular column header when Act@Cat aggregated b/c group_tags.
-    'tag': _("Tag"),
+    'duration': _ReportColumn('duration', _("Duration"), True),
+    # The journal format shows a sparkline.
+    'group_count': _ReportColumn('group_count', _("Uses"), True),
+    # MAYBE/2020-05-18: Format first_start and final_end per user --option.
+    # - For now, ASCII table formatter is just str()'ifying.
+    'first_start': _ReportColumn('first_start', _("First Start"), True),
+    'final_end': _ReportColumn('final_end', _("Final End"), True),
+    'activities': _ReportColumn('activities', _("Activities"), True),
+    'actegories': _ReportColumn('actegories', _("Actegories"), True),
+    'categories': _ReportColumn('categories', _("Categories"), True),
+    # A singular 'tag' column happens when Act@Cat aggregated b/c group_tags.
+    'tag': _ReportColumn('tag', _("Tag"), True),
 }
+
+
+def report_table_columns():
+    return [item.column for key, item in FACT_TABLE_HEADERS.items() if item.option]
 
 
 def generate_facts_table(
@@ -168,7 +178,7 @@ def generate_facts_table(
 
     def prepare_columns(test_result):
         columns[:] = assemble_columns(test_result)
-        headers = [FACT_TABLE_HEADERS[column] for column in columns]
+        headers = [FACT_TABLE_HEADERS[column].header for column in columns]
         TableRow = namedtuple('TableRow', columns)
         return headers, TableRow
 

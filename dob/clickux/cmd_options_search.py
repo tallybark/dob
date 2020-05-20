@@ -19,7 +19,7 @@ from gettext import gettext as _
 
 import click_hotoffthehamster as click
 
-from ..facts_format.tabular import FACT_TABLE_HEADERS
+from ..facts_format.tabular import report_table_columns
 
 __all__ = (
     # One decorator is all you need for each list and usage command.
@@ -466,7 +466,7 @@ def _postprocess_options_results_show_hide_option(kwargs, argname):
 _cmd_options_results_show_columns = [
     click.option(
         '-l', '--column', multiple=True,
-        type=click.Choice(FACT_TABLE_HEADERS.keys()),
+        type=click.Choice(report_table_columns()),
         help=_('Specify custom report columns.'),
     ),
 ]
