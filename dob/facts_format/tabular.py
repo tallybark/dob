@@ -17,6 +17,7 @@
 
 from collections import namedtuple
 from collections.abc import Iterable
+from operator import attrgetter
 
 from gettext import gettext as _
 
@@ -59,6 +60,8 @@ def output_ascii_table(
         show_duration=not hide_duration,
         show_description=not hide_description,
         custom_columns=custom_columns,
+        sort_cols=sort_cols,
+        sort_orders=sort_orders,
         group_days=group_days,
     )
 
@@ -116,6 +119,8 @@ def generate_facts_table(
     show_description=True,
     # Or the user could specify the columns they want:
     custom_columns=None,
+    sort_cols=None,
+    sort_orders=None,
     group_days=False,
 ):
     """
@@ -151,7 +156,7 @@ def generate_facts_table(
 
         gross_totals = initial_gross()
 
-        table = []
+        table_rows = []
         n_row = 0
         for result in results:
             n_row += 1
@@ -160,9 +165,11 @@ def generate_facts_table(
 
             fact_etc = prepare_fact_and_aggs_list(result)
             table_row = prepare_row(fact_etc)
-            table.append(TableRow(**table_row))
+            table_rows.append(TableRow(**table_row))
 
             update_gross(fact_etc, gross_totals)
+
+        last_chance_sort_results(table, TableRow)
 
         table_row = produce_gross(gross_totals)
         if table_row is not None:
@@ -306,7 +313,7 @@ def generate_facts_table(
         aggregate_cols = group_cols_shim(result)
         return result, *aggregate_cols
 
-    def prepare_row(fact_etc, row_cls):
+    def prepare_row(fact_etc):
         # Each result is a tuple: First the Fact, and then the
         # aggregate columns (see FactManager.RESULT_GRP_INDEX).
         (
@@ -668,6 +675,81 @@ def generate_facts_table(
             return
 
         table_row['final_end'] = gross_totals[i_final_end]
+
+    # ***
+
+    def last_chance_sort_results(table, row_cls):
+        if not table:
+            return
+
+        # Check each sort_col to see if we care, i.e. if get_all was not
+        # able to sort on that value in the SQL statement. First check
+        # lazily, that is, only indicate which sort cols are ones that
+        # did not work in the SQL statement.
+        needs_sort = any(
+            [sort_attrs_for_col(sort_col, lazy=True) for sort_col in sort_cols]
+        )
+
+        if not needs_sort:
+            return
+
+        for idx, sort_col in enumerate(sort_cols):
+            sort_order = sort_orders[idx]
+            sort_results_sort_col(table, row_cls, sort_col, sort_order)
+
+    def sort_results_sort_col(table, row_cls, sort_col, sort_order):
+        # Because we are redoing the whole sort, use lazy=False.
+        sort_attrs = sort_attrs_for_col(sort_col, lazy=False)
+        for sort_attr in sort_attrs:
+            reverse = sort_order == 'desc'
+            table.sort(key=attrgetter(sort_attr), reverse=reverse)
+
+        return table
+
+    def sort_attrs_for_col(sort_col, lazy):
+        sort_attrs = ''
+
+        if sort_col == 'activity':
+            if hasattr(row_cls, 'activities'):
+                sort_attrs = ('activities',)
+            elif hasattr(row_cls, 'actegory'):
+                sort_attrs = ('actegory',)
+            elif not lazy:
+                sort_attrs = ('activity',)
+
+        elif sort_col == 'category':
+            if hasattr(row_cls, 'categories'):
+                sort_attrs = ('categories',)
+            # else, if hasattr(row_cls, 'actegory'), category information
+            # is missing. We could make a special case in the get_all
+            # query, but doesn't seem like a big priority to handle.
+            elif not lazy:
+                sort_attrs = ('category',)
+
+        elif sort_col == 'tag':
+            if hasattr(row_cls, 'tag'):
+                sort_attrs = ('tag',)
+            elif hasattr(row_cls, 'tags'):
+                sort_attrs = ('tags',)
+
+        elif not lazy:
+            if sort_col == 'start':
+                sort_attrs = ('start', 'end', 'pk',)
+            elif sort_col == 'time':
+                sort_attrs = ('duration',)
+            elif sort_col == 'day':
+                # FIXME/2020-05-20: Should we auto-add start_date_cmp sort option when
+                #   --group-days? Or should we require user to specify `-o days`?
+                #   Another option: `dob journal` command with sort_cols default, etc.
+                sort_attrs = ('start_date_cmp',)
+            elif sort_col == 'usage':
+                sort_attrs = ('group_count',)
+            elif sort_col == 'name':
+                sort_attrs = ('description',)
+            elif sort_col == 'fact':
+                sort_attrs = ('key',)
+
+        return sort_attrs
 
     # ***
 
