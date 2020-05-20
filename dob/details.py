@@ -272,10 +272,10 @@ def echo_data_stats(controller):
 
     def echo_facts_interesting():
         first_facts = controller.facts.get_all(
-            sort_col='start', sort_order='asc', limit=1,
+            sort_cols=('start',), sort_orders=('asc',), limit=1,
         )
         final_facts = controller.facts.get_all(
-            sort_col='start', sort_order='desc', limit=1,
+            sort_cols=('start',), sort_orders=('desc',), limit=1,
         )
         assert len(first_facts) <= 1
         assert len(final_facts) <= 1

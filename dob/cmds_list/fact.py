@@ -37,20 +37,27 @@ __all__ = (
 
 def list_facts(
     controller,
-    include_id=False,
     # CLI --options.
-    show_usage=False,
-    hide_description=False,
+    hide_usage=False,
     hide_duration=False,
+    hide_description=False,
     column=None,
     chop=False,
+    format_journal=False,
     format_tabular=False,
     format_factoid=False,
     table_type='friendly',
     factoid_rule='',
     out_file=None,
     term_width=None,
+    # 2020-05-20: (lb): include_id is not (currently) used (and not CLI --option).
+    include_id=False,
+    # args is search term(s), if any.
     *args,
+    # kwargs is pass-through CLI --options for get_all, including:
+    #   group_activity, group_category, group_tags, group_days;
+    #   as wells as sort_cols, sort_orders, limit, and offset,
+    #   and since, and until.
     **kwargs
 ):
     """
@@ -61,18 +68,20 @@ def list_facts(
     """
     def _list_facts():
         is_grouped = must_grouping_allowed()
+        include_extras = includes_extras(is_grouped)
 
-        results = perform_search()
+        results = perform_search(include_extras)
         if not results:
             error_exit_no_results(_('facts'))
 
-        display_results(results, is_grouped)
+        display_results(results, is_grouped, include_extras)
 
     def must_grouping_allowed():
         is_grouped = (
             get_kwargs('group_activity')
             or get_kwargs('group_category')
             or get_kwargs('group_tags')
+            or get_kwargs('group_days')
         )
         if is_grouped and format_factoid:
             dob_in_user_exit(_(
@@ -80,29 +89,61 @@ def list_facts(
             ))
         return is_grouped
 
-    def perform_search():
-        activity = hydrate_activity(controller, match_activity)
-        category = hydrate_category(controller, match_category)
+    # Note that the two complementary commands, dob-list and dob-usage,
+    # have complementary options, --show-usage and --hide-usage options,
+    # and --show-duration and --hide-duration, that dictate if we need
+    # the query to include the aggregate columns or not.
+    def includes_extras(is_grouped):
+        # If a group-by is specified, the report will show the aggregated names,
+        # such as showing 'Activities' instead of 'Activity'. Include the extra
+        # aggregate columns.
+        if is_grouped:
+            return True
 
-        kwargs['sort_col'] = sort_col()
+        # Also include the aggregate columns if the user wants to include the
+        # 'Duration' in the output. (Note that we we could compute this after
+        # the query, from Fact.end - Fact.start, but currently the SQL query
+        # does it with julianday() - julianday() math.)
+        if (
+            # Ignore `not hide_usage` -- the 'uses' column can be deduced as 1
+            # because not is_grouped.
+            not hide_duration
+            and (not column or (
+                True
+                # The duration and sparkline could be computed from just the Fact,
+                # but currently, get_all does (sqlite) julianday math in SELECT.
+                # Tell get_all to return the aggregate columns with each Fact result.
+                and 'duration' not in column
+                and 'sparkline' not in column
+                ))
+            ):
+            return True
+
+        return False
+
+    def perform_search(include_extras):
+        kwargs['sort_cols'] = sort_cols(include_extras)
         results = search_facts(
             controller,
             *args,
-            include_usage=show_usage or column,
+            include_extras=include_extras,
             **kwargs
         )
 
         return results
 
-    def sort_col():
+    def sort_cols(include_extras):
         try:
-            return kwargs['sort_col']
+            return kwargs['sort_cols']
         except KeyError:
-            if not show_usage:
-                return ''
-            return 'time'
+            # If request includes the 'duration' column, might as well use it.
+            if not include_extras or hide_usage:
+                # No 'duration' column, or user is asking to hide the 'uses'
+                # column. Fall back to default, order-by 'start'.
+                return ('start',)  # The get_all default.
+            return ('time',)  # Aka, sort-by 'duration'.
 
-    def display_results(results, is_grouped):
+    def display_results(results, is_grouped, includes_extras):
         row_limit = suss_row_limit()
 
         if format_factoid:
@@ -110,22 +151,30 @@ def list_facts(
                 controller,
                 results,
                 row_limit=row_limit,
+                include_id=include_id,
+                hide_duration=hide_duration,
+                chop=chop,
                 factoid_rule=factoid_rule,
                 out_file=out_file,
                 term_width=term_width,
             )
-        elif format_tabular:
+        else:
+            # else, either format_tabular or format_journal.
             output_ascii_table(
                 controller,
                 results,
                 row_limit=row_limit,
                 is_grouped=is_grouped,
-                show_usage=show_usage,
-                hide_description=hide_description,
+                includes_extras=includes_extras,
+                hide_usage=hide_usage,
                 hide_duration=hide_duration,
+                hide_description=hide_description,
                 custom_columns=column,
                 chop=chop,
-                table_type=table_type,
+                table_type='journal' if format_journal else table_type,
+                sort_cols=get_kwargs('sort_cols'),
+                sort_orders=get_kwargs('sort_orders'),
+                group_days=get_kwargs('group_days'),
             )
 
     def suss_row_limit():

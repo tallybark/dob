@@ -200,8 +200,9 @@ def choices_tags(controller, incomplete='', whitespace_ok=False):
     #        E.g., if user TABs, show list of previous used tags.
     #          And if user TABs a second time, show list of most
     #          use tags. TAB again, another sort option, etc.
-    tags_counts = controller.tags.get_all_by_usage(sort_col='start', limit=21)
-    tags_counts += controller.tags.get_all_by_usage(sort_col='usage', limit=13)
+    # MAGIC_NUMBERS: 21 and 13, eh. Arbitrary limits.
+    tags_counts = controller.tags.get_all_by_usage(sort_cols=('start',), limit=21)
+    tags_counts += controller.tags.get_all_by_usage(sort_cols=('usage',), limit=13)
 
     choices = [
         '@{}'.format(tag.name) for tag, _uses, _span
@@ -225,7 +226,7 @@ def choices_activities(
     """Suggest activities."""
 
     acty = controller.activities.get_all_by_usage(
-        sort_col='start',
+        sort_cols=('start'),
         category=match_category,
         activity=match_activity,
     )

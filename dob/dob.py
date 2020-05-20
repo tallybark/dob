@@ -730,13 +730,17 @@ def list_group(ctx, controller):
 @list_group.command('activities', help=help_strings.LIST_ACTIVITIES_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_any_search_query(match_target='activity', group_target=None)
+@cmd_options_any_search_query(command='list', item='activity', match=True, group=False)
 @pass_controller_context
 @induct_newbies
-def list_activities(ctx, controller, *args, show_usage=False, **kwargs):
+def list_activities(ctx, controller, *args, **kwargs):
     """List matching activities, filtered and sorted."""
-    postprocess_options_results_options(kwargs)
-    if show_usage:
+    query_activities(ctx, controller, *args, **kwargs)
+
+
+def query_activities(ctx, controller, *args, **kwargs):
+    postprocess_options_normalize_search_args(kwargs)
+    if not kwargs['hide_usage'] or not kwargs['hide_duration']:
         handler = usage_activity.usage_activities
     else:
         handler = list_activity.list_activities
@@ -748,13 +752,17 @@ def list_activities(ctx, controller, *args, show_usage=False, **kwargs):
 @list_group.command('categories', help=help_strings.LIST_CATEGORIES_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_any_search_query(match_target='category', group_target=None)
+@cmd_options_any_search_query(command='list', item='category', match=True, group=False)
 @pass_controller_context
 @induct_newbies
-def list_categories(ctx, controller, *args, show_usage=False, **kwargs):
+def list_categories(ctx, controller, *args, **kwargs):
     """List matching categories, filtered and sorted."""
+    query_categories(ctx, controller, *args, **kwargs)
+
+
+def query_categories(ctx, controller, *args, **kwargs):
     postprocess_options_normalize_search_args(kwargs)
-    if show_usage:
+    if not kwargs['hide_usage'] or not kwargs['hide_duration']:
         handler = usage_category.usage_categories
     else:
         handler = list_category.list_categories
@@ -769,13 +777,17 @@ def list_categories(ctx, controller, *args, show_usage=False, **kwargs):
 # TESTME/2020-05-16: group_target seems peculiar: it's not enabled on
 # list-act or list-cat; but it could be interesting (to see what tags
 # you use on which act@gories).
-@cmd_options_any_search_query(match_target='tags', group_target='tags')
+@cmd_options_any_search_query(command='list', item='tags', match=True, group=False)
 @pass_controller_context
 @induct_newbies
-def list_tags(ctx, controller, *args, show_usage=False, **kwargs):
+def list_tags(ctx, controller, *args, **kwargs):
     """List all tags, with filtering and sorting options."""
+    query_tags(ctx, controller, *args, **kwargs)
+
+
+def query_tags(ctx, controller, *args, **kwargs):
     postprocess_options_normalize_search_args(kwargs)
-    if show_usage:
+    if not kwargs['hide_usage'] or not kwargs['hide_duration']:
         handler = usage_tag.usage_tags
     else:
         handler = list_tag.list_tags
@@ -792,7 +804,7 @@ def _list_facts(controller, *args, **kwargs):
 
 
 def generate_list_facts_command(func):
-    @cmd_options_any_search_query(match_target='fact', group_target='fact')
+    @cmd_options_any_search_query(command='list', item='fact', match=True, group=True)
     @pass_controller_context
     @induct_newbies
     def dob_list_facts(ctx, controller, *args, **kwargs):
@@ -840,12 +852,12 @@ def usage_group(ctx, controller):
 @usage_group.command('activities', help=help_strings.USAGE_ACTIVITIES_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_any_search_query(match_target='activity', group_target='activity')
+@cmd_options_any_search_query(command='usage', item='activity', match=True, group=False)
 @pass_controller_context
 @induct_newbies
 def usage_activities(ctx, controller, *args, **kwargs):
     """List all activities. Provide optional filtering by name."""
-    usage_activity.usage_activities(controller, *args, **kwargs)
+    query_activities(ctx, controller, *args, **kwargs)
 
 
 # *** CATEGORIES.
@@ -853,13 +865,12 @@ def usage_activities(ctx, controller, *args, **kwargs):
 @usage_group.command('categories', help=help_strings.USAGE_CATEGORIES_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_any_search_query(match_target='category', group_target='category')
+@cmd_options_any_search_query(command='usage', item='category', match=True, group=False)
 @pass_controller_context
 @induct_newbies
 def usage_categories(ctx, controller, *args, **kwargs):
     """List all categories. Provide optional filtering by name."""
-    postprocess_options_normalize_search_args(kwargs)
-    usage_category.usage_categories(controller, *args, **kwargs)
+    query_categories(ctx, controller, *args, **kwargs)
 
 
 # *** TAGS.
@@ -867,13 +878,12 @@ def usage_categories(ctx, controller, *args, **kwargs):
 @usage_group.command('tags', help=help_strings.USAGE_TAGS_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_any_search_query(match_target='tags', group_target='tags')
+@cmd_options_any_search_query(command='usage', item='tags', match=True, group=False)
 @pass_controller_context
 @induct_newbies
 def usage_tags(ctx, controller, *args, **kwargs):
     """List all tags' usage counts, with filtering and sorting options."""
-    postprocess_options_normalize_search_args(kwargs)
-    usage_tag.usage_tags(controller, *args, **kwargs)
+    query_tags(ctx, controller, *args, **kwargs)
 
 
 # *** FACTS.
@@ -881,7 +891,7 @@ def usage_tags(ctx, controller, *args, **kwargs):
 @usage_group.command('facts', help=help_strings.USAGE_FACTS_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_any_search_query(match_target='usage', group_target='usage')
+@cmd_options_any_search_query(command='usage', item='fact', match=True, group=True)
 @pass_controller_context
 @induct_newbies
 def usage_facts(ctx, controller, *args, **kwargs):
@@ -890,7 +900,6 @@ def usage_facts(ctx, controller, *args, **kwargs):
     list_fact.list_facts(
         controller,
         *args,
-        show_usage=True,
         **kwargs,
     )
 

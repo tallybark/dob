@@ -30,13 +30,15 @@ __all__ = (
     'postprocess_options_normalize_search_args',
     # Private:
     #   '_cmd_options_*',  # Module variables.
+    #   '_postprocess_options_formatter',
     #   '_postprocess_options_match_activities',
     #   '_postprocess_options_match_categories',
     #   '_postprocess_options_match_tags',
     #   '_postprocess_options_matching',
     #   '_postprocess_options_grouping',
-    #   '_postprocess_options_results_options_order_to_sort_col',
+    #   '_postprocess_options_results_options_order_to_sort_cols',
     #   '_postprocess_options_results_options_asc_desc_to_sort_order',
+    #   '_postprocess_options_results_show_hide',
 )
 
 
@@ -101,7 +103,7 @@ _cmd_options_search_deleted_hidden = [
 # *** [SEARCH MATCH] Activity.
 # ***
 
-_cmd_options_search_match_activity = [
+_cmd_options_search_match_activities = [
     click.option(
         '-a', '--activity', multiple=True,
         help=_('Restrict results by matching activity name.'),
@@ -123,7 +125,7 @@ def _postprocess_options_match_activities(kwargs):
 # *** [SEARCH MATCH] Category.
 # ***
 
-_cmd_options_search_match_category = [
+_cmd_options_search_match_categories = [
     click.option(
         '-c', '--category', multiple=True,
         help=_('Restrict results by matching category name.'),
@@ -156,34 +158,76 @@ _cmd_options_search_match_tags = [
 
 
 def _postprocess_options_match_tags(kwargs):
+    if 'tag' not in kwargs:
+        return
+
     tagnames = kwargs['tag'] if kwargs['tag'] else tuple()
     del kwargs['tag']
     if tagnames:
-        kwargs['match_tagnames'] = tagnames
+        kwargs['match_tags'] = tagnames
 
 
 # ***
 # *** [RESULTS GROUP] Option.
 # ***
 
-_cmd_options_results_group = [
-    click.option(
-        '-g', '--group', multiple=True,
-        type=click.Choice([
-            'activity',
-            'category',
-            'tags',
-        ]),
-        help=_('Group results by specified attribute(s).'),
-    ),
-]
+def _cmd_options_results_group(item):
+    choices = []
+    if item != 'activity':
+        choices.append('activity')
+    if item != 'category':
+        choices.append('category')
+    if item != 'tags':
+        choices.append('tags')
+    if item == 'fact':
+        choices.append('days')
+
+    return [
+        click.option(
+            '-g', '--group', multiple=True,
+            type=click.Choice(choices),
+            help=_('Group results by specified attribute(s).'),
+        ),
+    ]
 
 
 def _postprocess_options_grouping(kwargs):
-    kwargs['group_activity'] = kwargs['group_activity'] or 'activity' in kwargs['group']
-    kwargs['group_category'] = kwargs['group_category'] or 'category' in kwargs['group']
-    kwargs['group_tagnames'] = kwargs['group_tags'] or 'tags' in kwargs['group']
+    if 'group' not in kwargs:
+        return
+
+    _postprocess_options_grouping_activity(kwargs)
+    _postprocess_options_grouping_category(kwargs)
+    _postprocess_options_grouping_tags(kwargs)
+    _postprocess_options_grouping_days(kwargs)
     del kwargs['group']
+
+
+def _postprocess_options_grouping_activity(kwargs):
+    if 'group_activity' not in kwargs:
+        return
+
+    kwargs['group_activity'] = kwargs['group_activity'] or 'activity' in kwargs['group']
+
+
+def _postprocess_options_grouping_category(kwargs):
+    if 'group_category' not in kwargs:
+        return
+
+    kwargs['group_category'] = kwargs['group_category'] or 'category' in kwargs['group']
+
+
+def _postprocess_options_grouping_tags(kwargs):
+    if 'group_tags' not in kwargs:
+        return
+
+    kwargs['group_tags'] = kwargs['group_tags'] or 'tags' in kwargs['group']
+
+
+def _postprocess_options_grouping_days(kwargs):
+    if 'group_days' not in kwargs:
+        return
+
+    kwargs['group_days'] = kwargs['group_days'] or 'days' in kwargs['group']
 
 
 # ***
@@ -217,7 +261,7 @@ _cmd_options_results_group_category = [
 # *** [RESULTS GROUP] Tags.
 # ***
 
-_cmd_options_results_group_tagnames = [
+_cmd_options_results_group_tags = [
     click.option(
         '-T', '--group-tags', is_flag=True,
         help=_('Group results by tag names.'),
@@ -226,30 +270,59 @@ _cmd_options_results_group_tagnames = [
 
 
 # ***
+# *** [RESULTS GROUP] Days.
+# ***
+
+_cmd_options_results_group_days = [
+    click.option(
+        '-Y', '--group-days', is_flag=True,
+        help=_('Group results by day.'),
+    ),
+]
+
+
+# ***
 # *** [SEARCH RESULTS] Order.
 # ***
 
-_cmd_options_results_sort_order = [
-    click.option(
-        '-o', '--order', '--sort', default='start',
-        type=click.Choice([
-            'name', 'activity', 'category', 'tag', 'fact', 'start', 'usage', 'time',
-        ]),
-        help=_('Order by column (may depend on query).'),
-    ),
-    click.option(
-        # (lb): -a/-A are used for matching/grouping by Activity in the query,
-        #      and because --asc is the default, the single-char command for
-        #      this option just be the "opposite" of the counterpart option,
-        #      i.e., given -d/--desc, what's the "opposite"/toggle of -d? -D.
-        '-D', '--asc', is_flag=True, default=None,
-        help=_('Sort by ascending column value [default].'),
-    ),
-    click.option(
-        '-d', '--desc', is_flag=True, default=None,
-        help=_('Sort by descending column value.'),
-    ),
-]
+def _cmd_options_results_sort_order(item):
+    choices = ['name', 'activity', 'category', 'start', 'usage', 'time']
+    if item == 'fact':
+        choices.append('day')
+    if item in ('tag', 'fact'):
+        # Same is --sort name
+        choices.append('tag')
+    if item == 'fact':
+        # Sorts by Fact PK. (lb): Not sure how useful.
+        choices.append('fact')
+
+    return [
+        click.option(
+            '-o', '--order', '--sort', default=('start',),
+            type=click.Choice(choices),
+            # (lb): Not sure how useful to allow multi-col sort, but why not.
+            multiple=True,
+            help=_('Order by column(s) (specify zero or more).'),
+        ),
+        click.option(
+            '-i', '--direction', '--dir',
+            type=click.Choice(['asc', 'desc']),
+            multiple=True,
+            help=_('Order by direction(s) (one for each --sort).'),
+        ),
+        click.option(
+            # (lb): -a/-A are used for matching/grouping by Activity in the query,
+            #      and because --asc is the default, the single-char command for
+            #      this option just be the "opposite" of the counterpart option,
+            #      i.e., given -d/--desc, what's the "opposite"/toggle of -d? -D.
+            '-D', '--asc', is_flag=True, default=None,
+            help=_('Sort by ascending column value [default].'),
+        ),
+        click.option(
+            '-d', '--desc', is_flag=True, default=None,
+            help=_('Sort by descending column value.'),
+        ),
+    ]
 
 
 # ***
@@ -257,25 +330,40 @@ _cmd_options_results_sort_order = [
 # ***
 
 
-def _postprocess_options_results_options_order_to_sort_col(kwargs):
-    kwargs['sort_col'] = kwargs['order']
+def _postprocess_options_results_options_order_to_sort_cols(kwargs):
+    if 'order' not in kwargs:
+        return
+
+    if kwargs['order']:
+        kwargs['sort_cols'] = kwargs['order']
     del kwargs['order']
-    if not kwargs['sort_col']:
-        del kwargs['sort_col']
 
 
 def _postprocess_options_results_options_asc_desc_to_sort_order(kwargs):
+    if 'direction' not in kwargs:
+        return
+
     if kwargs['desc']:
-        sort_order = 'desc'
+        default_order = 'desc'
     elif kwargs['asc']:
-        sort_order = 'asc'
+        default_order = 'asc'
     else:
-        sort_order = ''
+        default_order = ''
     del kwargs['desc']
     del kwargs['asc']
-    kwargs['sort_order'] = sort_order
-    if not kwargs['sort_order']:
-        del kwargs['sort_order']
+
+    sort_orders = []
+    if 'sort_cols' in kwargs:
+        # Ensure sort_orders same length as sort_cols.
+        for idx in range(len(kwargs['sort_cols'])):
+            try:
+                sort_orders.append(kwargs['direction'][idx])
+            except IndexError:
+                sort_orders.append(default_order)
+    del kwargs['direction']
+
+    if sort_orders:
+        kwargs['sort_orders'] = sort_orders
 
 
 # ***
@@ -307,13 +395,21 @@ _cmd_options_results_hide_description = [
 
 
 # ***
-# *** [RESULTS HIDE] Duration.
+# *** [RESULTS SHOW/HIDE] Duration.
 # ***
 
 _cmd_options_results_hide_duration = [
     click.option(
         '-N', '--hide-duration', is_flag=True,
-        help=_('Hide Fact duration.'),
+        help=_('Omit duration from results.'),
+    ),
+]
+
+
+_cmd_options_results_show_duration = [
+    click.option(
+        '-N', '--show-duration', is_flag=True,
+        help=_('Display duration in results.'),
     ),
 ]
 
@@ -325,7 +421,7 @@ _cmd_options_results_hide_duration = [
 _cmd_options_results_hide_usage = [
     click.option(
         '-U', '--hide-usage', is_flag=True,
-        help=_('Hide usage count (like ‘list’ command).'),
+        help=_('Omit usage count from results.'),
     ),
 ]
 
@@ -333,9 +429,34 @@ _cmd_options_results_hide_usage = [
 _cmd_options_results_show_usage = [
     click.option(
         '-U', '--show-usage', is_flag=True,
-        help=_('Show usage count (like ‘usage’ command).'),
+        help=_('Display usage count in results.'),
     ),
 ]
+
+
+# ***
+# *** [POST PROCESS] Show/Hide.
+# ***
+
+def _postprocess_options_results_show_hide(kwargs):
+    # The list command have --show-* options; the usage commands
+    # have --hide-* options; the export command has neither.
+    _postprocess_options_results_show_hide_option(kwargs, 'duration')
+    _postprocess_options_results_show_hide_option(kwargs, 'usage')
+
+
+def _postprocess_options_results_show_hide_option(kwargs, argname):
+    hide_item = None
+    attr_show = 'show_{}'.format(argname)
+    attr_hide = 'hide_{}'.format(argname)
+    if attr_show in kwargs:
+        hide_item = not kwargs[attr_show]
+    elif attr_hide in kwargs:
+        hide_item = kwargs[attr_hide]
+    if hide_item is not None:
+        kwargs[attr_hide] = hide_item
+    if attr_show in kwargs:
+        del kwargs[attr_show]
 
 
 # ***
@@ -381,6 +502,9 @@ _cmd_options_output_format = [
 
 
 def _postprocess_options_formatter(kwargs):
+    if 'format' not in kwargs:
+        return
+
     kwargs['format_journal'] = kwargs['format_journal'] or 'journal' in kwargs['format']
     kwargs['format_tabular'] = kwargs['format_tabular'] or 'tabular' in kwargs['format']
     kwargs['format_factoid'] = kwargs['format_factoid'] or 'factoid' in kwargs['format']
@@ -471,8 +595,9 @@ def _postprocess_options_matching(kwargs):
 def postprocess_options_normalize_search_args(kwargs):
     _postprocess_options_matching(kwargs)
     _postprocess_options_grouping(kwargs)
-    _postprocess_options_results_options_order_to_sort_col(kwargs)
+    _postprocess_options_results_options_order_to_sort_cols(kwargs)
     _postprocess_options_results_options_asc_desc_to_sort_order(kwargs)
+    _postprocess_options_results_show_hide(kwargs)
     _postprocess_options_formatter(kwargs)
 
 
@@ -482,18 +607,14 @@ def postprocess_options_normalize_search_args(kwargs):
 
 # *** One @decorator for all your search command option needs.
 
-def cmd_options_any_search_query(match_target=None, group_target=None):
+def cmd_options_any_search_query(command='', item='', match=False, group=False):
     def _cmd_options_any_search_query():
         options = []
         append_cmd_options_search_basics(options)
-        append_cmd_options_match_target(options)
-        append_cmd_options_group_target(options)
+        append_cmd_options_matching(options)
+        append_cmd_options_group_by(options)
         append_cmd_options_results_sort_limit(options)
-        if match_target != 'export':
-            append_cmd_options_results_adjust_values(options)
-            append_cmd_options_output_formatters(options)
-            append_cmd_options_tablular_format(options)
-            append_cmd_options_factoids_format(options)
+        append_cmd_options_results_reports(options)
 
         def _cmd_options_search_query(func):
             for option in reversed(options):
@@ -507,50 +628,79 @@ def cmd_options_any_search_query(match_target=None, group_target=None):
         options.extend(_cmd_options_search_item_name)
         options.extend(_cmd_options_search_time_window)
 
-    def append_cmd_options_match_target(options):
-        if match_target is None:
+    def append_cmd_options_matching(options):
+        if not match:
             return
 
-        if match_target != 'activity':
-            options.extend(_cmd_options_search_match_activity)
-        if match_target != 'category':
-            options.extend(_cmd_options_search_match_category)
-        if match_target != 'tags':
-            options.extend(_cmd_options_search_match_tagnames)
+        # We could exclude the --activity item from the `dob list activity`
+        # and `dob usage activity` commands, but by including it, we allow
+        # the user access to a strict text match search, as opposed to using
+        # search_term, which is a loose match. E.g., the difference between
+        # `dob list activity -a "Must Match Fully"` as compared to
+        # `dob list activity fully`, given Activity named "Must Match Fully".
+        options.extend(_cmd_options_search_match_activities)
+        options.extend(_cmd_options_search_match_categories)
+        # MAYBE/2020-05-20: Add a match for tags?
+        #  options.extend(_cmd_options_search_match_tags)
 
-    def append_cmd_options_group_target(options):
-        if group_target is None:
+    def append_cmd_options_group_by(options):
+        if not group:
             return
 
-        if group_target != 'activity':
+        if item != 'activity':
             options.extend(_cmd_options_results_group_activity)
-        if group_target != 'category':
+        if item != 'category':
             options.extend(_cmd_options_results_group_category)
-        if group_target != 'tags':
-            options.extend(_cmd_options_results_group_tagnames)
-        options.extend(_cmd_options_results_group)
+        if item != 'tags':
+            options.extend(_cmd_options_results_group_tags)
+        if item == 'fact':
+            options.extend(_cmd_options_results_group_days)
+        options.extend(_cmd_options_results_group(item))
 
     def append_cmd_options_results_sort_limit(options):
-        options.extend(_cmd_options_results_sort_order)
+        options.extend(_cmd_options_results_sort_order(item))
         options.extend(_cmd_options_search_limit_offset)
 
-    def append_cmd_options_results_adjust_values(options):
+    def append_cmd_options_results_reports(options):
+        if command == 'export':
+            return
+
+        append_cmd_options_results_basic_usage_hide_show(options)
+        append_cmd_options_results_fact_attrs_hide_show(options)
+        append_cmd_options_results_chopped(options)
+        append_cmd_options_output_formatters(options)
+        append_cmd_options_tablular_format(options)
+        append_cmd_options_factoids_format(options)
+
+    def append_cmd_options_results_basic_usage_hide_show(options):
         # Search results report output column values hide/show options.
-        if match_target == 'usage':
+        if command == 'usage':
             options.extend(_cmd_options_results_hide_usage)
-        else:
+            options.extend(_cmd_options_results_hide_duration)
+        elif command == 'list':
             options.extend(_cmd_options_results_show_usage)
+            options.extend(_cmd_options_results_show_duration)
+
+    def append_cmd_options_results_fact_attrs_hide_show(options):
+        # Search results report output column values hide/show options.
+        if item != 'fact':
+            return
+
         options.extend(_cmd_options_results_hide_description)
-        options.extend(_cmd_options_results_hide_duration)
         # (lb): I sorta wanna hide final_start and final_end by default.
         # - But then I'm afraid no one would find them.
         # - So instead, supply --column option to fine-tune the output.
         options.extend(_cmd_options_results_show_columns)
+
+    def append_cmd_options_results_chopped(options):
         # A cell value truncate... option.
+        if command == 'export':
+            return
+
         options.extend(_cmd_options_results_chop)
 
     def append_cmd_options_output_formatters(options):
-        if match_target not in ('fact', 'usage'):
+        if item != 'fact':
             return
 
         options.extend(_cmd_options_output_format_journal)
@@ -562,7 +712,7 @@ def cmd_options_any_search_query(match_target=None, group_target=None):
         options.extend(_cmd_options_table_renderer)
 
     def append_cmd_options_factoids_format(options):
-        if match_target not in ('fact', 'usage'):
+        if item != 'fact':
             return
 
         options.extend(_cmd_options_output_factoids_hrule)

@@ -25,7 +25,6 @@ from nark import reports
 
 from dob_bright.termio import click_echo, highlight_value
 
-from ..clickux.query_assist import hydrate_activity, hydrate_category
 from ..cmds_list.fact import search_facts
 
 __all__ = (
@@ -47,19 +46,26 @@ def export_facts(
     controller,
     to_format='csv',
     file_out=None,
+
+    key=None,
+
     since=None,
     until=None,
     deleted=False,
-    hidden=False,
-    key=None,
-    search_term='',
-    group_activity=False,
-    group_category=False,
-    group_tags=False,
-    match_activity='',
-    match_category='',
-    match_tagnames=[],
-    sort_order='desc',
+    # hidden=False,
+    search_term=None,
+
+    match_activities=[],
+    match_categories=[],
+
+    # Not supported for export (b/c exports Facts, not aggregates;
+    # use reporting for aggregate values, e.g., `dob list`)):
+    #  group_activity=False,
+    #  group_category=False,
+    #  group_tags=False,
+
+    sort_orders=('desc',),
+
     limit='',
     offset='',
 ):
@@ -86,8 +92,7 @@ def export_facts(
 
         filepath = resolve_filepath(file_out, to_format)
 
-        activity = hydrate_activity(controller, match_activity)
-        category = hydrate_category(controller, match_category)
+        err_context = _('export')
 
         facts = search_facts(
             controller,
@@ -96,10 +101,10 @@ def export_facts(
             until=until,
             # deleted=deleted,
             search_term=search_term,
-            activity=activity,
-            category=category,
-            # sort_col=sort_col,
-            sort_order=sort_order,
+            match_activities=match_activities,
+            match_categories=match_categories,
+            # sort_cols=sort_cols,
+            sort_orders=sort_orders,
             limit=limit,
             offset=offset,
             # **kwargs

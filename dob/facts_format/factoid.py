@@ -32,10 +32,11 @@ def output_factoid_list(
     controller,
     results,
     row_limit,
+    hide_duration=False,
+    chop=False,
     factoid_rule='',
     out_file=None,
     term_width=None,
-    **kwargs
 ):
     def _output_factoid_list():
         colorful = controller.config['term.use_color']
@@ -82,7 +83,7 @@ def output_factoid_list(
                 shellify=False,
                 description_sep='\n\n',
                 localize=True,
-                include_id=include_id,
+                include_id=False,
                 colorful=colorful,
                 cut_width=cut_width,
                 show_elapsed=not hide_duration,

@@ -108,8 +108,8 @@ def edit_fact_by_pk(
     def fact_from_key_relative(key):
         offset = -1 - key
         old_facts = controller.facts.get_all(
-            sort_col='start',
-            sort_order='desc',
+            sort_cols=('start',),
+            sort_orders=('desc',),
             limit=1,
             offset=offset,
             deleted=False,

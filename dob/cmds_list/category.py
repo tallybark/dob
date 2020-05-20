@@ -28,6 +28,9 @@ def list_categories(
     controller,
     table_type='friendly',
     chop=False,
+    # These two --hide flags are ignored but specified to keep out of kwargs.
+    hide_usage=False,
+    hide_duration=False,
     **kwargs
 ):
     """
