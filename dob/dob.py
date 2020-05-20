@@ -735,20 +735,12 @@ def list_group(ctx, controller):
 @induct_newbies
 def list_activities(ctx, controller, *args, show_usage=False, **kwargs):
     """List matching activities, filtered and sorted."""
-    category = postprocess_options_match_category(kwargs)
-    tagnames = postprocess_options_match_tagnames(kwargs)
     postprocess_options_results_options(kwargs)
     if show_usage:
         handler = usage_activity.usage_activities
     else:
         handler = list_activity.list_activities
-    handler(
-        controller,
-        *args,
-        match_category=category,
-        match_tagnames=tagnames,
-        **kwargs
-    )
+    handler(controller, *args, **kwargs)
 
 
 # *** CATEGORIES.
@@ -1302,23 +1294,18 @@ def cmd_export_opt_output_default(controller):
 @click.option('--tsv', is_flag=True, help=_('Alias for `--format tsv`'))
 @click.option('--xml', is_flag=True, help=_('Alias for `--format xml`'))
 @click.option('--ical', is_flag=True, help=_('Alias for `--format ical`'))
-@cmd_options_any_search_query(match_target='export', group_target='export')
+@cmd_options_any_search_query(command='export', item='fact', match=True, group=True)
 @pass_controller_context
 @induct_newbies
 def transcode_export(ctx, controller, *args, output, format, **kwargs):
     """Export all facts of within a given time window to a file of specified format."""
     def _transcode_export():
-        activity = postprocess_options_match_activity(kwargs)
-        category = postprocess_options_match_category(kwargs)
-        tagnames = postprocess_options_match_tagnames(kwargs)
+        postprocess_options_normalize_search_args(kwargs)
         export_facts(
             controller,
             *args,
             to_format=consolidate_format_options(),
             file_out=output,
-            match_activity=activity,
-            match_category=category,
-            match_tagnames=tagnames,
             **kwargs
         )
 

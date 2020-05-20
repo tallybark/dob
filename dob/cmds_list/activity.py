@@ -19,17 +19,13 @@ from gettext import gettext as _
 
 from dob_bright.termio.ascii_table import generate_table
 
-from ..clickux.query_assist import (
-    error_exit_no_results,
-    must_hydrate_category
-)
+from ..clickux.query_assist import error_exit_no_results
 
 __all__ = ('list_activities', )
 
 
 def list_activities(
     controller,
-    match_category='',
     table_type='friendly',
     chop=False,
     **kwargs
@@ -45,9 +41,7 @@ def list_activities(
     """
     err_context = _('activities')
 
-    category = must_hydrate_category(controller, match_category, err_context)
-
-    results = controller.activities.get_all(category=category, **kwargs)
+    results = controller.activities.get_all(**kwargs)
 
     results or error_exit_no_results(err_context)
 

@@ -38,9 +38,7 @@ __all__ = (
 def list_facts(
     controller,
     include_id=False,
-    match_activity='',
-    match_category='',
-    match_tagnames=[],
+    # CLI --options.
     show_usage=False,
     hide_description=False,
     hide_duration=False,
@@ -91,9 +89,6 @@ def list_facts(
             controller,
             *args,
             include_usage=show_usage or column,
-            activity=activity,
-            category=category,
-            tagnames=match_tagnames,
             **kwargs
         )
 

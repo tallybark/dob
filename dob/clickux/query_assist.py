@@ -66,15 +66,6 @@ def hydrate_activity(controller, activity_name):
     return activity
 
 
-def must_hydrate_activity(controller, match_activity, item_being_searched):
-    try:
-        activity = hydrate_activity(controller, match_activity)
-    except KeyError as err:
-        error_exit_no_results(item_being_searched, str(err))
-    else:
-        return activity
-
-
 # ***
 
 def hydrate_category(controller, category_name):
@@ -87,13 +78,4 @@ def hydrate_category(controller, category_name):
         result = controller.categories.get_by_name(category_name)
         category = result if result else False
     return category
-
-
-def must_hydrate_category(controller, match_category, item_being_searched):
-    try:
-        category = hydrate_category(controller, match_category)
-    except KeyError as err:
-        error_exit_no_results(item_being_searched, str(err))
-    else:
-        return category
 

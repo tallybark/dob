@@ -19,19 +19,13 @@ from gettext import gettext as _
 
 from dob_bright.termio.ascii_table import generate_table
 
-from ..clickux.query_assist import (
-    error_exit_no_results,
-    must_hydrate_activity,
-    must_hydrate_category
-)
+from ..clickux.query_assist import error_exit_no_results
 
 __all__ = ('list_tags', )
 
 
 def list_tags(
     controller,
-    match_activity='',
-    match_category='',
     table_type='friendly',
     chop=False,
     **kwargs
@@ -44,15 +38,7 @@ def list_tags(
     """
     err_context = _('tags')
 
-    activity = must_hydrate_activity(controller, match_activity, err_context)
-
-    category = must_hydrate_category(controller, match_category, err_context)
-
-    results = controller.tags.get_all(
-        activity=activity,
-        category=category,
-        **kwargs
-    )
+    results = controller.tags.get_all(**kwargs)
 
     results or error_exit_no_results(err_context)
 

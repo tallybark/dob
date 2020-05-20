@@ -17,9 +17,7 @@
 
 from gettext import gettext as _
 
-from ..clickux.query_assist import (
-    error_exit_no_results
-)
+from ..clickux.query_assist import error_exit_no_results
 
 from . import generate_usage_table
 
@@ -28,10 +26,10 @@ __all__ = ('usage_categories', )
 
 def usage_categories(
     controller,
-    hide_usage=False,
-    hide_duration=False,
     table_type='friendly',
     chop=False,
+    hide_usage=False,
+    hide_duration=False,
     **kwargs
 ):
     """
@@ -43,9 +41,7 @@ def usage_categories(
     def _usage_categories():
         err_context = _('categories')
 
-        results = controller.categories.get_all_by_usage(
-            **kwargs
-        )
+        results = controller.categories.get_all_by_usage(**kwargs)
 
         results or error_exit_no_results(err_context)
 

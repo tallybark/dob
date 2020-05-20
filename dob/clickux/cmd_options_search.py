@@ -30,9 +30,9 @@ __all__ = (
     'postprocess_options_normalize_search_args',
     # Private:
     #   '_cmd_options_*',  # Module variables.
-    #   '_postprocess_options_match_activity',
-    #   '_postprocess_options_match_category',
-    #   '_postprocess_options_match_tagnames',
+    #   '_postprocess_options_match_activities',
+    #   '_postprocess_options_match_categories',
+    #   '_postprocess_options_match_tags',
     #   '_postprocess_options_matching',
     #   '_postprocess_options_grouping',
     #   '_postprocess_options_results_options_order_to_sort_col',
@@ -103,17 +103,20 @@ _cmd_options_search_deleted_hidden = [
 
 _cmd_options_search_match_activity = [
     click.option(
-        '-a', '--activity',
+        '-a', '--activity', multiple=True,
         help=_('Restrict results by matching activity name.'),
     ),
 ]
 
 
-def _postprocess_options_match_activity(kwargs):
-    activity = kwargs['activity'] if kwargs['activity'] else ''
+def _postprocess_options_match_activities(kwargs):
+    if 'activity' not in kwargs:
+        return
+
+    activity = kwargs['activity'] if kwargs['activity'] else []
     del kwargs['activity']
     if activity:
-        kwargs['match_activity'] = activity
+        kwargs['match_activities'] = list(activity)
 
 
 # ***
@@ -122,26 +125,29 @@ def _postprocess_options_match_activity(kwargs):
 
 _cmd_options_search_match_category = [
     click.option(
-        '-c', '--category',
+        '-c', '--category', multiple=True,
         help=_('Restrict results by matching category name.'),
     ),
 ]
 
 
-def _postprocess_options_match_category(kwargs):
+def _postprocess_options_match_categories(kwargs):
+    if 'category' not in kwargs:
+        return
+
     # This little dance is so category_name is never None, but '',
     # because get_all() distinguishes between category=None and =''.
-    category = kwargs['category'] if kwargs['category'] else ''
+    category = kwargs['category'] if kwargs['category'] else []
     del kwargs['category']
     if category:
-        kwargs['match_category'] = category
+        kwargs['match_categories'] = list(category)
 
 
 # ***
 # *** [SEARCH MATCH] Tag names.
 # ***
 
-_cmd_options_search_match_tagnames = [
+_cmd_options_search_match_tags = [
     click.option(
         '-t', '--tag', multiple=True,
         help=_('Restrict results by matching tag name(s).'),
@@ -149,7 +155,7 @@ _cmd_options_search_match_tagnames = [
 ]
 
 
-def _postprocess_options_match_tagnames(kwargs):
+def _postprocess_options_match_tags(kwargs):
     tagnames = kwargs['tag'] if kwargs['tag'] else tuple()
     del kwargs['tag']
     if tagnames:
@@ -457,9 +463,9 @@ _cmd_options_output_factoids_hrule = [
 # ***
 
 def _postprocess_options_matching(kwargs):
-    _postprocess_options_match_activity(kwargs)
-    _postprocess_options_match_category(kwargs)
-    _postprocess_options_match_tagnames(kwargs)
+    _postprocess_options_match_activities(kwargs)
+    _postprocess_options_match_categories(kwargs)
+    _postprocess_options_match_tags(kwargs)
 
 
 def postprocess_options_normalize_search_args(kwargs):
