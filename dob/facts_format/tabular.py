@@ -158,7 +158,6 @@ def generate_facts_table(
     i_activities = FactManager.RESULT_GRP_INDEX['activities']
     i_actegories = FactManager.RESULT_GRP_INDEX['actegories']
     i_categories = FactManager.RESULT_GRP_INDEX['categories']
-    i_date_col = FactManager.RESULT_GRP_INDEX['date_col']
 
     def _generate_facts_table():
         test_result = results[0] if results else None
@@ -304,7 +303,6 @@ def generate_facts_table(
         cols_shim[i_activities] = 0
         cols_shim[i_actegories] = 0
         cols_shim[i_categories] = 0
-        cols_shim[i_date_col] = None  # Query sets None if not group_days.
         return cols_shim
 
     # ***
@@ -335,7 +333,6 @@ def generate_facts_table(
             activities,
             actegories,
             categories,
-            date_col,
         ) = fact_etc
 
         if not final_end:
