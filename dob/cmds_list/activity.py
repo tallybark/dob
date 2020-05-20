@@ -48,7 +48,7 @@ def list_activities(
     # This is sorta like `dob usage activity`, except we use
     # separate columns for the Activity name and Category name,
     # rather than combining them as Activity@Category.
-    headers = (_("Activity"), _("Category"))
+    headers = (_("Activity Name"), _("Category Name"))
     actegories = []
     for activity in results:
         if activity.category:

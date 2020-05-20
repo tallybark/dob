@@ -42,7 +42,7 @@ def list_categories(
 
     results or error_exit_no_results(err_context)
 
-    headers = (_("Name"),)
+    headers = (_("Category Name"),)
     category_names = []
     for category in results:
         category_names.append((category.name,))

@@ -42,7 +42,7 @@ def list_tags(
 
     results or error_exit_no_results(err_context)
 
-    headers = (_("Name"),)
+    headers = (_("Tag Name"),)
     tag_names = []
     for tag in results:
         tag_names.append((tag.name,))
