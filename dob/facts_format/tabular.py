@@ -26,6 +26,7 @@ from nark.helpers.format_time import format_delta
 
 from dob_bright.termio.ascii_table import generate_table
 
+from ..facts_format.journal import output_time_journal
 
 __all__ = (
     'generate_facts_table',
@@ -53,6 +54,8 @@ def output_ascii_table(
     sort_cols=None,
     sort_orders=None,
 ):
+    for_journal = table_type == 'journal'
+
     table, headers, desc_col_idx = generate_facts_table(
         controller,
         results,
@@ -67,17 +70,23 @@ def output_ascii_table(
         show_duration=not hide_duration,
         show_description=not hide_description,
         custom_columns=custom_columns,
+        for_journal=for_journal,
         sort_cols=sort_cols,
         sort_orders=sort_orders,
     )
 
-    generate_table(
-        table,
-        headers,
-        table_type,
-        truncate=chop,
-        trunccol=desc_col_idx,
-    )
+    if for_journal:
+        output_time_journal(
+            table,
+        )
+    else:
+        generate_table(
+            table,
+            headers,
+            table_type,
+            truncate=chop,
+            trunccol=desc_col_idx,
+        )
 
 
 # ***
@@ -106,8 +115,15 @@ FACT_TABLE_HEADERS = {
     'activities': _ReportColumn('activities', _("Activities"), True),
     'actegories': _ReportColumn('actegories', _("Actegories"), True),
     'categories': _ReportColumn('categories', _("Categories"), True),
+    # The actegory is used for the journal format.
+    'actegory': _ReportColumn('actegory', _("Actegory"), True),
     # A singular 'tag' column happens when Act@Cat aggregated b/c group_tags.
     'tag': _ReportColumn('tag', _("Tag"), True),
+    # More options for the journal format:
+    'start_date': _ReportColumn('start_date', _("Start date"), True),
+    'start_date_cmp': _ReportColumn('start_date_cmp', _("Start date comparable"), False),
+    'start_time': _ReportColumn('start_time', _("Start time"), True),
+    'end_date': _ReportColumn('end_date', _("End date"), True),
 }
 
 
@@ -132,6 +148,8 @@ def generate_facts_table(
     show_description=True,
     # Or the user could specify the columns they want:
     custom_columns=None,
+    # Or this could be for a journal, in which case we decide:
+    for_journal=False,
     sort_cols=None,
     sort_orders=None,
 ):
@@ -187,7 +205,7 @@ def generate_facts_table(
                 break
 
             fact_etc = prepare_fact_and_aggs_list(result)
-            table_row = prepare_row(fact_etc, TableRow)
+            table_row = prepare_row(fact_etc)
             table_rows.append(table_row)
 
             update_gross(fact_etc, gross_totals)
@@ -286,6 +304,96 @@ def generate_facts_table(
         reference_cols = [col for col in sorting_columns if col not in report_columns]
         report_columns.extend(reference_cols)
         return (sorting_columns, reference_cols)
+
+    # +++
+
+    def assemble_columns_for_journal(aggregate_cols):
+        # Start by deciding which columns to show first,
+        # which depends on sorting and grouping.
+        time_cols = []
+        if group_days:
+            first_cols = ['start_date']
+        else:
+            sort_attr = attr_for_sort_col()
+            first_cols = journal_first_columns(aggregate_cols, sort_attr)
+            if not first_cols:
+                # first_cols = ['start_date', 'start_time']
+                first_cols = ['end_date', 'start_time']
+            elif is_grouped:
+                # FIXME: make date format Fri Jun 29  9:30am but let user change...
+                time_cols = ['first_start', 'final_end']
+            else:
+                time_cols = ['start', 'end']
+
+        # Gather the Fact attribute columns to display, which depends on
+        # which aggregate columns were used in the query. We also add the
+        # separator, '@', because the journal view does not use column
+        # headers, and without, the user would have no context, and would
+        # not know their activities from their categories.
+        meta_cols = assemble_columns_fact_and_aggs_meta(aggregate_cols)
+        # Remove meta_cols that may have been promoted to first positions.
+        meta_cols = [col for col in meta_cols if col not in first_cols]
+
+        # Default order (unless user overrides, in which case this function
+        # is not called), is to show some main identifier column(s) (as
+        # determined by journal_first_columns), that some statistics (which
+        # we'll add now), followed by the time columns (if not already shown)
+        # and then the remaining attribute columns (not already shown).
+        _columns = []
+        _columns.extend(first_cols)
+        _columns.append('duration')
+        _columns.append('sparkline')
+        _columns.extend(time_cols)
+        _columns.extend(meta_cols)
+        if not group_days:
+            _columns.append('start_date')
+        else:
+            _columns.append('start_date_cmp')
+
+        return _columns
+
+    def attr_for_sort_col():
+        # --sort [name|activity|category|tag|fact|start|usage|time|day]
+        sort_col = sort_cols[0] if sort_cols else ''
+        if sort_col in ('activity', 'category', 'tag'):
+            return sort_col
+        return ''
+
+    def journal_first_columns(aggregate_cols, sort_attr):
+        # The special value used is 0, but cannot hurt to check None, too.
+        if aggregate_cols[i_activities] not in [0, None]:
+            # group_category (and maybe group_tags, too).
+            if sort_attr == 'category':
+                return ['category']
+            elif sort_attr == 'activity':
+                return ['activities']
+            elif sort_attr == 'tag':
+                return ['tags']
+        elif aggregate_cols[i_actegories] not in [0, None]:
+            # group_tags (but neither group_category or group_activity).
+            if sort_attr == 'tag':
+                if group_days:
+                    return ['tags']
+                else:
+                    return ['tag']
+            elif sort_attr == 'activity' or sort_attr == 'category':
+                return ['actegories']
+        elif aggregate_cols[i_categories] not in [0, None]:
+            # group_activity (and maybe group_tags, too).
+            if sort_attr == 'activity':
+                return ['activity']
+            elif sort_attr == 'category':
+                return ['categories']
+            elif sort_attr == 'tag':
+                return ['tags']
+        elif group_days:
+            return None
+        elif is_grouped:
+            # group_activity and group_category.
+            return ['actegory']
+        # else, nothing grouped, and not sorting on Fact attribute.
+        # - So. --sort either not specified, or: [name|fact|start|usage|time]
+        return None
 
     # +++
 
@@ -409,8 +517,9 @@ def generate_facts_table(
 
         prepare_key(table_row, fact)
 
-        prepare_start(table_row, fact)
-        prepare_end(table_row, fact)
+        prepare_starts_and_end(
+            table_row, fact, first_start, final_end,
+        )
         prepare_activity_and_category(
             table_row, fact, activities, actegories, categories,
         )
@@ -433,6 +542,43 @@ def generate_facts_table(
         table_row['key'] = fact.pk
 
     # +++
+
+    def prepare_starts_and_end(table_row, fact, first_start, final_end):
+        prepare_start_date(table_row, fact, first_start)
+        prepare_start_date_cmp(table_row, fact, first_start)
+        prepare_start_time(table_row, fact, first_start)
+        prepare_end_date(table_row, fact, final_end)
+        prepare_start(table_row, fact)
+        prepare_end(table_row, fact)
+
+    def prepare_start_date(table_row, fact, first_start):
+        if 'start_date' not in repcols:
+            return
+
+        # MAYBE/2020-05-18: Make this and other strftime formats --option'able.
+        start_date = first_start.strftime('%a %b %d') if first_start else ''
+        table_row['start_date'] = start_date
+
+    def prepare_start_date_cmp(table_row, fact, first_start):
+        if 'start_date_cmp' not in repcols:
+            return
+
+        start_date_cmp = first_start.strftime('%Y%m%d') if first_start else ''
+        table_row['start_date_cmp'] = start_date_cmp
+
+    def prepare_start_time(table_row, fact, first_start):
+        if 'start_time' not in repcols:
+            return
+
+        start_time = first_start.strftime('%H:%M') if first_start else ''
+        table_row['start_time'] = start_time
+
+    def prepare_end_date(table_row, fact, final_end):
+        if 'end_date' not in repcols:
+            return
+
+        end_date = final_end.strftime('%a %b %d') if final_end else ''
+        table_row['end_date'] = end_date
 
     def prepare_start(table_row, fact):
         if 'start' not in repcols:
@@ -486,8 +632,12 @@ def generate_facts_table(
             prepare_categories(table_row, categories)
             prepare_tagnames(table_row, fact)
         else:
-            prepare_activity(table_row, fact)
-            prepare_category(table_row, fact)
+            # Group by activity ID and category ID, or no grouping.
+            if not for_journal:
+                prepare_activity(table_row, fact)
+                prepare_category(table_row, fact)
+            else:
+                prepare_actegory(table_row, fact)
             prepare_tagnames(table_row, fact)
 
     def prepare_activity(table_row, fact):
@@ -568,7 +718,15 @@ def generate_facts_table(
         # Note that the 'duration' will be similar to fact.format_delta()
         # unless is_grouped, in which case 'duration' is an aggregate value.
         # But in either case, the 'duration' in the results is expressed in days.
-        duration = format_fact_or_query_duration(fact, duration)
+        if 'sparkline' not in columns:
+            # Finalize the duration as a string value.
+            duration = format_fact_or_query_duration(fact, duration)
+        # else, we'll prepare a sparkline later, so keep the durations value
+        # (in secs.), until we post-process it.
+        elif not duration:
+            duration = fact.delta().total_seconds()
+        else:
+            duration = convert_duration_days_to_secs(duration)
         table_row['duration'] = duration
 
     def format_fact_or_query_duration(fact, duration):
