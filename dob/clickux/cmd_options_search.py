@@ -19,6 +19,8 @@ from gettext import gettext as _
 
 import click_hotoffthehamster as click
 
+from dob_bright.termio import dob_in_user_exit
+
 from ..facts_format.tabular import report_table_columns
 
 __all__ = (
@@ -39,6 +41,10 @@ __all__ = (
     #   '_postprocess_options_results_options_order_to_sort_cols',
     #   '_postprocess_options_results_options_asc_desc_to_sort_order',
     #   '_postprocess_options_results_show_hide',
+    #   '_postprocess_options_sparkline',
+    #   '_postprocess_options_sparkline_float',
+    #   '_postprocess_options_sparkline_secs',
+    #   '_postprocess_options_sparkline_total',
 )
 
 
@@ -583,6 +589,70 @@ _cmd_options_output_factoids_hrule = [
 
 
 # ***
+# *** [RESULTS FORMAT] Sparkline Format.
+# ***
+
+_cmd_options_output_sparkline_format = [
+    click.option(
+        '-V', '--spark-total', '--stot', nargs=1,
+        default='max', show_default=True,
+        metavar='MAX',
+        help=_("Secs in full spark: 'max' or 'net' duration, or number."),
+    ),
+    click.option(
+        '-W', '--spark-width', '--swid', type=int, default='12',
+        metavar='WIDTH',
+        help=_("Number of block (█) characters in full spark."),
+    ),
+    click.option(
+        '-S', '--spark-secs', '--ssec',
+        metavar='WIDTH',
+        help=_("Secs. per block (█), defaults to total / width."),
+    ),
+]
+
+
+# ***
+# *** [POST PROCESS] Show/Hide.
+# ***
+
+def _postprocess_options_sparkline(kwargs):
+    if 'spark_total' not in kwargs:
+        return
+
+    _postprocess_options_sparkline_total(kwargs)
+    _postprocess_options_sparkline_secs(kwargs)
+
+
+def _postprocess_options_sparkline_total(kwargs):
+    if kwargs['spark_total'] in ('max', 'net'):
+        return
+
+    _postprocess_options_sparkline_float(kwargs, 'spark_total')
+
+
+def _postprocess_options_sparkline_secs(kwargs):
+    _postprocess_options_sparkline_float(kwargs, 'spark_secs')
+
+
+def _postprocess_options_sparkline_float(kwargs, spark_attr):
+    try:
+        kwargs[spark_attr] = float(kwargs[spark_attr] or 0)
+    except ValueError:
+        try:
+            # Is this a security issue? Ha!
+            # - Let user specify math on the command line, e.g., to
+            #   specify 8 hours as the full spark width, user'd use:
+            #     --spark-total '8 * 60 * 60'
+            kwargs[spark_attr] = float(eval(kwargs[spark_attr]))
+        except:
+            msg = _(
+                "Unable to parse --{} value as (eval'able) seconds: {}"
+            ).format(spark_attr.replace('_', '-'), kwargs[spark_attr])
+            dob_in_user_exit(msg)
+
+
+# ***
 # *** [POST PROCESS] Adjust **kwargs.
 # ***
 
@@ -599,6 +669,7 @@ def postprocess_options_normalize_search_args(kwargs):
     _postprocess_options_results_options_asc_desc_to_sort_order(kwargs)
     _postprocess_options_results_show_hide(kwargs)
     _postprocess_options_formatter(kwargs)
+    _postprocess_options_sparkline(kwargs)
 
 
 # ***
@@ -671,6 +742,7 @@ def cmd_options_any_search_query(command='', item='', match=False, group=False):
         append_cmd_options_output_formatters(options)
         append_cmd_options_tablular_format(options)
         append_cmd_options_factoids_format(options)
+        append_cmd_options_journal_format(options)
 
     def append_cmd_options_results_basic_usage_hide_show(options):
         # Search results report output column values hide/show options.
@@ -716,6 +788,12 @@ def cmd_options_any_search_query(command='', item='', match=False, group=False):
             return
 
         options.extend(_cmd_options_output_factoids_hrule)
+
+    def append_cmd_options_journal_format(options):
+        if item != 'fact':
+            return
+
+        options.extend(_cmd_options_output_sparkline_format)
 
     return _cmd_options_any_search_query()
 

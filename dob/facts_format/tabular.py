@@ -53,6 +53,9 @@ def output_ascii_table(
     table_type='friendly',
     sort_cols=None,
     sort_orders=None,
+    spark_total=None,
+    spark_width=None,
+    spark_secs=None,
 ):
     for_journal = table_type == 'journal'
 
@@ -73,6 +76,9 @@ def output_ascii_table(
         for_journal=for_journal,
         sort_cols=sort_cols,
         sort_orders=sort_orders,
+        spark_total=spark_total,
+        spark_width=spark_width,
+        spark_secs=spark_secs,
     )
 
     if for_journal:
@@ -152,6 +158,9 @@ def generate_facts_table(
     for_journal=False,
     sort_cols=None,
     sort_orders=None,
+    spark_total=None,
+    spark_width=None,
+    spark_secs=None,
 ):
     """
     Prepares Facts for display in an ASCII table.
@@ -786,17 +795,36 @@ def generate_facts_table(
         cum_duration = convert_duration_days_to_secs(gross_totals[i_cum_duration])
         max_duration = convert_duration_days_to_secs(gross_totals[i_max_duration])
 
-        spark_max_value = max_duration
+        if not spark_total or spark_total == 'max':
+            spark_max_value = max_duration
+        elif spark_total == 'net':
+            spark_max_value = cum_duration
+        else:
+            # The user directly specified some number of seconds.
+            # - This sets a custom max value reference, e.g., you could
+            #   set the full width of a sparkline to represent 8 hours:
+            #       spark_max_value = 8 * 60 * 60  # 8 hours.
+            #   Or from the CLI:
+            #       dob list ... --spark-total '8 * 60 * 60'
+            # - Note that if this is less than max_duration, some sparklines
+            #   will run over their allotted column width.
+            spark_max_value = spark_total
 
-        # FIXME/2020-05-20: Replace hardcoded chunk width with --option.
-        # - Add max-value and chunk-secs options, too, perhaps.
-        spark_chunk_width = 12
-        spark_chunk_secs = spark_max_value / spark_chunk_width
+        # MAGIC_NUMBER: Prefer --spark-width, or default to a 12-character
+        # width, just to do something so the width is not nothing.
+        spark_chunk_width = spark_width or 12
+
+        # User can specify --spark-secs, or we'll calculate from
+        # the previous two values: this is the seconds represented
+        # by one █ block, i.e., the full block time divided by the
+        # total number of blocks being used (or at least the number
+        # of blocks it would take to fill the specified field width).
+        # - HINT: This option eval-aware, e.g., 1 hour: --spark-secs '60 * 60'.
+        spark_chunk_secs = spark_secs or (spark_max_value / spark_chunk_width)
 
         def prepare_sparkline(table_row):
             # We stashed the duration as seconds.
             dur_seconds = table_row['duration']
-            sparkline = '████'
             sparkline = spark_up(dur_seconds, spark_chunk_secs)
             table_row['sparkline'] = sparkline
 
@@ -816,6 +844,8 @@ def generate_facts_table(
             # code points for block elements are decreasingly ordered,
             # (8/8), (7/8), (6/8), etc., so subtract the number of eighths.
             if n_eighths > 0:
+                # MAGIC_NUMBER: The Block Element code points are sequential,
+                #   and there are 9 of them (1 full width + 8 eighths).
                 sparkline += chr(ord('█') + (8 - n_eighths))
             # If the sparkline is empty, show at least a little something.
             # - Add a left one-eighth block.

@@ -52,6 +52,9 @@ def list_facts(
     format_factoid=False,
     table_type='friendly',
     factoid_rule='',
+    spark_total=None,
+    spark_width=None,
+    spark_secs=None,
     out_file=None,
     term_width=None,
     # args is search term(s), if any.
@@ -183,6 +186,9 @@ def list_facts(
                 table_type='journal' if format_journal else table_type,
                 sort_cols=get_kwargs('sort_cols'),
                 sort_orders=get_kwargs('sort_orders'),
+                spark_total=spark_total,
+                spark_width=spark_width,
+                spark_secs=spark_secs,
             )
 
     def suss_row_limit():
