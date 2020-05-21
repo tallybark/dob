@@ -605,7 +605,7 @@ def generate_facts_table(
             fact_start = fact.start.strftime('%Y-%m-%d %H:%M')
         else:
             fact_start = _('<genesis>')
-            controller.client_logger.warn(_('Fact missing start: {}').format(fact))
+            controller.client_logger.warn('Fact missing start: {}').format(fact)
         table_row['start'] = fact_start
 
     def prepare_end(table_row, fact):
@@ -1045,9 +1045,9 @@ def generate_facts_table(
         ])
 
         if not needs_sort and not resort_always:
-            controller.client_logger.warn(_('Skipping re-sort.'))
+            controller.client_logger.warn('Skipping re-sort.')
             return
-        controller.client_logger.warn(_('Post Processing: Re-SORTing.'))
+        controller.client_logger.warn('Post Processing: Re-SORTing.')
 
         expect_cols = sorting_columns.copy()
         for idx, sort_col in reversed(list(enumerate(sort_cols))):
