@@ -127,7 +127,7 @@ FACT_TABLE_HEADERS = {
     'tag': _ReportColumn('tag', _("Tag"), True),
     # More options for the journal format:
     'start_date': _ReportColumn('start_date', _("Start date"), True),
-    'start_date_cmp': _ReportColumn('start_date_cmp', _("Start date comparable"), False),
+    'start_date_cmp': _ReportColumn('start_date_cmp', _("Startdate"), False),
     'start_time': _ReportColumn('start_time', _("Start time"), True),
     'end_date': _ReportColumn('end_date', _("End date"), True),
 }
