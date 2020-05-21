@@ -141,6 +141,8 @@ def generate_facts_table(
     group of Facts.
     """
     columns = []
+    repcols = {}
+    sorting_columns = None
 
     if not custom_columns:
         include_usage = show_usage
@@ -159,9 +161,15 @@ def generate_facts_table(
     i_actegories = FactManager.RESULT_GRP_INDEX['actegories']
     i_categories = FactManager.RESULT_GRP_INDEX['categories']
 
+    resort_always = False
+    # YOU: Uncomment to test re-sorting mechanism (in lieu of
+    # crafting a custom `dob list` command that triggers the
+    # code).
+    #  resort_always = True
+
     def _generate_facts_table():
         test_result = results[0] if results else None
-        headers, TableRow = prepare_columns(test_result)
+        headers, TableRow, sortref_cols = prepare_columns(test_result)
 
         gross_totals = initial_gross()
 
@@ -178,7 +186,7 @@ def generate_facts_table(
 
             update_gross(fact_etc, gross_totals)
 
-        last_chance_sort_results(table, TableRow)
+        last_chance_sort_results(table, TableRow, sortref_cols)
 
         table_row = produce_gross(gross_totals)
         if table_row is not None:
@@ -193,24 +201,66 @@ def generate_facts_table(
     # ***
 
     def prepare_columns(test_result):
-        columns[:] = assemble_columns(test_result)
+        columns[:], sortref_cols = assemble_columns(test_result)
         headers = [FACT_TABLE_HEADERS[column].header for column in columns]
+        repcols.update({
+            key: val for key, val in FACT_TABLE_HEADERS.items() if key in columns
+        })
         TableRow = namedtuple('TableRow', columns)
-        return headers, TableRow
+        return headers, TableRow, sortref_cols
 
     # +++
 
     def assemble_columns(test_result):
-        aggregate_cols = assemble_columns_sample_aggregate(test_result)
+        report_columns = assemble_columns_report(test_result)
+        sortref_cols = extend_columns_sorting(report_columns)
+        return report_columns, sortref_cols
 
+    def assemble_columns_report(test_result):
         if custom_columns:
-            # Cull list of duplicates, retaining order.
-            seen = set()
-            seen_add = seen.add
-            return [
-                col for col in custom_columns
-                if not (col in seen or seen_add(col))
-            ]
+            return assemble_columns_report_custom()
+        return assemble_columns_report_deduce(test_result)
+
+    def assemble_columns_report_custom():
+        custom_cols = assemble_columns_report_custom_build()
+        return assemble_columns_report_custom_sanitize(custom_cols)
+
+    def assemble_columns_report_custom_build():
+        # Cull list of duplicates, retaining order.
+        seen = set()
+        seen_add = seen.add
+        return [
+            col for col in custom_columns
+            if not (col in seen or seen_add(col))
+        ]
+
+    def assemble_columns_report_custom_sanitize(custom_cols):
+        if is_grouped:
+            disallow = set([
+                'key',
+                'start',
+                'end',
+                'description',
+            ])
+            # MAYBE/2020-05-20: Should we disallow 'activity' if not group_activity?
+            # - Disallow 'category' if not group_category.
+            # - Disallow 'tags' if group_tags (and disallow 'tag' otherwise).
+            # - What about 'activities', 'actegories', 'categories', 'actegory'?
+        else:
+            # Not is_grouped.
+            disallow = set([
+                'activities',
+                'actegories',
+                'categories',
+                'actegory',
+                'tag',
+            ])
+        return [col for col in custom_columns if col not in disallow]
+
+    def assemble_columns_report_deduce(test_result):
+        aggregate_cols = assemble_columns_sample_aggregate(test_result)
+        if for_journal:
+            return assemble_columns_for_journal(aggregate_cols)
         elif not includes_extras:
             return assemble_columns_single_fact()
         return assemble_columns_fact_and_aggs(aggregate_cols)
@@ -221,6 +271,14 @@ def generate_facts_table(
         else:
             aggregate_cols = group_cols_shim(test_result)
         return aggregate_cols
+
+    def extend_columns_sorting(report_columns):
+        # reference_cols = set(sorting_columns).difference(set[report_columns])
+        reference_cols = [col for col in sorting_columns if col not in report_columns]
+        report_columns.extend(reference_cols)
+        return (sorting_columns, reference_cols)
+
+    # +++
 
     def assemble_columns_single_fact():
         _columns = [
@@ -360,7 +418,7 @@ def generate_facts_table(
     # ***
 
     def prepare_key(table_row, fact):
-        if is_grouped:
+        if 'key' not in repcols:
             return
 
         table_row['key'] = fact.pk
@@ -368,18 +426,19 @@ def generate_facts_table(
     # +++
 
     def prepare_start(table_row, fact):
-        if is_grouped:
+        if 'start' not in repcols:
             return
 
         if fact.start:
+            # MAYBE/2020-05-18: Make the datetime format an --option.
             fact_start = fact.start.strftime('%Y-%m-%d %H:%M')
         else:
             fact_start = _('<genesis>')
-            controller.client_logger.warning(_('Fact missing start: {}').format(fact))
+            controller.client_logger.warn(_('Fact missing start: {}').format(fact))
         table_row['start'] = fact_start
 
     def prepare_end(table_row, fact):
-        if is_grouped:
+        if 'end' not in repcols:
             return
 
         if fact.end:
@@ -423,25 +482,43 @@ def generate_facts_table(
             prepare_tagnames(table_row, fact)
 
     def prepare_activity(table_row, fact):
+        if 'activity' not in repcols:
+            return
+
         table_row['activity'] = fact.activity_name + actcatsep()
 
     def prepare_activities(table_row, activities, sep=_(', ')):
+        if 'activities' not in repcols:
+            return
+
         table_row['activities'] = sep.join(
             [activity + actcatsep() for activity in sorted(activities)]
         )
 
     def prepare_actegories(table_row, actegories, sep=_(', ')):
+        if 'actegories' not in repcols:
+            return
+
         table_row['actegories'] = sep.join(sorted(actegories))
 
     def prepare_categories(table_row, categories, sep=_(', ')):
+        if 'categories' not in repcols:
+            return
+
         table_row['categories'] = sep.join(
             [actcatsep() + category for category in sorted(categories)]
         )
 
     def prepare_category(table_row, fact):
+        if 'category' not in repcols:
+            return
+
         table_row['category'] = actcatsep() + fact.category_name
 
     def prepare_actegory(table_row, fact):
+        if 'actegory' not in repcols:
+            return
+
         table_row['actegory'] = fact.oid_actegory()
 
     # MAYBE/2020-05-18: Make the '@' symbol configable.
@@ -453,9 +530,15 @@ def generate_facts_table(
     # +++
 
     def prepare_tagnames(table_row, fact):
+        if 'tags' not in repcols:
+            return
+
         table_row['tags'] = assemble_tags(fact.tags)
 
     def prepare_tagname(table_row, fact):
+        if 'tag' not in repcols:
+            return
+
         controller.affirm(len(fact.tags) <= 1)
         table_row['tag'] = assemble_tags(fact.tags)
 
@@ -529,19 +612,19 @@ def generate_facts_table(
     # +++
 
     def prepare_group_count(table_row, group_count):
-        if not include_usage:
+        if 'group_count' not in repcols:
             return
 
         table_row['group_count'] = group_count
 
     def prepare_first_start(table_row, first_start):
-        if not include_usage:
+        if 'first_start' not in repcols:
             return
 
         table_row['first_start'] = first_start
 
     def prepare_final_end(table_row, final_end):
-        if not include_usage:
+        if 'final_end' not in repcols:
             return
 
         table_row['final_end'] = final_end
@@ -549,13 +632,16 @@ def generate_facts_table(
     # +++
 
     def prepare_description(table_row, fact):
-        if not include_description or is_grouped:
+        if 'description' not in repcols:
             return
 
         table_row['description'] = fact.description or ''
 
     # ***
 
+    # MAYBE/2020-05-20: This function can probably be removed.
+    # (lb): I added `X not in repcols` checks to all the `table_row[Y] =` functions.
+    # So I'd guess the table_row is has the correct attrs, and none superfluous.
     def unprepare_unmentioned_columns(table_row):
         if custom_columns is None:
             return table_row
@@ -656,7 +742,7 @@ def generate_facts_table(
         return row_slice
 
     def produce_gross_duration(gross_totals, table_row):
-        if not include_duration:
+        if 'duration' not in repcols:
             return
 
         # The SQLite aggregate result is in (julian)days, but the
@@ -666,26 +752,26 @@ def generate_facts_table(
         return fmt_duration
 
     def produce_gross_group_count(gross_totals, table_row):
-        if not include_usage:
+        if 'group_count' not in repcols:
             return
 
         table_row['group_count'] = gross_totals[i_group_count]
 
     def produce_gross_first_start(gross_totals, table_row):
-        if not include_usage:
+        if 'first_start' not in repcols:
             return
 
         table_row['first_start'] = gross_totals[i_first_start]
 
     def produce_gross_final_end(gross_totals, table_row):
-        if not include_usage:
+        if 'final_end' not in repcols:
             return
 
         table_row['final_end'] = gross_totals[i_final_end]
 
     # ***
 
-    def last_chance_sort_results(table, row_cls):
+    def last_chance_sort_results(table, row_cls, sortref_cols):
         if not table:
             return
 
@@ -693,70 +779,227 @@ def generate_facts_table(
         # able to sort on that value in the SQL statement. First check
         # lazily, that is, only indicate which sort cols are ones that
         # did not work in the SQL statement.
-        needs_sort = any(
-            [sort_attrs_for_col(sort_col, lazy=True) for sort_col in sort_cols]
-        )
+        needs_sort = any([
+            sort_attrs_for_col(row_cls, sort_col, lazy=True)
+            for sort_col in sort_cols
+        ])
 
-        if not needs_sort:
+        if not needs_sort and not resort_always:
+            controller.client_logger.warn(_('Skipping re-sort.'))
             return
+        controller.client_logger.warn(_('Post Processing: Re-SORTing.'))
 
-        for idx, sort_col in enumerate(sort_cols):
+        expect_cols = sorting_columns.copy()
+        for idx, sort_col in reversed(list(enumerate(sort_cols))):
             sort_order = sort_orders[idx]
-            sort_results_sort_col(table, row_cls, sort_col, sort_order)
+            sort_results_sort_col(table, row_cls, sort_col, sort_order, expect_cols)
 
-    def sort_results_sort_col(table, row_cls, sort_col, sort_order):
+    def sort_results_sort_col(table, row_cls, sort_col, sort_order, expect_cols):
         # Because we are redoing the whole sort, use lazy=False.
-        sort_attrs = sort_attrs_for_col(sort_col, lazy=False)
+        sort_attrs = sort_attrs_for_col(row_cls, sort_col, lazy=False)
+        verify_available_sort_cols_match_anticipated(sort_attrs, expect_cols)
+        sort_attrs.reverse()
         for sort_attr in sort_attrs:
             reverse = sort_order == 'desc'
             table.sort(key=attrgetter(sort_attr), reverse=reverse)
 
         return table
 
-    def sort_attrs_for_col(sort_col, lazy):
-        sort_attrs = ''
+    def sort_attrs_for_col(row_cls, sort_col, lazy):
+        # MAYBE/2020-05-20: Replace this fnc. with sort_col_actual.
+        # - (lb): I wrote sort_col_actual after this one... sort_col_actual
+        #   is more predictive (it forecasts the columns, from the SQL query
+        #   or that we'll calculate during post-processing, that will be
+        #   needed to sort); whereas this function is more reactive (it
+        #   looks at the actual columns after post-processing and uses
+        #   what's available). / Or maybe the 2 fcns. are nice to have,
+        #   1 to tell us what columns to maintain during post processing,
+        #   and then this fcn. to not accidentally sort on a missing column.
+        # - For now, I verify the two sets of columns are equivalent;
+        #   see: verify_available_sort_cols_match_anticipated.
+        sort_attrs = []
 
         if sort_col == 'activity':
             if hasattr(row_cls, 'activities'):
-                sort_attrs = ('activities',)
-            elif hasattr(row_cls, 'actegory'):
-                sort_attrs = ('actegory',)
+                # group_category on its own; SQL could not sort.
+                sort_attrs = ['activities']
             elif not lazy:
-                sort_attrs = ('activity',)
+                # Both of these cases can be sorted by SQL (hence not lazy).
+                if hasattr(row_cls, 'actegory'):
+                    # group_activity and group_category.
+                    sort_attrs = ['actegory']
+                elif hasattr(row_cls, 'activity'):
+                    sort_attrs = ['activity']
+                else:
+                    controller.client_logger.warn(
+                        "Did not identify sort column for --sort activity!"
+                    )
 
         elif sort_col == 'category':
             if hasattr(row_cls, 'categories'):
-                sort_attrs = ('categories',)
+                sort_attrs = ['categories']
             # else, if hasattr(row_cls, 'actegory'), category information
             # is missing. We could make a special case in the get_all
             # query, but doesn't seem like a big priority to handle.
             elif not lazy:
-                sort_attrs = ('category',)
+                if hasattr(row_cls, 'category'):
+                    # FIXME/2020-05-20: This a thing?
+                    sort_attrs = ['category']
+                else:
+                    controller.client_logger.warn(
+                        "Did not identify sort column for --sort category!"
+                    )
 
         elif sort_col == 'tag':
             if hasattr(row_cls, 'tag'):
-                sort_attrs = ('tag',)
+                sort_attrs = ['tag']
             elif hasattr(row_cls, 'tags'):
-                sort_attrs = ('tags',)
+                sort_attrs = ['tags']
+            # elif not lazy:
+                # FIXME/2020-05-20 06:03: What path is this??
+                # sort_attrs = '???'
+                # In get_all, it sorts on Tag.name itself.
+            else:
+                controller.client_logger.warn(
+                    "Did not identify sort column for --sort tag!"
+                )
 
         elif not lazy:
+            # We could verify the return column exists, e.g., check
+            # `hasattr(row_cls, 'foo')`, but the sort will just fail.
+            # Should be a programming error, anyway, the code checks
+            # the sort columns before processing results, and ensures
+            # the necessary sort columns are ready for us here.
             if sort_col == 'start':
-                sort_attrs = ('start', 'end', 'pk',)
+                if not is_grouped:
+                    sort_attrs = ['start', 'end', 'key']
+                else:
+                    sort_attrs = ['first_start', 'final_end']
             elif sort_col == 'time':
-                sort_attrs = ('duration',)
+                sort_attrs = ['duration']
             elif sort_col == 'day':
                 # FIXME/2020-05-20: Should we auto-add start_date_cmp sort option when
                 #   --group-days? Or should we require user to specify `-o days`?
                 #   Another option: `dob journal` command with sort_cols default, etc.
-                sort_attrs = ('start_date_cmp',)
+                sort_attrs = ['start_date_cmp']
             elif sort_col == 'usage':
-                sort_attrs = ('group_count',)
+                sort_attrs = ['group_count']
             elif sort_col == 'name':
-                sort_attrs = ('description',)
+                sort_attrs = ['description']
             elif sort_col == 'fact':
-                sort_attrs = ('key',)
+                sort_attrs = ['key']
+            else:
+                # If this fires, you probably added a --sort choice that you did
+                # not wire herein.
+                controller.client_logger.warn(
+                    "Did not identify sort column for --sort {}!".format(sort_col)
+                )
 
         return sort_attrs
+
+    def verify_available_sort_cols_match_anticipated(sort_attrs, expect_cols):
+        # NOTE: (lb): This is just a verification check, because I coded three
+        #       very similar sort_cols processors:
+        #           nark.backends.sqlalchemy.managers.fact.FactManager._get_all_order_by
+        #           dob.facts_format.tabular.sort_col_actual
+        #           dob.facts_format.tabular.sort_attrs_for_col
+        #       It just happened!
+        # Before processing results, we called sort_on_cols_later() and
+        # determined the sort cols based on sort_cols and the group_* state.
+        # After processing results, we called sort_attrs_for_col to see what
+        # columns were actually populated that we can sort on.
+        # - The two should match, and if they don't, log a complaint.
+        subexpect = expect_cols[-len(sort_attrs):]
+        if subexpect != sort_attrs:
+            controller.client_logger.warn(
+                "Sort discrepency: sort_attrs: {} / expect_cols: {} (subexpect: {})"
+                .format(sort_attrs, expect_cols, subexpect)
+            )
+            controller.affirm(False)
+        else:
+            # Remove the trailing, verified items from the expecting list.
+            expect_cols[:] = expect_cols[:-len(sort_attrs)]
+
+    # ***
+
+    def sort_on_cols_later():
+        actual_cols = []
+        must_sort_later = False
+        for sort_col in sort_cols:
+            target_cols, must_later = sort_col_actual(sort_col)
+            actual_cols.extend(target_cols)
+            must_sort_later = must_sort_later or must_later
+        if not must_sort_later and not resort_always:
+            actual_cols = []
+        return actual_cols
+
+    # Ref: nark.FactManager._get_all_order_by_col.
+    def sort_col_actual(sort_col):
+        must_sort_later = False
+
+        if sort_col == 'start' or not sort_col:
+            if not is_grouped:
+                sort_attrs = ['start', 'end', 'key']
+            else:
+                sort_attrs = ['first_start', 'final_end']
+        elif sort_col == 'time':
+            sort_attrs = ['duration']
+        elif sort_col == 'day':
+            sort_attrs = ['start_date_cmp']
+        elif sort_col == 'activity':
+            if not is_grouped or (group_activity and group_category):
+                if not for_journal:
+                    sort_attrs = ['activity']
+                else:
+                    sort_attrs = ['actegory']
+            elif group_activity:
+                sort_attrs = ['activity']
+            elif group_tags or group_days:
+                must_sort_later = True
+                sort_attrs = ['actegories']
+            else:
+                # group_category (by PK).
+                must_sort_later = True
+                sort_attrs = ['activities']
+        elif sort_col == 'category':
+            if not is_grouped or (group_activity and group_category):
+                if not for_journal:
+                    sort_attrs = ['category']
+                else:
+                    # The journal generally use just actegory,
+                    #   sort_attrs = ['actegory']
+                    # but user did request sorting by category.
+                    sort_attrs = ['category']
+            elif group_category:
+                sort_attrs = ['category']
+            elif group_tags or group_days:
+                must_sort_later = True
+                sort_attrs = ['actegories']
+            else:
+                # group_activity (by name, not PK).
+                must_sort_later = True
+                sort_attrs = ['categories']
+        elif sort_col == 'tag':
+            if not is_grouped or not group_tag:
+                sort_attrs = ['tags']
+            else:
+                sort_attrs = ['tag']
+        elif sort_col == 'usage':
+            sort_attrs = ['group_count']
+        elif sort_col == 'name':
+            sort_attrs = ['description']
+        elif sort_col == 'fact':
+            sort_attrs = ['key']
+        else:
+            controller.client_logger.warn("Unknown sort_col: {}".format(sort_col))
+
+        # Return True to have this module's sort_results_sort_col sort,
+        # regardless of what we this the SQL query accomplished. E.g,
+        # uncomment this to test re-sorting results:
+        #  must_sort_later = True
+        must_sort_later = must_sort_later or resort_always
+
+        return sort_attrs, must_sort_later
 
     # ***
 
@@ -782,6 +1025,16 @@ def generate_facts_table(
         return None
 
     # ***
+
+    # Check each sort_col to see if we care, i.e. if get_all was not
+    # able to sort on that value in the SQL statement. First check
+    # lazily, that is, only indicate which sort cols are ones that
+    # did not work in the SQL statement.
+    # ((lb): This is sorta a hack of functional programming... setting
+    #  down here after sort_on_cols_later(), even though most of the
+    #  function-scope variable are way up top. It's lines like these
+    #  I realize perhaps I should've made this a class!)
+    sorting_columns = sort_on_cols_later()
 
     return _generate_facts_table()
 
