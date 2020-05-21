@@ -96,6 +96,8 @@ FACT_TABLE_HEADERS = {
     # Group-by aggregates. See: FactManager.RESULT_GRP_INDEX.
     'duration': _ReportColumn('duration', _("Duration"), True),
     # The journal format shows a sparkline.
+    # MAYBE/2020-05-18: Add sparkline option to ASCII table formats.
+    'sparkline': _ReportColumn('sparkline', _("Sparkline"), True),
     'group_count': _ReportColumn('group_count', _("Uses"), True),
     # MAYBE/2020-05-18: Format first_start and final_end per user --option.
     # - For now, ASCII table formatter is just str()'ifying.
@@ -161,6 +163,10 @@ def generate_facts_table(
     i_actegories = FactManager.RESULT_GRP_INDEX['actegories']
     i_categories = FactManager.RESULT_GRP_INDEX['categories']
 
+    # A special index into the gross_totals lookup.
+    # MAYBE/2020-05-18: Convert gross_totals to a class object...
+    i_max_duration = i_final_end + 1
+
     resort_always = False
     # YOU: Uncomment to test re-sorting mechanism (in lieu of
     # crafting a custom `dob list` command that triggers the
@@ -181,11 +187,14 @@ def generate_facts_table(
                 break
 
             fact_etc = prepare_fact_and_aggs_list(result)
-            table_row = prepare_row(fact_etc)
-            table_rows.append(TableRow(**table_row))
+            table_row = prepare_row(fact_etc, TableRow)
+            table_rows.append(table_row)
 
             update_gross(fact_etc, gross_totals)
 
+        create_sparklines(table_rows, gross_totals)
+
+        table = [TableRow(**table_row) for table_row in table_rows]
         last_chance_sort_results(table, TableRow, sortref_cols)
 
         table_row = produce_gross(gross_totals)
@@ -611,6 +620,59 @@ def generate_facts_table(
 
     # +++
 
+    def create_sparklines(table_rows, gross_totals):
+        if 'sparkline' not in columns:
+            return
+
+        # REMINDER: These values are in days.
+        cum_duration = convert_duration_days_to_secs(gross_totals[i_cum_duration])
+        max_duration = convert_duration_days_to_secs(gross_totals[i_max_duration])
+
+        spark_max_value = max_duration
+
+        # FIXME/2020-05-20: Replace hardcoded chunk width with --option.
+        # - Add max-value and chunk-secs options, too, perhaps.
+        spark_chunk_width = 12
+        spark_chunk_secs = spark_max_value / spark_chunk_width
+
+        def prepare_sparkline(table_row):
+            # We stashed the duration as seconds.
+            dur_seconds = table_row['duration']
+            sparkline = '████'
+            sparkline = spark_up(dur_seconds, spark_chunk_secs)
+            table_row['sparkline'] = sparkline
+
+            # We've used the seconds value, so now we can format the duration.
+            table_row['duration'] = format_duration_secs(dur_seconds)
+
+        def spark_up(dur_seconds, spark_chunk_secs):
+            # Thanks to:
+            #   https://alexwlchan.net/2018/05/ascii-bar-charts/
+            # MAGIC_NUMBER: The ASCII block elements come in 8 widths.
+            #   https://en.wikipedia.org/wiki/Block_Elements
+            n_chunks, remainder = divmod(dur_seconds, spark_chunk_secs)
+            n_eighths = int(8 * (remainder / spark_chunk_secs))
+            # Start with the full-width block elements.
+            sparkline = '█' * int(n_chunks)
+            # Add the fractional block element. Note that the Unicode
+            # code points for block elements are decreasingly ordered,
+            # (8/8), (7/8), (6/8), etc., so subtract the number of eighths.
+            if n_eighths > 0:
+                sparkline += chr(ord('█') + (8 - n_eighths))
+            # If the sparkline is empty, show at least a little something.
+            # - Add a left one-eighth block.
+            sparkline = sparkline or '▏'
+            # Pad the result.
+            sparkline = '{:{}s}'.format(sparkline, spark_chunk_width)
+            return sparkline
+
+        # +++
+
+        for table_row in table_rows:
+            prepare_sparkline(table_row)
+
+    # +++
+
     def prepare_group_count(table_row, group_count):
         if 'group_count' not in repcols:
             return
@@ -674,7 +736,9 @@ def generate_facts_table(
         #   3: Final final_end.
         #   Skip: Activities, Actegories, Categories.
         # - See: FactManager.RESULT_GRP_INDEX.
-        gross_totals = [0, 0, None, None]
+        # - Also add an additional member not in RESULT_GRP_INDEX:
+        #   4: Maximum duration.
+        gross_totals = [0, 0, None, None, 0]
         return gross_totals
 
     # +++
@@ -693,6 +757,7 @@ def generate_facts_table(
         gross_totals, duration, group_count, first_start, final_end,
     ):
         gross_totals[i_cum_duration] += duration
+        gross_totals[i_max_duration] = max(gross_totals[i_max_duration], duration)
 
         gross_totals[i_group_count] += group_count
 
