@@ -1221,7 +1221,7 @@ def generate_facts_table(
                 must_sort_later = True
                 sort_attrs = ['categories']
         elif sort_col == 'tag':
-            if not qt.is_grouped or not group_tag:
+            if not qt.is_grouped or not qt.group_tags:
                 sort_attrs = ['tags']
             else:
                 sort_attrs = ['tag']
