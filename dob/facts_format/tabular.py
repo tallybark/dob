@@ -461,10 +461,11 @@ def generate_facts_table(
     def group_cols_shim(fact):
         cols_shim = [None] * len(FactManager.RESULT_GRP_INDEX)
         # Because julianday, expects days. MAGIC_NUMBER: 86400 secs/day.
-        cols_shim[i_cum_duration] = fact.delta().total_seconds() / 86400.0
-        cols_shim[i_group_count] = 1
-        cols_shim[i_first_start] = fact.start
-        cols_shim[i_final_end] = fact.end
+        if fact is not None:
+            cols_shim[i_cum_duration] = fact.delta().total_seconds() / 86400.0
+            cols_shim[i_group_count] = 1
+            cols_shim[i_first_start] = fact.start
+            cols_shim[i_final_end] = fact.end
         # 0 is what get_all uses in place of group_concat (which emits a string).
         cols_shim[i_activities] = 0
         cols_shim[i_actegories] = 0
