@@ -937,6 +937,20 @@ def generate_facts_table(
         for key in missing:
             row_slice[key] = ''
 
+        # +++
+
+        # 2020-05-21: (lb): If you're confident other mechanisms are WAD,
+        # you could disable/delete unprepare_unmentioned_columns. The old
+        # post-processing would populate most/all possible columns, and
+        # then remove columns that are not needed (and that TableRow would
+        # complain about). The new post-processing is more deliberate and
+        # should not have extraneous columns to remove.
+        if row_slice != table_row:
+            controller.client_logger.warn(
+                'Unexpected: row_slice != table_row / row_slice: {} / table_row: {}'
+                .format(row_slice, table_row)
+            )
+
         return row_slice
 
     # ***
