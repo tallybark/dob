@@ -53,13 +53,13 @@ class TestSearchTerm(object):
     def test_search(self, controller, mocker, fact, search_parameter_parametrized):
         """Ensure that search parameters are passed to appropriate backend function."""
         since, until, description, expectation = search_parameter_parametrized
-        controller.facts.get_all = mocker.MagicMock(return_value=[fact])
+        controller.facts.gather = mocker.MagicMock(return_value=[fact])
         # F841 local variable '_facts' is assigned to but never used
         _facts = search_facts(controller, since=since, until=until)  # noqa: F841
-        controller.facts.get_all.assert_called_with(**expectation)
+        controller.facts.gather.assert_called_with(**expectation)
         # See: nark's test_get_all_various_since_and_until_times
-        assert controller.facts.get_all.called
-        assert controller.facts.get_all.call_args[1] == {
+        assert controller.facts.gather.called
+        assert controller.facts.gather.call_args[1] == {
             'since': expectation['since'],
             'until': expectation['until'],
         }
@@ -316,7 +316,7 @@ class TestExport(object):
 
     def test_with_since(self, controller, controller_with_logging, tmpdir, mocker):
         """Make sure that passing a end date is passed to the fact gathering method."""
-        controller.facts.get_all = mocker.MagicMock()
+        controller.facts.gather = mocker.MagicMock()
         path = os.path.join(tmpdir.mkdir('report').strpath, 'report.csv')
         nark.reports.CSVWriter = mocker.MagicMock(
             return_value=nark.reports.CSVWriter(path),
@@ -325,12 +325,12 @@ class TestExport(object):
         # Get rid of fractions of a second.
         since = truncate_to_whole_seconds(since)
         export_facts(controller, 'csv', since=since.strftime('%Y-%m-%d %H:%M'))
-        args, kwargs = controller.facts.get_all.call_args
+        args, kwargs = controller.facts.gather.call_args
         assert kwargs['since'] == since
 
     def test_with_until(self, controller, controller_with_logging, tmpdir, mocker):
         """Make sure that passing a until date is passed to the fact gathering method."""
-        controller.facts.get_all = mocker.MagicMock()
+        controller.facts.gather = mocker.MagicMock()
         path = os.path.join(tmpdir.mkdir('report').strpath, 'report.csv')
         nark.reports.CSVWriter = mocker.MagicMock(
             return_value=nark.reports.CSVWriter(path),
@@ -338,7 +338,7 @@ class TestExport(object):
         until = fauxfactory.gen_datetime()
         until = truncate_to_whole_seconds(until)
         export_facts(controller, 'csv', until=until.strftime('%Y-%m-%d %H:%M'))
-        args, kwargs = controller.facts.get_all.call_args
+        args, kwargs = controller.facts.gather.call_args
         assert kwargs['until'] == until
 
     def test_with_filename(self, controller, controller_with_logging, tmpdir, mocker):
@@ -406,19 +406,19 @@ class TestActivities(object):
         self, controller, activity, mocker, capsys,
     ):
         """Make sure the search term is passed on."""
-        controller.categories.get_by_name = mocker.MagicMock(
-            return_value=activity.category,
-        )
-        controller.activities.get_all = mocker.MagicMock(
+        controller.activities.query_process_results = mocker.MagicMock(
             return_value=[activity],
         )
+        controller.activities.query_filter_by_category_name = mocker.MagicMock(
+            return_value=activity.category.name,
+        )
         cmds_list.activity.list_activities(
-            controller, filter_category=activity.category.name,
+            controller, category=activity.category,
         )
         out, err = capsys.readouterr()
-        assert controller.activities.get_all.called
-        controller.activities.get_all.assert_called_with(
-            category=activity.category,
+        assert controller.activities.query_filter_by_category_name.called
+        controller.activities.query_filter_by_category_name.assert_called_with(
+            activity.category,
         )
         assert activity.name in out
         assert activity.category.name in out
@@ -427,35 +427,57 @@ class TestActivities(object):
         self, controller, activity, mocker, capsys,
     ):
         """Make sure the search term is passed on."""
-        controller.activities.get_all = mocker.MagicMock(
+        controller.activities.gather = mocker.MagicMock(
             return_value=[activity],
         )
         cmds_list.activity.list_activities(
-            controller, search_term=activity.category.name,
+            controller,
+            # Defaults.
+            table_type='friendly',
+            chop=False,
+            hide_usage=False,
+            hide_duration=False,
+            # The one we're testing.
+            search_term=activity.category.name,
         )
         out, err = capsys.readouterr()
-        assert controller.activities.get_all.called
-        controller.activities.get_all.assert_called_with(
-            category=False, search_term=activity.category.name,
+        assert controller.activities.gather.called
+        # Mock's assert_called_with checks arguments exactly, but we
+        # just care to check that the search_term was there.
+        assert (
+            controller.activities.gather.call_args.kwargs['search_term']
+            == activity.category.name
         )
+        # The category is a pass-through list_activities **kwarg, so
+        # won't be in the kwargs.
+        assert 'category' not in controller.activities.gather.call_args.kwargs
         assert activity.name in out
         assert activity.category.name in out
 
-    def test_list_activities_with_category_miss(
-        self, controller, activity, mocker, capsys,
-    ):
-        """Make sure the search term is passed on."""
-        category_miss = activity.category.name + '_test'
-        controller.activities.get_all = mocker.MagicMock(
-            return_value=[activity],
-        )
-        with pytest.raises(KeyError):
-            cmds_list.activity.list_activities(
-                controller, filter_category=category_miss,
+    # (lb): This test made more sense in hamster-lib, where you could pass a Category
+    # item to the Activity get_all. But in dob, it bakes the Category search into
+    # the SQL, so there's not gonna be a KeyError or anything raised on an unknown
+    # Category name. Also, the test does not setup the database here, so the SQL
+    # won't not find anything because the Category name is a miss, it just won't
+    # find anything because there's nothing in the database.
+    # See instead:
+    #   nark.tests.backends.sqlalchemy.test_storage.test_get_all_with_category_miss
+    if False:
+        def test_list_activities_with_category_miss(
+            self, controller, activity, mocker, capsys,
+        ):
+            """Make sure the search term is passed on."""
+            category_miss = activity.category.name + '_test'
+            controller.activities.get_all = mocker.MagicMock(
+                return_value=[activity],
             )
-            assert False  # Unreachable.
-        out, err = capsys.readouterr()
-        assert not controller.activities.get_all.called
+            with pytest.raises(KeyError):
+                cmds_list.activity.list_activities(
+                    controller, filter_category=category_miss,
+                )
+                assert False  # Unreachable.
+            out, err = capsys.readouterr()
+            assert not controller.activities.get_all.called
 
 
 class TestDetails(object):
