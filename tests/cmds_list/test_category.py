@@ -15,16 +15,18 @@
 # You can find the GNU General Public License reprinted in the file titled 'LICENSE',
 # or visit <http://www.gnu.org/licenses/>.
 
-from dob.dob import _license
+from dob import cmds_list
 
 
-class TestDobLicenseWrapper(object):
-    """Unittests for ``license`` command."""
+class TestCategories(object):
+    """Unittest related to category listings."""
 
-    def test_dob_license_wrapper(self, capsys):
-        """Make sure the license text is actually displayed."""
-        _license()
+    def test_categories(self, controller_with_logging, category, mocker, capsys):
+        """Make sure the categories get displayed to the user."""
+        controller = controller_with_logging
+        controller.categories.get_all = mocker.MagicMock(return_value=[category])
+        cmds_list.category.list_categories(controller)
         out, err = capsys.readouterr()
-        assert out.startswith("GNU GENERAL PUBLIC LICENSE")
-        assert "Version 3, 29 June 2007" in out
+        assert category.name in out
+        assert controller.categories.get_all.called
 

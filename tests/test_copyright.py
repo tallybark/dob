@@ -15,16 +15,23 @@
 # You can find the GNU General Public License reprinted in the file titled 'LICENSE',
 # or visit <http://www.gnu.org/licenses/>.
 
-from dob.dob import _license
+from dob import dob
 
 
-class TestDobLicenseWrapper(object):
-    """Unittests for ``license`` command."""
+class TestCommandCopyright(object):
+    """Make shure our greeting function behaves as expected."""
 
-    def test_dob_license_wrapper(self, capsys):
-        """Make sure the license text is actually displayed."""
-        _license()
+    def test_shows_copyright(self, capsys):
+        """Make sure we show basic copyright information."""
+        dob.echo_copyright()
         out, err = capsys.readouterr()
-        assert out.startswith("GNU GENERAL PUBLIC LICENSE")
-        assert "Version 3, 29 June 2007" in out
+        assert "Copyright" in out
+
+    # Already tested, really; see: test_dob_license_wrapper (dob._license() test).
+    def test_shows_license(self, capsys):
+        """Make sure we display a brief reference to the license."""
+        dob.echo_license()
+        out, err = capsys.readouterr()
+        assert 'GNU GENERAL PUBLIC LICENSE' in out
+        assert 'Version 3' in out
 

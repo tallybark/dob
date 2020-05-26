@@ -15,16 +15,24 @@
 # You can find the GNU General Public License reprinted in the file titled 'LICENSE',
 # or visit <http://www.gnu.org/licenses/>.
 
-from dob.dob import _license
+from dob.facts_format.tabular import generate_facts_table
 
 
-class TestDobLicenseWrapper(object):
-    """Unittests for ``license`` command."""
+class TestGenerateTable(object):
+    def test_generate_table(self, controller_with_logging, fact):
+        """Make sure the table contains all expected fact data."""
+        controller = controller_with_logging
+        table, columns = generate_facts_table(
+            controller, [fact],
+        )
+        assert table[0].start == fact.start.strftime('%Y-%m-%d %H:%M')
+        assert table[0].activity == fact.activity.name
 
-    def test_dob_license_wrapper(self, capsys):
-        """Make sure the license text is actually displayed."""
-        _license()
-        out, err = capsys.readouterr()
-        assert out.startswith("GNU GENERAL PUBLIC LICENSE")
-        assert "Version 3, 29 June 2007" in out
+    def test_header(self, controller_with_logging):
+        """Make sure the tables header matches our expectation."""
+        controller = controller_with_logging
+        table, columns = generate_facts_table(
+            controller, [],
+        )
+        assert len(header) == 8
 

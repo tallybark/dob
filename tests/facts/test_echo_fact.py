@@ -15,16 +15,18 @@
 # You can find the GNU General Public License reprinted in the file titled 'LICENSE',
 # or visit <http://www.gnu.org/licenses/>.
 
-from dob.dob import _license
+import pytest
+
+from dob.facts.echo_fact import echo_ongoing_fact
 
 
-class TestDobLicenseWrapper(object):
-    """Unittests for ``license`` command."""
+class TestCurrent(object):
+    """Unittest for dealing with 'ongoing facts'."""
 
-    def test_dob_license_wrapper(self, capsys):
-        """Make sure the license text is actually displayed."""
-        _license()
-        out, err = capsys.readouterr()
-        assert out.startswith("GNU GENERAL PUBLIC LICENSE")
-        assert "Version 3, 29 June 2007" in out
+    def test_no_ongoing_fact(self, controller_with_logging, capsys):
+        """Make sure we display proper feedback if there is no current 'ongoing fact."""
+        controller = controller_with_logging
+        with pytest.raises(SystemExit):
+            echo_ongoing_fact(controller)
+            assert False  # Unreachable.
 
