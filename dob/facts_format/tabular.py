@@ -1013,7 +1013,7 @@ def generate_facts_table(
     # ***
 
     def last_chance_sort_results(table, row_cls, sortref_cols):
-        if not table:
+        if not table or not qt.sort_cols:
             return
 
         # Check each sort_col to see if we care, i.e. if get_all was not
