@@ -39,7 +39,7 @@ def output_ascii_table(
     controller,
     results,
     row_limit,
-    includes_extras,
+    includes_stats,
     is_grouped=False,
     group_activity=False,
     group_category=False,
@@ -63,7 +63,7 @@ def output_ascii_table(
         controller,
         results,
         row_limit,
-        includes_extras,
+        includes_stats,
         is_grouped=is_grouped,
         group_activity=group_activity,
         group_category=group_category,
@@ -141,7 +141,7 @@ def generate_facts_table(
     controller,
     results,
     row_limit,
-    includes_extras,
+    includes_stats,
     # An indication of how the results are grouped, to help processing.
     is_grouped=False,
     group_activity=False,
@@ -298,7 +298,7 @@ def generate_facts_table(
         aggregate_cols = assemble_columns_sample_aggregate(test_result)
         if for_journal:
             return assemble_columns_for_journal(aggregate_cols)
-        elif not includes_extras:
+        elif not includes_stats:
             return assemble_columns_single_fact()
         return assemble_columns_fact_and_aggs(aggregate_cols)
 

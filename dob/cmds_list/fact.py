@@ -73,13 +73,13 @@ def list_facts(
     """
     def _list_facts():
         is_grouped = must_grouping_allowed()
-        include_extras = includes_extras(is_grouped)
+        include_stats = includes_stats(is_grouped)
 
-        results = perform_search(include_extras)
+        results = perform_search(include_stats)
         if not results:
             error_exit_no_results(_('facts'))
 
-        display_results(results, is_grouped, include_extras)
+        display_results(results, is_grouped, include_stats)
 
     def must_grouping_allowed():
         is_grouped = (
@@ -98,7 +98,7 @@ def list_facts(
     # have complementary options, --show-usage and --hide-usage options,
     # and --show-duration and --hide-duration, that dictate if we need
     # the query to include the aggregate columns or not.
-    def includes_extras(is_grouped):
+    def includes_stats(is_grouped):
         # If a group-by is specified, the report will show the aggregated names,
         # such as showing 'Activities' instead of 'Activity'. Include the extra
         # aggregate columns.
@@ -126,12 +126,12 @@ def list_facts(
 
         return False
 
-    def perform_search(include_extras):
-        kwargs['sort_cols'] = sort_cols(include_extras)
+    def perform_search(include_stats):
+        kwargs['sort_cols'] = sort_cols(include_stats)
         results = search_facts(
             controller,
             *args,
-            include_extras=include_extras,
+            include_stats=include_stats,
             group_activity=group_activity,
             group_category=group_category,
             group_tags=group_tags,
@@ -141,18 +141,18 @@ def list_facts(
 
         return results
 
-    def sort_cols(include_extras):
+    def sort_cols(include_stats):
         try:
             return kwargs['sort_cols']
         except KeyError:
             # If request includes the 'duration' column, might as well use it.
-            if not include_extras or hide_usage:
+            if not include_stats or hide_usage:
                 # No 'duration' column, or user is asking to hide the 'uses'
                 # column. Fall back to default, order-by 'start'.
                 return ('start',)  # The get_all default.
             return ('time',)  # Aka, sort-by 'duration'.
 
-    def display_results(results, is_grouped, includes_extras):
+    def display_results(results, is_grouped, includes_stats):
         row_limit = suss_row_limit()
 
         if format_factoid:
@@ -172,7 +172,7 @@ def list_facts(
                 controller,
                 results,
                 row_limit=row_limit,
-                includes_extras=includes_extras,
+                includes_stats=includes_stats,
                 is_grouped=is_grouped,
                 group_activity=group_activity,
                 group_category=group_category,
