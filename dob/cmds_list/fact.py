@@ -19,6 +19,8 @@ from gettext import gettext as _
 
 import sys
 
+from nark.managers.query_terms import QueryTerms
+
 from dob_bright.termio import dob_in_user_exit
 
 from ..clickux.query_assist import (
@@ -37,11 +39,9 @@ __all__ = (
 
 def list_facts(
     controller,
-    # CLI --options.
-    group_activity=False,
-    group_category=False,
-    group_tags=False,
-    group_days=False,
+    # - Save for controller, all parameters are CLI --options.
+    # - The named keyword arguments listed first are used for output
+    #   formatting and not for the query.
     hide_usage=False,
     hide_duration=False,
     hide_description=False,
@@ -57,52 +57,55 @@ def list_facts(
     spark_secs=None,
     out_file=None,
     term_width=None,
-    # args is search term(s), if any.
+    # - Any unnamed arguments are used as search terms in the query.
     *args,
-    # kwargs is pass-through CLI --options for get_all, including:
-    #   group_activity, group_category, group_tags, group_days;
-    #   as wells as sort_cols, sort_orders, limit, and offset,
-    #   and since, and until.
+    # - All remaining keyword arguments correspond to nark.QueryTerms.
     **kwargs
 ):
     """
-    List facts, with filtering and sorting options.
+    Finds and lists facts according to specified filtering, sorting and display options.
+
+    Writes to stdout, or to the specified ``out_file``.
+
+    Arguments:
+        Most of the arguments are documented elsewhere.
 
     Returns:
         None: If success.
     """
     def _list_facts():
-        is_grouped = must_grouping_allowed()
-        include_stats = includes_stats(is_grouped)
-
-        results = perform_search(include_stats)
+        qt = prepare_query_terms()
+        results = search_facts(controller, query_terms=qt)
         if not results:
             error_exit_no_results(_('facts'))
+        display_results(results, qt)
 
-        display_results(results, is_grouped, include_stats)
+    # ***
 
-    def must_grouping_allowed():
-        is_grouped = (
-            group_activity
-            or group_category
-            or group_tags
-            or group_days
-        )
-        if is_grouped and format_factoid:
-            dob_in_user_exit(_(
-                'ERROR: Cannot create Factoid report when grouping.'
-            ))
-        return is_grouped
+    def prepare_query_terms():
+        qt = QueryTerms(*args, **kwargs)
+        must_grouping_allowed(qt)
+        qt.include_stats = should_include_stats(qt)
+        qt.sort_cols = decide_sort_cols(qt)
+        return qt
+
+    def must_grouping_allowed(qt):
+        if not qt.is_grouped or not format_factoid:
+            return
+
+        dob_in_user_exit(_(
+            'ERROR: Cannot create Factoid report when grouping.'
+        ))
 
     # Note that the two complementary commands, dob-list and dob-usage,
     # have complementary options, --show-usage and --hide-usage options,
     # and --show-duration and --hide-duration, that dictate if we need
     # the query to include the aggregate columns or not.
-    def includes_stats(is_grouped):
+    def should_include_stats(qt):
         # If a group-by is specified, the report will show the aggregated names,
         # such as showing 'Activities' instead of 'Activity'. Include the extra
         # aggregate columns.
-        if is_grouped:
+        if qt.is_grouped:
             return True
 
         # Also include the aggregate columns if the user wants to include the
@@ -111,7 +114,7 @@ def list_facts(
         # does it with julianday() - julianday() math.)
         if (
             # Ignore `not hide_usage` -- the 'uses' column can be deduced as 1
-            # because not is_grouped.
+            # because not qt.is_grouped.
             not hide_duration
             and (not column or (
                 True
@@ -126,34 +129,21 @@ def list_facts(
 
         return False
 
-    def perform_search(include_stats):
-        kwargs['sort_cols'] = sort_cols(include_stats)
-        results = search_facts(
-            controller,
-            *args,
-            include_stats=include_stats,
-            group_activity=group_activity,
-            group_category=group_category,
-            group_tags=group_tags,
-            group_days=group_days,
-            **kwargs
-        )
+    def decide_sort_cols(qt):
+        if qt.sort_cols is not None:
+            return qt.sort_cols
 
-        return results
+        # If request includes the 'duration' column, might as well use it.
+        if not qt.include_stats or hide_usage:
+            # No 'duration' column, or user is asking to hide the 'uses'
+            # column. Fall back to default, order-by 'start'.
+            return ('start',)  # The get_all default.
+        return ('time',)  # Aka, sort-by 'duration'.
 
-    def sort_cols(include_stats):
-        try:
-            return kwargs['sort_cols']
-        except KeyError:
-            # If request includes the 'duration' column, might as well use it.
-            if not include_stats or hide_usage:
-                # No 'duration' column, or user is asking to hide the 'uses'
-                # column. Fall back to default, order-by 'start'.
-                return ('start',)  # The get_all default.
-            return ('time',)  # Aka, sort-by 'duration'.
+    # ***
 
-    def display_results(results, is_grouped, includes_stats):
-        row_limit = suss_row_limit()
+    def display_results(results, qt):
+        row_limit = suss_row_limit(qt)
 
         if format_factoid:
             output_factoid_list(
@@ -171,65 +161,50 @@ def list_facts(
             output_ascii_table(
                 controller,
                 results,
+                query_terms=qt,
                 row_limit=row_limit,
-                includes_stats=includes_stats,
-                is_grouped=is_grouped,
-                group_activity=group_activity,
-                group_category=group_category,
-                group_tags=group_tags,
-                group_days=group_days,
                 hide_usage=hide_usage,
                 hide_duration=hide_duration,
                 hide_description=hide_description,
                 custom_columns=column,
                 chop=chop,
                 table_type='journal' if format_journal else table_type,
-                sort_cols=get_kwargs('sort_cols'),
-                sort_orders=get_kwargs('sort_orders'),
                 spark_total=spark_total,
                 spark_width=spark_width,
                 spark_secs=spark_secs,
             )
 
-    def suss_row_limit():
+    def suss_row_limit(qt):
         # Limit the number of rows dumped, unless user specified --limit,
         # or if not dumping to the terminal.
         row_limit = None
-        if out_file is None and sys.stdin.isatty() and get_kwargs('limit') is None:
+        if out_file is None and sys.stdin.isatty() and qt.limit is None:
             row_limit = controller.config['term.row_limit']
         return row_limit
-
-    def get_kwargs(argname):
-        try:
-            return kwargs[argname]
-        except KeyError:
-            return None
 
     _list_facts()
 
 
 # ***
 
-def search_facts(
-    controller,
-    key=None,
-    *args,
-    **kwargs
-):
+def search_facts(controller, **kwargs):
     """
     Search for one or more facts, given a set of search criteria and sort options.
 
     Args:
-        search_term: Term that need to be matched by the fact in order to be
-            considered a hit.
+        query_terms: A QueryTerms object that defines the query.
 
-        FIXME: Keep documenting...
+        **kwargs: Alternatively, pass any or all of the QueryTerms attributes.
+
+    Returns:
+        A list of matching Facts, or matching (Fact, *statistics) tuples,
+        depending on the QueryTerms.
     """
-    if key:
-        return [controller.facts.get(pk=key)]
+    if 'key' in kwargs and kwargs['key']:
+        return [controller.facts.get(pk=kwargs['key'])]
     else:
         try:
-            return controller.facts.get_all(*args, **kwargs)
+            return controller.facts.get_all(**kwargs)
         except NotImplementedError as err:
             # This happens if db.engine != 'sqlite', because get_all
             # uses SQLite-specific aggregate functions.

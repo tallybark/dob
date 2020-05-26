@@ -21,6 +21,7 @@ from operator import attrgetter
 
 from gettext import gettext as _
 
+from nark.backends.sqlalchemy.managers import query_sort_order_at_index
 from nark.backends.sqlalchemy.managers.fact import FactManager
 from nark.helpers.format_time import format_delta
 
@@ -38,21 +39,14 @@ __all__ = (
 def output_ascii_table(
     controller,
     results,
-    row_limit,
-    includes_stats,
-    is_grouped=False,
-    group_activity=False,
-    group_category=False,
-    group_tags=False,
-    group_days=False,
+    query_terms,
+    row_limit=0,
     hide_usage=False,
     hide_duration=False,
     hide_description=False,
     custom_columns=None,
     chop=False,
     table_type='friendly',
-    sort_cols=None,
-    sort_orders=None,
     spark_total=None,
     spark_width=None,
     spark_secs=None,
@@ -62,20 +56,13 @@ def output_ascii_table(
     table, headers, desc_col_idx = generate_facts_table(
         controller,
         results,
-        row_limit,
-        includes_stats,
-        is_grouped=is_grouped,
-        group_activity=group_activity,
-        group_category=group_category,
-        group_tags=group_tags,
-        group_days=group_days,
+        query_terms=query_terms,
+        row_limit=row_limit,
         show_usage=not hide_usage,
         show_duration=not hide_duration,
         show_description=not hide_description,
         custom_columns=custom_columns,
         for_journal=for_journal,
-        sort_cols=sort_cols,
-        sort_orders=sort_orders,
         spark_total=spark_total,
         spark_width=spark_width,
         spark_secs=spark_secs,
@@ -140,14 +127,8 @@ def report_table_columns():
 def generate_facts_table(
     controller,
     results,
-    row_limit,
-    includes_stats,
-    # An indication of how the results are grouped, to help processing.
-    is_grouped=False,
-    group_activity=False,
-    group_category=False,
-    group_tags=False,
-    group_days=False,
+    query_terms,
+    row_limit=0,
     # The user can pick some columns to hide/show:
     show_usage=True,
     show_duration=True,
@@ -156,8 +137,6 @@ def generate_facts_table(
     custom_columns=None,
     # Or this could be for a journal, in which case we decide:
     for_journal=False,
-    sort_cols=None,
-    sort_orders=None,
     spark_total=None,
     spark_width=None,
     spark_secs=None,
@@ -169,6 +148,8 @@ def generate_facts_table(
     instances, each representing a single Fact, or the summary of a
     group of Facts.
     """
+    qt = query_terms
+
     columns = []
     repcols = {}
     sorting_columns = None
@@ -272,7 +253,7 @@ def generate_facts_table(
         ]
 
     def assemble_columns_report_custom_sanitize(custom_cols):
-        if is_grouped:
+        if qt.is_grouped:
             disallow = set([
                 'key',
                 'start',
@@ -298,7 +279,7 @@ def generate_facts_table(
         aggregate_cols = assemble_columns_sample_aggregate(test_result)
         if for_journal:
             return assemble_columns_for_journal(aggregate_cols)
-        elif not includes_stats:
+        elif not qt.include_stats:
             return assemble_columns_single_fact()
         return assemble_columns_fact_and_aggs(aggregate_cols)
 
@@ -321,7 +302,7 @@ def generate_facts_table(
         # Start by deciding which columns to show first,
         # which depends on sorting and grouping.
         time_cols = []
-        if group_days:
+        if qt.group_days:
             first_cols = ['start_date']
         else:
             sort_attr = attr_for_sort_col()
@@ -329,7 +310,7 @@ def generate_facts_table(
             if not first_cols:
                 # first_cols = ['start_date', 'start_time']
                 first_cols = ['end_date', 'start_time']
-            elif is_grouped:
+            elif qt.is_grouped:
                 # FIXME: make date format Fri Jun 29  9:30am but let user change...
                 time_cols = ['first_start', 'final_end']
             else:
@@ -355,7 +336,7 @@ def generate_facts_table(
         _columns.append('sparkline')
         _columns.extend(time_cols)
         _columns.extend(meta_cols)
-        if not group_days:
+        if not qt.group_days:
             _columns.append('start_date')
         else:
             _columns.append('start_date_cmp')
@@ -364,7 +345,7 @@ def generate_facts_table(
 
     def attr_for_sort_col():
         # --sort [name|activity|category|tag|fact|start|usage|time|day]
-        sort_col = sort_cols[0] if sort_cols else ''
+        sort_col = qt.sort_cols[0] if qt.sort_cols else ''
         if sort_col in ('activity', 'category', 'tag'):
             return sort_col
         return ''
@@ -382,7 +363,7 @@ def generate_facts_table(
         elif aggregate_cols[i_actegories] not in [0, None]:
             # group_tags (but neither group_category or group_activity).
             if sort_attr == 'tag':
-                if group_days:
+                if qt.group_days:
                     return ['tags']
                 else:
                     return ['tag']
@@ -396,9 +377,9 @@ def generate_facts_table(
                 return ['categories']
             elif sort_attr == 'tag':
                 return ['tags']
-        elif group_days:
+        elif qt.group_days:
             return None
-        elif is_grouped:
+        elif qt.is_grouped:
             # group_activity and group_category.
             return ['actegory']
         # else, nothing grouped, and not sorting on Fact attribute.
@@ -441,7 +422,7 @@ def generate_facts_table(
             meta_cols.append('tags')
         elif aggregate_cols[i_actegories] not in [0, None]:
             # group_tags (but neither group_category or group_activity).
-            if group_days:
+            if qt.group_days:
                 meta_cols.append('tags')
             else:
                 meta_cols.append('tag')
@@ -637,7 +618,7 @@ def generate_facts_table(
         elif actegories not in [None, 0]:
             # Group by tags but not activity or category.
             prepare_actegories(table_row, actegories)
-            if group_days:
+            if qt.group_days:
                 prepare_tagnames(table_row, fact)
             else:
                 # Else, group_tags, so one each.
@@ -1041,7 +1022,7 @@ def generate_facts_table(
         # did not work in the SQL statement.
         needs_sort = any([
             sort_attrs_for_col(row_cls, sort_col, lazy=True)
-            for sort_col in sort_cols
+            for sort_col in qt.sort_cols
         ])
 
         if not needs_sort and not resort_always:
@@ -1050,8 +1031,8 @@ def generate_facts_table(
         controller.client_logger.warn('Post Processing: Re-SORTing.')
 
         expect_cols = sorting_columns.copy()
-        for idx, sort_col in reversed(list(enumerate(sort_cols))):
-            sort_order = sort_orders[idx]
+        for idx, sort_col in reversed(list(enumerate(qt.sort_cols))):
+            sort_order = query_sort_order_at_index(qt.sort_orders, idx)
             sort_results_sort_col(table, row_cls, sort_col, sort_order, expect_cols)
 
     def sort_results_sort_col(table, row_cls, sort_col, sort_order, expect_cols):
@@ -1131,7 +1112,7 @@ def generate_facts_table(
             # the sort columns before processing results, and ensures
             # the necessary sort columns are ready for us here.
             if sort_col == 'start':
-                if not is_grouped:
+                if not qt.is_grouped:
                     sort_attrs = ['start', 'end', 'key']
                 else:
                     sort_attrs = ['first_start', 'final_end']
@@ -1160,7 +1141,7 @@ def generate_facts_table(
     def verify_available_sort_cols_match_anticipated(sort_attrs, expect_cols):
         # NOTE: (lb): This is just a verification check, because I coded three
         #       very similar sort_cols processors:
-        #           nark.backends.sqlalchemy.managers.fact.FactManager._get_all_order_by
+        #           nark.backends.sqlalchemy.managers.fact.FactManager.query_order_by_aggregate
         #           dob.facts_format.tabular.sort_col_actual
         #           dob.facts_format.tabular.sort_attrs_for_col
         #       It just happened!
@@ -1185,7 +1166,7 @@ def generate_facts_table(
     def sort_on_cols_later():
         actual_cols = []
         must_sort_later = False
-        for sort_col in sort_cols:
+        for sort_col in qt.sort_cols or []:
             target_cols, must_later = sort_col_actual(sort_col)
             actual_cols.extend(target_cols)
             must_sort_later = must_sort_later or must_later
@@ -1193,12 +1174,12 @@ def generate_facts_table(
             actual_cols = []
         return actual_cols
 
-    # Ref: nark.FactManager._get_all_order_by_col.
+    # Ref: nark.FactManager.query_order_by_sort_col.
     def sort_col_actual(sort_col):
         must_sort_later = False
 
         if sort_col == 'start' or not sort_col:
-            if not is_grouped:
+            if not qt.is_grouped:
                 sort_attrs = ['start', 'end', 'key']
             else:
                 sort_attrs = ['first_start', 'final_end']
@@ -1207,14 +1188,14 @@ def generate_facts_table(
         elif sort_col == 'day':
             sort_attrs = ['start_date_cmp']
         elif sort_col == 'activity':
-            if not is_grouped or (group_activity and group_category):
+            if not qt.is_grouped or (qt.group_activity and qt.group_category):
                 if not for_journal:
                     sort_attrs = ['activity']
                 else:
                     sort_attrs = ['actegory']
-            elif group_activity:
+            elif qt.group_activity:
                 sort_attrs = ['activity']
-            elif group_tags or group_days:
+            elif qt.group_tags or qt.group_days:
                 must_sort_later = True
                 sort_attrs = ['actegories']
             else:
@@ -1222,7 +1203,7 @@ def generate_facts_table(
                 must_sort_later = True
                 sort_attrs = ['activities']
         elif sort_col == 'category':
-            if not is_grouped or (group_activity and group_category):
+            if not qt.is_grouped or (qt.group_activity and qt.group_category):
                 if not for_journal:
                     sort_attrs = ['category']
                 else:
@@ -1230,9 +1211,9 @@ def generate_facts_table(
                     #   sort_attrs = ['actegory']
                     # but user did request sorting by category.
                     sort_attrs = ['category']
-            elif group_category:
+            elif qt.group_category:
                 sort_attrs = ['category']
-            elif group_tags or group_days:
+            elif qt.group_tags or qt.group_days:
                 must_sort_later = True
                 sort_attrs = ['actegories']
             else:
@@ -1240,7 +1221,7 @@ def generate_facts_table(
                 must_sort_later = True
                 sort_attrs = ['categories']
         elif sort_col == 'tag':
-            if not is_grouped or not group_tag:
+            if not qt.is_grouped or not group_tag:
                 sort_attrs = ['tags']
             else:
                 sort_attrs = ['tag']

@@ -47,6 +47,8 @@ def export_facts(
     to_format='csv',
     file_out=None,
 
+    # The remaining arguments are a subset of QueryTerms options.
+
     key=None,
 
     since=None,
@@ -96,18 +98,45 @@ def export_facts(
 
         facts = search_facts(
             controller,
+
+            # The remaining arguments are all the QueryTerms options.
+            # The complete list included here as an educational reminder
+            # of how the export command is simply a more restrictive list
+            # command with different output options.
+
+            raw=False,
+            named_tuples=False,
+            include_stats=False,
+
+            count_results=False,
+
             key=key,
             since=since,
             until=until,
+            endless=False,
+            exclude_ongoing=False,
+            partial=False,
             # deleted=deleted,
+            deleted=False,
+
             search_term=search_term,
+
+            activity=False,
             match_activities=match_activities,
+            category=False,
             match_categories=match_categories,
+
+            group_activity=False,
+            group_category=False,
+            group_tags=False,
+            group_days=False,
+
             # sort_cols=sort_cols,
+            sort_cols=None,
             sort_orders=sort_orders,
+
             limit=limit,
             offset=offset,
-            # **kwargs
         )
 
         export_formatted(facts, filepath, to_format)
