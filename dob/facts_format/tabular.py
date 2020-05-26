@@ -36,54 +36,6 @@ __all__ = (
 )
 
 
-def output_ascii_table(
-    controller,
-    results,
-    query_terms,
-    row_limit=0,
-    hide_usage=False,
-    hide_duration=False,
-    hide_description=False,
-    custom_columns=None,
-    chop=False,
-    table_type='friendly',
-    spark_total=None,
-    spark_width=None,
-    spark_secs=None,
-):
-    for_journal = table_type == 'journal'
-
-    table, headers, desc_col_idx = generate_facts_table(
-        controller,
-        results,
-        query_terms=query_terms,
-        row_limit=row_limit,
-        show_usage=not hide_usage,
-        show_duration=not hide_duration,
-        show_description=not hide_description,
-        custom_columns=custom_columns,
-        for_journal=for_journal,
-        spark_total=spark_total,
-        spark_width=spark_width,
-        spark_secs=spark_secs,
-    )
-
-    if for_journal:
-        output_time_journal(
-            table,
-        )
-    else:
-        generate_table(
-            table,
-            headers,
-            table_type,
-            truncate=chop,
-            trunccol=desc_col_idx,
-        )
-
-
-# ***
-
 _ReportColumn = namedtuple('_ReportColumn', ('column', 'header', 'option'))
 
 FACT_TABLE_HEADERS = {
@@ -123,6 +75,94 @@ FACT_TABLE_HEADERS = {
 def report_table_columns():
     return [item.column for key, item in FACT_TABLE_HEADERS.items() if item.option]
 
+
+def headers_for_columns(columns):
+    return [FACT_TABLE_HEADERS[column].header for column in columns]
+
+
+# ***
+
+def output_ascii_table(
+    controller,
+    results,
+    query_terms,
+    row_limit=0,
+    hide_usage=False,
+    hide_duration=False,
+    hide_description=False,
+    custom_columns=None,
+    chop=False,
+    table_type='friendly',
+    spark_total=None,
+    spark_width=None,
+    spark_secs=None,
+):
+    for_journal = table_type == 'journal'
+
+    def _output_ascii_table():
+        table, columns = prepare_table_and_columns()
+        display_prepared_results(table, columns)
+
+    def prepare_table_and_columns():
+        table, columns = generate_facts_table(
+            controller,
+            results,
+            query_terms=query_terms,
+            row_limit=row_limit,
+            show_usage=not hide_usage,
+            show_duration=not hide_duration,
+            show_description=not hide_description,
+            custom_columns=custom_columns,
+            for_journal=for_journal,
+            spark_total=spark_total,
+            spark_width=spark_width,
+            spark_secs=spark_secs,
+        )
+        return table, columns
+
+    def display_prepared_results(table, columns):
+        if for_journal:
+            output_time_journal(
+                table,
+            )
+        else:
+            headers = headers_for_columns(columns)
+            desc_col_idx = deduce_trunccol(columns)
+            generate_table(
+                table,
+                headers,
+                table_type,
+                truncate=chop,
+                trunccol=desc_col_idx,
+            )
+
+    def deduce_trunccol(columns):
+        # This is very inexact psyence. (We could maybe expose this as a CLI
+        # option.) Figure out which column is appropriate to truncate.
+        # - (lb): Back in 2018 when I first wrote this, the 'description'
+        #   seemed like the obvious column. But it's no longer always there.
+        #   And also, now you can group-by columns, which can make for a
+        #   very long actegories column. Even tags might be a candidate.
+        for candidate in [
+            'description',
+            'actegories',
+            'activities',
+            'categories',
+            'tags',
+        ]:
+            try:
+                return columns.index(candidate)
+            except ValueError:
+                pass
+        # Give up. No column identified.
+        return None
+
+    # ***
+
+    return _output_ascii_table()
+
+
+# ***
 
 def generate_facts_table(
     controller,
@@ -184,7 +224,7 @@ def generate_facts_table(
 
     def _generate_facts_table():
         test_result = results[0] if results else None
-        headers, TableRow, sortref_cols = prepare_columns(test_result)
+        TableRow, sortref_cols = prepare_columns(test_result)
 
         gross_totals = initial_gross()
 
@@ -212,20 +252,17 @@ def generate_facts_table(
             table.append(TableRow(**empty_row))
             table.append(TableRow(**table_row))
 
-        desc_col_idx = deduce_trunccol()
-
-        return (table, headers, desc_col_idx)
+        return (table, columns)
 
     # ***
 
     def prepare_columns(test_result):
         columns[:], sortref_cols = assemble_columns(test_result)
-        headers = [FACT_TABLE_HEADERS[column].header for column in columns]
         repcols.update({
             key: val for key, val in FACT_TABLE_HEADERS.items() if key in columns
         })
         TableRow = namedtuple('TableRow', columns)
-        return headers, TableRow, sortref_cols
+        return TableRow, sortref_cols
 
     # +++
 
@@ -1242,29 +1279,6 @@ def generate_facts_table(
         must_sort_later = must_sort_later or resort_always
 
         return sort_attrs, must_sort_later
-
-    # ***
-
-    def deduce_trunccol():
-        # This is very inexact psyence. (We could maybe expose this as a CLI
-        # option.) Figure out which column is appropriate to truncate.
-        # - (lb): Back in 2018 when I first wrote this, the 'description'
-        #   seemed like the obvious column. But it's no longer always there.
-        #   And also, now you can group-by columns, which can make for a
-        #   very long actegories column. Even tags might be a candidate.
-        for candidate in [
-            'description',
-            'actegories',
-            'activities',
-            'categories',
-            'tags',
-        ]:
-            try:
-                return columns.index(candidate)
-            except ValueError:
-                pass
-        # Give up. No column identified.
-        return None
 
     # ***
 

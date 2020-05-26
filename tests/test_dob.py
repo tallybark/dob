@@ -536,15 +536,21 @@ class TestLicense(object):
 
 
 class TestGenerateTable(object):
-    def test_generate_table(self, controller, fact):
+    def test_generate_table(self, controller_with_logging, fact):
         """Make sure the table contains all expected fact data."""
-        table, header = facts_format.tabular.generate_facts_table(controller, [fact])
+        controller = controller_with_logging
+        table, columns = facts_format.tabular.generate_facts_table(
+            controller, [fact],
+        )
         assert table[0].start == fact.start.strftime('%Y-%m-%d %H:%M')
         assert table[0].activity == fact.activity.name
 
-    def test_header(self, controller):
+    def test_header(self, controller_with_logging):
         """Make sure the tables header matches our expectation."""
-        table, header = facts_format.tabular.generate_facts_table(controller, [])
+        controller = controller_with_logging
+        table, columns = facts_format.tabular.generate_facts_table(
+            controller, [],
+        )
         assert len(header) == 8
 
 
