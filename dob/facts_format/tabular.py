@@ -170,7 +170,7 @@ def generate_facts_table(
     i_activities = FactManager.RESULT_GRP_INDEX['activities']
     i_actegories = FactManager.RESULT_GRP_INDEX['actegories']
     i_categories = FactManager.RESULT_GRP_INDEX['categories']
-    i_date_col = FactManager.RESULT_GRP_INDEX['date_col']
+    i_start_date = FactManager.RESULT_GRP_INDEX['start_date']
 
     # A special index into the gross_totals lookup.
     # MAYBE/2020-05-18: Convert gross_totals to a class object...
@@ -469,7 +469,7 @@ def generate_facts_table(
         cols_shim[i_activities] = 0
         cols_shim[i_actegories] = 0
         cols_shim[i_categories] = 0
-        cols_shim[i_date_col] = None
+        cols_shim[i_start_date] = None
         return cols_shim
 
     # ***
@@ -500,7 +500,7 @@ def generate_facts_table(
             activities,
             actegories,
             categories,
-            date_col,
+            start_date,
         ) = fact_etc
 
         if not final_end:
@@ -511,7 +511,7 @@ def generate_facts_table(
         prepare_key(table_row, fact)
 
         prepare_starts_and_end(
-            table_row, fact, first_start, final_end, date_col,
+            table_row, fact, first_start, final_end, start_date,
         )
         prepare_activity_and_category(
             table_row, fact, activities, actegories, categories,
@@ -536,9 +536,9 @@ def generate_facts_table(
 
     # +++
 
-    def prepare_starts_and_end(table_row, fact, first_start, final_end, date_col):
+    def prepare_starts_and_end(table_row, fact, first_start, final_end, start_date):
         prepare_start_date(table_row, fact, first_start)
-        prepare_start_date_cmp(table_row, fact, first_start, date_col)
+        prepare_start_date_cmp(table_row, fact, first_start, start_date)
         prepare_start_time(table_row, fact, first_start)
         prepare_end_date(table_row, fact, final_end)
         prepare_start(table_row, fact)
@@ -552,13 +552,13 @@ def generate_facts_table(
         start_date = first_start.strftime('%a %b %d') if first_start else ''
         table_row['start_date'] = start_date
 
-    def prepare_start_date_cmp(table_row, fact, first_start, date_col):
+    def prepare_start_date_cmp(table_row, fact, first_start, start_date):
         if 'start_date_cmp' not in repcols:
             return
 
         # The SQLite date(col) produces, e.g., '2020-05-14'.
-        if date_col:
-            start_date_cmp = date_col
+        if start_date:
+            start_date_cmp = start_date
         else:
             start_date_cmp = first_start.strftime('%Y-%m-%d') if first_start else ''
         table_row['start_date_cmp'] = start_date_cmp
