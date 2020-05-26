@@ -200,13 +200,10 @@ def search_facts(controller, **kwargs):
         A list of matching Facts, or matching (Fact, *statistics) tuples,
         depending on the QueryTerms.
     """
-    if 'key' in kwargs and kwargs['key']:
-        return [controller.facts.get(pk=kwargs['key'])]
-    else:
-        try:
-            return controller.facts.get_all(**kwargs)
-        except NotImplementedError as err:
-            # This happens if db.engine != 'sqlite', because get_all
-            # uses SQLite-specific aggregate functions.
-            dob_in_user_exit(str(err))
+    try:
+        return controller.facts.get_all(**kwargs)
+    except NotImplementedError as err:
+        # This happens if db.engine != 'sqlite', because get_all
+        # uses SQLite-specific aggregate functions.
+        dob_in_user_exit(str(err))
 
