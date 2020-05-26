@@ -23,9 +23,10 @@ class TestBasicRun(object):
         assert result.exit_code == 0
 
 
-class TestSearchWithoutTermEmptyDatabase(object):
+class TestSearchWithoutInitPrintsSetupMessage(object):
     def test_search_all(self, runner):
-        """Make sure that invoking the command passes without exception."""
+        """Running search command fails until dob conf and store are initialized."""
         result = runner(['search'])
         assert result.exit_code == 1
+        assert "Let’s get you setup!" in result.stdout
 
