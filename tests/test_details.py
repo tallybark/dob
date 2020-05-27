@@ -43,7 +43,7 @@ class TestDetails(object):
 
     def test_details_sqlite(self, controller, appdirs, mocker, capsys):
         """Make sure database details for sqlite are shown properly."""
-        controller._get_store = mocker.MagicMock()
+        mocker.patch.object(controller, '_get_store')
         engine, path = 'sqlite', appdirs.user_data_dir
         controller.config['db.engine'] = engine
         controller.config['db.path'] = path
@@ -70,7 +70,7 @@ class TestDetails(object):
         We need to mock the backend Controller because it would try to setup a
         database connection right away otherwise.
         """
-        controller._get_store = mocker.MagicMock()
+        mocker.patch.object(controller, '_get_store')
         controller.config['db.engine'] = 'postgres'
         controller.config['db.name'] = db_name
         controller.config['db.host'] = db_host

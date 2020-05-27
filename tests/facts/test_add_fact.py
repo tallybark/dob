@@ -154,7 +154,7 @@ class TestAddFact(object):
 
         """
         controller = controller_with_logging
-        controller.facts.save = mocker.MagicMock()
+        mocker.patch.object(controller.facts, 'save')
         add_fact(controller, raw_fact, time_hint=time_hint, use_carousel=False)
         assert controller.facts.save.called
         args, kwargs = controller.facts.save.call_args

@@ -69,8 +69,8 @@ class TestPromptAndSaveBackedUpViaImportFacts(object):
 
         (backup, use_carousel, dry, ) = tres_bools
 
-        proper_confirmer.prompt_and_save_confirmer = mocker.MagicMock()
-        viewer_confirmer.prompt_and_save_confirmer = mocker.MagicMock()
+        mocker.patch.object(proper_confirmer, 'prompt_and_save_confirmer')
+        mocker.patch.object(viewer_confirmer, 'prompt_and_save_confirmer')
 
         input_stream = open(IMPORT_PATH, 'r')
 
@@ -101,7 +101,7 @@ def _feed_cli_with_input(
     inp = create_pipe_input()
     input_stream = open(IMPORT_PATH, 'r')
     # Because the key_sequence force-quits, Carousel prompts "Ok?".
-    re_confirm.confirm = mocker.MagicMock(return_value=True)
+    mocker.patch.object(re_confirm, 'confirm', return_value=True)
     try:
         inp.send_text(key_sequence)
         import_facts(

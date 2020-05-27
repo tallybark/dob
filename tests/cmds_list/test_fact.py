@@ -37,7 +37,7 @@ class TestCmdsListFactSearchFacts(object):
         """Ensure since and until are converted to datetime for backend function."""
         # See also: nark's test_get_all_various_since_and_until_times
         since, until, description, expectation = search_parameter_parametrized
-        controller.facts.gather = mocker.MagicMock(return_value=[fact])
+        mocker.patch.object(controller.facts, 'gather', return_value=[fact])
         # F841 local variable '_facts' is assigned to but never used
         _facts = search_facts(controller, since=since, until=until)  # noqa: F841
         assert controller.facts.gather.called

@@ -24,7 +24,7 @@ class TestCategories(object):
     def test_categories(self, controller_with_logging, category, mocker, capsys):
         """Make sure the categories get displayed to the user."""
         controller = controller_with_logging
-        controller.categories.get_all = mocker.MagicMock(return_value=[category])
+        mocker.patch.object(controller.categories, 'get_all', return_value=[category])
         cmds_list.category.list_categories(controller)
         out, err = capsys.readouterr()
         assert category.name in out

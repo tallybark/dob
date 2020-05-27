@@ -40,34 +40,34 @@ class TestExport(object):
 
     def test_csv(self, controller, controller_with_logging, mocker):
         """Make sure that a valid format returns the appropriate writer class."""
-        nark.reports.CSVWriter = mocker.MagicMock()
+        mocker.patch.object(nark.reports, 'CSVWriter')
         export_facts(controller, 'csv')
         assert nark.reports.CSVWriter.called
 
     def test_tsv(self, controller, controller_with_logging, mocker):
         """Make sure that a valid format returns the appropriate writer class."""
-        nark.reports.TSVWriter = mocker.MagicMock()
+        mocker.patch.object(nark.reports, 'TSVWriter')
         export_facts(controller, 'tsv')
         assert nark.reports.TSVWriter.called
 
     def test_ical(self, controller, controller_with_logging, mocker):
         """Make sure that a valid format returns the appropriate writer class."""
-        nark.reports.ICALWriter = mocker.MagicMock()
+        mocker.patch.object(nark.reports, 'ICALWriter')
         export_facts(controller, 'ical')
         assert nark.reports.ICALWriter.called
 
     def test_xml(self, controller, controller_with_logging, mocker):
         """Ensure passing 'xml' as format returns appropriate writer class."""
-        nark.reports.XMLWriter = mocker.MagicMock()
+        mocker.patch.object(nark.reports, 'XMLWriter')
         export_facts(controller, 'xml')
         assert nark.reports.XMLWriter.called
 
     def test_with_since(self, controller, controller_with_logging, tmpdir, mocker):
         """Make sure that passing a end date is passed to the fact gathering method."""
-        controller.facts.gather = mocker.MagicMock()
+        mocker.patch.object(controller.facts, 'gather')
         path = os.path.join(tmpdir.mkdir('report').strpath, 'report.csv')
-        nark.reports.CSVWriter = mocker.MagicMock(
-            return_value=nark.reports.CSVWriter(path),
+        mocker.patch.object(
+            nark.reports, 'CSVWriter', return_value=nark.reports.CSVWriter(path),
         )
         since = fauxfactory.gen_datetime()
         # Get rid of fractions of a second.
@@ -79,10 +79,10 @@ class TestExport(object):
 
     def test_with_until(self, controller, controller_with_logging, tmpdir, mocker):
         """Make sure that passing a until date is passed to the fact gathering method."""
-        controller.facts.gather = mocker.MagicMock()
+        mocker.patch.object(controller.facts, 'gather')
         path = os.path.join(tmpdir.mkdir('report').strpath, 'report.csv')
-        nark.reports.CSVWriter = mocker.MagicMock(
-            return_value=nark.reports.CSVWriter(path),
+        mocker.patch.object(
+            nark.reports, 'CSVWriter', return_value=nark.reports.CSVWriter(path),
         )
         until = fauxfactory.gen_datetime()
         until = truncate_to_whole_seconds(until)
@@ -94,7 +94,7 @@ class TestExport(object):
     def test_with_filename(self, controller, controller_with_logging, tmpdir, mocker):
         """Make sure that a valid format returns the appropriate writer class."""
         path = os.path.join(tmpdir.ensure_dir('export').strpath, 'export.csv')
-        nark.reports.CSVWriter = mocker.MagicMock()
+        mocker.patch.object(nark.reports, 'CSVWriter')
         export_facts(controller, 'csv', file_out=path)
         assert nark.reports.CSVWriter.called
 

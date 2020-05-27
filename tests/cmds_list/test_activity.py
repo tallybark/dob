@@ -28,10 +28,12 @@ class TestActivities(object):
     def test_list_activities_no_category(self, controller, activity, mocker, capsys):
         """Make sure command works if activities do not have a category associated."""
         activity.category = None
-        controller.activities.get_all = mocker.MagicMock(
-            return_value=[activity],
+        mocker.patch.object(
+            controller.activities, 'get_all', return_value=[activity],
         )
-        ascii_table.tabulate.tabulate = mocker.MagicMock(
+        mocker.patch.object(
+            ascii_table.tabulate,
+            'tabulate',
             return_value='{}, {}'.format(activity.name, None),
         )
         cmds_list.activity.list_activities(controller, table_type='tabulate')
@@ -43,8 +45,8 @@ class TestActivities(object):
         self, controller, activity, mocker, capsys,
     ):
         """Make sure activity name and category are displayed if present."""
-        controller.activities.get_all = mocker.MagicMock(
-            return_value=[activity],
+        mocker.patch.object(
+            controller.activities, 'get_all', return_value=[activity],
         )
         cmds_list.activity.list_activities(controller, '')
         out, err = capsys.readouterr()
@@ -55,10 +57,12 @@ class TestActivities(object):
         self, controller, activity, mocker, capsys,
     ):
         """Make sure the search term is passed on."""
-        controller.activities.query_process_results = mocker.MagicMock(
-            return_value=[activity],
+        mocker.patch.object(
+            controller.activities, 'query_process_results', return_value=[activity],
         )
-        controller.activities.query_filter_by_category_name = mocker.MagicMock(
+        mocker.patch.object(
+            controller.activities,
+            'query_filter_by_category_name',
             return_value=activity.category.name,
         )
         cmds_list.activity.list_activities(
@@ -76,8 +80,8 @@ class TestActivities(object):
         self, controller, activity, mocker, capsys,
     ):
         """Make sure the search term is passed on."""
-        controller.activities.gather = mocker.MagicMock(
-            return_value=[activity],
+        mocker.patch.object(
+            controller.activities, 'gather', return_value=[activity],
         )
         cmds_list.activity.list_activities(
             controller,
@@ -115,8 +119,8 @@ class TestActivities(object):
         ):
             """Make sure the search term is passed on."""
             category_miss = activity.category.name + '_test'
-            controller.activities.get_all = mocker.MagicMock(
-                return_value=[activity],
+            mocker.patch.object(
+                controller.activities, 'get_all', return_value=[activity],
             )
             with pytest.raises(KeyError):
                 cmds_list.activity.list_activities(
