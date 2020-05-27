@@ -47,6 +47,11 @@ def test_fact_cls():
     return FactDressed
 
 
+@pytest.fixture(scope="session")
+def test_fact_cls_ro():
+    return FactDressed
+
+
 # ***
 
 @pytest.fixture(params=[
@@ -89,4 +94,28 @@ def test_fact_cls():
 def search_parameter_parametrized(request):
     """Provide a parametrized set of arguments for the ``search`` command."""
     return request.param
+
+
+# ***
+
+# (lb): Possible scope values: function, class, module, package or session.
+# - Let's try the broadest scope. This is just for testing reports.
+#   It drastically improves runtime at the expense of always testing
+#   the same data store input for each test that uses this fixture.
+#   - But we test enough using item factories in 'function'-scoped tests
+#     that we should be okay.
+@pytest.fixture(scope="session")
+def five_report_facts_ctl(
+    alchemy_store_ro,
+    test_fact_cls_ro,
+    set_of_alchemy_facts_ro,
+    controller_with_logging_ro,
+):
+    controller = controller_with_logging_ro
+    # You'll see 5 Facts in the store:
+    #   alchemy_store_ro.session.execute('SELECT COUNT(*) FROM facts;').fetchall()
+    controller.store = alchemy_store_ro
+    controller.store.fact_cls = test_fact_cls_ro  # FactDressed
+    # Ignored: set_of_alchemy_facts_ro.
+    yield controller
 

@@ -85,13 +85,10 @@ class TestCmdsListFactListFacts(object):
 
     def test_list_facts_basic_store(
         self,
-        alchemy_store,
-        set_of_alchemy_facts,
-        controller_with_logging,
+        five_report_facts_ctl,
         capsys,
     ):
-        controller = controller_with_logging
-        controller.store = alchemy_store
+        controller = five_report_facts_ctl
         list_facts(controller)
         out, err = capsys.readouterr()
         assert not err
@@ -121,16 +118,13 @@ class TestCmdsListFactListFactsPresentationArguments(object):
     )
     def test_list_facts_hide_hide_hide(
         self,
-        alchemy_store,
-        set_of_alchemy_facts,
-        controller_with_logging,
+        five_report_facts_ctl,
         include_stats,
         hide_usage,
         hide_duration,
         hide_description,
     ):
-        controller = controller_with_logging
-        controller.store = alchemy_store
+        controller = five_report_facts_ctl
         list_facts(
             controller,
             include_stats=include_stats,
@@ -143,12 +137,9 @@ class TestCmdsListFactListFactsPresentationArguments(object):
 
     def test_list_facts_custom_columns_all_columns(
         self,
-        alchemy_store,
-        set_of_alchemy_facts,
-        controller_with_logging,
+        five_report_facts_ctl,
     ):
-        controller = controller_with_logging
-        controller.store = alchemy_store
+        controller = five_report_facts_ctl
         # See also: FACT_TABLE_HEADERS.
         custom_columns = report_table_columns()
         list_facts(controller, column=custom_columns)
@@ -170,12 +161,9 @@ class TestCmdsListFactListFactsPresentationArguments(object):
 
     def test_list_facts_custom_columns_a_few_columns_group_activity(
         self,
-        alchemy_store,
-        set_of_alchemy_facts,
-        controller_with_logging,
+        five_report_facts_ctl,
     ):
-        controller = controller_with_logging
-        controller.store = alchemy_store
+        controller = five_report_facts_ctl
         custom_columns = ['activity', 'duration']
         list_facts(controller, column=custom_columns, group_activity=True)
 
@@ -192,16 +180,13 @@ class TestCmdsListFactListFactsPresentationArguments(object):
     )
     def test_list_facts_format_permutations(
         self,
-        alchemy_store,
-        set_of_alchemy_facts,
-        controller_with_logging,
+        five_report_facts_ctl,
         format_journal,
         format_tabular,
         format_factoid,
         table_type,
     ):
-        controller = controller_with_logging
-        controller.store = alchemy_store
+        controller = five_report_facts_ctl
         # Ensure that fact.friendly_str() is the FactDressed version
         # (because Factoid format uses 'colorful' argument).
         controller.store.fact_cls = FactDressed
@@ -227,16 +212,12 @@ class TestCmdsListFactListFactsPresentationArguments(object):
     )
     def test_list_facts_format_jounrnal_spark_args(
         self,
-        alchemy_store,
-        set_of_alchemy_facts,
-        controller_with_logging,
+        five_report_facts_ctl,
         spark_total,
         spark_width,
         spark_secs,
     ):
-        controller = controller_with_logging
-        controller.store = alchemy_store
-        controller.store.fact_cls = FactDressed
+        controller = five_report_facts_ctl
         list_facts(
             controller,
             format_journal=True,
@@ -255,15 +236,11 @@ class TestCmdsListFactListFactsPresentationArguments(object):
     )
     def test_list_facts_chop(
         self,
-        alchemy_store,
-        set_of_alchemy_facts,
-        controller_with_logging,
+        five_report_facts_ctl,
         format_tabular,
         format_factoid,
     ):
-        controller = controller_with_logging
-        controller.store = alchemy_store
-        controller.store.fact_cls = FactDressed
+        controller = five_report_facts_ctl
         list_facts(
             controller,
             chop=True,
@@ -275,12 +252,9 @@ class TestCmdsListFactListFactsPresentationArguments(object):
 
     def test_list_facts_sort_cols(
         self,
-        alchemy_store,
-        set_of_alchemy_facts,
-        controller_with_logging,
+        five_report_facts_ctl,
     ):
-        controller = controller_with_logging
-        controller.store = alchemy_store
+        controller = five_report_facts_ctl
         sort_cols = ('activity', 'start')
         list_facts(controller, sort_cols=sort_cols)
 
@@ -297,13 +271,9 @@ class TestCmdsListFactFactoidPermutations(object):
 
     def test_list_facts_format_factoid_factoid_rule(
         self,
-        alchemy_store,
-        set_of_alchemy_facts,
-        controller_with_logging,
+        five_report_facts_ctl,
     ):
-        controller = controller_with_logging
-        controller.store = alchemy_store
-        controller.store.fact_cls = FactDressed
+        controller = five_report_facts_ctl
         factoid_rule = '++rule-this++'
         list_facts(
             controller,
@@ -315,14 +285,10 @@ class TestCmdsListFactFactoidPermutations(object):
 
     def test_list_facts_format_factoid_out_file(
         self,
-        alchemy_store,
-        set_of_alchemy_facts,
-        controller_with_logging,
+        five_report_facts_ctl,
         mocker,
     ):
-        controller = controller_with_logging
-        controller.store = alchemy_store
-        controller.store.fact_cls = FactDressed
+        controller = five_report_facts_ctl
         out_file = mocker.MagicMock()
         list_facts(
             controller,
@@ -341,16 +307,12 @@ class TestCmdsListFactFactoidPermutations(object):
     )
     def test_list_facts_format_factoid_row_limit(
         self,
-        alchemy_store,
-        set_of_alchemy_facts,
-        controller_with_logging,
+        five_report_facts_ctl,
         format_tabular,
         format_factoid,
         row_limit,
     ):
-        controller = controller_with_logging
-        controller.store = alchemy_store
-        controller.store.fact_cls = FactDressed
+        controller = five_report_facts_ctl
         list_facts(
             controller,
             format_tabular=format_tabular,
@@ -362,13 +324,9 @@ class TestCmdsListFactFactoidPermutations(object):
 
     def test_list_facts_format_factoid_term_width(
         self,
-        alchemy_store,
-        set_of_alchemy_facts,
-        controller_with_logging,
+        five_report_facts_ctl,
     ):
-        controller = controller_with_logging
-        controller.store = alchemy_store
-        controller.store.fact_cls = FactDressed
+        controller = five_report_facts_ctl
         term_width = 40
         list_facts(
             controller,
@@ -381,14 +339,10 @@ class TestCmdsListFactFactoidPermutations(object):
 
     def test_list_facts_format_factoid_and_chop_isatty_uses_term_size(
         self,
-        alchemy_store,
-        set_of_alchemy_facts,
-        controller_with_logging,
+        five_report_facts_ctl,
         mocker,
     ):
-        controller = controller_with_logging
-        controller.store = alchemy_store
-        controller.store.fact_cls = FactDressed
+        controller = five_report_facts_ctl
         isatty = mocker.patch('sys.stdout.isatty', return_value=True)
         get_ts = mocker.patch(
             'click_hotoffthehamster.get_terminal_size', return_value=(80, 24),
@@ -405,12 +359,9 @@ class TestCmdsListFactFactoidPermutations(object):
 
     def test_list_facts_format_factoid_grouping_not_allowed(
         self,
-        alchemy_store,
-        set_of_alchemy_facts,
-        controller_with_logging,
+        five_report_facts_ctl,
     ):
-        controller = controller_with_logging
-        controller.store = alchemy_store
+        controller = five_report_facts_ctl
         with pytest.raises(SystemExit):
             list_facts(
                 controller,
