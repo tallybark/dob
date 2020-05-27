@@ -93,13 +93,11 @@ class TestActivities(object):
         assert controller.activities.gather.called
         # Mock's assert_called_with checks arguments exactly, but we
         # just care to check that the search_term was there.
-        assert (
-            controller.activities.gather.call_args.kwargs['search_term']
-            == activity.category.name
-        )
+        query_terms = controller.activities.gather.call_args.args[0]
+        assert query_terms.search_term == activity.category.name
         # The category is a pass-through list_activities **kwarg, so
         # won't be in the kwargs.
-        assert 'category' not in controller.activities.gather.call_args.kwargs
+        assert query_terms.category is False
         assert activity.name in out
         assert activity.category.name in out
 
