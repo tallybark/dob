@@ -20,6 +20,7 @@ from freezegun import freeze_time
 from nark.tests.conftest import *
 from nark.tests.backends.sqlalchemy.conftest import *
 
+from dob.cmds_list.fact import list_facts
 from dob.cmds_list.fact import search_facts
 
 
@@ -40,4 +41,54 @@ class TestCmdsListFactSearchFacts(object):
         query_terms = controller.facts.gather.call_args[0][0]
         assert query_terms.since == expectation['since']
         assert query_terms.until == expectation['until']
+
+    def test_search_facts_fails_on_unsupported_store(self, controller, capsys):
+        """Ensure search_facts prints a user warning on unsupported store type."""
+        # MAYBE/2020-05-26: Add support for other data stores (other than SQLite),
+        #   which requires using and wiring the appropriate DBMS-specific aggregate
+        #   functions.
+        #   - For now, dob is at least nice enough to print an error message.
+        controller.store.config['db.engine'] += '_not'
+        with pytest.raises(SystemExit):
+            search_facts(controller)
+            assert False  # Unreachable.
+        # assert result.exit_code == 1
+        out, err = capsys.readouterr()
+        # See: must_support_db_engine_funcs.
+        expect = 'This feature does not work with the current DBMS engine'
+        assert err.startswith(expect)
+
+
+class TestCmdsListFactSearchListFacts(object):
+    """"""
+
+    def test_list_facts_empty_store(self, controller_with_logging, capsys):
+        """..."""
+        controller = controller_with_logging
+        with pytest.raises(SystemExit):
+            list_facts(
+                controller,
+            )
+            assert False  # Unreachable.
+        out, err = capsys.readouterr()
+        # See: error_exit_no_results.
+        expect = 'No facts were found for the specified query.'
+        assert err.startswith(expect)
+
+    def test_list_facts_basic_store(
+        self,
+        alchemy_store,
+        set_of_alchemy_facts,
+        controller_with_logging,
+        capsys,
+    ):
+        controller = controller_with_logging
+        controller.store = alchemy_store
+        list_facts(controller)
+        out, err = capsys.readouterr()
+        assert not err
+        # We could verify the report looks like how we expect, but that seems
+        # better suited for using a snapshots feature. It would be painful to
+        # maintain here, especially as the report formats evolve.
+        assert out
 
