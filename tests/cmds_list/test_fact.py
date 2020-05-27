@@ -38,6 +38,7 @@ class TestCmdsListFactSearchFacts(object):
         # F841 local variable '_facts' is assigned to but never used
         _facts = search_facts(controller, since=since, until=until)  # noqa: F841
         assert controller.facts.gather.called
+        # call_args is (args, kwargs), and QueryTerms is the first args arg.
         query_terms = controller.facts.gather.call_args[0][0]
         assert query_terms.since == expectation['since']
         assert query_terms.until == expectation['until']

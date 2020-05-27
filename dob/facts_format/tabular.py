@@ -24,6 +24,7 @@ from gettext import gettext as _
 from nark.backends.sqlalchemy.managers import query_sort_order_at_index
 from nark.backends.sqlalchemy.managers.fact import FactManager
 from nark.helpers.format_time import format_delta
+from nark.managers.query_terms import QueryTerms
 
 from dob_bright.termio.ascii_table import generate_table
 
@@ -85,8 +86,8 @@ def headers_for_columns(columns):
 def output_ascii_table(
     controller,
     results,
-    query_terms,
     row_limit=0,
+    query_terms=None,
     hide_usage=False,
     hide_duration=False,
     hide_description=False,
@@ -107,8 +108,8 @@ def output_ascii_table(
         table, columns = generate_facts_table(
             controller,
             results,
-            query_terms=query_terms,
             row_limit=row_limit,
+            query_terms=query_terms,
             show_usage=not hide_usage,
             show_duration=not hide_duration,
             show_description=not hide_description,
@@ -167,8 +168,11 @@ def output_ascii_table(
 def generate_facts_table(
     controller,
     results,
-    query_terms,
     row_limit=0,
+    # If no QueryTerms specified, assumes results is simple list of items.
+    # Otherwise, the query_terms defines the layout of the results, which
+    # affects how they're processed.
+    query_terms=None,
     # The user can pick some columns to hide/show:
     show_usage=True,
     show_duration=True,
@@ -188,7 +192,7 @@ def generate_facts_table(
     instances, each representing a single Fact, or the summary of a
     group of Facts.
     """
-    qt = query_terms
+    qt = query_terms if query_terms is not None else QueryTerms()
 
     columns = []
     repcols = {}

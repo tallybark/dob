@@ -161,8 +161,8 @@ def list_facts(
             output_ascii_table(
                 controller,
                 results,
-                query_terms=qt,
                 row_limit=row_limit,
+                query_terms=qt,
                 hide_usage=hide_usage,
                 hide_duration=hide_duration,
                 hide_description=hide_description,

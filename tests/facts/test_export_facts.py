@@ -74,7 +74,8 @@ class TestExport(object):
         since = truncate_to_whole_seconds(since)
         export_facts(controller, 'csv', since=since.strftime('%Y-%m-%d %H:%M'))
         args, kwargs = controller.facts.gather.call_args
-        assert kwargs['since'] == since
+        query_terms = args[0]
+        assert query_terms.since == since
 
     def test_with_until(self, controller, controller_with_logging, tmpdir, mocker):
         """Make sure that passing a until date is passed to the fact gathering method."""
@@ -87,7 +88,8 @@ class TestExport(object):
         until = truncate_to_whole_seconds(until)
         export_facts(controller, 'csv', until=until.strftime('%Y-%m-%d %H:%M'))
         args, kwargs = controller.facts.gather.call_args
-        assert kwargs['until'] == until
+        query_terms = args[0]
+        assert query_terms.until == until
 
     def test_with_filename(self, controller, controller_with_logging, tmpdir, mocker):
         """Make sure that a valid format returns the appropriate writer class."""

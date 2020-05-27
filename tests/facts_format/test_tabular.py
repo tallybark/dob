@@ -28,11 +28,14 @@ class TestGenerateTable(object):
         assert table[0].start == fact.start.strftime('%Y-%m-%d %H:%M')
         assert table[0].activity == fact.activity.name
 
-    def test_header(self, controller_with_logging):
-        """Make sure the tables header matches our expectation."""
+    def test_generate_basic_table_column_count(self, controller_with_logging):
+        """Make sure the number of table columns matches our expectation."""
         controller = controller_with_logging
         table, columns = generate_facts_table(
             controller, [],
         )
-        assert len(header) == 8
+        # MAGIC_NUMBER: A basic query (without grouping or addition stats)
+        # creates a table with the 8 following columns:
+        #   key, start, end, activity, category, tags, description, duration
+        assert len(columns) == 8
 
