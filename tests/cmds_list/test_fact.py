@@ -17,27 +17,27 @@
 
 from freezegun import freeze_time
 
+from nark.tests.conftest import *
+from nark.tests.backends.sqlalchemy.conftest import *
+
 from dob.cmds_list.fact import search_facts
 
 
-from .. import truncate_to_whole_seconds
-
-
-class TestSearchTerm(object):
+class TestCmdsListFactSearchFacts(object):
     """Unit tests for search command."""
 
     @freeze_time('2015-12-12 18:00')
-    def test_search(self, controller, mocker, fact, search_parameter_parametrized):
-        """Ensure that search parameters are passed to appropriate backend function."""
+    def test_search_facts_since_until(
+        self, controller, mocker, fact, search_parameter_parametrized,
+    ):
+        """Ensure since and until are converted to datetime for backend function."""
+        # See also: nark's test_get_all_various_since_and_until_times
         since, until, description, expectation = search_parameter_parametrized
         controller.facts.gather = mocker.MagicMock(return_value=[fact])
         # F841 local variable '_facts' is assigned to but never used
         _facts = search_facts(controller, since=since, until=until)  # noqa: F841
-        controller.facts.gather.assert_called_with(**expectation)
-        # See: nark's test_get_all_various_since_and_until_times
         assert controller.facts.gather.called
-        assert controller.facts.gather.call_args[1] == {
-            'since': expectation['since'],
-            'until': expectation['until'],
-        }
+        query_terms = controller.facts.gather.call_args[0][0]
+        assert query_terms.since == expectation['since']
+        assert query_terms.until == expectation['until']
 
