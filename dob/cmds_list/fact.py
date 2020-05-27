@@ -46,16 +46,17 @@ def list_facts(
     hide_duration=False,
     hide_description=False,
     column=None,
-    chop=False,
     format_journal=False,
     format_tabular=False,
     format_factoid=False,
     table_type='friendly',
+    chop=False,
     factoid_rule='',
     spark_total=None,
     spark_width=None,
     spark_secs=None,
     out_file=None,
+    row_limit=None,
     term_width=None,
     # - Any unnamed arguments are used as search terms in the query.
     *args,
@@ -143,13 +144,13 @@ def list_facts(
     # ***
 
     def display_results(results, qt):
-        row_limit = suss_row_limit(qt)
+        _row_limit = suss_row_limit(qt)
 
         if format_factoid:
             output_factoid_list(
                 controller,
                 results,
-                row_limit=row_limit,
+                row_limit=_row_limit,
                 hide_duration=hide_duration,
                 chop=chop,
                 factoid_rule=factoid_rule,
@@ -161,14 +162,14 @@ def list_facts(
             output_ascii_table(
                 controller,
                 results,
-                row_limit=row_limit,
+                row_limit=_row_limit,
                 query_terms=qt,
                 hide_usage=hide_usage,
                 hide_duration=hide_duration,
                 hide_description=hide_description,
                 custom_columns=column,
-                chop=chop,
                 table_type='journal' if format_journal else table_type,
+                chop=chop,
                 spark_total=spark_total,
                 spark_width=spark_width,
                 spark_secs=spark_secs,
@@ -177,10 +178,12 @@ def list_facts(
     def suss_row_limit(qt):
         # Limit the number of rows dumped, unless user specified --limit,
         # or if not dumping to the terminal.
-        row_limit = None
-        if out_file is None and sys.stdin.isatty() and qt.limit is None:
-            row_limit = controller.config['term.row_limit']
-        return row_limit
+        _row_limit = row_limit
+        # Note: Not caring about qt.limit here, as the query limit is
+        # a separate concern from the row limit.
+        if _row_limit is None and out_file is None and sys.stdout.isatty():
+            _row_limit = controller.config['term.row_limit']
+        return _row_limit
 
     _list_facts()
 
