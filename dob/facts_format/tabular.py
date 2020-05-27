@@ -628,7 +628,7 @@ def generate_facts_table(
             fact_start = fact.start.strftime('%Y-%m-%d %H:%M')
         else:
             fact_start = _('<genesis>')
-            controller.client_logger.warn('Fact missing start: {}').format(fact)
+            controller.client_logger.warning('Fact missing start: {}').format(fact)
         table_row['start'] = fact_start
 
     def prepare_end(table_row, fact):
@@ -950,7 +950,7 @@ def generate_facts_table(
         # complain about). The new post-processing is more deliberate and
         # should not have extraneous columns to remove.
         if row_slice != table_row:
-            controller.client_logger.warn(
+            controller.client_logger.warning(
                 'Unexpected: row_slice != table_row / row_slice: {} / table_row: {}'
                 .format(row_slice, table_row)
             )
@@ -1082,9 +1082,9 @@ def generate_facts_table(
         ])
 
         if not needs_sort and not resort_always:
-            controller.client_logger.warn('Skipping re-sort.')
+            controller.client_logger.warning('Skipping re-sort.')
             return
-        controller.client_logger.warn('Post Processing: Re-SORTing.')
+        controller.client_logger.warning('Post Processing: Re-SORTing.')
 
         expect_cols = sorting_columns.copy()
         for idx, sort_col in reversed(list(enumerate(qt.sort_cols))):
@@ -1128,7 +1128,7 @@ def generate_facts_table(
                 elif hasattr(row_cls, 'activity'):
                     sort_attrs = ['activity']
                 else:
-                    controller.client_logger.warn(
+                    controller.client_logger.warning(
                         "Did not identify sort column for --sort activity!"
                     )
 
@@ -1143,7 +1143,7 @@ def generate_facts_table(
                     # FIXME/2020-05-20: This a thing?
                     sort_attrs = ['category']
                 else:
-                    controller.client_logger.warn(
+                    controller.client_logger.warning(
                         "Did not identify sort column for --sort category!"
                     )
 
@@ -1157,7 +1157,7 @@ def generate_facts_table(
                 # sort_attrs = '???'
                 # In get_all, it sorts on Tag.name itself.
             else:
-                controller.client_logger.warn(
+                controller.client_logger.warning(
                     "Did not identify sort column for --sort tag!"
                 )
 
@@ -1188,7 +1188,7 @@ def generate_facts_table(
             else:
                 # If this fires, you probably added a --sort choice that you did
                 # not wire herein.
-                controller.client_logger.warn(
+                controller.client_logger.warning(
                     "Did not identify sort column for --sort {}!".format(sort_col)
                 )
 
@@ -1208,7 +1208,7 @@ def generate_facts_table(
         # - The two should match, and if they don't, log a complaint.
         subexpect = expect_cols[-len(sort_attrs):]
         if subexpect != sort_attrs:
-            controller.client_logger.warn(
+            controller.client_logger.warning(
                 "Sort discrepency: sort_attrs: {} / expect_cols: {} (subexpect: {})"
                 .format(sort_attrs, expect_cols, subexpect)
             )
@@ -1288,7 +1288,7 @@ def generate_facts_table(
         elif sort_col == 'fact':
             sort_attrs = ['key']
         else:
-            controller.client_logger.warn("Unknown sort_col: {}".format(sort_col))
+            controller.client_logger.warning("Unknown sort_col: {}".format(sort_col))
 
         # Return True to have this module's sort_results_sort_col sort,
         # regardless of what we this the SQL query accomplished. E.g,
