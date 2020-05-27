@@ -103,6 +103,11 @@ def list_facts(
     # and --show-duration and --hide-duration, that dictate if we need
     # the query to include the aggregate columns or not.
     def should_include_stats(qt):
+        # If prepare a Factoid export, the output_factoid_list expects
+        # list of items, and nothing more.
+        if format_factoid:
+            return False
+
         # If a group-by is specified, the report will show the aggregated names,
         # such as showing 'Activities' instead of 'Activity'. Include the extra
         # aggregate columns.
