@@ -18,8 +18,8 @@
 from freezegun import freeze_time
 import pytest
 
-from nark.tests.conftest import *
-from nark.tests.backends.sqlalchemy.conftest import *
+from nark.tests.conftest import *  # noqa: F401, F403
+from nark.tests.backends.sqlalchemy.conftest import *  # noqa: F401, F403
 
 from dob_viewer.crud.fact_dressed import FactDressed
 from dob.cmds_list.fact import list_facts
