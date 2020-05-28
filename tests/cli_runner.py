@@ -2,7 +2,7 @@
 #
 #   https://github.com/hotoffthehamster/dob-bright
 #
-# Copyright © 2018-2020 Landon Bouma, © 2015-2016 Eric Goller. All rights reserved.
+# Copyright © 2018-2020 Landon Bouma. All rights reserved.
 #
 # This program is free software:  you can redistribute it  and/or  modify it under the
 # terms of the GNU General Public License as published by the Free Software Foundation,
