@@ -23,11 +23,7 @@ from nark.managers.query_terms import QueryTerms
 
 from dob_bright.termio import dob_in_user_exit
 
-from ..clickux.query_assist import (
-    error_exit_no_results,
-    hydrate_activity,
-    hydrate_category
-)
+from ..clickux.query_assist import error_exit_no_results
 from ..facts_format.factoid import output_factoid_list
 from ..facts_format.tabular import output_ascii_table
 
@@ -129,8 +125,8 @@ def list_facts(
                 # Tell get_all to return the aggregate columns with each Fact result.
                 and 'duration' not in column
                 and 'sparkline' not in column
-                ))
-            ):
+            ))
+        ):
             return True
 
         return False
@@ -164,6 +160,12 @@ def list_facts(
             )
         else:
             # else, either format_tabular or format_journal.
+
+            # NOTE/2020-05-26: out_file not supported on this branch.
+            # - (lb): But I'm thinking output_factoid_list should be an
+            #   export format only, in which case, move factoid to export,
+            #   then disable out_file option for list and usage commands
+            #   (user can just redirect stdout, anyway).
             output_ascii_table(
                 controller,
                 results,
