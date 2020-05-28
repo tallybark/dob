@@ -15,6 +15,8 @@
 # You can find the GNU General Public License reprinted in the file titled 'LICENSE',
 # or visit <http://www.gnu.org/licenses/>.
 
+from dob.cmds_list import fact as list_fact
+
 
 class TestBasicRun(object):
     def test_basic_run(self, runner):
@@ -29,4 +31,21 @@ class TestSearchWithoutInitPrintsSetupMessage(object):
         result = runner(['search'])
         assert result.exit_code == 1
         assert "Let’s get you setup!" in result.stdout
+
+
+class TestDobSearchCommandCallsFeatureHandler(object):
+    def test_dob_search_command_calls(
+        self,
+        mocker,
+        dob_runner,
+        capsys,
+    ):
+        """Running search command fails until dob conf and store are initialized."""
+        mocker.patch.object(list_fact, 'list_facts')
+        result = dob_runner(['search'])
+        assert result.exit_code == 0
+        assert list_fact.list_facts.called
+        # We stubbed list_facts, so there won't be any output.
+        out, err = capsys.readouterr()
+        assert not out and not err
 
