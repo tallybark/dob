@@ -29,9 +29,8 @@ Fixtures available to the tests/.
 import datetime
 import pytest
 
-# For the fixture to work, either import specifically, or glob it all.
-# noqa: F401 'foo.bar' imported but unused
-# noqa: F403 'from foo.bar import *' used; unable to detect undefined names
+# Load all upstream fixtures into the test namespace, as
+# though the fixtures from dob-bright were defined herein.
 from dob_bright.tests.conftest import *  # noqa: F401, F403
 
 from dob_viewer.crud.fact_dressed import FactDressed
