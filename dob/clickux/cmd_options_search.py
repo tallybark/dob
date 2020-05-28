@@ -645,7 +645,7 @@ def _postprocess_options_sparkline_float(kwargs, spark_attr):
             #   specify 8 hours as the full spark width, user'd use:
             #     --spark-total '8 * 60 * 60'
             kwargs[spark_attr] = float(eval(kwargs[spark_attr]))
-        except:
+        except Exception:
             msg = _(
                 "Unable to parse --{} value as (eval'able) seconds: {}"
             ).format(spark_attr.replace('_', '-'), kwargs[spark_attr])
