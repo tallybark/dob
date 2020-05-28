@@ -818,7 +818,7 @@ def generate_list_facts_command(func):
 @generate_list_facts_command
 def dob_list_facts(controller, *args, **kwargs):
     # Not reachable, because generate_list_facts_command.
-    assert(False)  # pragma: no cover
+    assert False  # pragma: no cover
 
 
 @cmd_bunch_group_datastore
@@ -829,7 +829,7 @@ def dob_list_facts(controller, *args, **kwargs):
 @generate_list_facts_command
 def search_facts(controller, *args, **kwargs):
     # Not reachable, because generate_list_facts_command.
-    assert(False)  # pragma: no cover
+    assert False  # pragma: no cover
 
 
 # ***
@@ -985,7 +985,7 @@ def generate_add_fact_command(time_hint):
 def add_fact_now(controller, *args, **kwargs):
     """Start or add a fact using the `now` directive."""
     # Not reachable, because generate_add_fact_command.
-    assert(False)  # pragma: no cover
+    assert False  # pragma: no cover
 
 
 @cmd_bunch_group_add_fact
@@ -998,7 +998,7 @@ def add_fact_now(controller, *args, **kwargs):
 def add_fact_on(controller, *args, **kwargs):
     """Start or add a fact using the `on` directive."""
     # Not reachable, because generate_add_fact_command.
-    assert(False)  # pragma: no cover
+    assert False  # pragma: no cover
 
 
 @cmd_bunch_group_add_fact
@@ -1010,7 +1010,7 @@ def add_fact_on(controller, *args, **kwargs):
 def add_fact_at(controller, *args, **kwargs):
     """Start or add a fact using the `at` directive."""
     # Not reachable, because generate_add_fact_command.
-    assert(False)  # pragma: no cover
+    assert False  # pragma: no cover
 
 
 @cmd_bunch_group_add_fact
@@ -1022,7 +1022,7 @@ def add_fact_at(controller, *args, **kwargs):
 def add_fact_from(controller, *args, **kwargs):
     """Add a fact using the `from ... to/until` directive."""
     # Not reachable, because generate_add_fact_command.
-    assert(False)  # pragma: no cover
+    assert False  # pragma: no cover
 
 
 @cmd_bunch_group_add_fact
@@ -1034,7 +1034,7 @@ def add_fact_from(controller, *args, **kwargs):
 def add_fact_to(controller, *args, **kwargs):
     """Start or add a fact using the `to` directive."""
     # Not reachable, because generate_add_fact_command.
-    assert(False)  # pragma: no cover
+    assert False  # pragma: no cover
 
 
 @cmd_bunch_group_add_fact
@@ -1047,7 +1047,7 @@ def add_fact_to(controller, *args, **kwargs):
 def add_fact_until(controller, *args, **kwargs):
     """Start or add a fact using the `until` directive."""
     # Not reachable, because generate_add_fact_command.
-    assert(False)  # pragma: no cover
+    assert False  # pragma: no cover
 
 
 @cmd_bunch_group_add_fact
@@ -1060,7 +1060,7 @@ def add_fact_until(controller, *args, **kwargs):
 def add_fact_then(controller, *args, **kwargs):
     """Start or add a fact using the `then` directive."""
     # Not reachable, because generate_add_fact_command.
-    assert(False)  # pragma: no cover
+    assert False  # pragma: no cover
 
 
 @cmd_bunch_group_add_fact
@@ -1073,7 +1073,7 @@ def add_fact_then(controller, *args, **kwargs):
 def add_fact_still(controller, *args, **kwargs):
     """Start or add a fact using the `still` directive."""
     # Not reachable, because generate_add_fact_command.
-    assert(False)  # pragma: no cover
+    assert False  # pragma: no cover
 
 
 @cmd_bunch_group_add_fact
@@ -1086,7 +1086,7 @@ def add_fact_still(controller, *args, **kwargs):
 def add_fact_after(controller, *args, **kwargs):
     """Start or add a fact using the `after` directive."""
     # Not reachable, because generate_add_fact_command.
-    assert(False)  # pragma: no cover
+    assert False  # pragma: no cover
 
 
 @cmd_bunch_group_add_fact
@@ -1101,7 +1101,7 @@ def add_fact_after(controller, *args, **kwargs):
 def add_fact_next(controller, *args, **kwargs):
     """Start or add a fact using the `next` directive."""
     # Not reachable, because generate_add_fact_command.
-    assert(False)  # pragma: no cover
+    assert False  # pragma: no cover
 
 
 # ***
@@ -1119,7 +1119,7 @@ def add_fact_next(controller, *args, **kwargs):
 def add_fact_start(controller, *args, **kwargs):
     """Start or add a fact using the `now` directive."""
     # Not reachable, because generate_add_fact_command.
-    assert(False)  # pragma: no cover
+    assert False  # pragma: no cover
 
 
 # NOPE: @cmd_bunch_group_add_fact
@@ -1136,7 +1136,7 @@ def add_fact_start(controller, *args, **kwargs):
 def stop(controller, *args, **kwargs):
     """Complete the active fact (by setting its 'end')."""
     # Not reachable, because generate_add_fact_command.
-    assert(False)  # pragma: no cover
+    assert False  # pragma: no cover
 
 
 # ***
