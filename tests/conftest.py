@@ -29,14 +29,23 @@ Fixtures available to the tests/.
 import datetime
 import pytest
 
-# Load all upstream fixtures into the test namespace, as
-# though the fixtures from dob-bright were defined herein.
-from dob_bright.tests.conftest import *  # noqa: F401, F403
-
 from dob_viewer.crud.fact_dressed import FactDressed
 
-# The runner is used as a fixture (method parameter) in other files.
-from .cli_runner import runner  # noqa: F401 '<>' imported but unused
+# Load all upstream fixtures into the test namespace, as
+# though the fixtures from dob-bright were defined herein.
+# - It's possible to import the fixtures with a *-glob, e.g.,
+#     from dob_bright.tests.conftest import *  # noqa: F401, F403
+#   but using the pytest_plugins mechanism is more proper.
+#   Ref:
+#     https://docs.pytest.org/en/2.7.3/plugins.html
+pytest_plugins = (
+    "nark.tests.backends.sqlalchemy.conftest",
+    # Make sure fixtures required by fixtures available, e.g., 'base_config'.
+    "nark.tests.conftest",
+    "dob_bright.tests.conftest",
+    "tests.cli_runner",
+    "tests.dob_runner",
+)
 
 
 # ***
