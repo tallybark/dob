@@ -94,8 +94,6 @@ def export_facts(
 
         filepath = resolve_filepath(file_out, to_format)
 
-        err_context = _('export')
-
         facts = search_facts(
             controller,
 
@@ -138,6 +136,9 @@ def export_facts(
             limit=limit,
             offset=offset,
         )
+
+        # The list and usage commands call error_exit_no_results()
+        # if no results. This command does not.
 
         export_formatted(facts, filepath, to_format)
 
