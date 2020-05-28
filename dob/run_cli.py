@@ -22,7 +22,7 @@ from functools import update_wrapper
 
 import click_hotoffthehamster as click
 
-# BREADCRUMP: PROFILING
+# BREADCRUMB: PROFILING
 from nark.helpers.dev.profiling import profile_elapsed, timefunct
 
 from dob_bright.termio import click_echo, echo_exit

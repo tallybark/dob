@@ -17,9 +17,9 @@
 
 """A time tracker for the command line. Utilizing the power of hamster! [nark]."""
 
-# BREADCRUMP: PROFILING
+# BREADCRUMB: PROFILING
 from nark.helpers.dev.profiling import profile_elapsed
-# BREADCRUMP: PROFILING
+# BREADCRUMB: PROFILING
 # E402 module level import not at top of file
 profile_elapsed('To dob:   _top')  # noqa: E402
 
