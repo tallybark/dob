@@ -2,4 +2,6 @@
 [flake8]
 # Add a space after the path to make the output path easier to double-click-copy.
 format=%(path)s %(row)d:%(col)d: %(code)s %(text)s
+per-file-ignores =
+    dob/dob.py:E402
 
