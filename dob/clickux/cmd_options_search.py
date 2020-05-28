@@ -291,8 +291,17 @@ _cmd_options_results_group_days = [
 # *** [SEARCH RESULTS] Order.
 # ***
 
-def _cmd_options_results_sort_order(item):
-    choices = ['name', 'activity', 'category', 'start', 'usage', 'time']
+def _cmd_options_results_sort_order(item, command):
+    choices = ['name', 'activity', 'category']
+    default_order = ('name',)
+    default_direction = ('asc',)
+    if item == 'fact' or command == 'usage':
+        choices += ['start', 'usage', 'time']
+        default_order = ('start',)
+        if command == 'usage':
+            default_order = ('usage',)
+            default_direction = ('desc',)
+
     if item == 'fact':
         choices.append('day')
     if item in ('tag', 'fact'):
@@ -304,7 +313,8 @@ def _cmd_options_results_sort_order(item):
 
     return [
         click.option(
-            '-o', '--order', '--sort', default=('start',),
+            '-o', '--order', '--sort',
+            default=default_order,
             type=click.Choice(choices),
             # (lb): Not sure how useful to allow multi-col sort, but why not.
             multiple=True,
@@ -312,6 +322,7 @@ def _cmd_options_results_sort_order(item):
         ),
         click.option(
             '-i', '--direction', '--dir',
+            default=default_direction,
             type=click.Choice(['asc', 'desc']),
             multiple=True,
             help=_('Order by direction(s) (one for each --sort).'),
@@ -729,7 +740,7 @@ def cmd_options_any_search_query(command='', item='', match=False, group=False):
         options.extend(_cmd_options_results_group(item))
 
     def append_cmd_options_results_sort_limit(options):
-        options.extend(_cmd_options_results_sort_order(item))
+        options.extend(_cmd_options_results_sort_order(item, command))
         options.extend(_cmd_options_search_limit_offset)
 
     def append_cmd_options_results_reports(options):
