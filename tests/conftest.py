@@ -31,6 +31,15 @@ import pytest
 
 from dob_viewer.crud.fact_dressed import FactDressed
 
+# We leave this conftest out of pytest_plugins, otherwise its
+# test_fact_cls fixture is not overridden by the one below.
+# (lb): I tested a workaround, putting the test_fact_cls below in
+# another module, which I then listed in pytest_plugins, trying
+# it both before and after the other one ("dob_bright.tests.conftest"),
+# but the other conftest's fixture always wins (so maybe pytest sorts
+# pytest_plugins?).
+from dob_bright.tests.conftest import *  # noqa: F401, F403
+
 # Load all upstream fixtures into the test namespace, as
 # though the fixtures from dob-bright were defined herein.
 # - It's possible to import the fixtures with a *-glob, e.g.,
@@ -42,7 +51,8 @@ pytest_plugins = (
     "nark.tests.backends.sqlalchemy.conftest",
     # Make sure fixtures required by fixtures available, e.g., 'base_config'.
     "nark.tests.conftest",
-    "dob_bright.tests.conftest",
+    # SKIP (see comment, below):
+    #    "dob_bright.tests.conftest",
     "tests.cli_runner",
     "tests.dob_runner",
 )
