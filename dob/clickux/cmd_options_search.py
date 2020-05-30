@@ -582,17 +582,52 @@ _cmd_options_output_format_factoid = [
 # *** [RESULTS FORMAT] Table Type.
 # ***
 
+
+_ascii_table_libs = [
+    'texttable',
+    'tabulate',
+    'friendly',
+]
+
+
+_tabulate_tablefmts = [
+    'plain',
+    'simple',
+    'github',
+    'grid',
+    'fancy_grid',
+    'pipe',
+    'orgtbl',
+    'jira',
+    'presto',
+    'psql',
+    'rst',
+    'mediawiki',
+    'moinmoin',
+    'youtrack',
+    'html',
+    'latex',
+    'latex_raw',
+    'latex_booktabs',
+    'textile',
+]
+
+
 _cmd_options_table_renderer = [
     click.option(
         '-E', '--table-type', default='texttable', show_default=True,
-        type=click.Choice([
-            'texttable',
-            'tabulate',
-            'friendly',
-        ]),
+        type=click.Choice(
+            _ascii_table_libs + _tabulate_tablefmts,
+        ),
         help=_('ASCII table formatter.'),
     ),
 ]
+
+
+def cmd_options_table_renderer(func):
+    for option in reversed(_cmd_options_table_renderer):
+        func = option(func)
+    return func
 
 
 def cmd_options_table_renderer(func):
