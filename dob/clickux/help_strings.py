@@ -941,46 +941,62 @@ STATS_HELP = _(
 # *** [LIST] Commands help.
 # ***
 
-LIST_GROUP_HELP = _(
+QUERY_GROUP_HELP = _(
     """
-    Prints facts, activities, categories, or tags.
-    """
-)
-
-
-LIST_ACTIVITIES_HELP = _(
-    """
-    Prints all activities. Provide optional filtering by name.
-
-    Prints all matching activities one per line.
-
-    SEARCH: String to be matched against activity name.
+    Prints activity, category, or tag {item_part}.
     """
 )
 
 
-LIST_CATEGORIES_HELP = _(
+QUERY_ITEM_HELP = _(
     """
-    Prints all existing categories, ordered by name.
+    Prints {item_type} {item_part}, optionally filtered and sorted.
+
+    Finds all {item_types} by default, but results can be filtered by
+    Fact start and end times and name matches.
+
+    Results are sorted by name by default, but can be sorted
+    by usage count, cumulative duration, or first Fact start
+    time.
+
+    Results are displayed in an ASCII table format by default,
+    available in many different styles, or can be converted to
+    comma-separated text (CSV), JSON, and other formats.
+
+    SEARCH_TERM: Use to match specific {item_type} name(s), ORed together.
     """
 )
 
 
-LIST_TAGS_HELP = _(
-    """
-    Prints all tags.
-    """
+LIST_GROUP_HELP = QUERY_GROUP_HELP.format(item_part=_('names'))
+
+
+LIST_ACTIVITIES_HELP = QUERY_ITEM_HELP.format(
+    item_type=_("activity"),
+    item_types=_("activities"),
+    item_part=_('names'),
 )
 
 
-LIST_FACTS_HELP = _(
-    """
-    Prints facts within a date range.
+LIST_CATEGORIES_HELP = QUERY_ITEM_HELP.format(
+    item_type=_("category"),
+    item_types=_("categories"),
+    item_part=_('names'),
+)
 
-    Matching facts will be printed in a tabular representation.
 
-    TIME_RANGE: Only fact within this time range will be considered.
-    """
+LIST_TAGS_HELP = QUERY_ITEM_HELP.format(
+    item_type=_("tag"),
+    item_types=_("tags"),
+    item_part=_('names'),
+)
+
+
+# (lb): The `list facts` command is hidden, but supported for parity.
+LIST_FACTS_HELP = QUERY_ITEM_HELP.format(
+    item_type=_("fact"),
+    item_types=_("facts"),
+    item_part=_('names'),
 )
 
 
@@ -1004,38 +1020,35 @@ SEARCH_HELP = _(
 # *** [USAGE] Commands help.
 # ***
 
-USAGE_GROUP_HELP = _(
-    """
-    Prints activity, category, or tag usage.
-    """
+USAGE_GROUP_HELP = QUERY_GROUP_HELP.format(item_part=_('usage'))
+
+
+USAGE_ACTIVITIES_HELP = QUERY_ITEM_HELP.format(
+    item_type=_("activity"),
+    item_types=_("activities"),
+    item_part=_('usage'),
 )
 
 
-USAGE_ACTIVITIES_HELP = _(
-    """
-    Prints all activities and their usage counts.
-    """
+USAGE_CATEGORIES_HELP = QUERY_ITEM_HELP.format(
+    item_type=_("category"),
+    item_types=_("categories"),
+    item_part=_('usage'),
 )
 
 
-USAGE_CATEGORIES_HELP = _(
-    """
-    Prints all categories and their usage counts.
-    """
+USAGE_TAGS_HELP = QUERY_ITEM_HELP.format(
+    item_type=_("tag"),
+    item_types=_("tags"),
+    item_part=_('usage'),
 )
 
 
-USAGE_TAGS_HELP = _(
-    """
-    Prints all tags by usage.
-    """
-)
-
-
-USAGE_FACTS_HELP = _(
-    """
-    Prints all facts by usage.
-    """
+# (lb): The `usage facts` command is hidden, but supported for parity.
+USAGE_FACTS_HELP = QUERY_ITEM_HELP.format(
+    item_type=_("fact"),
+    item_types=_("facts"),
+    item_part=_('usage'),
 )
 
 
