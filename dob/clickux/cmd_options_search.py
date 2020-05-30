@@ -384,6 +384,20 @@ def _postprocess_options_results_options_asc_desc_to_sort_order(kwargs):
 
 
 # ***
+# *** [DOUBLE-SORT] Developer Option.
+# ***
+
+_postprocess_options_results_options_sort_double_sort = [
+    click.option(
+        '--re-sort',
+        is_flag=True,
+        hidden=True,
+        help=_('Resort query after SELECT post-processing.'),
+    ),
+]
+
+
+# ***
 # *** [SEARCH RESULTS] Limit and Offset.
 # ***
 
@@ -742,6 +756,9 @@ def cmd_options_any_search_query(command='', item='', match=False, group=False):
     def append_cmd_options_results_sort_limit(options):
         options.extend(_cmd_options_results_sort_order(item, command))
         options.extend(_cmd_options_search_limit_offset)
+        # (lb): It'd be nice to squelch this option unless config['dev.catch_errors']
+        #       but I guess that's what Click 'hidden' option feature is for.
+        options.extend(_postprocess_options_results_options_sort_double_sort)
 
     def append_cmd_options_results_reports(options):
         if command == 'export':
