@@ -722,12 +722,14 @@ def nark_stats(ctx, controller):
 @pass_controller_context
 def list_group(ctx, controller):
     """Base `list` group command run prior to any of the dob-list commands."""
+    # No-op; have already shown a help message.
     pass
 
 
 # *** ACTIVITIES.
 
-@list_group.command('activities', help=help_strings.LIST_ACTIVITIES_HELP)
+@list_group.command('activities', aliases=['activity'],
+                    help=help_strings.LIST_ACTIVITIES_HELP)
 @show_help_finally
 @flush_pager
 @cmd_options_any_search_query(command='list', item='activity', match=True, group=False)
@@ -749,7 +751,8 @@ def query_activities(ctx, controller, *args, **kwargs):
 
 # *** CATEGORIES.
 
-@list_group.command('categories', help=help_strings.LIST_CATEGORIES_HELP)
+@list_group.command('categories', aliases=['category'],
+                    help=help_strings.LIST_CATEGORIES_HELP)
 @show_help_finally
 @flush_pager
 @cmd_options_any_search_query(command='list', item='category', match=True, group=False)
@@ -771,7 +774,7 @@ def query_categories(ctx, controller, *args, **kwargs):
 
 # *** TAGS.
 
-@list_group.command('tags', help=help_strings.LIST_TAGS_HELP)
+@list_group.command('tags', aliases=['tag'], help=help_strings.LIST_TAGS_HELP)
 @show_help_finally
 @flush_pager
 # TESTME/2020-05-16: group_target seems peculiar: it's not enabled on
@@ -812,7 +815,7 @@ def generate_list_facts_command(func):
     return update_wrapper(dob_list_facts, func)
 
 
-@list_group.command('facts', help=help_strings.LIST_FACTS_HELP)
+@list_group.command('facts', help=help_strings.LIST_FACTS_HELP, hidden=True)
 @show_help_finally
 @flush_pager
 @generate_list_facts_command
@@ -849,7 +852,8 @@ def usage_group(ctx, controller):
 
 # *** ACTIVITIES.
 
-@usage_group.command('activities', help=help_strings.USAGE_ACTIVITIES_HELP)
+@usage_group.command('activities', aliases=['activity'],
+                     help=help_strings.USAGE_ACTIVITIES_HELP)
 @show_help_finally
 @flush_pager
 @cmd_options_any_search_query(command='usage', item='activity', match=True, group=False)
@@ -862,7 +866,8 @@ def usage_activities(ctx, controller, *args, **kwargs):
 
 # *** CATEGORIES.
 
-@usage_group.command('categories', help=help_strings.USAGE_CATEGORIES_HELP)
+@usage_group.command('categories', aliases=['category'],
+                     help=help_strings.USAGE_CATEGORIES_HELP)
 @show_help_finally
 @flush_pager
 @cmd_options_any_search_query(command='usage', item='category', match=True, group=False)
@@ -875,7 +880,7 @@ def usage_categories(ctx, controller, *args, **kwargs):
 
 # *** TAGS.
 
-@usage_group.command('tags', help=help_strings.USAGE_TAGS_HELP)
+@usage_group.command('tags', aliases=['tag'], help=help_strings.USAGE_TAGS_HELP)
 @show_help_finally
 @flush_pager
 @cmd_options_any_search_query(command='usage', item='tags', match=True, group=False)
@@ -888,7 +893,7 @@ def usage_tags(ctx, controller, *args, **kwargs):
 
 # *** FACTS.
 
-@usage_group.command('facts', help=help_strings.USAGE_FACTS_HELP)
+@usage_group.command('facts', help=help_strings.USAGE_FACTS_HELP, hidden=True)
 @show_help_finally
 @flush_pager
 @cmd_options_any_search_query(command='usage', item='fact', match=True, group=True)
