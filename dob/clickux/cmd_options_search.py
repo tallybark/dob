@@ -516,7 +516,7 @@ _cmd_options_results_chop = [
 
 
 # ***
-# *** [RESULTS FORMAT] Option.
+# *** [REPORT FORMAT] Option.
 # ***
 
 _cmd_options_output_format = [
@@ -543,7 +543,7 @@ def _postprocess_options_formatter(kwargs):
 
 
 # ***
-# *** [RESULTS FORMAT] Journal.
+# *** [REPORT FORMAT] Journal.
 # ***
 
 _cmd_options_output_format_journal = [
@@ -555,7 +555,7 @@ _cmd_options_output_format_journal = [
 
 
 # ***
-# *** [RESULTS FORMAT] Tabular.
+# *** [REPORT FORMAT] Tabular.
 # ***
 
 _cmd_options_output_format_tabular = [
@@ -567,19 +567,7 @@ _cmd_options_output_format_tabular = [
 
 
 # ***
-# *** [RESULTS FORMAT] Factoid.
-# ***
-
-_cmd_options_output_format_factoid = [
-    click.option(
-        '-f', '--format-factoid', is_flag=True,
-        help=_('Output importable Factoid blocks.'),
-    ),
-]
-
-
-# ***
-# *** [RESULTS FORMAT] Table Type.
+# *** [REPORT FORMAT] Table Type.
 # ***
 
 
@@ -637,7 +625,19 @@ def cmd_options_table_renderer(func):
 
 
 # ***
-# *** [RESULTS FORMAT] Factoid Format.
+# *** [EXPORT FORMAT] Factoid.
+# ***
+
+_cmd_options_output_format_factoid = [
+    click.option(
+        '-f', '--fact', is_flag=True,
+        help=_('Output importable Factoid blocks.'),
+    ),
+]
+
+
+# ***
+# *** [EXPORT FORMAT] Factoid Format.
 # ***
 
 _cmd_options_output_factoids_hrule = [
@@ -649,7 +649,7 @@ _cmd_options_output_factoids_hrule = [
 
 
 # ***
-# *** [RESULTS FORMAT] Sparkline Format.
+# *** [REPORT/EXPORT/OUTPUT FORMAT] Sparkline Format.
 # ***
 
 _cmd_options_output_sparkline_format = [
