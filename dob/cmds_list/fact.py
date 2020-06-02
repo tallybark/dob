@@ -38,19 +38,25 @@ def list_facts(
     # - Save for controller, all parameters are CLI --options.
     # - The named keyword arguments listed first are used for output
     #   formatting and not for the query.
+    # - Args: Select columns to output.
     hide_usage=False,
     hide_duration=False,
     hide_description=False,
     column=None,
+    # - Args: Select output formatter library.
     format_journal=False,
     format_tabular=False,
     format_factoid=False,
+    # - Args: Select output formatter style.
     table_type='friendly',
-    chop=False,
+    # - Args: Format- and Row-specific arguments.
     factoid_rule='',
+    # - Args: Cell-specific arguments.
+    chop=False,
     spark_total=None,
     spark_width=None,
     spark_secs=None,
+    # - Args: Output constraints.
     out_file=None,
     row_limit=None,
     term_width=None,
