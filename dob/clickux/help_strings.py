@@ -84,8 +84,8 @@ def _command_create_force_help(what):
     return _(
         """
         If specified, overwrite {} if is exists.
-        """.format(what)
-    )
+        """
+    ).format(what)
 
 
 # ***
@@ -96,8 +96,9 @@ def RUN_HELP_WHATIS():
     _help = _(
         """
         {appname} is a time tracker for the command line.
-        """.strip().format(**common_format())
-    )
+        """
+        .strip()
+    ).format(**common_format())
     return _help
 
 
@@ -107,8 +108,9 @@ def RUN_HELP_TRYME():
         - Try the demo to get acquainted with dob quickly,
 
           {codehi}{rawname} demo{reset}
-        """.strip().format(**common_format())
-    )
+        """
+        .strip()
+    ).format(**common_format())
     return _help
 
 
@@ -118,11 +120,12 @@ def RUN_HELP_HEADER():
         {what_is}
 
         {try_me}
-        """.strip().format(
-            what_is=RUN_HELP_WHATIS(),
-            try_me=RUN_HELP_TRYME(),
-            **common_format()
-        )
+        """
+        .strip()
+    ).format(
+        what_is=RUN_HELP_WHATIS(),
+        try_me=RUN_HELP_TRYME(),
+        **common_format()
     )
     return _help
 
@@ -144,12 +147,13 @@ def RUN_HELP_TLDR():
 
         \b
         {copyright}
-        """.strip().format(
-            what_is=RUN_HELP_WHATIS(),
-            try_me=RUN_HELP_TRYME(),
-            copyright='\b\n        '.join(assemble_copyright()),
-            **common_format()
-        )
+        """
+        .strip()
+    ).format(
+        what_is=RUN_HELP_WHATIS(),
+        try_me=RUN_HELP_TRYME(),
+        copyright='\b\n        '.join(assemble_copyright()),
+        **common_format()
     )
     return _help
 
@@ -180,13 +184,14 @@ def RUN_HELP_COMPLETE():
           {codehi}{rawname} copyright{reset}
 
           {codehi}{rawname} license{reset}
-        """.strip().format(
-            run_help_header=RUN_HELP_HEADER(),
-            equalityop=coloring() and '≡' or '==',
-            copyrt_sym=coloring() and '©' or 'copyright',
-            scroll_sym=coloring() and '📜' or 'license',
-            **common_format()
-        )
+        """
+        .strip()
+    ).format(
+        run_help_header=RUN_HELP_HEADER(),
+        equalityop=coloring() and '≡' or '==',
+        copyrt_sym=coloring() and '©' or 'copyright',
+        scroll_sym=coloring() and '📜' or 'license',
+        **common_format()
     )
     return _help
 
@@ -320,7 +325,8 @@ def DEMO_HELP(ctx):
         """
         Teaches you how to {rawname} -- {italic}Run this first!{reset}
         """
-    ).strip().format(**common_format())
+        .strip()
+    ).format(**common_format())
     return _help
 
 
@@ -342,11 +348,12 @@ def INIT_HELP_OVERVIEW(ctx):
          {codehi}sqlite3 {cfg_db_path}{reset}
 
         But you'll probably just want to make sure you backup that file!
-            """.strip().format(
-                default_config_path=highlight_value(default_config_path()),
-                cfg_db_path=controller.config['db.path'],
-                **common_format()
-            )
+            """
+            .strip()
+        ).format(
+            default_config_path=highlight_value(default_config_path()),
+            cfg_db_path=controller.config['db.path'],
+            **common_format()
         )
 
     _help = _(
@@ -371,12 +378,13 @@ def INIT_HELP_OVERVIEW(ctx):
          {codehi}{rawname} config dump{reset}
 
         {_hint_sqlite}
-        """.strip().format(
-            default_config_path=highlight_value(default_config_path()),
-            hlg_db_path=highlight_value(controller.config['db.path']),
-            _hint_sqlite=_hint_sqlite,
-            **common_format()
-        )
+        """
+        .strip()
+    ).format(
+        default_config_path=highlight_value(default_config_path()),
+        hlg_db_path=highlight_value(controller.config['db.path']),
+        _hint_sqlite=_hint_sqlite,
+        **common_format()
     )
     return _help
 
@@ -503,11 +511,11 @@ def CONFIG_GROUP_HELP(ctx):
 
             - Although you might care about the config file contents if you'd
         like to add comments to it, which is supported.
-        """.format(
-            default_config_path=highlight_value(default_config_path()),
-            envkey=ConfigUrable.DOB_CONFIGFILE_ENVKEY,
-            **common_format()
-        )
+        """
+    ).format(
+        default_config_path=highlight_value(default_config_path()),
+        envkey=ConfigUrable.DOB_CONFIGFILE_ENVKEY,
+        **common_format()
     )
     return _help
 
@@ -679,9 +687,9 @@ def STYLES_GROUP_HELP(ctx):
         The value for each user-created style setting is a space-separated
         list of class name of style strings, as recognized by Python Prompt
         Toolkit and Pygments.
-        """.format(
-            **common_format()
-        )
+        """
+    ).format(
+        **common_format()
     )
     return _help
 
@@ -756,9 +764,9 @@ def RULES_GROUP_HELP(ctx):
 
           \b
           {codehi}{rawname} styles --help{reset}
-        """.format(
-            **common_format()
-        )
+        """
+    ).format(
+        **common_format()
     )
     return _help
 
@@ -835,9 +843,9 @@ def IGNORE_GROUP_HELP(ctx):
     _help = _(
         """
         Manages ignore lists (to exclude matching names from prompts).
-        """.format(
-            **common_format()
-        )
+        """
+    ).format(
+        **common_format()
     )
     return _help
 
@@ -1083,7 +1091,8 @@ def NO_ACTIVE_FACT_HELP(ctx):
         """
         No active Fact. Try {italic}starting{reset} a new Fact first.
         """
-    ).strip().format(**common_format())
+        .strip()
+    ).format(**common_format())
     return _help
 
 
@@ -1111,8 +1120,9 @@ def ADD_FACT_REFERRAL():
         For more help on this and the other Add Fact commands, try
 
           {codehi}{rawname} --pager help add{reset}
-        """.strip().format(**common_format())
-    )
+        """
+        .strip()
+    ).format(**common_format())
     return _help
 
 
@@ -1190,8 +1200,9 @@ def ADD_FACT_THEN(ctx):
 
           {rawname} then -5m: Woke up.
           {rawname} now Grinding beans...
-        """.strip().format(**common_format())
-    )
+        """
+        .strip()
+    ).format(**common_format())
     return _help
 
 
@@ -1220,8 +1231,9 @@ def ADD_FACT_AFTER(ctx):
         Starts new Fact, beginning when the last Fact ended.
 
         {}
-        """.strip().format(ADD_FACT_REFERRAL())
-    )
+        """
+        .strip()
+    ).format(ADD_FACT_REFERRAL())
     return _help
 
 
@@ -1248,8 +1260,9 @@ def ADD_FACT_UNTIL(ctx):
     _help = _(
         """
         Aliases the 'to' command, e.g., `{rawname} until -10m: Yada...`.
-        """.strip().format(**common_format())
-    )
+        """
+        .strip()
+    ).format(**common_format())
     return _help
 
 
@@ -1260,8 +1273,9 @@ def ADD_FACT_FROM(ctx):
         Inserts new Fact using the start and end time indicated.
 
         E.g., {rawname} from 2019-01-01 00:00 to 2019-01-01 01:00: Happy New Year!
-        """.strip().format(**common_format())
-    )
+        """
+        .strip()
+    ).format(**common_format())
     return _help
 
 
