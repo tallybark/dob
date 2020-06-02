@@ -825,9 +825,12 @@ def dob_list_facts(controller, *args, **kwargs):
     assert False  # pragma: no cover
 
 
+# ***
+# *** [SEARCH] Facts Command.
+# ***
+
 @cmd_bunch_group_report_facts
-# MAYBE: Should we alias the command at dob-search?
-@run.command('search', help=help_strings.SEARCH_HELP)
+@run.command('search', aliases=['find'], help=help_strings.SEARCH_HELP)
 @show_help_finally
 @flush_pager
 @generate_list_facts_command
