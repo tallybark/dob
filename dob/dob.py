@@ -1463,7 +1463,15 @@ def complete(ctx, controller):
 # ***
 
 @cmd_bunch_group_dbms
-@run.group('migrate', help=help_strings.MIGRATE_GROUP_HELP, **run_group_kwargs)
+@run.group(
+    'migrate',
+    help=help_strings.MIGRATE_GROUP_HELP,
+    # (lb): Hidden until needed. Does db really need to evolve?
+    # Then again, I don't want to be rigid like JSON or Md specs.
+    # I'm open to fresh ideas.
+    hidden=True,
+    **run_group_kwargs,
+)
 @show_help_finally
 @show_help_if_no_command
 @flush_pager
