@@ -1177,12 +1177,6 @@ def ADD_FACT_THEN(ctx):
         """
         Stop the active Fact, and start a new one, at given time or now.
 
-        Ends active Fact and starts new Fact, at now or offset.
-
-        Starts Fact, at time now or optional offset, ending active Fact.
-
-        Starts Fact, ending active Fact, using now or optional offset.
-
         This is basically a shortcut for the at command, which requires a time
         offset, e.g.,
 
