@@ -122,7 +122,11 @@ CONTEXT_SETTINGS = dict(
     # So tell Click not to process help upon sight, but to mark a flag.
     # Later, we'll look for help_option_spotted on the root context.
     help_option_fallthrough=True,
-    max_content_width=85,
+    # The --help width, used for one-line summaries, as well as the longer
+    # reformatted help documentation.
+    # MAGIC_NUMBER: Set reasonably wide, but the help strings themselves
+    #               will likely limit their widths to 89 or so.
+    max_content_width=101,
 )
 
 
