@@ -177,7 +177,7 @@ def RUN_HELP_COMPLETE():
 
         - Some commands have aliases, shown in (parentheses) below, e.g.,
 
-          {codehi}{rawname} details{reset} {equalityop} {codehi}{rawname} info{reset}
+          {codehi}{rawname} details{reset} {italic}is the same as{reset} {codehi}{rawname} info{reset}
 
         - For code rights and legal info, review the {copyrt_sym} and {scroll_sym},
 
@@ -188,7 +188,6 @@ def RUN_HELP_COMPLETE():
         .strip()
     ).format(
         run_help_header=RUN_HELP_HEADER(),
-        equalityop=coloring() and '≡' or '==',
         copyrt_sym=coloring() and '©' or 'copyright',
         scroll_sym=coloring() and '📜' or 'license',
         **common_format()
@@ -214,7 +213,7 @@ def RUN_HELP_OVERVIEW(ctx):
 
 HELP_HELP = _(
     """
-    Prints help for the application or for the specified command.
+    Print help for the application, or for the specified command.
     """
 )
 
@@ -225,7 +224,7 @@ HELP_HELP = _(
 
 VERSION_HELP = _(
     """
-    Prints the interface and library versions.
+    Print the interface and library versions.
     """
 )
 
@@ -236,7 +235,7 @@ VERSION_HELP = _(
 
 LICENSE_HELP = _(
     """
-    Prints the software license.
+    Print the software license.
     """
 )
 
@@ -247,7 +246,7 @@ LICENSE_HELP = _(
 
 COPYRIGHT_HELP = _(
     """
-    Prints the software copyright.
+    Print the software copyright.
     """
 )
 
@@ -265,7 +264,7 @@ ABOUT_COMMAND_HELP = _(
 
 DETAILS_HELP = _(
     """
-    Prints details about the runtime environment.
+    Print details about the runtime environment.
     """
 )
 
@@ -282,7 +281,7 @@ DETAILS_TMI_HELP = _(
 
 ENVIRONS_HELP = _(
     """
-    Prints shell-sourceable details about the runtime environment.
+    Print shell-sourceable details about the runtime environment.
 
     Useful for setting up shell scripting, e.g.,
 
@@ -323,7 +322,7 @@ DEBUG_HELP = _(
 def DEMO_HELP(ctx):
     _help = _(
         """
-        Teaches you how to {rawname} -- {italic}Run this first!{reset}
+        Learn {rawname} -- {italic}Run this first!{reset}
         """
         .strip()
     ).format(**common_format())
@@ -351,14 +350,13 @@ def INIT_HELP_OVERVIEW(ctx):
             """
             .strip()
         ).format(
-            default_config_path=highlight_value(default_config_path()),
             cfg_db_path=controller.config['db.path'],
             **common_format()
         )
 
     _help = _(
         """
-        Creates a default configuration file, and an empty database.
+        Create a default configuration file, and an empty database.
 
         - Unless it exists, init will create a default configuration at:
 
@@ -396,7 +394,7 @@ def INIT_HELP_OVERVIEW(ctx):
 def CONFIG_GROUP_HELP(ctx):
     _help = _(
         """
-        Manages user config settings (including editor key bindings).
+        Manage user config settings (including editor key bindings).
 
         Some application behavior can be changed via config values.
 
@@ -499,8 +497,7 @@ def CONFIG_GROUP_HELP(ctx):
           {codehi}{rawname} config show{reset}
 
           - If you think your config file is missing values, you can
-        update it with missing settings by running (naturally) the
-        update command:
+        update it with missing settings by running the update command:
 
           \b
           {codehi}{rawname} config update{reset}
@@ -522,7 +519,7 @@ def CONFIG_GROUP_HELP(ctx):
 
 CONFIG_CREATE_HELP = _(
     """
-    Writes a new configuration file populated with default values.
+    Write a new configuration file populated with default values.
 
     You can overwrite an existing configuration file using --force.
     """
@@ -534,28 +531,28 @@ CONFIG_CREATE_FORCE_HELP = _command_create_force_help(_('config file'))
 
 CONFIG_EDIT_HELP = _(
     """
-    Opens the config file in your preferred $EDITOR.
+    Open the config file in your preferred $EDITOR.
     """
 )
 
 
 CONFIG_GET_HELP = _(
     """
-    Prints a configuration value from the config file.
+    Print a configuration value from the config file.
     """
 )
 
 
 CONFIG_SET_HELP = _(
     """
-    Writes a configuration value to the config file.
+    Write a configuration value to the config file.
     """
 )
 
 
 CONFIG_SHOW_HELP = _(
     """
-    Prints all config settings, including names, values, and help.
+    Print all config settings, including names, values, and help.
     """
 )
 
@@ -574,7 +571,7 @@ CONFIG_UPDATE_HELP = _(
 def STYLES_GROUP_HELP(ctx):
     _help = _(
         """
-        Manages editor styles (centering, dimensions, coloring, etc.).
+        Manage editor styles (centering, dimensions, coloring, and more).
 
         The easiest way to use styles is to choose one of the built-in
         styles and set it in your config.
@@ -696,7 +693,7 @@ def STYLES_GROUP_HELP(ctx):
 
 STYLES_CREATE_HELP = _(
     """
-    Writes a new styles config file populated with basic styles options.
+    Write a new styles config file populated with basic styles options.
 
     You can overwrite an existing styles config file using --force.
     """
@@ -708,7 +705,7 @@ STYLES_CREATE_FORCE_HELP = _command_create_force_help(_('styles file'))
 
 STYLES_CONF_HELP = _(
     """
-    Prints the styles file, a section from it, or an internal style.
+    Print the styles file, a section from it, or an internal style.
 
     If no name is specified, prints the styles.conf file, in one exists.
     This includes any comments, too.
@@ -726,14 +723,14 @@ STYLES_CONF_HELP = _(
 
 STYLES_EDIT_HELP = _(
     """
-    Opens the styles config file in your preferred $EDITOR.
+    Open the styles config file in your preferred $EDITOR.
     """
 )
 
 
 STYLES_LIST_HELP = _(
     """
-    Displays a list of built-in and user-declared style names.
+    Display a list of built-in and user-declared style names.
 
     You can activate a style by assigning its value to `editor.styling`.
 
@@ -746,7 +743,7 @@ STYLES_LIST_HELP = _(
 
 STYLES_SHOW_HELP = _(
     """
-    Shows a table of basic style config settings and their descriptions.
+    View a table of basic style config settings and their descriptions.
     """
 )
 
@@ -758,7 +755,7 @@ STYLES_SHOW_HELP = _(
 def RULES_GROUP_HELP(ctx):
     _help = _(
         """
-        Manages style rules (to customize style for matching Facts).
+        Manage styles (customize matching Facts, activities, tags, etc.).
 
         See the styles help for detailed information:
 
@@ -773,7 +770,7 @@ def RULES_GROUP_HELP(ctx):
 
 RULES_CREATE_HELP = _(
     """
-    Writes a new rules file populated with an example rule.
+    Write a new rules file populated with an example rule.
 
     You can overwrite an existing style rules file using --force.
     """
@@ -785,7 +782,7 @@ RULES_CREATE_FORCE_HELP = _command_create_force_help(_('style rules'))
 
 RULES_CONF_HELP = _(
     """
-    Prints the rules file, or a single rule if a rule name is supplied.
+    Print the rules file, or a single rule if a rule name is supplied.
 
     If no name is specified, prints the rules.conf file, in one exists.
     This includes any comments, too.
@@ -800,14 +797,14 @@ RULES_CONF_HELP = _(
 
 RULES_EDIT_HELP = _(
     """
-    Opens the rules file in your preferred $EDITOR.
+    Open the rules file in your preferred $EDITOR.
     """
 )
 
 
 RULES_LIST_HELP = _(
     """
-    Displays a list of user-defined rule names.
+    Display a list of user-defined rule names.
 
     Each rule is enabled by default.
 
@@ -824,7 +821,7 @@ RULES_LIST_HELP = _(
 
 RULES_SHOW_HELP = _(
     """
-    Shows rule settings in a table, including name, default value,
+    Show rule settings in a table, including name, default value,
     and description.
 
     If no name is supplied, an example ruleset is displayed.
@@ -852,7 +849,7 @@ def IGNORE_GROUP_HELP(ctx):
 
 IGNORE_CREATE_HELP = _(
     """
-    Writes a new ignore file populated with example sections.
+    Write a new ignore file populated with example sections.
 
     You can overwrite an existing ignore file using --force.
     """
@@ -864,21 +861,21 @@ IGNORE_CREATE_FORCE_HELP = _command_create_force_help(_('ignore file'))
 
 IGNORE_EDIT_HELP = _(
     """
-    Opens the ignore file in your preferred $EDITOR.
+    Open the ignore file in your preferred $EDITOR.
     """
 )
 
 
 IGNORE_LIST_HELP = _(
     """
-    Displays the list of ignore file section names.
+    Display the list of ignore file section names.
     """
 )
 
 
 IGNORE_SHOW_HELP = _(
     """
-    Shows ignore rules in a table.
+    Show ignore rules in a table.
     """
 )
 
@@ -889,14 +886,14 @@ IGNORE_SHOW_HELP = _(
 
 STORE_GROUP_HELP = _(
     """
-    Manages the database file.
+    Manage the database file.
     """
 )
 
 
 STORE_CREATE_HELP = _(
     """
-    Creates an empty database file.
+    Create an empty database file.
 
     You can overwrite an existing database file using --force.
     """
@@ -908,21 +905,21 @@ STORE_CREATE_FORCE_HELP = _command_create_force_help(_('data store'))
 
 STORE_PATH_HELP = _(
     """
-    Prints the database path.
+    Print the database path.
     """
 )
 
 
 STORE_URL_HELP = _(
     """
-    Prints the database URL.
+    Print the database URL.
     """
 )
 
 
 STORE_UPGRADE_LEGACY_HELP = _(
     """
-    Migrates a legacy “Hamster” database to dob.
+    Migrate a legacy “Hamster” database to dob.
     """
 )
 
@@ -940,7 +937,7 @@ STORE_UPGRADE_FORCE_HELP = _(
 
 STATS_HELP = _(
     """
-    Prints stats about your data store.
+    Print stats about your data store (number of Facts, tags, etc.).
     """
 )
 
@@ -951,14 +948,14 @@ STATS_HELP = _(
 
 QUERY_GROUP_HELP = _(
     """
-    Prints activity, category, or tag {item_part}.
+    Print activity, category, or tag {item_part}.
     """
 )
 
 
 QUERY_ITEM_HELP = _(
     """
-    Prints {item_type} {item_part}, optionally filtered and sorted.
+    Print {item_type} {item_part}, optionally filtered and sorted.
 
     Finds all {item_types} by default, but results can be filtered by
     Fact start and end times and name matches.
@@ -1010,7 +1007,7 @@ LIST_FACTS_HELP = QUERY_ITEM_HELP.format(
 
 SEARCH_HELP = _(
     """
-    Finds facts matching a search term, time range and other options.
+    View Facts matching search criteria, from a time range, etc.
 
     You may use the SEARCH_TERM to find Facts with descriptions
     that contain the SEARCH_TERM.
@@ -1067,21 +1064,21 @@ USAGE_FACTS_HELP = QUERY_ITEM_HELP.format(
 STOP_HELP = _(
     # Not DRY: Copied from first line of ADD_FACT_THEN.
     """
-    Stops active Fact, ending it now or at the time specified.
+    Stop active Fact, ending it now or at the time specified.
     """
 )
 
 
 CANCEL_HELP = _(
     """
-    Discards the active Fact.
+    Discard the active Fact.
     """
 )
 
 
 CURRENT_HELP = _(
     """
-    Prints the active Fact, if there is one.
+    Print the active Fact, if there is one.
     """
 )
 
@@ -1098,14 +1095,14 @@ def NO_ACTIVE_FACT_HELP(ctx):
 
 LATEST_HELP = _(
     """
-    Prints latest completed Fact (Fact with most recent end time).
+    Print the latest completed Fact (with the most recent end time).
     """
 )
 
 
 HELP_CMD_SHOW = _(
     """
-    Prints the active Fact if exists, otherwise the latest Fact.
+    Print the active Fact, if any, otherwise the latest Fact.
     """
 )
 
@@ -1117,7 +1114,7 @@ HELP_CMD_SHOW = _(
 def ADD_FACT_REFERRAL():
     _help = _(
         """
-        For more help on this and the other Add Fact commands, try
+        For more help on this and the other add Fact commands, try
 
           {codehi}{rawname} --pager help add{reset}
         """
@@ -1129,7 +1126,7 @@ def ADD_FACT_REFERRAL():
 # verify_none
 ADD_FACT_ON = _(
     """
-    Aliases the 'now' command, e.g., `dob on act@gory #tag: Blah...`.
+    Alias for 'now' command, e.g., `dob on act@gory #tag: Blah...`.
     """
 )
 
@@ -1138,7 +1135,7 @@ ADD_FACT_ON = _(
 ADD_FACT_NOW = _(
     # FIXME/2019-11-22: (lb): I think "if nothing active" might be wrong.
     """
-    Starts a new Fact if nothing active, using time now.
+    Start a new Fact only if no Fact is active, using time now.
     """
 )
 
@@ -1147,7 +1144,7 @@ ADD_FACT_NOW = _(
 ADD_FACT_START = _(
     # Not DRY: Copied from first line of ADD_FACT_AT.
     """
-    Starts new Fact, beginning now or at the time specified.
+    Start a new Fact, beginning now or at the time specified.
     """
 )
 
@@ -1157,15 +1154,15 @@ def ADD_FACT_AT(ctx):
     _help = _(
         """
         \b
-        Starts new Fact, beginning now or at the time specified.
+        Start a new Fact, beginning now or at the time specified.
 
         \b
-        This might stop the active fact, if one exists, and the time
-        specified comes after the active fact start time.
+        This might stop the active Fact, if one exists, and the time
+        specified comes after the active Fact start time.
 
         \b
-        Or this might change the start and/or stop time of other facts
-        if the fact being added overlaps other facts' time windows.
+        Or this might change the start and/or stop time of other Facts
+        if the Fact being added overlaps other Facts' time windows.
 
         {}
         """
@@ -1178,9 +1175,9 @@ def ADD_FACT_THEN(ctx):
     # FIXME/2019-11-22: Verify the 'just use a colon' text, I think that works.
     _help = _(
         """
-        Stops active Fact and Starts new, using now or time specified.
+        Stop the active Fact, and start a new one, at given time or now.
 
-        Ends active Fact and Starts new Fact, at now or offset.
+        Ends active Fact and starts new Fact, at now or offset.
 
         Starts Fact, at time now or optional offset, ending active Fact.
 
@@ -1196,7 +1193,7 @@ def ADD_FACT_THEN(ctx):
           {rawname} at +0: Grinding beans...
 
         If you want to specify an offset, you can, just use a colon,
-        which could work well to throw down a gap fact, e.g.,
+        which could work well to throw down a gap Fact, e.g.,
 
           {rawname} then -5m: Woke up.
           {rawname} now Grinding beans...
@@ -1209,16 +1206,10 @@ def ADD_FACT_THEN(ctx):
 # verify_still
 ADD_FACT_STILL = _(
     """
-    Stops active Fact and Starts new Fact, copying metadata.
+    Stop the active Fact, and start a new one, copying metadata.
 
-    Starts Fact, copying metadata from ending Fact.
-
-    Starts Fact, copying activity, category, and tags from ending Fact.
-
-    Ends active Fact, and starts new Fact, and copies forward metadata.
-
-    Starts the new Fact using the same Act@Gory and Tags (Metadata) as the
-    active Fact that is ended.
+    The new Fact is started with the same activity, category, and tags
+    as the Fact that is ended.
     """
 )
 
@@ -1228,7 +1219,7 @@ ADD_FACT_STILL = _(
 def ADD_FACT_AFTER(ctx):
     _help = _(
         """
-        Starts new Fact, beginning when the last Fact ended.
+        Start a new Fact, beginning when the last Fact ended.
 
         {}
         """
@@ -1240,7 +1231,7 @@ def ADD_FACT_AFTER(ctx):
 # verify_after
 ADD_FACT_NEXT = _(
     """
-    Aliases the 'after' command, e.g., `dob next: Foo bar...`.
+    Alias for the 'after' command, e.g., `dob next: Foo bar...`.
     """
 )
 
@@ -1248,9 +1239,7 @@ ADD_FACT_NEXT = _(
 # verify_end
 ADD_FACT_TO = _(
     """
-    Stops active Fact, ending it now or at the time specified.
-
-    Stops the active Fact ending now or at the specified time.
+    Stop the active Fact, ending it now, or at the time specified.
     """
 )
 
@@ -1259,7 +1248,7 @@ ADD_FACT_TO = _(
 def ADD_FACT_UNTIL(ctx):
     _help = _(
         """
-        Aliases the 'to' command, e.g., `{rawname} until -10m: Yada...`.
+        Alias for the 'to' command, e.g., `{rawname} until -10m: Yada...`.
         """
         .strip()
     ).format(**common_format())
@@ -1270,7 +1259,7 @@ def ADD_FACT_UNTIL(ctx):
 def ADD_FACT_FROM(ctx):
     _help = _(
         """
-        Inserts new Fact using the start and end time indicated.
+        Insert a new Fact using the start and end time indicated.
 
         E.g., {rawname} from 2019-01-01 00:00 to 2019-01-01 01:00: Happy New Year!
         """
@@ -1287,7 +1276,7 @@ def ADD_FACT_FROM(ctx):
 # think I should call it an "editor", and sometimes an "interactive" one.
 EDIT_FACT_HELP = _(
     """
-    Runs the interactive Fact editor in your terminal.
+    Run the interactive editor in your terminal to add and edit Facts.
     """
 )
 
@@ -1298,7 +1287,7 @@ EDIT_FACT_HELP = _(
 
 EXPORT_HELP = _(
     """
-    Exports facts and other interesting data you desire.
+    Export Facts to a file, choosing from a variety of different formats.
     """
 )
 
@@ -1312,13 +1301,11 @@ EXPORT_HELP = _(
 # to demonstrate how all the dob-on/dob-after/etc. commands work.
 IMPORT_HELP = _(
     """
-    Imports Facts from a text file or stdin using a natural syntax.
+    Import new Facts from a text file or stdin using a natural syntax.
 
-    Useful if you cannot use dob for a while but can
-    maintain a text file. Or if you need to massage
-    data from another source into dob, it's easy to
-    prepare an import file that dob can read and use
-    to make Facts in the database.
+    Useful if you cannot use dob for a while, but you can maintain a
+    text file. Or if you need to massage data from another source into
+    dob.
 
     HINT: To read from stdin, you can pipe to dob:
 
@@ -1355,35 +1342,35 @@ COMPLETE_HELP = _(
 
 MIGRATE_GROUP_HELP = _(
     """
-    Upgrades the database after installing a new major release.
+    Upgrade the database, if necessary.
     """
 )
 
 
 MIGRATE_CONTROL_HELP = _(
     """
-    Marks a database as under version control.
+    Mark a database as under version control.
     """
 )
 
 
 MIGRATE_DOWN_HELP = _(
     """
-    Downgrades the database version by 1 script.
+    Downgrade the database version by 1 script.
     """
 )
 
 
 MIGRATE_UP_HELP = _(
     """
-    Upgrades the database version by 1 script.
+    Upgrade the database version by 1 script.
     """
 )
 
 
 MIGRATE_VERSION_HELP = _(
     """
-    Shows the database migration version.
+    Show the database migration version.
     """
 )
 
@@ -1394,7 +1381,7 @@ MIGRATE_VERSION_HELP = _(
 
 GLOBAL_OPT_VERBOSE = _(
     """
-    Be chatty. (-VV for more.)
+    Be chatty (use -VV for more).
     """
 )
 
@@ -1408,21 +1395,21 @@ GLOBAL_OPT_VERBOSER = _(
 
 GLOBAL_OPT_COLOR_NO_COLOR = _(
     """
-    Color, or plain. (Default: Auto.)
+    Color, or plain (Default: Auto).
     """
 )
 
 
 GLOBAL_OPT_PAGER_NO_PAGER = _(
     """
-    Send output to pager, or not. (Default: No.)
+    Send output to pager, or not (Default: No).
     """
 )
 
 
 GLOBAL_OPT_CONFIG = _(
     """
-    Override config setting(s) (may do multiple).
+    Override config setting(s) (multiple allowed).
     """
 )
 
