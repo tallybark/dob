@@ -19,7 +19,7 @@
 
 from gettext import gettext as _
 
-from dob_bright.config.fileboss import default_config_path
+from dob_bright.config.fileboss import default_config_path, default_config_path_abbrev
 from dob_bright.config.urable import ConfigUrable
 from dob_bright.termio import attr, bg, coloring, fg, highlight_value
 
@@ -1414,9 +1414,16 @@ GLOBAL_OPT_CONFIG = _(
 )
 
 
+# MAYBE: (lb): Profiling: I tested this as a function, to avoid re.sub()
+# always being called (on every invocation, in default_config_path_abbrev),
+# but the option help is always built, so cannot escape. I wouldn't expect
+# this to really have a performance impact, though.
 GLOBAL_OPT_CONFIGFILE = _(
     """
-    Alternative path to configuration file.
+    Specify config path (Default: {default_config_path_abbrev}).
     """
+    .strip()
+).format(
+    default_config_path_abbrev=highlight_value(default_config_path_abbrev()),
 )
 
