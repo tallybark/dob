@@ -26,7 +26,8 @@ __all__ = (
     'cmd_bunch_group_introducing',
     'cmd_bunch_group_edit',
     'cmd_bunch_group_get_meta',
-    'cmd_bunch_group_datastore',
+    'cmd_bunch_group_report_facts',
+    'cmd_bunch_group_report_other',
     'cmd_bunch_group_dbms',
     'cmd_bunch_group_add_fact',
     'cmd_bunch_group_ongoing_fact',
@@ -55,8 +56,12 @@ def help_header_get_meta():
     return help_header_format(_('General Commands'))
 
 
-def help_header_datastore():
-    return help_header_format(_('Report Commands'))
+def help_header_report_facts():
+    return help_header_format(_('Fact Report Commands'))
+
+
+def help_header_report_other():
+    return help_header_format(_('Other Report Commands'))
 
 
 def help_header_dbms():
@@ -99,8 +104,13 @@ def cmd_bunch_group_get_meta(cmd):
     return cmd
 
 
-def cmd_bunch_group_datastore(cmd):
-    run.add_to_bunch(cmd, help_header_datastore, 400)
+def cmd_bunch_group_report_facts(cmd):
+    run.add_to_bunch(cmd, help_header_report_facts, 400)
+    return cmd
+
+
+def cmd_bunch_group_report_other(cmd):
+    run.add_to_bunch(cmd, help_header_report_other, 420)
     return cmd
 
 

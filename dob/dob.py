@@ -66,7 +66,8 @@ from .clickux.bunchy_help import (
     cmd_bunch_group_introducing,
     cmd_bunch_group_edit,
     cmd_bunch_group_get_meta,
-    cmd_bunch_group_datastore,
+    cmd_bunch_group_report_facts,
+    cmd_bunch_group_report_other,
     cmd_bunch_group_dbms,
     cmd_bunch_group_add_fact,
     cmd_bunch_group_ongoing_fact,
@@ -697,7 +698,7 @@ def upgrade_legacy(ctx, controller, force, filename=None):
 # *** [STATS] Command.
 # ***
 
-@cmd_bunch_group_datastore
+@cmd_bunch_group_report_facts
 @run.command('stats', help=help_strings.STATS_HELP)
 @show_help_finally
 @flush_pager
@@ -712,7 +713,7 @@ def nark_stats(ctx, controller):
 # *** [LIST] Commands.
 # ***
 
-@cmd_bunch_group_datastore
+@cmd_bunch_group_report_other
 # Use a command alias to avoid conflict with builtin of same name
 # (i.e., we cannot declare this function, `def list()`).
 @run.group('list', help=help_strings.LIST_GROUP_HELP, **run_group_kwargs)
@@ -824,7 +825,7 @@ def dob_list_facts(controller, *args, **kwargs):
     assert False  # pragma: no cover
 
 
-@cmd_bunch_group_datastore
+@cmd_bunch_group_report_facts
 # MAYBE: Should we alias the command at dob-search?
 @run.command('search', help=help_strings.SEARCH_HELP)
 @show_help_finally
@@ -839,7 +840,7 @@ def search_facts(controller, *args, **kwargs):
 # *** [USAGE] Commands.
 # ***
 
-@cmd_bunch_group_datastore
+@cmd_bunch_group_report_other
 @run.group('usage', help=help_strings.USAGE_GROUP_HELP, **run_group_kwargs)
 @show_help_finally
 @show_help_if_no_command
