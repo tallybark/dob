@@ -30,7 +30,7 @@ class AnsiTextWrapper(TextWrapper):
             subsequent_indent=self.subsequent_indent,
         )
         # The ansiwrap library returns empty when given empty.
-        # The Python textwrap built return initial_indent when
+        # The Python textwrap builtin returns initial_indent when
         # given an empty string. And Click uses the initial_indent
         # to print the first part of the usage message, so that
         # subcommand options are right-aligned and align in their
