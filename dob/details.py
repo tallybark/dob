@@ -265,10 +265,10 @@ def echo_data_stats(controller):
         num_tags = controller.tags.get_all(count_results=True)
         # FIXME: Calculate length of Hamstering, i.e., delta first and last facts.
         # FIXME: Other stats?
-        click_echo(_("No. of      facts: {}").format(highlight_value(num_facts)))
-        click_echo(_("No. of  tag names: {}").format(highlight_value(num_tags)))
-        click_echo(_("No. of activities: {}").format(highlight_value(num_activities)))
-        click_echo(_("No. of categories: {}").format(highlight_value(num_categories)))
+        click_echo(_("No. of      Facts: {}").format(highlight_value(num_facts)))
+        click_echo(_("No. of  Tag names: {}").format(highlight_value(num_tags)))
+        click_echo(_("No. of Activities: {}").format(highlight_value(num_activities)))
+        click_echo(_("No. of Categories: {}").format(highlight_value(num_categories)))
 
     def echo_facts_interesting():
         first_facts = controller.facts.get_all(
@@ -288,7 +288,7 @@ def echo_data_stats(controller):
         time_n = final_fact.end or controller.now
         spanner = Fact(activity=None, start=time_0, end=time_n)
         elapsed = spanner.format_delta(style='')
-        click_echo(_("Total Dobbin Life: {}").format(highlight_value(elapsed)))
+        click_echo(_("Lifetime of Facts: {}").format(highlight_value(elapsed)))
 
     _echo_data_stats()
 
