@@ -404,7 +404,10 @@ def config_update(ctx, controller):
 # ***
 
 @cmd_bunch_group_personalize
-@run.group('styles', help=help_strings.STYLES_GROUP_HELP, **run_group_kwargs)
+@run.group('styles',
+           help=help_strings.STYLES_GROUP_HELP,
+           help_weight=10,
+           **run_group_kwargs)
 @show_help_finally
 @show_help_if_no_command
 @flush_pager
@@ -490,7 +493,10 @@ def styles_show(ctx, controller, name, table_type):
 # ***
 
 @cmd_bunch_group_personalize
-@run.group('rules', help=help_strings.RULES_GROUP_HELP, **run_group_kwargs)
+@run.group('rules',
+           help=help_strings.RULES_GROUP_HELP,
+           help_weight=20,
+           **run_group_kwargs)
 @show_help_finally
 @show_help_if_no_command
 @flush_pager
@@ -573,7 +579,10 @@ def rules_show(ctx, controller, name, table_type):
 # ***
 
 @cmd_bunch_group_personalize
-@run.group('ignore', help=help_strings.IGNORE_GROUP_HELP, **run_group_kwargs)
+@run.group('ignore',
+           help=help_strings.IGNORE_GROUP_HELP,
+           help_weight=30,
+           **run_group_kwargs)
 @show_help_finally
 @show_help_if_no_command
 @flush_pager
@@ -699,7 +708,7 @@ def upgrade_legacy(ctx, controller, force, filename=None):
 # ***
 
 @cmd_bunch_group_report_facts
-@run.command('stats', help=help_strings.STATS_HELP)
+@run.command('stats', help=help_strings.STATS_HELP, help_weight=20)
 @show_help_finally
 @flush_pager
 @pass_controller_context
@@ -716,7 +725,9 @@ def nark_stats(ctx, controller):
 @cmd_bunch_group_report_other
 # Use a command alias to avoid conflict with builtin of same name
 # (i.e., we cannot declare this function, `def list()`).
-@run.group('list', help=help_strings.LIST_GROUP_HELP, **run_group_kwargs)
+@run.group(
+    'list', help=help_strings.LIST_GROUP_HELP, help_weight=20, **run_group_kwargs,
+)
 @show_help_finally
 @show_help_if_no_command
 @flush_pager
@@ -830,7 +841,7 @@ def dob_list_facts(controller, *args, **kwargs):
 # ***
 
 @cmd_bunch_group_report_facts
-@run.command('search', aliases=['find'], help=help_strings.SEARCH_HELP)
+@run.command('search', aliases=['find'], help=help_strings.SEARCH_HELP, help_weight=5)
 @show_help_finally
 @flush_pager
 @generate_list_facts_command
@@ -844,7 +855,9 @@ def search_facts(controller, *args, **kwargs):
 # ***
 
 @cmd_bunch_group_report_other
-@run.group('usage', help=help_strings.USAGE_GROUP_HELP, **run_group_kwargs)
+@run.group(
+    'usage', help=help_strings.USAGE_GROUP_HELP, help_weight=15, **run_group_kwargs,
+)
 @show_help_finally
 @show_help_if_no_command
 @flush_pager
@@ -1120,7 +1133,7 @@ def add_fact_next(controller, *args, **kwargs):
 
 # NOPE: @cmd_bunch_group_add_fact
 @cmd_bunch_group_ongoing_fact
-@run.command('start', help=help_strings.ADD_FACT_START)
+@run.command('start', help=help_strings.ADD_FACT_START, help_weight=5)
 @show_help_finally
 @flush_pager
 @cmd_options_factoid_verify_none
@@ -1133,7 +1146,7 @@ def add_fact_start(controller, *args, **kwargs):
 
 # NOPE: @cmd_bunch_group_add_fact
 @cmd_bunch_group_ongoing_fact
-@run.command('stop', help=help_strings.STOP_HELP)
+@run.command('stop', help=help_strings.STOP_HELP, help_weight=5)
 @show_help_finally
 @flush_pager
 @cmd_options_factoid_verify_end

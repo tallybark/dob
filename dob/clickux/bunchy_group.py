@@ -29,10 +29,11 @@ __all__ = (
 
 class ClickBunchyGroup(click.Group):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, help_weight=10, **kwargs):
         super(ClickBunchyGroup, self).__init__(*args, **kwargs)
         self.group_bunchies = {None: OrderedDict()}
         self.order_sortkeys = {None: 0}
+        self.help_weight = help_weight
 
     def add_command(self, cmd, name=None):
         self.group_bunchies[None][cmd.name] = None
@@ -81,5 +82,8 @@ class ClickBunchyGroup(click.Group):
             if cmd.name not in self.group_bunchies[bunchy_name].keys():
                 continue
             commands.append((subcommand, cmd))
-        return commands, col_max
+        # Sort commands in each group by help_weight, then name.
+        sorted_commands = sorted(commands, key=lambda tup: tup[1].name)
+        sorted_commands = sorted(sorted_commands, key=lambda tup: tup[1].help_weight)
+        return sorted_commands, col_max
 
