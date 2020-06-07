@@ -343,9 +343,9 @@ def config_create(ctx, controller, force):
 @click.argument('keyname', nargs=1, default='')
 @pass_controller_context
 @ensure_plugged_in
-def config_show(ctx, controller, table_type, section='', keyname=''):
+def config_show(ctx, controller, section='', keyname='', **kwargs):
     """"""
-    echo_config_table(controller, table_type, section, keyname)
+    echo_config_table(controller, section, keyname, **kwargs)
 
 
 # *** [CONFIG] EDIT

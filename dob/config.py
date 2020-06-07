@@ -46,11 +46,14 @@ __all__ = (
 
 # *** [DUMP] TABLE
 
-def echo_config_table(controller, table_type, section, keyname):
+def echo_config_table(controller, section, keyname, output_format):
     """"""
     parts = list(filter(None, (section, keyname)))
     conf_objs = fetch_config_objects(controller, parts)
-    echo_config_decorator_table(conf_objs, table_type)
+    include_hidden = section and keyname
+    echo_config_decorator_table(
+        controller, conf_objs, output_format, include_hidden=include_hidden,
+    )
 
 
 # *** [EDIT] CONFIG
