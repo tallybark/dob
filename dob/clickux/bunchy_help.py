@@ -23,13 +23,12 @@ from .help_header import help_header_format
 from ..run_cli import run
 
 __all__ = (
-    'cmd_bunch_group_introducing',
-    'cmd_bunch_group_edit',
-    'cmd_bunch_group_get_meta',
-    'cmd_bunch_group_report_facts',
-    'cmd_bunch_group_report_other',
-    'cmd_bunch_group_dbms',
     'cmd_bunch_group_add_fact',
+    'cmd_bunch_group_dbms',
+    'cmd_bunch_group_edit',
+    'cmd_bunch_group_generate_report',
+    'cmd_bunch_group_get_meta',
+    'cmd_bunch_group_introducing',
     'cmd_bunch_group_ongoing_fact',
     'cmd_bunch_group_personalize',
     'cmd_bunch_group_plugin',
@@ -41,39 +40,35 @@ __all__ = (
 # ***
 
 def help_header_introducing():
-    return help_header_format(_('Newbie Commands'))
+    return help_header_format(_('Learn and Setup Dob'))
 
 
 def help_header_edit():
-    return help_header_format(_('Editor Commands'))
+    return help_header_format(_('Run the Editor'))
 
 
 def help_header_personalize():
-    return help_header_format(_('Personalize Editor'))
+    return help_header_format(_('Personalize the Editor'))
 
 
 def help_header_get_meta():
-    return help_header_format(_('General Commands'))
+    return help_header_format(_('Manage the Application'))
 
 
-def help_header_report_facts():
-    return help_header_format(_('Fact Report Commands'))
-
-
-def help_header_report_other():
-    return help_header_format(_('Other Report Commands'))
+def help_header_generate_report():
+    return help_header_format(_('Generate Reports'))
 
 
 def help_header_dbms():
-    return help_header_format(_('Database Commands'))
+    return help_header_format(_('Manage the Database'))
 
 
 def help_header_add_fact():
-    return help_header_format(_('Add Fact Commands'))
+    return help_header_format(_('Add Facts from the CLI'))
 
 
 def help_header_ongoing_fact():
-    return help_header_format(_('Latest Fact Commands'))
+    return help_header_format(_('Work on the Latest Fact'))
 
 
 def help_header_plugin():
@@ -95,22 +90,17 @@ def cmd_bunch_group_edit(cmd):
 
 
 def cmd_bunch_group_personalize(cmd):
-    run.add_to_bunch(cmd, help_header_personalize, 250)
+    run.add_to_bunch(cmd, help_header_personalize, 600)
     return cmd
 
 
 def cmd_bunch_group_get_meta(cmd):
-    run.add_to_bunch(cmd, help_header_get_meta, 600)
+    run.add_to_bunch(cmd, help_header_get_meta, 400)
     return cmd
 
 
-def cmd_bunch_group_report_facts(cmd):
-    run.add_to_bunch(cmd, help_header_report_facts, 400)
-    return cmd
-
-
-def cmd_bunch_group_report_other(cmd):
-    run.add_to_bunch(cmd, help_header_report_other, 420)
+def cmd_bunch_group_generate_report(cmd):
+    run.add_to_bunch(cmd, help_header_generate_report, 300)
     return cmd
 
 
@@ -120,16 +110,16 @@ def cmd_bunch_group_dbms(cmd):
 
 
 def cmd_bunch_group_add_fact(cmd):
-    run.add_to_bunch(cmd, help_header_add_fact, 300)
+    run.add_to_bunch(cmd, help_header_add_fact, 700)
     return cmd
 
 
 def cmd_bunch_group_ongoing_fact(cmd):
-    run.add_to_bunch(cmd, help_header_ongoing_fact, 350)
+    run.add_to_bunch(cmd, help_header_ongoing_fact, 710)
     return cmd
 
 
 def cmd_bunch_group_plugin(cmd):
-    run.add_to_bunch(cmd, help_header_plugin, 990)
+    run.add_to_bunch(cmd, help_header_plugin, 999)
     return cmd
 

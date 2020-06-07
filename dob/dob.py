@@ -66,8 +66,7 @@ from .clickux.bunchy_help import (
     cmd_bunch_group_introducing,
     cmd_bunch_group_edit,
     cmd_bunch_group_get_meta,
-    cmd_bunch_group_report_facts,
-    cmd_bunch_group_report_other,
+    cmd_bunch_group_generate_report,
     cmd_bunch_group_dbms,
     cmd_bunch_group_add_fact,
     cmd_bunch_group_ongoing_fact,
@@ -707,7 +706,7 @@ def upgrade_legacy(ctx, controller, force, filename=None):
 # *** [STATS] Command.
 # ***
 
-@cmd_bunch_group_report_facts
+@cmd_bunch_group_dbms
 @run.command('stats', help=help_strings.STATS_HELP, help_weight=20)
 @show_help_finally
 @flush_pager
@@ -722,7 +721,7 @@ def nark_stats(ctx, controller):
 # *** [LIST] Commands.
 # ***
 
-@cmd_bunch_group_report_other
+@cmd_bunch_group_generate_report
 # Use a command alias to avoid conflict with builtin of same name
 # (i.e., we cannot declare this function, `def list()`).
 @run.group(
@@ -840,7 +839,7 @@ def dob_list_facts(controller, *args, **kwargs):
 # *** [SEARCH] Facts Command.
 # ***
 
-@cmd_bunch_group_report_facts
+@cmd_bunch_group_generate_report
 @run.command('search', aliases=['find'], help=help_strings.SEARCH_HELP, help_weight=5)
 @show_help_finally
 @flush_pager
@@ -854,7 +853,7 @@ def search_facts(controller, *args, **kwargs):
 # *** [USAGE] Commands.
 # ***
 
-@cmd_bunch_group_report_other
+@cmd_bunch_group_generate_report
 @run.group(
     'usage', help=help_strings.USAGE_GROUP_HELP, help_weight=15, **run_group_kwargs,
 )
