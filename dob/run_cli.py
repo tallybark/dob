@@ -26,7 +26,7 @@ import click_hotoffthehamster as click
 from nark.helpers.dev.profiling import profile_elapsed, timefunct
 
 from dob_bright.termio import click_echo, echo_exit
-from dob_bright.termio.paging import set_paging
+from dob_bright.termio.paging import ClickEchoPager
 
 from .clickux import help_strings
 from .clickux.aliasable_bunchy_plugin import ClickAliasableBunchyPluginGroup
@@ -211,7 +211,7 @@ def run(ctx, controller, v, verbose, verboser, color, pager, config, configfile)
             # None if --pager nor --no-pager specified,
             # so fallback to what's in the user config.
             use_pager = controller.config['term.use_pager']
-        set_paging(use_pager)
+        ClickEchoPager.set_paging(use_pager)
 
     def _setup_tty_color(ctx, controller):
         use_color = color
