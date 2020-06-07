@@ -56,7 +56,8 @@ def ADD_FACT_COMMON(ctx):
     first_line = 'Help on Adding single Facts from the command line'
     if not ctx.find_root().params['pager']:
         first_line = _(
-            'Wordy Add Fact Help / Try {codehi}{rawname} -P add -h{reset} for paged help'
+            'Show Add Fact help'
+            ' (or try {codehi}{rawname} -P add -h{reset} for paged help)'
         ).format(**common_format())
 
     # - Tricky, tricky: Click truncates first line at first period '.',
