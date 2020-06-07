@@ -114,17 +114,34 @@ def RUN_HELP_TRYME():
     return _help
 
 
+def RUN_HELP_QUICKIE():
+    _help = _(
+        """
+        - To start dobbin immediately, init, then edit,
+
+          {codehi}{rawname} init{reset}
+
+          {codehi}{rawname} edit{reset}
+        """
+        .strip()
+    ).format(**common_format())
+    return _help
+
+
 def RUN_HELP_HEADER():
     _help = _(
         """
         {what_is}
 
         {try_me}
+
+        {quick_start}
         """
         .strip()
     ).format(
         what_is=RUN_HELP_WHATIS(),
         try_me=RUN_HELP_TRYME(),
+        quick_start=RUN_HELP_QUICKIE(),
         **common_format()
     )
     return _help
@@ -184,7 +201,7 @@ def RUN_HELP_COMPLETE():
           {codehi}{rawname} copyright{reset}
 
           {codehi}{rawname} license{reset}
-        """
+        """  # noqa: E501 line too long
         .strip()
     ).format(
         run_help_header=RUN_HELP_HEADER(),
@@ -886,7 +903,7 @@ IGNORE_SHOW_HELP = _(
 
 STORE_GROUP_HELP = _(
     """
-    Manage the database file.
+    Manage the database: create a new one; upgrade from Hamster; and more.
     """
 )
 
@@ -935,9 +952,10 @@ STORE_UPGRADE_FORCE_HELP = _(
 # *** [STATS] Commands help.
 # ***
 
+# Print stats about your data (number of Facts, tags, etc.).
 STATS_HELP = _(
     """
-    Print stats about your data store (number of Facts, tags, etc.).
+    Print stats about your data (Fact count, tag count, etc.).
     """
 )
 
@@ -1005,20 +1023,59 @@ LIST_FACTS_HELP = QUERY_ITEM_HELP.format(
 )
 
 
-SEARCH_HELP = _(
+# ***
+# *** [FIND/SEARCH/JOURNAL/EXPORT] Commands help.
+# ***
+
+QUERY_HELP = _(
     """
-    View Facts matching search criteria, from a time range, etc.
+Add a SEARCH_TERM to find any Facts with a description that contains
+the specified search term. Or specify multiple terms to find any Fact
+that contains one or more of the terms.
 
-    You may use the SEARCH_TERM to find Facts with descriptions
-    that contain the SEARCH_TERM.
+Use the --since and --until options to restrict the search to a specific
+time range.
 
-    You may use the --since and --until options to restrict the
-    search to a specific time range.
+Use the --activity, --category, and --tags options to restrict the search
+to specific activity, category, and/or tag names.
 
-    You may use the --activity and --category options to restrict
-    the search to specific activity and category names.
+Use --order and --direction to specify how the results are sorted.
+
+Use --limit and --offset to fetch a portion of the results.
     """
 )
+
+
+RESULTS_PROCESSING_HELP = _(
+    """
+Prints to stdout, or use --output to send to a file.
+
+{query_help}
+
+Combine --group-activity and --group-category to group by Activity@Category
+names, or use them separately. You can also --group-tags. Or --group-days
+to group by whole days. Use any combination of groupings to change the
+results.
+
+Use one or more --column options to choose which details are output,
+and in what order.
+
+To choose a different output format, use --format <format>, or one of
+the format aliases (--journal, --json, etc.).
+
+Some formats and output columns have their options, too, listed last
+in the help.
+    """
+).format(query_help=QUERY_HELP)
+
+
+SEARCH_HELP = _(
+    """
+Show all Facts, or those matching a search criteria.
+
+{results_processing_help}
+    """
+).format(results_processing_help=RESULTS_PROCESSING_HELP)
 
 
 # ***
@@ -1270,7 +1327,7 @@ def ADD_FACT_FROM(ctx):
 # think I should call it an "editor", and sometimes an "interactive" one.
 EDIT_FACT_HELP = _(
     """
-    Run the interactive editor in your terminal to add and edit Facts.
+    Run the interactive editor in your terminal, to add and edit Facts.
     """
 )
 
@@ -1279,11 +1336,21 @@ EDIT_FACT_HELP = _(
 # *** [EXPORT] Command help.
 # ***
 
-EXPORT_HELP = _(
-    """
-    Export Facts to a file, choosing from a variety of different formats.
-    """
-)
+def EXPORT_HELP(ctx):
+    _help = _(
+        """
+Export Facts to a file, for backing up to text, or grepping.
+
+{query_help}
+
+See also {codehi}{rawname} report{reset} for more robust searching
+and reporting options. The export command saves Facts to a file and
+is useful for backing up your data as a text file, or for making a
+searchable text file that you can wire into your existing notes
+management system.
+        """
+    ).format(query_help=QUERY_HELP, **common_format())
+    return _help
 
 
 # ***
@@ -1295,26 +1362,26 @@ EXPORT_HELP = _(
 # to demonstrate how all the dob-on/dob-after/etc. commands work.
 IMPORT_HELP = _(
     """
-    Import new Facts from a text file or stdin using a natural syntax.
+Import Facts from a file, or from stdin, using a natural syntax.
 
-    Useful if you cannot use dob for a while, but you can maintain a
-    text file. Or if you need to massage data from another source into
-    dob.
+Useful if you cannot use dob for a while, but you can maintain a
+text file. Or if you need to massage data from another source into
+dob.
 
-    HINT: To read from stdin, you can pipe to dob:
+HINT: To read from stdin, you can pipe to dob:
 
-            echo "2020-01-09 00:00: Hi!" | dob import
+        echo "2020-01-09 00:00: Hi!" | dob import
 
-          You can use shell redirection:
+      You can use shell redirection:
 
-            dob import < path/to/my.facts
+        dob import < path/to/my.facts
 
-          Or you can use a single dash as the filename:
+      Or you can use a single dash as the filename:
 
-            dob import -
+        dob import -
 
-          For the last option, dob processes input as you type it,
-          until you press ^D.
+      For the last option, dob processes input as you type it,
+      until you press ^D.
     """
 )
 
