@@ -17,7 +17,7 @@
 
 from gettext import gettext as _
 
-from dob_bright.termio.ascii_table import generate_table
+from dob_bright.reports.render_results import render_results
 
 from ..clickux.query_assist import error_exit_no_results
 
@@ -26,7 +26,9 @@ __all__ = ('list_categories', )
 
 def list_categories(
     controller,
-    table_type='friendly',
+    output_format='table',
+    table_style='texttable',
+    output_path=None,
     chop=False,
     # These two --hide flags are ignored but specified to keep out of kwargs.
     hide_usage=False,
@@ -50,5 +52,13 @@ def list_categories(
     for category in results:
         category_names.append((category.name,))
 
-    generate_table(category_names, headers, table_type, truncate=chop, trunccol=0)
+    render_results(
+        controller,
+        results=category_names,
+        headers=headers,
+        output_format=output_format,
+        table_style=table_style,
+        output_path=output_path,
+        chop=chop,
+    )
 

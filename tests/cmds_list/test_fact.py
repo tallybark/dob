@@ -15,57 +15,29 @@
 # You can find the GNU General Public License reprinted in the file titled 'LICENSE',
 # or visit <http://www.gnu.org/licenses/>.
 
-from freezegun import freeze_time
+import os
+
+from click_hotoffthehamster import ClickException
+
+import fauxfactory
 import pytest
 
+import nark
 from nark.tests.conftest import *  # noqa: F401, F403
 from nark.tests.backends.sqlalchemy.conftest import *  # noqa: F401, F403
 
+from dob_bright.reports.tabulate_results import report_table_columns
+
 from dob_viewer.crud.fact_dressed import FactDressed
+
 from dob.cmds_list.fact import list_facts
-from dob.cmds_list.fact import search_facts
-from dob.facts_format.tabular import report_table_columns
 
-
-class TestCmdsListFactSearchFacts(object):
-    """Unit tests for search command."""
-
-    @freeze_time('2015-12-12 18:00')
-    def test_search_facts_since_until(
-        self, controller, mocker, fact, search_parameter_parametrized,
-    ):
-        """Ensure since and until are converted to datetime for backend function."""
-        # See also: nark's test_get_all_various_since_and_until_times
-        since, until, description, expectation = search_parameter_parametrized
-        mocker.patch.object(controller.facts, 'gather', return_value=[fact])
-        # F841 local variable '_facts' is assigned to but never used
-        _facts = search_facts(controller, since=since, until=until)  # noqa: F841
-        assert controller.facts.gather.called
-        # call_args is (args, kwargs), and QueryTerms is the first args arg.
-        query_terms = controller.facts.gather.call_args[0][0]
-        assert query_terms.since == expectation['since']
-        assert query_terms.until == expectation['until']
-
-    def test_search_facts_fails_on_unsupported_store(self, controller, capsys):
-        """Ensure search_facts prints a user warning on unsupported store type."""
-        # MAYBE/2020-05-26: Add support for other data stores (other than SQLite),
-        #   which requires using and wiring the appropriate DBMS-specific aggregate
-        #   functions.
-        #   - For now, dob is at least nice enough to print an error message.
-        controller.store.config['db.engine'] += '_not'
-        with pytest.raises(SystemExit):
-            search_facts(controller)
-            assert False  # Unreachable.
-        # assert result.exit_code == 1
-        out, err = capsys.readouterr()
-        # See: must_support_db_engine_funcs.
-        expect = 'This feature does not work with the current DBMS engine'
-        assert err.startswith(expect)
+from .. import truncate_to_whole_seconds
 
 
 # ***
 
-class TestCmdsListFactListFacts(object):
+class TestCmdsListFactListFacts_Simple(object):
     """"""
 
     def test_list_facts_empty_store(self, controller_with_logging, capsys):
@@ -105,7 +77,7 @@ class TestCmdsListFactListFacts(object):
 # but also provides coverage of
 #   dob/facts_format/factoid.py
 
-class TestCmdsListFactListFactsPresentationArguments(object):
+class TestCmdsListFactListFacts_PresentationArguments(object):
 
     # We're just going for coverage and not crashing, so not checking test outputs.
 
@@ -170,7 +142,7 @@ class TestCmdsListFactListFactsPresentationArguments(object):
     # ***
 
     @pytest.mark.parametrize(
-        ('format_journal', 'format_tabular', 'format_factoid', 'table_type',), (
+        ('format_journal', 'format_tabular', 'format_factoid', 'output_format',), (
             (False, True, False, 'friendly'),
             (False, True, False, 'texttable'),
             (False, True, False, 'tabulate'),
@@ -184,7 +156,7 @@ class TestCmdsListFactListFactsPresentationArguments(object):
         format_journal,
         format_tabular,
         format_factoid,
-        table_type,
+        output_format,
     ):
         controller = five_report_facts_ctl
         # Ensure that fact.friendly_str() is the FactDressed version
@@ -195,7 +167,7 @@ class TestCmdsListFactListFactsPresentationArguments(object):
             format_journal=format_journal,
             format_tabular=format_tabular,
             format_factoid=format_factoid,
-            table_type=table_type,
+            output_format=output_format,
         )
 
     # ***
@@ -263,7 +235,7 @@ class TestCmdsListFactListFactsPresentationArguments(object):
 
 # ***
 
-class TestCmdsListFactFactoidPermutations(object):
+class TestCmdsListFactListFacts_FactoidPermutations(object):
 
     # We're just going for coverage and not crashing, so not checking test outputs.
 
@@ -369,4 +341,81 @@ class TestCmdsListFactFactoidPermutations(object):
                 group_days=True,
             )
             assert False  # Unreachable.
+
+
+# ***
+
+class TestCmdsListFactListFacts_OutputFormats(object):
+    """Unittests related to data export."""
+    @pytest.mark.parametrize('output_format', ['soap', fauxfactory.gen_latin1()])
+    def test_invalid_format(self, controller_with_logging, output_format, mocker):
+        """Make sure that passing an invalid format exits prematurely."""
+        controller = controller_with_logging
+        with pytest.raises(ClickException):
+            list_facts(controller, output_format=output_format)
+
+    # FIXME: Remove `controller_with_logging` from these tests that do not use it.
+    def test_csv(self, controller, controller_with_logging, mocker):
+        """Make sure that a valid format returns the appropriate writer class."""
+        mocker.patch.object(nark.reports, 'CSVWriter')
+        list_facts(controller, output_format='csv')
+        assert nark.reports.CSVWriter.called
+
+    def test_tsv(self, controller, controller_with_logging, mocker):
+        """Make sure that a valid format returns the appropriate writer class."""
+        mocker.patch.object(nark.reports, 'TSVWriter')
+        list_facts(controller, output_format='tsv')
+        assert nark.reports.TSVWriter.called
+
+    def test_ical(self, controller, controller_with_logging, mocker):
+        """Make sure that a valid format returns the appropriate writer class."""
+        mocker.patch.object(nark.reports, 'ICALWriter')
+        list_facts(controller, output_format='ical')
+        assert nark.reports.ICALWriter.called
+
+    def test_xml(self, controller, controller_with_logging, mocker):
+        """Ensure passing 'xml' as format returns appropriate writer class."""
+        mocker.patch.object(nark.reports, 'XMLWriter')
+        list_facts(controller, output_format='xml')
+        assert nark.reports.XMLWriter.called
+
+    def test_with_since(self, controller, controller_with_logging, tmpdir, mocker):
+        """Make sure that passing a end date is passed to the fact gathering method."""
+        mocker.patch.object(controller.facts, 'gather')
+        path = os.path.join(tmpdir.mkdir('report').strpath, 'report.csv')
+        mocker.patch.object(
+            nark.reports, 'CSVWriter', return_value=nark.reports.CSVWriter(path),
+        )
+        since = fauxfactory.gen_datetime()
+        # Get rid of fractions of a second.
+        since = truncate_to_whole_seconds(since)
+        list_facts(
+            controller, output_format='csv', since=since.strftime('%Y-%m-%d %H:%M'),
+        )
+        args, kwargs = controller.facts.gather.call_args
+        query_terms = args[0]
+        assert query_terms.since == since
+
+    def test_with_until(self, controller, controller_with_logging, tmpdir, mocker):
+        """Make sure that passing a until date is passed to the fact gathering method."""
+        mocker.patch.object(controller.facts, 'gather')
+        path = os.path.join(tmpdir.mkdir('report').strpath, 'report.csv')
+        mocker.patch.object(
+            nark.reports, 'CSVWriter', return_value=nark.reports.CSVWriter(path),
+        )
+        until = fauxfactory.gen_datetime()
+        until = truncate_to_whole_seconds(until)
+        list_facts(
+            controller, output_format='csv', until=until.strftime('%Y-%m-%d %H:%M'),
+        )
+        args, kwargs = controller.facts.gather.call_args
+        query_terms = args[0]
+        assert query_terms.until == until
+
+    def test_with_filename(self, controller, controller_with_logging, tmpdir, mocker):
+        """Make sure that a valid format returns the appropriate writer class."""
+        path = os.path.join(tmpdir.ensure_dir('export').strpath, 'export.csv')
+        mocker.patch.object(nark.reports, 'CSVWriter')
+        list_facts(controller, output_format='csv', file_out=path)
+        assert nark.reports.CSVWriter.called
 

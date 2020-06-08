@@ -15,8 +15,6 @@
 # You can find the GNU General Public License reprinted in the file titled 'LICENSE',
 # or visit <http://www.gnu.org/licenses/>.
 
-import pytest
-
 from dob_bright.termio import ascii_table
 
 from dob import cmds_list
@@ -36,7 +34,11 @@ class TestActivities(object):
             'tabulate',
             return_value='{}, {}'.format(activity.name, None),
         )
-        cmds_list.activity.list_activities(controller, table_type='tabulate')
+        cmds_list.activity.list_activities(
+            controller,
+            output_format='table',
+            table_style='texttable',
+        )
         out, err = capsys.readouterr()
         assert out.startswith(activity.name)
         assert ascii_table.tabulate.tabulate.call_args[0] == ([[activity.name, None]],)
@@ -86,10 +88,10 @@ class TestActivities(object):
         cmds_list.activity.list_activities(
             controller,
             # Defaults.
-            table_type='friendly',
-            chop=False,
+            output_format='table',
             hide_usage=False,
             hide_duration=False,
+            chop=False,
             # The one we're testing.
             search_term=activity.category.name,
         )
@@ -104,29 +106,4 @@ class TestActivities(object):
         assert query_terms.category is False
         assert activity.name in out
         assert activity.category.name in out
-
-    # (lb): This test made more sense in hamster-lib, where you could pass a Category
-    # item to the Activity get_all. But in dob, it bakes the Category search into
-    # the SQL, so there's not gonna be a KeyError or anything raised on an unknown
-    # Category name. Also, the test does not setup the database here, so the SQL
-    # won't not find anything because the Category name is a miss, it just won't
-    # find anything because there's nothing in the database.
-    # See instead:
-    #   nark.tests.backends.sqlalchemy.test_storage.test_get_all_with_category_miss
-    if False:
-        def test_list_activities_with_category_miss(
-            self, controller, activity, mocker, capsys,
-        ):
-            """Make sure the search term is passed on."""
-            category_miss = activity.category.name + '_test'
-            mocker.patch.object(
-                controller.activities, 'get_all', return_value=[activity],
-            )
-            with pytest.raises(KeyError):
-                cmds_list.activity.list_activities(
-                    controller, filter_category=category_miss,
-                )
-                assert False  # Unreachable.
-            out, err = capsys.readouterr()
-            assert not controller.activities.get_all.called
 

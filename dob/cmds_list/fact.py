@@ -18,18 +18,23 @@
 from gettext import gettext as _
 
 import sys
+from inflector import English, Inflector
 
 from nark.managers.query_terms import QueryTerms
 
-from dob_bright.termio import dob_in_user_exit
+from dob_bright.reports.render_results import render_results
+from dob_bright.termio import (
+    click_echo,
+    dob_in_user_exit,
+    dob_in_user_warning,
+    highlight_value
+)
 
+from ..clickux.cmd_options_search import cmd_options_output_format_facts_only
 from ..clickux.query_assist import error_exit_no_results
-from ..facts_format.factoid import output_factoid_list
-from ..facts_format.tabular import output_ascii_table
 
 __all__ = (
     'list_facts',
-    'search_facts',
 )
 
 
@@ -43,23 +48,22 @@ def list_facts(
     hide_duration=False,
     hide_description=False,
     column=None,
-    # - Args: Select output formatter library.
-    format_journal=False,
-    format_tabular=False,
-    format_factoid=False,
-    # - Args: Select output formatter style.
-    table_type='friendly',
+    # - Args: Output formatter processor writer.
+    output_format='csv',
     # - Args: Format- and Row-specific arguments.
+    table_style='texttable',  # Applies when output_format == 'table'.
     factoid_rule='',
     # - Args: Cell-specific arguments.
-    chop=False,
     spark_total=None,
     spark_width=None,
     spark_secs=None,
     # - Args: Output constraints.
-    out_file=None,
+    output_path=None,
     row_limit=None,
     term_width=None,
+    chop=False,
+    # - Developer controls.
+    re_sort=False,
     # - Any unnamed arguments are used as search terms in the query.
     *args,
     # - All remaining keyword arguments correspond to nark.QueryTerms.
@@ -68,7 +72,7 @@ def list_facts(
     """
     Finds and lists facts according to specified filtering, sorting and display options.
 
-    Writes to stdout, or to the specified ``out_file``.
+    Writes to stdout, or to the file specified by ``output_path``.
 
     Arguments:
         Most of the arguments are documented elsewhere.
@@ -76,16 +80,20 @@ def list_facts(
     Returns:
         None: If success.
     """
+    format_restricted = output_format in cmd_options_output_format_facts_only()
+
     def _list_facts():
-        qt = prepare_query_terms()
-        results = search_facts(controller, query_terms=qt)
+        qt = prepare_query_terms(*args, **kwargs)
+        results = find_facts(controller, query_terms=qt)
         if not results:
             error_exit_no_results(_('facts'))
-        display_results(results, qt)
+        n_total = len(results)
+        n_written = display_results(results, qt, output_path)
+        report_report_written(controller, output_path, n_total, n_written)
 
     # ***
 
-    def prepare_query_terms():
+    def prepare_query_terms(*args, **kwargs):
         qt = QueryTerms(*args, **kwargs)
         must_grouping_allowed(qt)
         qt.include_stats = should_include_stats(qt)
@@ -93,11 +101,11 @@ def list_facts(
         return qt
 
     def must_grouping_allowed(qt):
-        if not qt.is_grouped or not format_factoid:
+        if not qt.is_grouped or not format_restricted:
             return
 
         dob_in_user_exit(_(
-            'ERROR: Cannot create Factoid report when grouping.'
+            'ERROR: Specified format type does not support grouping results.'
         ))
 
     # Note that the two complementary commands, dob-list and dob-usage,
@@ -105,9 +113,9 @@ def list_facts(
     # and --show-duration and --hide-duration, that dictate if we need
     # the query to include the aggregate columns or not.
     def should_include_stats(qt):
-        # If prepare a Factoid export, the output_factoid_list expects
-        # list of items, and nothing more.
-        if format_factoid:
+        # If preparing a Factoid export, the FactoidWriter
+        # expects a list of items, and not prepared tuples.
+        if format_restricted:
             return False
 
         # If a group-by is specified, the report will show the aggregated names,
@@ -116,19 +124,21 @@ def list_facts(
         if qt.is_grouped:
             return True
 
-        # Also include the aggregate columns if the user wants to include the
-        # 'Duration' in the output. (Note that we we could compute this after
-        # the query, from Fact.end - Fact.start, but currently the SQL query
-        # does it with julianday() - julianday() math.)
+        # Not grouping results, so each result is a Fact, but check if the user
+        # wants the 'Duration'. (It's an either-or with the SQL code, either you
+        # retrieve just item columns, or you retrieve item columns and all extra
+        # columns, whether or not you want them all.)
+        # - The 'duration' is a simple julianday() - julianday() value, which
+        #   the tabulate_results.prepare_duration may or may not use (it might
+        #   call fact.delta instead) so really adding stats just to get the
+        #   'Duration' is about as unnecessary as this comment.
+        # - Ignore `not hide_usage` -- 'uses' obviously 1 because not qt.is_grouped.
+        # - Check for 'sparkline' output, which is calculated from 'duration'.
+        #   - Again, we could just do this during post-processing in tabulate_results.
         if (
-            # Ignore `not hide_usage` -- the 'uses' column can be deduced as 1
-            # because not qt.is_grouped.
             not hide_duration
             and (not column or (
                 True
-                # The duration and sparkline could be computed from just the Fact,
-                # but currently, get_all does (sqlite) julianday math in SELECT.
-                # Tell get_all to return the aggregate columns with each Fact result.
                 and 'duration' not in column
                 and 'sparkline' not in column
             ))
@@ -150,43 +160,52 @@ def list_facts(
 
     # ***
 
-    def display_results(results, qt):
-        _row_limit = suss_row_limit(qt)
+    def find_facts(controller, **kwargs):
+        """
+        Search for one or more facts, given a set of search criteria and sort options.
 
-        if format_factoid:
-            output_factoid_list(
-                controller,
-                results,
-                row_limit=_row_limit,
-                hide_duration=hide_duration,
-                chop=chop,
-                factoid_rule=factoid_rule,
-                out_file=out_file,
-                term_width=term_width,
-            )
-        else:
-            # else, either format_tabular or format_journal.
+        Args:
+            query_terms: A QueryTerms object that defines the query.
 
-            # NOTE/2020-05-26: out_file not supported on this branch.
-            # - (lb): But I'm thinking output_factoid_list should be an
-            #   export format only, in which case, move factoid to export,
-            #   then disable out_file option for list and usage commands
-            #   (user can just redirect stdout, anyway).
-            output_ascii_table(
-                controller,
-                results,
-                row_limit=_row_limit,
-                query_terms=qt,
-                hide_usage=hide_usage,
-                hide_duration=hide_duration,
-                hide_description=hide_description,
-                custom_columns=column,
-                table_type='journal' if format_journal else table_type,
-                chop=chop,
-                spark_total=spark_total,
-                spark_width=spark_width,
-                spark_secs=spark_secs,
-            )
+            **kwargs: Alternatively, pass any or all of the QueryTerms attributes.
+
+        Returns:
+            A list of matching Facts, or matching (Fact, *statistics) tuples,
+            depending on the QueryTerms.
+        """
+        try:
+            return controller.facts.get_all(**kwargs)
+        except Exception as err:
+            # - NotImplementedError happens if db.engine != 'sqlite', because
+            #   get_all uses SQLite-specific aggregate functions.
+            # - ParserInvalidDatetimeException happens on bad since or until.
+            dob_in_user_exit(str(err))
+
+    # ***
+
+    def display_results(results, qt, output_path):
+        row_limit = suss_row_limit(qt)
+        n_written = render_results(
+            controller,
+            results,
+            query_terms=qt,
+            hide_usage=hide_usage,
+            hide_duration=hide_duration,
+            hide_description=hide_description,
+            custom_columns=column,
+            output_format=output_format,
+            table_style=table_style,
+            factoid_rule=factoid_rule,
+            chop=chop,
+            spark_total=spark_total,
+            spark_width=spark_width,
+            spark_secs=spark_secs,
+            output_path=output_path,
+            row_limit=row_limit,
+            term_width=term_width,
+            re_sort=re_sort,
+        )
+        return n_written
 
     def suss_row_limit(qt):
         # Limit the number of rows dumped, unless user specified --limit,
@@ -194,32 +213,38 @@ def list_facts(
         _row_limit = row_limit
         # Note: Not caring about qt.limit here, as the query limit is
         # a separate concern from the row limit.
-        if _row_limit is None and out_file is None and sys.stdout.isatty():
+        if _row_limit is None and not output_path and sys.stdout.isatty():
             _row_limit = controller.config['term.row_limit']
         return _row_limit
 
+    # ***
+
+    def report_report_written(controller, output_path, n_total, n_written):
+        if not output_path:
+            # If writ to stdout or pager, skip count and path report.
+            return
+        # Otherwise, path was formed from, e.g., "export.{format}", so display actual.
+
+        if n_written < n_total:
+            echo_warn_if_truncated(controller, n_written, n_total)
+
+        click_echo(_(
+            "Wrote {n_written} {facts} to {output_path}"
+        ).format(
+            n_written=highlight_value(n_written),
+            facts=Inflector(English).conditional_plural(n_written, _('Fact')),
+            output_path=highlight_value(output_path),
+        ))
+
+    def echo_warn_if_truncated(controller, n_results, n_rows):
+        if n_results <= n_rows:
+            return
+
+        dob_in_user_warning(_(
+            'Showed only {} of {} results. Use `-C term.row_limit=0` to see all results.'
+        ).format(format(n_results, ','), format(n_rows, ',')))
+
+    # ***
+
     _list_facts()
-
-
-# ***
-
-def search_facts(controller, **kwargs):
-    """
-    Search for one or more facts, given a set of search criteria and sort options.
-
-    Args:
-        query_terms: A QueryTerms object that defines the query.
-
-        **kwargs: Alternatively, pass any or all of the QueryTerms attributes.
-
-    Returns:
-        A list of matching Facts, or matching (Fact, *statistics) tuples,
-        depending on the QueryTerms.
-    """
-    try:
-        return controller.facts.get_all(**kwargs)
-    except NotImplementedError as err:
-        # This happens if db.engine != 'sqlite', because get_all
-        # uses SQLite-specific aggregate functions.
-        dob_in_user_exit(str(err))
 

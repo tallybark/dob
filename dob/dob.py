@@ -33,7 +33,7 @@ from functools import update_wrapper
 import click_hotoffthehamster as click
 
 from dob_bright.termio.echoes import click_echo
-from dob_bright.termio.errors import dob_in_user_exit, dob_in_user_warning
+from dob_bright.termio.errors import dob_in_user_exit
 from dob_bright.termio.paging import flush_pager
 
 from dob_viewer.crud.fact_dressed import FactDressed
@@ -72,7 +72,6 @@ from .clickux.bunchy_help import (
     cmd_bunch_group_ongoing_fact,
     cmd_bunch_group_personalize
 )
-from .clickux.cmd_option_dynamic_help import OptionWithDynamicHelp
 from .clickux.cmd_options import (
     cmd_options_edit_item,
     cmd_options_fact_add,
@@ -90,8 +89,9 @@ from .clickux.cmd_options import (
 )
 from .clickux.cmd_options_search import (
     cmd_options_any_search_query,
-    cmd_options_table_renderer,
-    postprocess_options_normalize_search_args
+    cmd_options_output_format_any_input,
+    postprocess_options_normalize_search_args,
+    postprocess_options_output_format_any_input
 )
 from .clickux.help_command import help_command_help
 from .clickux.help_detect import show_help_finally, show_help_if_no_command
@@ -119,11 +119,6 @@ from .facts.add_fact import add_fact
 from .facts.cancel_fact import cancel_fact
 from .facts.echo_fact import echo_latest_ended, echo_ongoing_fact, echo_ongoing_or_ended
 from .facts.edit_fact import edit_fact_by_pk
-from .facts.export_facts import (
-    export_facts,
-    CMD_EXPORT_OPT_FORMAT_CHOICES,
-    CMD_EXPORT_OPT_FORMAT_DEFAULT
-)
 from .facts.import_facts import import_facts
 from .migrate import control as migrate_control
 from .migrate import downgrade as migrate_downgrade
@@ -338,13 +333,14 @@ def config_create(ctx, controller, force):
 @config_group.command('show', aliases=['dump'], help=help_strings.CONFIG_SHOW_HELP)
 @show_help_finally
 @flush_pager
-@cmd_options_table_renderer
+@cmd_options_output_format_any_input
 @click.argument('section', nargs=1, default='')
 @click.argument('keyname', nargs=1, default='')
 @pass_controller_context
 @ensure_plugged_in
 def config_show(ctx, controller, section='', keyname='', **kwargs):
     """"""
+    postprocess_options_output_format_any_input(kwargs)
     echo_config_table(controller, section, keyname, **kwargs)
 
 
@@ -479,12 +475,13 @@ def styles_list(ctx, controller, internal):
 @show_help_finally
 @flush_pager
 @cmd_options_styles_named
-@cmd_options_table_renderer
+@cmd_options_output_format_any_input
 @pass_controller_context
 @ensure_plugged_in
-def styles_show(ctx, controller, name, table_type):
+def styles_show(ctx, controller, name, **kwargs):
     """"""
-    echo_styles_table(controller, name, table_type)
+    postprocess_options_output_format_any_input(kwargs)
+    echo_styles_table(controller, name, **kwargs)
 
 
 # ***
@@ -565,12 +562,13 @@ def rules_list(ctx, controller):
 @show_help_finally
 @flush_pager
 @cmd_options_rule_name
-@cmd_options_table_renderer
+@cmd_options_output_format_any_input
 @pass_controller_context
 @ensure_plugged_in
-def rules_show(ctx, controller, name, table_type):
+def rules_show(ctx, controller, name, **kwargs):
     """"""
-    echo_rules_table(controller, name, table_type)
+    postprocess_options_output_format_any_input(kwargs)
+    echo_rules_table(controller, name, **kwargs)
 
 
 # ***
@@ -634,12 +632,13 @@ def ignore_list(ctx, controller):
 @show_help_finally
 @flush_pager
 @cmd_options_rule_name
-@cmd_options_table_renderer
+@cmd_options_output_format_any_input
 @pass_controller_context
 @ensure_plugged_in
-def ignore_show(ctx, controller, name, table_type):
+def ignore_show(ctx, controller, name, **kwargs):
     """"""
-    echo_ignore_table(controller, name, table_type)
+    postprocess_options_output_format_any_input(kwargs)
+    echo_ignore_table(controller, name, **kwargs)
 
 
 # ***
@@ -811,28 +810,20 @@ def query_tags(ctx, controller, *args, **kwargs):
 # *** FACTS.
 
 def _list_facts(controller, *args, **kwargs):
-    """List matching facts, filtered and sorted."""
-    """Fetch facts matching certain criteria."""
+    """Find matching facts, filtered and sorted."""
     postprocess_options_normalize_search_args(kwargs)
     list_fact.list_facts(controller, *args, **kwargs)
-
-
-def generate_list_facts_command(func):
-    @cmd_options_any_search_query(command='list', item='fact', match=True, group=True)
-    @pass_controller_context
-    @induct_newbies
-    def dob_list_facts(ctx, controller, *args, **kwargs):
-        _list_facts(controller, *args, **kwargs)
-    return update_wrapper(dob_list_facts, func)
 
 
 @list_group.command('facts', help=help_strings.LIST_FACTS_HELP, hidden=True)
 @show_help_finally
 @flush_pager
-@generate_list_facts_command
-def dob_list_facts(controller, *args, **kwargs):
-    # Not reachable, because generate_list_facts_command.
-    assert False  # pragma: no cover
+# The `dob find` and `dob list fact` commands are the same.
+@cmd_options_any_search_query(command='list', item='fact', match=True, group=True)
+@pass_controller_context
+@induct_newbies
+def dob_list_facts(ctx, controller, *args, **kwargs):
+    _list_facts(controller, *args, **kwargs)
 
 
 # ***
@@ -840,13 +831,15 @@ def dob_list_facts(controller, *args, **kwargs):
 # ***
 
 @cmd_bunch_group_generate_report
-@run.command('search', aliases=['find'], help=help_strings.SEARCH_HELP, help_weight=5)
+@run.command('find', aliases=['search'], help=help_strings.SEARCH_HELP, help_weight=5)
 @show_help_finally
 @flush_pager
-@generate_list_facts_command
-def search_facts(controller, *args, **kwargs):
-    # Not reachable, because generate_list_facts_command.
-    assert False  # pragma: no cover
+# The `dob find` and `dob list fact` commands are the same.
+@cmd_options_any_search_query(command='list', item='fact', match=True, group=True)
+@pass_controller_context
+@induct_newbies
+def search_facts(ctx, controller, *args, **kwargs):
+    _list_facts(controller, *args, **kwargs)
 
 
 # ***
@@ -1295,67 +1288,17 @@ def edit_fact_by_key(
 # *** [EXPORT] Command.
 # ***
 
-def cmd_export_opt_output_default(controller):
-    if controller is not None:
-        return '{}.{{format}}'.format(controller.config['term.export_path'])
-    else:
-        return _('(Dynamic)')
-
-
 @cmd_bunch_group_dbms
 @run.command('export', help=help_strings.EXPORT_HELP)
 @show_help_finally
 @flush_pager
-@click.option(
-    '-o', '--output',
-    cls=OptionWithDynamicHelp,
-    help=_('Path to export file.'),
-    default=cmd_export_opt_output_default,
-    show_default=True,
-)
-@click.option(
-    '-f', '--format',
-    type=click.Choice(CMD_EXPORT_OPT_FORMAT_CHOICES),
-    help=_('Output format.'),
-    default=CMD_EXPORT_OPT_FORMAT_DEFAULT,
-    show_default=True,
-)
-@click.option('--csv', is_flag=True, help=_('Alias for `--format csv`'))
-@click.option('--tsv', is_flag=True, help=_('Alias for `--format tsv`'))
-@click.option('--xml', is_flag=True, help=_('Alias for `--format xml`'))
-@click.option('--ical', is_flag=True, help=_('Alias for `--format ical`'))
-@cmd_options_any_search_query(command='export', item='fact', match=True, group=True)
+@cmd_options_any_search_query(command='export', item='fact', match=True, group=False)
 @pass_controller_context
 @induct_newbies
-def transcode_export(ctx, controller, *args, output, format, **kwargs):
+def transcode_export(ctx, controller, *args, **kwargs):
     """Export all facts of within a given time window to a file of specified format."""
-    def _transcode_export():
-        postprocess_options_normalize_search_args(kwargs)
-        export_facts(
-            controller,
-            *args,
-            to_format=consolidate_format_options(),
-            file_out=output,
-            **kwargs
-        )
-
-    def consolidate_format_options():
-        chosen_fmt = format
-        fmts_specified = []
-        if chosen_fmt != CMD_EXPORT_OPT_FORMAT_DEFAULT:
-            fmts_specified = [chosen_fmt, ]
-        for switch in CMD_EXPORT_OPT_FORMAT_CHOICES:
-            if kwargs[switch]:
-                chosen_fmt = switch
-                fmts_specified.append(switch)
-            del kwargs[switch]
-        if len(fmts_specified) > 1:
-            dob_in_user_warning(_(
-                'More than one format specified: {}'
-            ).format(fmts_specified))
-        return chosen_fmt
-
-    _transcode_export()
+    postprocess_options_normalize_search_args(kwargs)
+    list_fact.list_facts(controller, *args, **kwargs)
 
 
 # ***

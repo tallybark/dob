@@ -26,10 +26,12 @@ __all__ = ('usage_tags', )
 
 def usage_tags(
     controller,
-    table_type='friendly',
-    chop=False,
     hide_usage=False,
     hide_duration=False,
+    output_format='table',
+    table_style='texttable',
+    output_path=None,
+    chop=False,
     **kwargs
 ):
     """
@@ -46,12 +48,15 @@ def usage_tags(
         results or error_exit_no_results(err_context)
 
         generate_usage_table(
+            controller,
             results,
-            table_type=table_type,
-            chop=chop,
             name_header=_("Tag Name"),
             hide_usage=hide_usage,
             hide_duration=hide_duration,
+            output_format=output_format,
+            table_style=table_style,
+            output_path=output_path,
+            chop=chop,
         )
 
     # ***

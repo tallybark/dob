@@ -26,10 +26,12 @@ __all__ = ('usage_activities', )
 
 def usage_activities(
     controller,
-    table_type='friendly',
-    chop=False,
     hide_usage=False,
     hide_duration=False,
+    output_format='table',
+    table_style='texttable',
+    output_path=None,
+    chop=False,
     **kwargs
 ):
     """
@@ -49,13 +51,16 @@ def usage_activities(
         results or error_exit_no_results(err_context)
 
         generate_usage_table(
+            controller,
             results,
-            name_fmttr=name_fmttr,
-            table_type=table_type,
-            chop=chop,
             name_header=_("Activity@Category"),
+            name_fmttr=name_fmttr,
             hide_usage=hide_usage,
             hide_duration=hide_duration,
+            output_format=output_format,
+            table_style=table_style,
+            output_path=output_path,
+            chop=chop,
         )
 
     def name_fmttr(activity):

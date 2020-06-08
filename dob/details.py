@@ -44,7 +44,6 @@ def echo_app_details(controller, full=False):
         echo_config_path()
         echo_plugins_basepath()
         echo_logfile_path()
-        echo_export_path()
         echo_db_info()
         echo_app_dirs()
 
@@ -76,13 +75,6 @@ def echo_app_details(controller, full=False):
             "Logfile stored at: {}"
         ).format(
             highlight_value(controller.config['log.filepath']),
-        ))
-
-    def echo_export_path():
-        click_echo(_(
-            "Reports exported to: {}"
-        ).format(highlight_value(
-            '{}.{{format}}'.format(controller.config['term.export_path']))
         ))
 
     def echo_db_info():
@@ -156,7 +148,6 @@ def echo_app_environs(controller):
         environs_add_config_path()
         environs_add_plugins_path()
         environs_add_log_path()
-        environs_add_reports_dir()
         environs_add_db_url()
         environs_add_db_path()
         environs_add_user_app_dirs()
@@ -179,10 +170,6 @@ def echo_app_environs(controller):
     def environs_add_log_path():
         # environs['log_filepath'] = controller.config['log.filepath']
         environs['CONFIG_LOG_FILEPATH'] = controller.config['log.filepath']
-
-    def environs_add_reports_dir():
-        # environs['term_export_path'] = controller.config['term.export_path']
-        environs['CONFIG_TERM_EXPORT_PATH'] = controller.config['term.export_path']
 
     def environs_add_db_url():
         environs['db_url'] = controller.store.db_url

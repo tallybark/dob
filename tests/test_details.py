@@ -35,7 +35,6 @@ class TestDetails(object):
             'Configuration file at: ',
             'Plugins directory at: ',
             'Logfile stored at: ',
-            'Reports exported to: ',
             'Using sqlite on database: :memory:',
         )
         for idx, line in enumerate(out.splitlines()):

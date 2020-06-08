@@ -21,18 +21,21 @@ from gettext import gettext as _
 
 from pedantic_timedelta import PedanticTimedelta
 
-from dob_bright.termio.ascii_table import generate_table
+from dob_bright.reports.render_results import render_results
 
 __all__ = ('generate_usage_table', )
 
 
 def generate_usage_table(
+    controller,
     results,
     name_fmttr=lambda item: item.name,
-    table_type='friendly',
     name_header=None,
     hide_usage=False,
     hide_duration=False,
+    output_format='table',
+    table_style='texttable',
+    output_path=None,
     chop=False,
 ):
     def generate_usage_table():
@@ -61,7 +64,15 @@ def generate_usage_table(
 
         headers = prepare_headers()
 
-        generate_table(culled, headers, table_type, truncate=chop, trunccol=0)
+        render_results(
+            controller,
+            results=culled,
+            headers=headers,
+            output_format=output_format,
+            table_style=table_style,
+            output_path=output_path,
+            chop=chop,
+        )
 
     def cull_results(results):
         if not hide_usage and not hide_duration:
