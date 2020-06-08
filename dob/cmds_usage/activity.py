@@ -67,7 +67,7 @@ def usage_activities(
         if activity.category:
             category_name = activity.category.name
         else:
-            category_name = ''
+            category_name = '<NULL>'
         actegory = '{}@{}'.format(activity.name, category_name)
         return actegory
 

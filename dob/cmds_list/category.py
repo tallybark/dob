@@ -50,7 +50,8 @@ def list_categories(
     headers = (_("Category Name"),)
     category_names = []
     for category in results:
-        category_names.append((category.name,))
+        category_name = category.name if category else '<NULL>'
+        category_names.append((category_name,))
 
     render_results(
         controller,

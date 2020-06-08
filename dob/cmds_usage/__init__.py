@@ -29,8 +29,8 @@ __all__ = ('generate_usage_table', )
 def generate_usage_table(
     controller,
     results,
-    name_fmttr=lambda item: item.name,
     name_header=None,
+    name_fmttr=lambda item: item.name if item else '<NULL>',
     hide_usage=False,
     hide_duration=False,
     output_format='table',
