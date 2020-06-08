@@ -738,7 +738,7 @@ def list_group(ctx, controller):
 
 # *** ACTIVITIES.
 
-@list_group.command('activities', aliases=['activity'],
+@list_group.command('activities', aliases=['activity', 'act'],
                     help=help_strings.LIST_ACTIVITIES_HELP)
 @show_help_finally
 @flush_pager
@@ -761,7 +761,7 @@ def query_activities(ctx, controller, *args, **kwargs):
 
 # *** CATEGORIES.
 
-@list_group.command('categories', aliases=['category'],
+@list_group.command('categories', aliases=['category', 'cat'],
                     help=help_strings.LIST_CATEGORIES_HELP)
 @show_help_finally
 @flush_pager
@@ -815,7 +815,9 @@ def _list_facts(controller, *args, cmd_journal=False, **kwargs):
     list_fact.list_facts(controller, *args, **kwargs)
 
 
-@list_group.command('facts', help=help_strings.LIST_FACTS_HELP, hidden=True)
+@list_group.command('facts', aliases=['fact'],
+                    help=help_strings.LIST_FACTS_HELP,
+                    hidden=True)
 @show_help_finally
 @flush_pager
 # The `dob find` and `dob list fact` commands are the same.
@@ -880,7 +882,7 @@ def usage_group(ctx, controller):
 
 # *** ACTIVITIES.
 
-@usage_group.command('activities', aliases=['activity'],
+@usage_group.command('activities', aliases=['activity', 'act'],
                      help=help_strings.USAGE_ACTIVITIES_HELP)
 @show_help_finally
 @flush_pager
@@ -894,7 +896,7 @@ def usage_activities(ctx, controller, *args, **kwargs):
 
 # *** CATEGORIES.
 
-@usage_group.command('categories', aliases=['category'],
+@usage_group.command('categories', aliases=['category', 'cat'],
                      help=help_strings.USAGE_CATEGORIES_HELP)
 @show_help_finally
 @flush_pager
@@ -921,7 +923,9 @@ def usage_tags(ctx, controller, *args, **kwargs):
 
 # *** FACTS.
 
-@usage_group.command('facts', help=help_strings.USAGE_FACTS_HELP, hidden=True)
+@usage_group.command('facts', aliases=['fact'],
+                     help=help_strings.USAGE_FACTS_HELP,
+                     hidden=True)
 @show_help_finally
 @flush_pager
 @cmd_options_any_search_query(command='usage', item='fact', match=True, group=True)
