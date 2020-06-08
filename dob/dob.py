@@ -809,9 +809,9 @@ def query_tags(ctx, controller, *args, **kwargs):
 
 # *** FACTS.
 
-def _list_facts(controller, *args, **kwargs):
+def _list_facts(controller, *args, cmd_journal=False, **kwargs):
     """Find matching facts, filtered and sorted."""
-    postprocess_options_normalize_search_args(kwargs)
+    postprocess_options_normalize_search_args(kwargs, cmd_journal=cmd_journal)
     list_fact.list_facts(controller, *args, **kwargs)
 
 
@@ -840,6 +840,25 @@ def dob_list_facts(ctx, controller, *args, **kwargs):
 @induct_newbies
 def search_facts(ctx, controller, *args, **kwargs):
     _list_facts(controller, *args, **kwargs)
+
+
+# ***
+# *** [REPORT] Facts Command.
+# ***
+
+@cmd_bunch_group_generate_report
+@run.command('report', help=help_strings.REPORT_HELP, help_weight=10)
+@show_help_finally
+@flush_pager
+# The `dob report` command is `dob find` with specific defaults.
+@cmd_options_any_search_query(command='journal', item='fact', match=True, group=True)
+@pass_controller_context
+@induct_newbies
+def journal_report(ctx, controller, *args, **kwargs):
+    # The journal command groups by Activity, Category, and Day by default,
+    # unless the user specified a different grouping. Note that to apply no
+    # grouping, the user would have to use the `dob find` command instead.
+    _list_facts(controller, *args, cmd_journal=True, **kwargs)
 
 
 # ***

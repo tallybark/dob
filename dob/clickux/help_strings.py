@@ -1078,6 +1078,25 @@ Show all Facts, or those matching a search criteria.
 ).format(results_processing_help=RESULTS_PROCESSING_HELP)
 
 
+def REPORT_HELP(ctx):
+    _help = _(
+        """
+Generate a report on recent time usage.
+
+This command is essentially an alias to:
+
+  \b
+  {codehi}{rawname} find --journal --since 'last week' \\{reset}
+  {codehi}   --group-activity --group-category --group-days \\{reset}
+  {codehi}   --sort usage --dir desc \\{reset}
+  {codehi}   -l start_date -l duration -l sparkline -l actegory -l tags_freq{reset}
+
+{results_processing_help}
+        """
+    ).format(results_processing_help=RESULTS_PROCESSING_HELP, **common_format())
+    return _help
+
+
 # ***
 # *** [USAGE] Commands help.
 # ***

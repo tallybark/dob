@@ -44,6 +44,7 @@ __all__ = (
     #   '_cmd_options_results_group',
     #   '_cmd_options_results_output_path',
     #   '_cmd_options_results_sort_order',
+    #   '_cmd_options_search_time_window',
     #   '_postprocess_options_grouping',
     #   '_postprocess_options_match_activities',
     #   '_postprocess_options_match_categories',
@@ -85,18 +86,27 @@ _cmd_options_search_item_name = [
 # *** [SEARCH QUERY] Time Window.
 # ***
 
-_cmd_options_search_time_window = [
-    click.option(
-        '-s', '--since', '--after',
-        metavar='TIME',
-        help=_('Show items more recent than a specific date.'),
-    ),
-    click.option(
-        '-u', '--until', '--before',
-        metavar='TIME',
-        help=_('Show items older than a specific date.'),
-    ),
-]
+def _cmd_options_search_time_window(command=''):
+    since_default_value = ''
+    since_show_default = False
+    if command == 'journal':
+        since_default_value = 'last week'
+        since_show_default = True
+    cmd_options = [
+        click.option(
+            '-s', '--since', '--after',
+            metavar='TIME',
+            default=since_default_value,
+            show_default=since_show_default,
+            help=_('Show items more recent than a specific date.'),
+        ),
+        click.option(
+            '-u', '--until', '--before',
+            metavar='TIME',
+            help=_('Show items older than a specific date.'),
+        ),
+    ]
+    return cmd_options
 
 
 # ***
@@ -186,7 +196,7 @@ def _cmd_options_results_group(item):
     ]
 
 
-def _postprocess_options_grouping(kwargs):
+def _postprocess_options_grouping(kwargs, cmd_journal=False):
     def __postprocess_options_grouping():
         if 'group' not in kwargs:
             return
@@ -197,6 +207,8 @@ def _postprocess_options_grouping(kwargs):
         process_grouping_option('days')
         del kwargs['group']
 
+        ensure_default_grouping()
+
     def process_grouping_option(type_name):
         # Form the group name, e.g., group_activity, group_category, etc.
         group_name = 'group_{}'.format(type_name)
@@ -204,6 +216,19 @@ def _postprocess_options_grouping(kwargs):
             return
 
         kwargs[group_name] = kwargs[group_name] or type_name in kwargs['group']
+
+    def ensure_default_grouping():
+        if not cmd_journal:
+            return
+
+        if not (
+            kwargs['group_activity']
+            or kwargs['group_category']
+            or kwargs['group_tags']
+            or kwargs['group_days']
+        ):
+            kwargs['group_activity'] = True
+            kwargs['group_category'] = True
 
     __postprocess_options_grouping()
 
@@ -272,7 +297,7 @@ def _cmd_options_results_sort_order(item, command, group):
         default_sort_cols = ['start']
         if group:
             choices += ['usage']
-            if command == 'usage':
+            if command == 'usage' or command == 'journal':
                 default_sort_cols = ['usage']
                 default_sort_orders = ['desc']
 
@@ -567,6 +592,8 @@ def _cmd_options_output_format_multiple_choices_option(command='', item=''):
 
     if command == 'export':
         default_format = 'factoid'
+    elif command == 'journal':
+        default_format = 'journal'
     else:
         default_format = 'table'
 
@@ -820,7 +847,7 @@ def cmd_options_output_format_any_input(func):
     return func
 
 
-def postprocess_options_output_format_any_input(kwargs):
+def postprocess_options_output_format_any_input(kwargs, cmd_journal=False):
     _postprocess_options_output_format_choices(kwargs)
     _postprocess_options_output_format_tabling(kwargs)
 
@@ -926,13 +953,13 @@ def _postprocess_options_matching(kwargs):
     _postprocess_options_match_categories(kwargs)
 
 
-def postprocess_options_normalize_search_args(kwargs):
+def postprocess_options_normalize_search_args(kwargs, cmd_journal=False):
     _postprocess_options_matching(kwargs)
-    _postprocess_options_grouping(kwargs)
+    _postprocess_options_grouping(kwargs, cmd_journal=cmd_journal)
     _postprocess_options_results_options_sort_to_sort_cols(kwargs)
     _postprocess_options_results_options_direction_to_sort_order(kwargs)
     _postprocess_options_results_show_hide(kwargs)
-    postprocess_options_output_format_any_input(kwargs)
+    postprocess_options_output_format_any_input(kwargs, cmd_journal=cmd_journal)
     _postprocess_options_sparkline(kwargs)
 
 
@@ -966,7 +993,7 @@ def cmd_options_any_search_query(command='', item='', match=False, group=False):
         if command != 'export':
             options.extend(_cmd_options_search_item_key)
         options.extend(_cmd_options_search_item_name)
-        options.extend(_cmd_options_search_time_window)
+        options.extend(_cmd_options_search_time_window(command))
 
     # +++
 
@@ -1033,7 +1060,7 @@ def cmd_options_any_search_query(command='', item='', match=False, group=False):
         if command == 'usage':
             options.extend(_cmd_options_results_hide_usage)
             options.extend(_cmd_options_results_hide_duration)
-        elif command == 'list':
+        elif command in ['list', 'journal']:
             options.extend(_cmd_options_results_show_usage)
             options.extend(_cmd_options_results_show_duration)
         elif command == 'export':
