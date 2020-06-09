@@ -93,14 +93,14 @@ class TestActivities(object):
             hide_duration=False,
             chop=False,
             # The one we're testing.
-            search_term=activity.category.name,
+            search_terms=[activity.category.name],
         )
         out, err = capsys.readouterr()
         assert controller.activities.gather.called
         # Mock's assert_called_with checks arguments exactly, but we
         # just care to check that the search_term was there.
         query_terms = controller.activities.gather.call_args.args[0]
-        assert query_terms.search_term == activity.category.name
+        assert query_terms.search_terms == [activity.category.name]
         # The category is a pass-through list_activities **kwarg, so
         # won't be in the kwargs.
         assert query_terms.category is False

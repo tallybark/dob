@@ -53,6 +53,7 @@ __all__ = (
     #   '_postprocess_options_results_options_sort_to_sort_cols',
     #   '_postprocess_options_results_show_hide',
     #   '_postprocess_options_results_show_hide_option',
+    #   '_postprocess_options_search_term',
     #   '_postprocess_options_sparkline',
     #   '_postprocess_options_sparkline_float',
     #   '_postprocess_options_sparkline_secs',
@@ -80,6 +81,15 @@ _cmd_options_search_item_key = [
 _cmd_options_search_item_name = [
     click.argument('search_term', nargs=-1, default=None),
 ]
+
+
+def _postprocess_options_search_term(kwargs):
+    if 'search_term' not in kwargs:
+        return
+
+    # (lb): Me, the pedant.
+    kwargs['search_terms'] = kwargs['search_term']
+    del kwargs['search_term']
 
 
 # ***
@@ -961,6 +971,7 @@ def postprocess_options_normalize_search_args(kwargs, cmd_journal=False):
     _postprocess_options_results_show_hide(kwargs)
     postprocess_options_output_format_any_input(kwargs, cmd_journal=cmd_journal)
     _postprocess_options_sparkline(kwargs)
+    _postprocess_options_search_term(kwargs)
 
 
 # ***
