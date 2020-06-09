@@ -731,9 +731,9 @@ the existing linters, by way of not being features), including:
   by forcing you to consider and assign method names to each function.
 
   While this project does not need to be strict about method length --
-  in Ruby, for instance, the `RuboCop <https://docs.rubocop.org/en/latest/>`__
+  in Ruby, for instance, the `RuboCop <https://docs.rubocop.org/rubocop/index.html>`__
   linter enforces a `maximum method length
-  <https://docs.rubocop.org/en/latest/cops_metrics/#metricsmethodlength>`__
+  <https://docs.rubocop.org/rubocop/cops_metrics.html#metricsmethodlength>`__
   of 10 lines, by default --
   it's a good idea to strive for shorter methods, and it's not all that
   difficult to do, once you develop your own tricks.
