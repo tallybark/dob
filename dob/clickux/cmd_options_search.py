@@ -156,10 +156,21 @@ def _postprocess_options_match_activities(kwargs):
     if 'activity' not in kwargs:
         return
 
-    activity = kwargs['activity'] if kwargs['activity'] else []
+    match_activities = _postprocess_assemble_match_names(kwargs['activity'])
+    if match_activities:
+        kwargs['match_activities'] = match_activities
     del kwargs['activity']
-    if activity:
-        kwargs['match_activities'] = list(activity)
+
+
+def _postprocess_assemble_match_names(match_names):
+    match_list = []
+    for name in match_names:
+        match_list.append(name)
+        if not name:
+            # Match empty string or NULL (this is a special case,
+            # otherwise user has no way to match NULL from CLI).
+            match_list.append(None)
+    return match_list
 
 
 # ***
@@ -178,12 +189,10 @@ def _postprocess_options_match_categories(kwargs):
     if 'category' not in kwargs:
         return
 
-    # This little dance is so category_name is never None, but '',
-    # because get_all() distinguishes between category=None and =''.
-    category = kwargs['category'] if kwargs['category'] else []
+    match_categories = _postprocess_assemble_match_names(kwargs['category'])
+    if match_categories:
+        kwargs['match_categories'] = match_categories
     del kwargs['category']
-    if category:
-        kwargs['match_categories'] = list(category)
 
 
 # ***
