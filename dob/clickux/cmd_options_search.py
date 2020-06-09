@@ -108,7 +108,7 @@ def _cmd_options_search_time_window(command=''):
             metavar='TIME',
             default=since_default_value,
             show_default=since_show_default,
-            help=_('Show items more recent than a specific date.'),
+            help=_('Show items newer than a specific date.'),
         ),
         click.option(
             '-u', '--until', '--before',
@@ -399,7 +399,7 @@ _cmd_options_search_limit_offset = [
     ),
     click.option(
         '-O', '--offset', default=0, show_default=False,
-        help=_('Record offset to fetch.'),
+        help=_('Skip this number of records before returning results.'),
     ),
 ]
 
@@ -411,7 +411,7 @@ _cmd_options_search_limit_offset = [
 _cmd_options_results_hide_description = [
     click.option(
         '-P', '--hide-description', is_flag=True,
-        help=_('Hide Fact description.'),
+        help=_('Omit Fact description from results.'),
     ),
 ]
 
@@ -431,7 +431,7 @@ _cmd_options_results_hide_duration = [
 _cmd_options_results_show_duration = [
     click.option(
         '-N', '--show-duration', is_flag=True,
-        help=_('Display duration in results.'),
+        help=_('Display duration time in results.'),
     ),
 ]
 
