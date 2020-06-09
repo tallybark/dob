@@ -36,10 +36,9 @@ def list_tags(
     **kwargs
 ):
     """
-    List tags, with filtering and sorting options.
+    List tag names, optionally filtered and formatted specially.
 
-    Returns:
-        None: If success.
+    Writes to stdout, or to the file specified by ``output_path``.
     """
     err_context = _('tags')
 

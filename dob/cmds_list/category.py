@@ -36,10 +36,9 @@ def list_categories(
     **kwargs
 ):
     """
-    List all existing categories, ordered by name.
+    List category names, optionally filtered and formatted specially.
 
-    Returns:
-        None: If success.
+    Writes to stdout, or to the file specified by ``output_path``.
     """
     err_context = _('categories')
 

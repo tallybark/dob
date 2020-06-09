@@ -36,13 +36,9 @@ def list_activities(
     **kwargs
 ):
     """
-    List activities. Provide optional filtering by name.
+    List activity names, optionally filtered and formatted specially.
 
-    Args:
-        search_term (str): String to match ``Activity.name`` against.
-
-    Returns:
-        None: If success.
+    Writes to stdout, or to the file specified by ``output_path``.
     """
     err_context = _('activities')
 
