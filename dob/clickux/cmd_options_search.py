@@ -75,11 +75,15 @@ _cmd_options_search_item_key = [
 
 
 # ***
-# *** [SEARCH QUERY] Item Name.
+# *** [SEARCH QUERY] Search Terms.
 # ***
 
-_cmd_options_search_item_name = [
-    click.argument('search_term', nargs=-1, default=None),
+_cmd_options_search_search_term = [
+    click.argument(
+        'search_term',
+        nargs=-1,
+        default=None,
+    ),
 ]
 
 
@@ -143,7 +147,7 @@ _cmd_options_search_deleted_hidden = [
 _cmd_options_search_match_activities = [
     click.option(
         '-a', '--activity', multiple=True,
-        help=_('Restrict results by matching activity name.'),
+        help=_('Restrict results by exact activity name(s).'),
     ),
 ]
 
@@ -165,7 +169,7 @@ def _postprocess_options_match_activities(kwargs):
 _cmd_options_search_match_categories = [
     click.option(
         '-c', '--category', multiple=True,
-        help=_('Restrict results by matching category name.'),
+        help=_('Restrict results by exact category name(s).'),
     ),
 ]
 
@@ -180,6 +184,22 @@ def _postprocess_options_match_categories(kwargs):
     del kwargs['category']
     if category:
         kwargs['match_categories'] = list(category)
+
+
+# ***
+# *** [SEARCH MATCH] Fuzzy terms.
+# ***
+
+_cmd_options_search_fuzzy_terms = [
+    click.option(
+        '--fuzzy-terms', '--fuzzy',
+        is_flag=True,
+        help=_(
+            'Try SEARCH_TERM matching on activity, category, and tag names'
+            ' (otherwise SEARCH_TERM only matches description).'
+        ),
+    ),
+]
 
 
 # ***
@@ -988,13 +1008,15 @@ def postprocess_options_normalize_search_args(kwargs, cmd_journal=False):
 def cmd_options_any_search_query(command='', item='', match=False, group=False):
     def _cmd_options_any_search_query():
         options = []
-        append_cmd_options_search_basics(options)
+        append_cmd_options_filter_by_pk(options)
+        append_cmd_options_filter_by_time(options)
         append_cmd_options_matching(options)
         append_cmd_options_group_by(options)
         append_cmd_options_results_sort_limit(options)
         append_cmd_options_results_column_choices(options)
         append_cmd_options_output_file(options)
         append_cmd_options_results_report_formats(options)
+        append_cmd_options_filter_by_search_terms(options)
 
         def _cmd_options_search_query(func):
             for option in reversed(options):
@@ -1005,11 +1027,17 @@ def cmd_options_any_search_query(command='', item='', match=False, group=False):
 
     # +++
 
-    def append_cmd_options_search_basics(options):
-        if command != 'export':
-            options.extend(_cmd_options_search_item_key)
-        options.extend(_cmd_options_search_item_name)
+    def append_cmd_options_filter_by_pk(options):
+        if command == 'export':
+            return
+
+        options.extend(_cmd_options_search_item_key)
+
+    def append_cmd_options_filter_by_time(options):
         options.extend(_cmd_options_search_time_window(command))
+
+    def append_cmd_options_filter_by_search_terms(options):
+        options.extend(_cmd_options_search_search_term)
 
     # +++
 
@@ -1025,6 +1053,9 @@ def cmd_options_any_search_query(command='', item='', match=False, group=False):
         # `dob list activity fully`, given Activity named "Must Match Fully".
         options.extend(_cmd_options_search_match_activities)
         options.extend(_cmd_options_search_match_categories)
+
+        if item == 'fact':
+            options.extend(_cmd_options_search_fuzzy_terms)
 
     # +++
 
