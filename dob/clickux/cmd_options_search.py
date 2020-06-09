@@ -527,6 +527,7 @@ def _cmd_options_results_output_path(for_export=False):
 
 _standard_formats = [
     'csv',
+    'json',
     'tsv',
     'xml',
     'table',
@@ -562,6 +563,10 @@ def _cmd_options_output_format_singular_options_any():
         click.option(
             '--csv', is_flag=True,
             help=_('Output results using comma-separated values (CSV).'),
+        ),
+        click.option(
+            '--json', is_flag=True,
+            help=_('Output results using JavaScript Object Notation (JSON).'),
         ),
         click.option(
             '--tsv', is_flag=True,
