@@ -29,7 +29,7 @@ def usage_categories(
     hide_usage=False,
     hide_duration=False,
     output_format='table',
-    table_style='texttable',
+    table_type='texttable',
     output_path=None,
     chop=False,
     **kwargs
@@ -54,7 +54,7 @@ def usage_categories(
             hide_usage=hide_usage,
             hide_duration=hide_duration,
             output_format=output_format,
-            table_style=table_style,
+            table_type=table_type,
             output_path=output_path,
             chop=chop,
         )

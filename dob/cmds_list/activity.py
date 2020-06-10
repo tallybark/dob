@@ -27,7 +27,7 @@ __all__ = ('list_activities', )
 def list_activities(
     controller,
     output_format='table',
-    table_style='texttable',
+    table_type='texttable',
     output_path=None,
     chop=False,
     # These two --hide flags are ignored but specified to keep out of kwargs.
@@ -64,7 +64,7 @@ def list_activities(
         results=actegories,
         headers=headers,
         output_format=output_format,
-        table_style=table_style,
+        table_type=table_type,
         output_path=output_path,
         chop=chop,
     )

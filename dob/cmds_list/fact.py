@@ -51,7 +51,7 @@ def list_facts(
     # - Args: Output formatter processor writer.
     output_format='csv',
     # - Args: Format- and Row-specific arguments.
-    table_style='texttable',  # Applies when output_format == 'table'.
+    table_type='texttable',  # Applies when output_format == 'table'.
     factoid_rule='',
     # - Args: Cell-specific arguments.
     spark_total=None,
@@ -194,7 +194,7 @@ def list_facts(
             hide_description=hide_description,
             custom_columns=column,
             output_format=output_format,
-            table_style=table_style,
+            table_type=table_type,
             factoid_rule=factoid_rule,
             chop=chop,
             spark_total=spark_total,

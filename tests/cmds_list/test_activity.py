@@ -37,7 +37,7 @@ class TestActivities(object):
         cmds_list.activity.list_activities(
             controller,
             output_format='table',
-            table_style='texttable',
+            table_type='texttable',
         )
         out, err = capsys.readouterr()
         assert out.startswith(activity.name)

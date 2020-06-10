@@ -51,7 +51,7 @@ def echo_config_table(
     section,
     keyname,
     output_format,
-    table_style,
+    table_type,
 ):
     """"""
     parts = list(filter(None, (section, keyname)))
@@ -61,7 +61,7 @@ def echo_config_table(
         controller,
         conf_objs,
         output_format=output_format,
-        table_style=table_style,
+        table_type=table_type,
         include_hidden=include_hidden,
     )
 

@@ -630,7 +630,7 @@ def _cmd_options_output_format_singular_options_any():
         ),
         click.option(
             '--table', is_flag=True,
-            help=_('Output results using an ASCII table format.'),
+            help=_('Output results as format indicated by --table-type.'),
         ),
     ]
     return cmd_options
@@ -882,7 +882,7 @@ def _cmd_options_output_format_tabling():
 
     cmd_options = [
         click.option(
-            '--table-style', '--style',
+            '--table-type', '--type',
             type=click.Choice(formats_table),
             nargs=1,
             default='normal',
@@ -894,11 +894,11 @@ def _cmd_options_output_format_tabling():
 
 
 def _postprocess_options_output_format_tabling(kwargs):
-    if 'table_style' not in kwargs:
+    if 'table_type' not in kwargs:
         return
 
-    if kwargs['table_style'] == 'normal':
-        kwargs['table_style'] = 'texttable'
+    if kwargs['table_type'] == 'normal':
+        kwargs['table_type'] = 'texttable'
 
 
 # ***
@@ -1130,7 +1130,7 @@ def cmd_options_any_search_query(command='', item='', match=False, group=False):
         append_cmd_options_output_format(options)
         append_cmd_options_format_factoid_output(options)
         append_cmd_options_format_fact_values(options)
-        append_cmd_options_table_style(options)
+        append_cmd_options_table_type(options)
 
         append_cmd_options_results_re_sort(options)
 
@@ -1198,7 +1198,7 @@ def cmd_options_any_search_query(command='', item='', match=False, group=False):
 
         options.extend(_cmd_options_output_sparkline_format)
 
-    def append_cmd_options_table_style(options):
+    def append_cmd_options_table_type(options):
         options.extend(_cmd_options_output_format_tabling())
 
     # +++
