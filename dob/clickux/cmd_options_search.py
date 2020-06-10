@@ -219,12 +219,12 @@ def _postprocess_options_match_tags(kwargs):
 
 
 # ***
-# *** [SEARCH MATCH] Fuzzy terms.
+# *** [SEARCH MATCH] Broad matching.
 # ***
 
-_cmd_options_search_fuzzy_terms = [
+_cmd_options_search_broad_match = [
     click.option(
-        '--fuzzy-terms', '--fuzzy',
+        '--broad-match', '--broad',
         is_flag=True,
         help=_(
             'Try SEARCH_TERM matching on activity, category, and tag names'
@@ -1089,7 +1089,7 @@ def cmd_options_any_search_query(command='', item='', match=False, group=False):
 
         if item == 'fact':
             options.extend(_cmd_options_search_match_tags)
-            options.extend(_cmd_options_search_fuzzy_terms)
+            options.extend(_cmd_options_search_broad_match)
 
     # +++
 

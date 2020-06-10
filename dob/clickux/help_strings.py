@@ -1031,13 +1031,16 @@ QUERY_HELP = _(
     """
 Add a SEARCH_TERM to find any Facts with a description that contains
 the specified search term. Or specify multiple terms to find any Fact
-that contains one or more of the terms.
+that contains one or more terms.
 
-Use the --since and --until options to restrict the search to a specific
+Use --broad to also loosely match the SEARCH_TERM against the activity,
+category, and tag values.
+
+Use --since and --until options to restrict the search to a specific
 time range.
 
 Use the --activity, --category, and --tags options to restrict the search
-to specific activity, category, and/or tag names.
+to exact activity, category, and/or tag names.
 
 Use --order and --direction to specify how the results are sorted.
 
