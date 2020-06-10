@@ -48,6 +48,7 @@ __all__ = (
     #   '_postprocess_options_grouping',
     #   '_postprocess_options_match_activities',
     #   '_postprocess_options_match_categories',
+    #   '_postprocess_options_match_tags',
     #   '_postprocess_options_matching',
     #   '_postprocess_options_results_options_direction_to_sort_order',
     #   '_postprocess_options_results_options_sort_to_sort_cols',
@@ -193,6 +194,28 @@ def _postprocess_options_match_categories(kwargs):
     if match_categories:
         kwargs['match_categories'] = match_categories
     del kwargs['category']
+
+
+# ***
+# *** [SEARCH MATCH] Tag names.
+# ***
+
+_cmd_options_search_match_tags = [
+    click.option(
+        '-t', '--tag', multiple=True,
+        help=_('Restrict results by exact tag name(s).'),
+    ),
+]
+
+
+def _postprocess_options_match_tags(kwargs):
+    if 'tag' not in kwargs:
+        return
+
+    match_tags = _postprocess_assemble_match_names(kwargs['tag'])
+    if match_tags:
+        kwargs['match_tags'] = match_tags
+    del kwargs['tag']
 
 
 # ***
@@ -995,6 +1018,7 @@ def _postprocess_options_sparkline_float(kwargs, spark_attr):
 def _postprocess_options_matching(kwargs):
     _postprocess_options_match_activities(kwargs)
     _postprocess_options_match_categories(kwargs)
+    _postprocess_options_match_tags(kwargs)
 
 
 def postprocess_options_normalize_search_args(kwargs, cmd_journal=False):
@@ -1064,6 +1088,7 @@ def cmd_options_any_search_query(command='', item='', match=False, group=False):
         options.extend(_cmd_options_search_match_categories)
 
         if item == 'fact':
+            options.extend(_cmd_options_search_match_tags)
             options.extend(_cmd_options_search_fuzzy_terms)
 
     # +++
