@@ -587,8 +587,8 @@ _standard_formats = [
 
 
 _single_fact_formats = [
-    'ical',
     'factoid',
+    'ical',
 ]
 
 
@@ -599,9 +599,9 @@ _fact_usage_formats = [
 
 def _cmd_options_output_formats_basic(item=''):
     format_choices = []
-    format_choices += _standard_formats
-    format_choices += _single_fact_formats if item == 'fact' else []
     format_choices += _fact_usage_formats if item == 'fact' else []
+    format_choices += _single_fact_formats if item == 'fact' else []
+    format_choices += _standard_formats
     return format_choices
 
 
@@ -614,19 +614,19 @@ def _cmd_options_output_format_singular_options_any():
     cmd_options = [
         click.option(
             '--csv', is_flag=True,
-            help=_('Output results using comma-separated values (CSV).'),
+            help=_('Output results as comma-separated values (CSV).'),
         ),
         click.option(
             '--json', is_flag=True,
-            help=_('Output results using JavaScript Object Notation (JSON).'),
+            help=_('Output results as JavaScript Object Notation (JSON).'),
         ),
         click.option(
             '--tsv', is_flag=True,
-            help=_('Output results using tab-separated values (TSV).'),
+            help=_('Output results as tab-separated values (TSV).'),
         ),
         click.option(
             '--xml', is_flag=True,
-            help=_('Output results using Extensible Markup Language (XML).'),
+            help=_('Output results as Extensible Markup Language (XML).'),
         ),
         click.option(
             '--table', is_flag=True,
@@ -639,16 +639,16 @@ def _cmd_options_output_format_singular_options_any():
 def _cmd_options_output_format_singular_options_fact():
     cmd_options = [
         click.option(
-            '--ical', is_flag=True,
-            help=_('Output Facts using iCalendar format.'),
+            '--journal', is_flag=True,
+            help=_("Output Facts using dob's Journal format."),
         ),
         click.option(
             '--factoid', is_flag=True,
             help=_("Output Facts using dob's Factoid format."),
         ),
         click.option(
-            '--journal', is_flag=True,
-            help=_("Output Facts using dob's Journal format."),
+            '--ical', is_flag=True,
+            help=_('Output Facts using iCalendar format.'),
         ),
     ]
     return cmd_options
@@ -678,9 +678,9 @@ def _cmd_options_output_format_multiple_choices_option(command='', item=''):
 
 def _cmd_options_output_format_choices(command='', item=''):
     cmd_options = []
-    cmd_options += _cmd_options_output_format_singular_options_any()
     if item == 'fact':
         cmd_options += _cmd_options_output_format_singular_options_fact()
+    cmd_options += _cmd_options_output_format_singular_options_any()
     cmd_options += _cmd_options_output_format_multiple_choices_option(command, item)
     return cmd_options
 
@@ -887,7 +887,7 @@ def _cmd_options_output_format_tabling():
             nargs=1,
             default='normal',
             show_default=True,
-            help=_('ASCII table style.'),
+            help=_('Table format style.'),
         ),
     ]
     return cmd_options
@@ -1128,9 +1128,9 @@ def cmd_options_any_search_query(command='', item='', match=False, group=False):
             return
 
         append_cmd_options_output_format(options)
+        append_cmd_options_table_type(options)
         append_cmd_options_format_factoid_output(options)
         append_cmd_options_format_fact_values(options)
-        append_cmd_options_table_type(options)
 
         append_cmd_options_results_re_sort(options)
 
