@@ -127,7 +127,7 @@ def write_fact_block_format(fact_f, fact, rule, is_first_fact):
         description_sep=': ',
         shellify=False,
         colorful=False,
-        omit_empty_actegory=True,
+        empty_actegory_placeholder='',
     )
     fact_f.write(friendly_str)
 
