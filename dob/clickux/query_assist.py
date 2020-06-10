@@ -21,8 +21,6 @@ from dob_bright.termio import dob_in_user_exit
 
 __all__ = (
     'error_exit_no_results',
-    'hydrate_activity',
-    'hydrate_category',
 )
 
 
@@ -47,35 +45,4 @@ def error_exit_no_results(item_type, more_msg=None):
     # for rows, because when I see table headers, I expect to see
     # table rows! So I'm kinda liking printing a message, not table.
     dob_in_user_exit(msg)
-
-
-# ***
-
-def hydrate_activity(controller, activity_name):
-    """Fetch an activity from the back end."""
-    # The get_all function triggers off activity is None to find
-    # activities in the database that are None. So use activity = False
-    # to mean that user has not requested any activity matching.
-    activity = False
-    if activity_name:
-        # FIXME: (lb): This raises KeyError if no exact match found.
-        #        We should at least gracefully exit,
-        #        if not do a fuzzy search.
-        result = controller.activities.get_by_name(activity_name)
-        activity = result if result else False
-    return activity
-
-
-# ***
-
-def hydrate_category(controller, category_name):
-    """Fetch a category from the backend."""
-    category = False
-    if category_name:
-        # FIXME: (lb): This raises KeyError if no exact match found.
-        #        We should at least gracefully exit,
-        #        if not do a fuzzy search.
-        result = controller.categories.get_by_name(category_name)
-        category = result if result else False
-    return category
 
