@@ -227,11 +227,7 @@ def echo_ongoing_completed(controller, fact, cancelled=False):
                 localize=True,
 
                 colorful=colorful,
-
-                # FIXME/2018-06-12: (lb): Too wide (wraps to next line);
-                # doesn't account for leading fact parts (times, act@gory, tags).
-                cut_width=cut_width,
-
+                cut_width_complete=cut_width,
                 show_elapsed=True,
             )
         )
