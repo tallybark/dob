@@ -215,7 +215,6 @@ class TestCmdsListFactListFacts_PresentationArguments(object):
         controller = five_report_facts_ctl
         list_facts(
             controller,
-            chop=True,
             format_tabular=format_tabular,
             format_factoid=format_factoid,
         )
@@ -294,17 +293,16 @@ class TestCmdsListFactListFacts_FactoidPermutations(object):
 
     # ***
 
-    def test_list_facts_format_factoid_term_width(
+    def test_list_facts_format_factoid_max_width(
         self,
         five_report_facts_ctl,
     ):
         controller = five_report_facts_ctl
-        term_width = 40
+        max_width = 40
         list_facts(
             controller,
             format_factoid=True,
-            chop=True,
-            term_width=term_width,
+            max_width=max_width,
         )
 
     # ***
@@ -322,7 +320,6 @@ class TestCmdsListFactListFacts_FactoidPermutations(object):
         list_facts(
             controller,
             format_factoid=True,
-            chop=True,
         )
         assert isatty.called
         assert get_ts.called

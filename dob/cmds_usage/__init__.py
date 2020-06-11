@@ -35,8 +35,8 @@ def generate_usage_table(
     hide_duration=False,
     output_format='table',
     table_type='texttable',
+    max_width=-1,
     output_path=None,
-    chop=False,
 ):
     def generate_usage_table():
         staged = []
@@ -70,8 +70,8 @@ def generate_usage_table(
             headers=headers,
             output_format=output_format,
             table_type=table_type,
+            max_width=max_width,
             output_path=output_path,
-            chop=chop,
         )
 
     def cull_results(results):

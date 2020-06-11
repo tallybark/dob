@@ -19,20 +19,12 @@ from setuptools import find_packages, setup
 # *** Package requirements.
 
 requirements = [
-    # Nice! Because Click was already halfway there... just not quite.
-    # https://github.com/jonathaneunice/ansiwrap
-    # (lb): I considered adding this to Click, but Click has no dependencies!
-    #       So let's keep it pure.
+    # "textwrap, but savvy to ANSI colors"
+    #  https://github.com/jonathaneunice/ansiwrap
     'ansiwrap >= 0.8.4, < 1',
     # Vocabulary word pluralizer.
     #  https://github.com/ixmatus/inflector
     'Inflector >= 3.0.1, < 4',
-    # Humanfriendly is one of the many table formatter choices.
-    #  https://github.com/xolox/python-humanfriendly
-    # 2020-03-30: (lb): Not pinning (at 8.1): author bumps major often, hard to tell
-    # what's truly backward incompatible or not... we'll let our tests figure it out.
-    #  'humanfriendly >= 8.1, < 9',
-    'humanfriendly',
     # https://github.com/mnmelo/lazy_import
     'lazy_import >= 0.2.2, < 1',
     # Tabulate is one of the many table formatter choices.

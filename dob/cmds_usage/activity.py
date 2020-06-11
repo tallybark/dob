@@ -30,8 +30,8 @@ def usage_activities(
     hide_duration=False,
     output_format='table',
     table_type='texttable',
+    max_width=-1,
     output_path=None,
-    chop=False,
     **kwargs
 ):
     """
@@ -59,8 +59,8 @@ def usage_activities(
             hide_duration=hide_duration,
             output_format=output_format,
             table_type=table_type,
+            max_width=max_width,
             output_path=output_path,
-            chop=chop,
         )
 
     def name_fmttr(activity):

@@ -91,7 +91,6 @@ class TestActivities(object):
             output_format='table',
             hide_usage=False,
             hide_duration=False,
-            chop=False,
             # The one we're testing.
             search_terms=[activity.category.name],
         )

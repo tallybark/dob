@@ -547,13 +547,13 @@ _cmd_options_results_show_columns = [
 
 
 # ***
-# *** [SEARCH RESULTS] Chop/Truncate.
+# *** [SEARCH RESULTS] Table/Line width constraint.
 # ***
 
-_cmd_options_results_chop = [
+_cmd_options_results_max_width = [
     click.option(
-        '-p', '--chop', '--truncate', is_flag=True,
-        help=_('Truncate long names.'),
+        '-W', '--max-width', '--width', default=-1,
+        help=_('Set the table width or Factoid line length.'),
     ),
 ]
 
@@ -715,64 +715,6 @@ def _postprocess_options_output_format_choices(kwargs):
 # *** [REPORT FORMAT] Table Formats.
 # ***
 
-
-_ascii_table_libs = [
-    'texttable',
-    'tabulate',
-    'friendly',
-]
-
-
-_tabulate_tablefmts_unwrapped = [
-    'fancy_grid',
-    #   ╒════════════╤════════════╤════════════╕
-    #   │ Header 1   │ Header 2   │ Header 3   │
-    #   ╞════════════╪════════════╪════════════╡
-    #   │ value 1    │ value 2    │ value 3    │
-    #   ╘════════════╧════════════╧════════════╛
-
-    'grid',
-    #   +------------+------------+------------+
-    #   | Header 1   | Header 2   | Header 3   |
-    #   +============+============+============+
-    #   | value 1    | value 2    | value 3    |
-    #   +------------+------------+------------+
-
-    'pretty',
-    #   +----------+----------+----------+
-    #   | Header 1 | Header 2 | Header 3 |
-    #   +----------+----------+----------+
-    #   | value 1  | value 2  | value 3  |
-    #   +----------+----------+----------+
-
-    'presto',
-    #    Header 1   | Header 2   | Header 3
-    #   ------------+------------+------------
-    #    value 1    | value 2    | value 3
-
-    'simple',
-    #   Header 1    Header 2    Header 3
-    #   ----------  ----------  ----------
-    #   value 1     value 2     value 3
-
-    'plain',
-    #   Header 1    Header 2    Header 3
-    #   value 1     value 2     value 3
-
-    'psql',
-    #   +------------+------------+------------+
-    #   | Header 1   | Header 2   | Header 3   |
-    #   |------------+------------+------------|
-    #   | value 1    | value 2    | value 3    |
-    #   +------------+------------+------------+
-
-    'pipe',
-    #   | Header 1   | Header 2   | Header 3   |
-    #   |:-----------|:-----------|:-----------|
-    #   | value 1    | value 2    | value 3    |
-]
-
-
 _tabulate_tablefmts_markup = [
     'github',
     #   | Header 1   | Header 2   | Header 3   |
@@ -860,19 +802,40 @@ _tabulate_tablefmts_markup = [
 ]
 
 
+# (lb): I tested 3 ASCII table packages: texttable, tabulate, and humanfriendly.
+# - The texttable package (as far as I am aware) is the only library that wraps
+#   cell values automatically. So this is the package we use to generate an ASCII
+#   table that is meant to be displayed in the user's terminal.
+# - We omit the humanfriendly table generator because it does not wrap column
+#   values automatically, and does not offer anything that texttable does not,
+#   other than perhaps slightly differently table borders.
+# - The tabulate package has a number of seemingly interesting table formats that
+#   the user could choose (like 'fancy_grid', 'grid', 'pretty', 'simple', etc.),
+#   but it also does not wrap column values automatically, so really none of these
+#   formats is useable (and none are essential, either; they're just stylistic).
+# - As such, if we wanted to use tabulate or friendly to generate a readable (in the
+#   user's terminal) ASCII table, we'd have to do the column value wrapping ourself.
+#   For instance, tabulate will wrap column values, but only on existing newlines, so
+#   we'd have to, say, determine the appropriate column widths first, and then call
+#   ansiwrap.wrap on all the values before calling tabulate.
+#   - Without the upfront wrapping, the tabulate and humanfriendly packages print
+#     the table as wide as the column values dictate, which can cause the table
+#     rows to bleed across lines, which makes the table impractical to read.
+# - So, at least for generating a useable ASCII table, we use texttable, and we
+#   make texttable the default table choice, although we label it the 'normal'
+#   table type, so that the user is not distracted by package naming minutia.
+# - However, we can expose a few tabulate format options that are not meant
+#   to be displayed or read in the terminal, such as HTML and reST formats.
+# - tl;dr We let the user choose `texttable` to generate an ASCII table; and we
+#   let them choose a few of the `tabulate` formats to generate alternative
+#   (non-table) outputs.
 def _cmd_options_output_formats_table(item=''):
     table_choices = []
-    # LATER: (lb): None of the 'tabulate' styles wrap, nor does 'friendly',
-    #        so the table output is practically useless. Exclude these
-    #        options until/unless tabulate_results is updated to wrap long
-    #        cell values.
-    #  table_choices += _ascii_table_libs
-    #  table_choices += _tabulate_tablefmts_unwrapped
-    # We can at least support the markup format options, which are not
-    # meant to be viewed in the terminal.
     # MAGIC_VALUE: Use 'normal' to refer to the nice, wrapped ASCII table
     #              that 'texttable' generates by default.
     table_choices += ['normal']
+    # Include also those tabulate package output formats that are not
+    # ASCII table formats (and not destined for terminal viewage).
     table_choices += _tabulate_tablefmts_markup
     return table_choices
 
@@ -1121,7 +1084,6 @@ def cmd_options_any_search_query(command='', item='', match=False, group=False):
 
         append_cmd_options_results_basic_usage_hide_show(options)
         append_cmd_options_results_fact_attrs_hide_show(options)
-        append_cmd_options_results_chopped(options)
 
     def append_cmd_options_results_report_formats(options):
         if command == 'export':
@@ -1129,8 +1091,10 @@ def cmd_options_any_search_query(command='', item='', match=False, group=False):
 
         append_cmd_options_output_format(options)
         append_cmd_options_table_type(options)
+        append_cmd_options_results_max_width(options)
+
         append_cmd_options_format_factoid_output(options)
-        append_cmd_options_format_fact_values(options)
+        append_cmd_options_format_sparkline_output(options)
 
         append_cmd_options_results_re_sort(options)
 
@@ -1160,12 +1124,11 @@ def cmd_options_any_search_query(command='', item='', match=False, group=False):
         # - So instead, supply --column option to fine-tune the output.
         options.extend(_cmd_options_results_show_columns)
 
-    def append_cmd_options_results_chopped(options):
-        # A cell value truncate... option.
+    def append_cmd_options_results_max_width(options):
         if command == 'export':
             return
 
-        options.extend(_cmd_options_results_chop)
+        options.extend(_cmd_options_results_max_width)
 
     def append_cmd_options_results_re_sort(options):
         if item != 'fact':
@@ -1192,7 +1155,7 @@ def cmd_options_any_search_query(command='', item='', match=False, group=False):
 
         options.extend(_cmd_options_output_factoids_hrule)
 
-    def append_cmd_options_format_fact_values(options):
+    def append_cmd_options_format_sparkline_output(options):
         if item != 'fact':
             return
 

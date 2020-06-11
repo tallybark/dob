@@ -52,16 +52,15 @@ def list_facts(
     output_format='csv',
     # - Args: Format- and Row-specific arguments.
     table_type='texttable',  # Applies when output_format == 'table'.
+    max_width=-1,
+    row_limit=None,
     factoid_rule='',
+    # - Args: Output constraints.
+    output_path=None,
     # - Args: Cell-specific arguments.
     spark_total=None,
     spark_width=None,
     spark_secs=None,
-    # - Args: Output constraints.
-    output_path=None,
-    row_limit=None,
-    term_width=None,
-    chop=False,
     # - Developer controls.
     re_sort=False,
     # - Any unnamed arguments are used as search terms in the query.
@@ -195,14 +194,13 @@ def list_facts(
             custom_columns=column,
             output_format=output_format,
             table_type=table_type,
+            max_width=max_width,
+            row_limit=row_limit,
             factoid_rule=factoid_rule,
-            chop=chop,
+            output_path=output_path,
             spark_total=spark_total,
             spark_width=spark_width,
             spark_secs=spark_secs,
-            output_path=output_path,
-            row_limit=row_limit,
-            term_width=term_width,
             re_sort=re_sort,
         )
         return n_written

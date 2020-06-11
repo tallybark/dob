@@ -28,8 +28,8 @@ def list_categories(
     controller,
     output_format='table',
     table_type='texttable',
+    max_width=-1,
     output_path=None,
-    chop=False,
     # These two --hide flags are ignored but specified to keep out of kwargs.
     hide_usage=False,
     hide_duration=False,
@@ -58,7 +58,7 @@ def list_categories(
         headers=headers,
         output_format=output_format,
         table_type=table_type,
+        max_width=max_width,
         output_path=output_path,
-        chop=chop,
     )
 
