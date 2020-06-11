@@ -566,10 +566,23 @@ def _cmd_options_results_output_path(for_export=False):
     return [
         click.option(
             '-o', '--output',
+            # Not setting `type=click.File('r')` because
+            # refuses empty string, which we want user to
+            # be able to use to choose stdout (i.e., when
+            # for_export=True).
             help=_('Write to file instead of stdout.'),
             metavar='PATH',
+            required=for_export,
         ),
     ]
+
+
+def _postprocess_options_output_filename(kwargs):
+    if 'output' not in kwargs:
+        return
+
+    kwargs['output_path'] = kwargs['output']
+    del kwargs['output']
 
 
 # ***
@@ -657,9 +670,7 @@ def _cmd_options_output_format_singular_options_fact():
 def _cmd_options_output_format_multiple_choices_option(command='', item=''):
     format_choices = _cmd_options_output_formats_basic(item)
 
-    if command == 'export':
-        default_format = 'factoid'
-    elif command == 'journal':
+    if command == 'journal':
         default_format = 'journal'
     else:
         default_format = 'table'
@@ -991,6 +1002,7 @@ def postprocess_options_normalize_search_args(kwargs, cmd_journal=False):
     _postprocess_options_results_options_direction_to_sort_order(kwargs)
     _postprocess_options_results_show_hide(kwargs)
     postprocess_options_output_format_any_input(kwargs, cmd_journal=cmd_journal)
+    _postprocess_options_output_filename(kwargs)
     _postprocess_options_sparkline(kwargs)
     _postprocess_options_search_term(kwargs)
 

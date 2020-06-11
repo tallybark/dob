@@ -1321,6 +1321,7 @@ def edit_fact_by_key(
 def transcode_export(ctx, controller, *args, **kwargs):
     """Export all facts of within a given time window to a file of specified format."""
     postprocess_options_normalize_search_args(kwargs)
+    kwargs['output_format'] = 'factoid'
     list_fact.list_facts(controller, *args, **kwargs)
 
 
