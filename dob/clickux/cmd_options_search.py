@@ -291,6 +291,7 @@ def _postprocess_options_grouping(kwargs, cmd_journal=False):
         ):
             kwargs['group_activity'] = True
             kwargs['group_category'] = True
+            kwargs['group_days'] = True
 
     __postprocess_options_grouping()
 
@@ -360,8 +361,8 @@ def _cmd_options_results_sort_order(item, command, group):
         if group:
             choices += ['usage']
             if command == 'usage' or command == 'journal':
-                default_sort_cols = ['usage']
-                default_sort_orders = ['desc']
+                default_sort_cols = ['day', 'time']
+                default_sort_orders = ['asc', 'desc']
 
     if group and item == 'fact':
         choices.append('day')
