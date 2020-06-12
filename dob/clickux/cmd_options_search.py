@@ -357,12 +357,15 @@ def _cmd_options_results_sort_order(item, command, group):
     default_sort_orders = ['asc']
     if item == 'fact' or command == 'usage':
         choices += ['start', 'time']
-        default_sort_cols = ['start']
-        if group:
+        if item == 'fact':
+            default_sort_cols = ['start']
+        if group or command == 'usage':
             choices += ['usage']
-            if command == 'usage' or command == 'journal':
-                default_sort_cols = ['day', 'time']
-                default_sort_orders = ['asc', 'desc']
+            default_sort_cols = ['usage']
+            default_sort_orders = ['desc']
+        if command == 'journal':
+            default_sort_cols = ['day', 'time']
+            default_sort_orders = ['asc', 'desc']
 
     if group and item == 'fact':
         choices.append('day')
