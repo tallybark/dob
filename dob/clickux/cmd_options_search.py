@@ -50,8 +50,8 @@ __all__ = (
     #   '_postprocess_options_match_categories',
     #   '_postprocess_options_match_tags',
     #   '_postprocess_options_matching',
-    #   '_postprocess_options_results_options_direction_to_sort_order',
-    #   '_postprocess_options_results_options_sort_to_sort_cols',
+    #   '_postprocess_options_sort_dirs',
+    #   '_postprocess_options_sort_cols',
     #   '_postprocess_options_results_show_hide',
     #   '_postprocess_options_results_show_hide_option',
     #   '_postprocess_options_search_term',
@@ -397,7 +397,7 @@ def _cmd_options_results_sort_order(item, command, group):
 # ***
 
 
-def _postprocess_options_results_options_sort_to_sort_cols(kwargs):
+def _postprocess_options_sort_cols(kwargs):
     if 'sort' not in kwargs:
         return
 
@@ -406,7 +406,7 @@ def _postprocess_options_results_options_sort_to_sort_cols(kwargs):
     del kwargs['sort']
 
 
-def _postprocess_options_results_options_direction_to_sort_order(kwargs):
+def _postprocess_options_sort_dirs(kwargs):
     if 'direction' not in kwargs:
         return
 
@@ -998,8 +998,8 @@ def _postprocess_options_matching(kwargs):
 def postprocess_options_normalize_search_args(kwargs, cmd_journal=False):
     _postprocess_options_matching(kwargs)
     _postprocess_options_grouping(kwargs, cmd_journal=cmd_journal)
-    _postprocess_options_results_options_sort_to_sort_cols(kwargs)
-    _postprocess_options_results_options_direction_to_sort_order(kwargs)
+    _postprocess_options_sort_cols(kwargs)
+    _postprocess_options_sort_dirs(kwargs)
     _postprocess_options_results_show_hide(kwargs)
     postprocess_options_output_format_any_input(kwargs, cmd_journal=cmd_journal)
     _postprocess_options_output_filename(kwargs)
