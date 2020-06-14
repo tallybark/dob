@@ -19,10 +19,11 @@ from gettext import gettext as _
 
 import click_hotoffthehamster as click
 
+from dob_bright.crud.fact_dressed import FactDressed
+from dob_bright.crud.interrogate import ask_edit_with_editor
 from dob_bright.termio import dob_in_user_exit, dob_in_user_warning
 
-from dob_viewer.crud.fact_dressed import FactDressed
-from dob_viewer.crud.interrogate import ask_edit_with_editor, ask_user_for_edits
+from dob_prompt.prompters.triple_prompter import ask_user_for_edits
 
 from .save_backedup import prompt_and_save_backedup
 from .simple_prompts import mend_facts_confirm_and_save_maybe

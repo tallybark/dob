@@ -69,7 +69,7 @@ def prompt_and_save_confirmed(
 
     def launch_carousel():
         # Not just lazy loading, but allows test_save_backedup to mock away.
-        from dob_viewer.crud.save_confirmer import prompt_and_save_confirmer
+        from dob_viewer.traverser.save_confirmer import prompt_and_save_confirmer
         prompt_and_save_confirmer(
             controller,
             edit_facts=edit_facts,

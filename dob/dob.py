@@ -32,31 +32,30 @@ from functools import update_wrapper
 
 import click_hotoffthehamster as click
 
-from dob_bright.termio.echoes import click_echo
-from dob_bright.termio.errors import dob_in_user_exit
-from dob_bright.termio.paging import flush_pager
-
-from dob_viewer.crud.fact_dressed import FactDressed
-from dob_viewer.config.styling.ignore_cmds import (
+from dob_bright.crud.fact_dressed import FactDressed
+from dob_bright.styling.ignore_cmds import (
     create_ignore_conf,
     echo_ignore_sections,
     echo_ignore_table,
     edit_ignore_file
 )
-from dob_viewer.config.styling.rules_cmds import (
+from dob_bright.styling.rules_cmds import (
     create_rules_conf,
     echo_rules_conf,
     echo_rule_names,
     echo_rules_table,
     edit_rules_conf
 )
-from dob_viewer.config.styling.styles_cmds import (
+from dob_bright.styling.styles_cmds import (
     create_styles_conf,
     echo_styles_conf,
     echo_styles_list,
     echo_styles_table,
     edit_styles_conf
 )
+from dob_bright.termio.echoes import click_echo
+from dob_bright.termio.errors import dob_in_user_exit
+from dob_bright.termio.paging import flush_pager
 
 from .clickux import help_strings
 from .clickux import help_string_add_fact

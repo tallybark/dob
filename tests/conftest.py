@@ -28,7 +28,7 @@ Fixtures available to the tests/.
 
 import pytest
 
-from dob_viewer.crud.fact_dressed import FactDressed
+from dob_bright.crud.fact_dressed import FactDressed
 
 # We leave this conftest out of pytest_plugins, otherwise its
 # test_fact_cls fixture is not overridden by the one below.

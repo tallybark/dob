@@ -26,9 +26,8 @@ import nark
 from nark.tests.conftest import *  # noqa: F401, F403
 from nark.tests.backends.sqlalchemy.conftest import *  # noqa: F401, F403
 
+from dob_bright.crud.fact_dressed import FactDressed
 from dob_bright.reports.tabulate_results import report_table_columns
-
-from dob_viewer.crud.fact_dressed import FactDressed
 
 from dob.cmds_list.fact import list_facts
 

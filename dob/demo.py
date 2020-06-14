@@ -27,12 +27,12 @@ from functools import update_wrapper
 from nark.items.activity import Activity
 from nark.items.category import Category
 
-from dob_viewer.crud.fact_dressed import FactDressed
+from dob_bright.crud.fact_dressed import FactDressed
 
 # We could use the wrapper method and tell it to Carousel:
 #  from .facts.save_confirmed import prompt_and_save_confirmed
 # Or we could just call the Carousel wrapper directly:
-from dob_viewer.crud.save_confirmer import prompt_and_save_confirmer
+from dob_viewer.traverser.save_confirmer import prompt_and_save_confirmer
 
 __all__ = (
     'demo_config',

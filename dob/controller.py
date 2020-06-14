@@ -18,8 +18,7 @@
 """A lite wrapper around the dob-bright Controller."""
 
 from dob_bright.controller import Controller
-
-from dob_viewer.config.styling.apply_styles import pre_apply_style_conf
+from dob_bright.styling.apply_styles import pre_apply_style_conf
 
 __all__ = (
     'Controller',

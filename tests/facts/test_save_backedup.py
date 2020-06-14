@@ -28,11 +28,10 @@ from prompt_toolkit.input.defaults import create_pipe_input
 from prompt_toolkit.output import DummyOutput
 
 from dob_viewer.ptkui import re_confirm
-
-from dob.facts.import_facts import import_facts
+from dob_viewer.traverser import save_confirmer as viewer_confirmer
 
 from dob.facts import save_confirmer as proper_confirmer
-from dob_viewer.crud import save_confirmer as viewer_confirmer
+from dob.facts.import_facts import import_facts
 
 # FIXME/2020-02-01: Could probably simply this test module and use 1 or 2
 # Facts from Fact factory -- then moved IMPORT_PATH et al to new module,
