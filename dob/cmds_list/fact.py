@@ -223,7 +223,13 @@ def list_facts(
     # ***
 
     def report_report_written(controller, output_path, n_total, n_written):
-        if not output_path:
+        if (
+            not output_path
+            or not sys.stdout.isatty()
+            # (lb): I don't quite like this coupling, but it works:
+            #       - Don't click_echo if carousel_active.
+            or controller.ctx.command.name == 'edit'
+        ):
             # If writ to stdout or pager, skip count and path report.
             return
         # Otherwise, path was formed from, e.g., "export.{format}", so display actual.
