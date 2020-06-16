@@ -634,7 +634,7 @@ def _cmd_options_output_format_singular_options_any():
             help=_('Output results as comma-separated values (CSV).'),
         ),
         click.option(
-            '--json', is_flag=True,
+            '--json', '-J', is_flag=True,
             help=_('Output results as JavaScript Object Notation (JSON).'),
         ),
         click.option(
