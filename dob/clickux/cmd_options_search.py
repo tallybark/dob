@@ -990,6 +990,28 @@ def _postprocess_options_sparkline_float(kwargs, spark_attr):
 
 
 # ***
+# *** [RESULTS OUTPUT] Aggregate Totals.
+# ***
+
+_cmd_options_output_show_totals = [
+    click.option(
+        '--show-totals', '--totals',
+        is_flag=True,
+        help=_('Calculate and show totals in final row of output.'),
+    ),
+]
+
+
+_cmd_options_output_hide_totals = [
+    click.option(
+        '--hide-totals', '--totals',
+        is_flag=True,
+        help=_('Do not calculate and show totals in final row of output.'),
+    ),
+]
+
+
+# ***
 # *** [POST PROCESS] Adjust **kwargs.
 # ***
 
@@ -1028,6 +1050,7 @@ def cmd_options_any_search_query(command='', item='', match=False, group=False):
         append_cmd_options_results_column_choices(options)
         append_cmd_options_output_file(options)
         append_cmd_options_results_report_formats(options)
+        append_cmd_options_results_report_totals(options)
         append_cmd_options_filter_by_search_terms(options)
 
         def _cmd_options_search_query(func):
@@ -1113,6 +1136,15 @@ def cmd_options_any_search_query(command='', item='', match=False, group=False):
         append_cmd_options_format_sparkline_output(options)
 
         append_cmd_options_results_re_sort(options)
+
+    def append_cmd_options_results_report_totals(options):
+        if command == 'export':
+            return
+
+        if command == 'journal':
+            options.extend(_cmd_options_output_show_totals)
+        else:
+            options.extend(_cmd_options_output_hide_totals)
 
     # +++
 

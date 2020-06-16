@@ -61,6 +61,9 @@ def list_facts(
     spark_total=None,
     spark_width=None,
     spark_secs=None,
+    # - Args: Total reporting arguments.
+    show_totals=False,
+    hide_totals=False,
     # - Developer controls.
     re_sort=False,
     # - Any unnamed arguments are used as search terms in the query.
@@ -201,6 +204,8 @@ def list_facts(
             spark_total=spark_total,
             spark_width=spark_width,
             spark_secs=spark_secs,
+            show_totals=show_totals,
+            hide_totals=hide_totals,
             re_sort=re_sort,
         )
         return n_written
