@@ -814,9 +814,7 @@ def _list_facts(controller, *args, cmd_journal=False, **kwargs):
     list_fact.list_facts(controller, *args, **kwargs)
 
 
-@list_group.command('facts', aliases=['fact'],
-                    help=help_strings.LIST_FACTS_HELP,
-                    hidden=True)
+@list_group.command('facts', aliases=['fact'], help=help_strings.LIST_FACTS_HELP)
 @show_help_finally
 @flush_pager
 # The `dob find` and `dob list fact` commands are the same.
@@ -922,9 +920,7 @@ def usage_tags(ctx, controller, *args, **kwargs):
 
 # *** FACTS.
 
-@usage_group.command('facts', aliases=['fact'],
-                     help=help_strings.USAGE_FACTS_HELP,
-                     hidden=True)
+@usage_group.command('facts', aliases=['fact'], help=help_strings.USAGE_FACTS_HELP)
 @show_help_finally
 @flush_pager
 @cmd_options_any_search_query(command='usage', item='fact', match=True, group=True)
