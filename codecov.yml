@@ -3,7 +3,7 @@
 #   https://github.com/hotoffthehamster/dob
 
 codecov:
-  branch: develop
+  branch: proving
   # (lb): With setting disable_default_path_fixes, I see:
   #   "There was an error processing coverage reports."
   # Strangely, I find exactly 7 hits when I Goggle this keyname.

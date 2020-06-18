@@ -215,7 +215,7 @@ html_context = {
     'github_user': project_ghuser,
     'github_repo': project_ghrepo,
     # Branch name.
-    'github_version': 'develop/',
+    'github_version': 'proving/',
     # Path in the checkout to the docs root.
     'conf_py_path': 'docs/',
 }

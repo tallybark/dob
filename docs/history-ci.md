@@ -5,7 +5,7 @@
 [hamster-cli]: https://github.com/projecthamster/hamster-cli
     "`hamster-cli`"
 
-[hamster-cli History]: https://github.com/projecthamster/hamster-cli/blob/develop/HISTORY.rst
+[hamster-cli History]: https://github.com/projecthamster/hamster-cli/blob/proving/HISTORY.rst
     "hamster-cli History"
 
 [OhMyRepos]: https://github.com/landonb/ohmyrepos

@@ -2,11 +2,11 @@
 dob
 @@@
 
-.. image:: https://api.travis-ci.com/hotoffthehamster/dob.svg?branch=develop
+.. image:: https://api.travis-ci.com/hotoffthehamster/dob.svg?branch=proving
   :target: https://travis-ci.com/hotoffthehamster/dob
   :alt: Build Status
 
-.. image:: https://codecov.io/gh/hotoffthehamster/dob/branch/develop/graph/badge.svg
+.. image:: https://codecov.io/gh/hotoffthehamster/dob/branch/proving/graph/badge.svg
   :target: https://codecov.io/gh/hotoffthehamster/dob
   :alt: Coverage Status
 
@@ -23,7 +23,7 @@ dob
   :alt: PyPI Release Status
 
 .. image:: https://img.shields.io/github/license/hotoffthehamster/dob.svg?style=flat
-  :target: https://github.com/hotoffthehamster/dob/blob/master/LICENSE
+  :target: https://github.com/hotoffthehamster/dob/blob/release/LICENSE
   :alt: License Status
 
 .. |dob| replace:: ``dob``
