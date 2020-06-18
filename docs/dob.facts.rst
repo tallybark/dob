@@ -36,14 +36,6 @@ dob.facts.edit\_fact module
    :undoc-members:
    :show-inheritance:
 
-dob.facts.export\_facts module
-------------------------------
-
-.. automodule:: dob.facts.export_facts
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 dob.facts.import\_facts module
 ------------------------------
 

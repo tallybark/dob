@@ -60,6 +60,14 @@ dob.clickux.cmd\_options module
    :undoc-members:
    :show-inheritance:
 
+dob.clickux.cmd\_options\_search module
+---------------------------------------
+
+.. automodule:: dob.clickux.cmd_options_search
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dob.clickux.help\_command module
 --------------------------------
 
