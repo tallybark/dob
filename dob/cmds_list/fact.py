@@ -85,6 +85,11 @@ def list_facts(
     format_restricted = output_format in cmd_options_output_format_facts_only()
 
     def _list_facts():
+        # MAYBE: (lb): Verify QueryTerms output format options now, before searching.
+        # - When I refactored query_terms, I moved validation later, so, e.g., you
+        #   could specify an incorrect output_format, but it won't get caught until
+        #   after find_facts returns. Which means the code does unnecessary processing,
+        #   and the user has to wait a little longer until they're told they're wrong.
         qt = prepare_query_terms(*args, **kwargs)
         results = find_facts(controller, query_terms=qt)
         if not results:
