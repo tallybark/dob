@@ -23,7 +23,9 @@ from dob import cmds_list
 class TestActivities(object):
     """Unit tests for the ``activities`` command."""
 
-    def test_list_activities_no_category(self, controller, activity, mocker, capsys):
+    def test_tabulate_list_activities_no_category(
+        self, controller, activity, mocker, capsys,
+    ):
         """Make sure command works if activities do not have a category associated."""
         activity.category = None
         mocker.patch.object(
@@ -37,11 +39,37 @@ class TestActivities(object):
         cmds_list.activity.list_activities(
             controller,
             output_format='table',
+            # Specify any one of 'tabulate' types.
+            table_type='rst',
+        )
+        out, err = capsys.readouterr()
+        assert out.startswith(activity.name)
+        assert ascii_table.tabulate.tabulate.call_args[0] == ([(activity.name, None)],)
+
+    def test_list_activities_no_category(self, controller, activity, mocker, capsys):
+        """Make sure command works if activities do not have a category associated."""
+        activity.category = None
+        mocker.patch.object(
+            controller.activities, 'get_all', return_value=[activity],
+        )
+        mocker.patch.object(ascii_table.texttable.Texttable, 'add_rows')
+        mocker.patch.object(
+            ascii_table.texttable.Texttable,
+            'draw',
+            return_value='{}, {}'.format(activity.name, None),
+        )
+        cmds_list.activity.list_activities(
+            controller,
+            output_format='table',
             table_type='texttable',
         )
         out, err = capsys.readouterr()
         assert out.startswith(activity.name)
-        assert ascii_table.tabulate.tabulate.call_args[0] == ([[activity.name, None]],)
+        add_rows_call_args = ascii_table.texttable.Texttable.add_rows.call_args
+        # The first row is the headers. Second row is activity, category passed.
+        assert add_rows_call_args[0][0][1] == (activity.name, None)
+        draw_call_args = ascii_table.texttable.Texttable.draw.call_args
+        assert draw_call_args[0] == ()
 
     def test_list_activities_no_filter(
         self, controller, activity, mocker, capsys,
@@ -50,7 +78,7 @@ class TestActivities(object):
         mocker.patch.object(
             controller.activities, 'get_all', return_value=[activity],
         )
-        cmds_list.activity.list_activities(controller, '')
+        cmds_list.activity.list_activities(controller)
         out, err = capsys.readouterr()
         assert activity.name in out
         assert activity.category.name in out
@@ -68,7 +96,8 @@ class TestActivities(object):
             return_value=activity.category.name,
         )
         cmds_list.activity.list_activities(
-            controller, category=activity.category,
+            controller,
+            match_categories=[activity.category],
         )
         out, err = capsys.readouterr()
         assert controller.activities.query_filter_by_category_name.called
@@ -98,11 +127,11 @@ class TestActivities(object):
         assert controller.activities.gather.called
         # Mock's assert_called_with checks arguments exactly, but we
         # just care to check that the search_term was there.
-        query_terms = controller.activities.gather.call_args.args[0]
+        query_terms = controller.activities.gather.call_args[0][0]
         assert query_terms.search_terms == [activity.category.name]
         # The category is a pass-through list_activities **kwarg, so
         # won't be in the kwargs.
-        assert query_terms.category is False
+        assert query_terms.match_categories == []
         assert activity.name in out
         assert activity.category.name in out
 

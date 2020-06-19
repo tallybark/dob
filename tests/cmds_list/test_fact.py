@@ -17,8 +17,6 @@
 
 import os
 
-from click_hotoffthehamster import ClickException
-
 import fauxfactory
 import pytest
 
@@ -141,21 +139,18 @@ class TestCmdsListFactListFacts_PresentationArguments(object):
     # ***
 
     @pytest.mark.parametrize(
-        ('format_journal', 'format_tabular', 'format_factoid', 'output_format',), (
-            (False, True, False, 'friendly'),
-            (False, True, False, 'texttable'),
-            (False, True, False, 'tabulate'),
-            (False, False, True, '*ignored*'),
-            (True, False, False, '*ignored*'),
+        ('output_format', 'table_type',), (
+            ('table', 'normal'),
+            ('table', 'rst'),
+            ('factoid', '*ignored*'),
+            ('journal', '*ignored*'),
         )
     )
     def test_list_facts_format_permutations(
         self,
         five_report_facts_ctl,
-        format_journal,
-        format_tabular,
-        format_factoid,
         output_format,
+        table_type,
     ):
         controller = five_report_facts_ctl
         # Ensure that fact.friendly_str() is the FactDressed version
@@ -163,10 +158,8 @@ class TestCmdsListFactListFacts_PresentationArguments(object):
         controller.store.fact_cls = FactDressed
         list_facts(
             controller,
-            format_journal=format_journal,
-            format_tabular=format_tabular,
-            format_factoid=format_factoid,
             output_format=output_format,
+            table_type=table_type,
         )
 
     # ***
@@ -191,7 +184,7 @@ class TestCmdsListFactListFacts_PresentationArguments(object):
         controller = five_report_facts_ctl
         list_facts(
             controller,
-            format_journal=True,
+            output_format='journal',
             spark_total=spark_total,
             spark_width=spark_width,
             spark_secs=spark_secs,
@@ -200,22 +193,21 @@ class TestCmdsListFactListFacts_PresentationArguments(object):
     # ***
 
     @pytest.mark.parametrize(
-        ('format_tabular', 'format_factoid',), (
-            (True, False),
-            (False, True),
+        ('output_format',), (
+            ('table',),
+            ('factoid',),
         )
     )
-    def test_list_facts_chop(
+    def test_list_facts_max_width(
         self,
         five_report_facts_ctl,
-        format_tabular,
-        format_factoid,
+        output_format,
     ):
         controller = five_report_facts_ctl
         list_facts(
             controller,
-            format_tabular=format_tabular,
-            format_factoid=format_factoid,
+            output_format=output_format,
+            max_width=80,
         )
 
     # ***
@@ -239,7 +231,7 @@ class TestCmdsListFactListFacts_FactoidPermutations(object):
 
     # ***
 
-    def test_list_facts_format_factoid_factoid_rule(
+    def test_list_facts_output_format_factoid_factoid_rule(
         self,
         five_report_facts_ctl,
     ):
@@ -247,52 +239,50 @@ class TestCmdsListFactListFacts_FactoidPermutations(object):
         factoid_rule = '++rule-this++'
         list_facts(
             controller,
-            format_factoid=True,
+            output_format='factoid',
             factoid_rule=factoid_rule,
         )
 
     # ***
 
-    def test_list_facts_format_factoid_out_file(
+    def test_list_facts_output_format_factoid_output_path(
         self,
         five_report_facts_ctl,
         mocker,
     ):
         controller = five_report_facts_ctl
-        out_file = mocker.MagicMock()
+        output_path = mocker.MagicMock()
         list_facts(
             controller,
-            format_factoid=True,
-            out_file=out_file,
+            output_format='factoid',
+            output_path=output_path,
         )
-        assert out_file.write.called
+        assert output_path.write.called
 
     # ***
 
     @pytest.mark.parametrize(
-        ('format_tabular', 'format_factoid', 'row_limit'), (
-            (True, False, 2),
-            (False, True, 2),
+        ('output_format', 'row_limit'), (
+            ('table', 2),
+            ('factoid', 2),
         )
     )
-    def test_list_facts_format_factoid_row_limit(
+    def test_list_facts_output_format_factoid_row_limit(
         self,
         five_report_facts_ctl,
-        format_tabular,
-        format_factoid,
+        output_format,
         row_limit,
     ):
         controller = five_report_facts_ctl
         list_facts(
             controller,
-            format_tabular=format_tabular,
-            format_factoid=format_factoid,
+            output_format=output_format,
             row_limit=row_limit,
         )
 
     # ***
 
-    def test_list_facts_format_factoid_max_width(
+    def test_list_facts_output_format_factoid_max_width(
         self,
         five_report_facts_ctl,
     ):
@@ -300,13 +290,13 @@ class TestCmdsListFactListFacts_FactoidPermutations(object):
         max_width = 40
         list_facts(
             controller,
-            format_factoid=True,
+            output_format='factoid',
             max_width=max_width,
         )
 
     # ***
 
-    def test_list_facts_format_factoid_and_chop_isatty_uses_term_size(
+    def test_list_facts_output_format_factoid_and_chop_isatty_uses_term_size(
         self,
         five_report_facts_ctl,
         mocker,
@@ -318,14 +308,15 @@ class TestCmdsListFactListFacts_FactoidPermutations(object):
         )
         list_facts(
             controller,
-            format_factoid=True,
+            output_format='table',
+            max_width=None,
         )
         assert isatty.called
         assert get_ts.called
 
     # ***
 
-    def test_list_facts_format_factoid_grouping_not_allowed(
+    def test_list_facts_output_format_factoid_grouping_not_allowed(
         self,
         five_report_facts_ctl,
     ):
@@ -333,7 +324,7 @@ class TestCmdsListFactListFacts_FactoidPermutations(object):
         with pytest.raises(SystemExit):
             list_facts(
                 controller,
-                format_factoid=True,
+                output_format='factoid',
                 group_days=True,
             )
             assert False  # Unreachable.
@@ -344,74 +335,77 @@ class TestCmdsListFactListFacts_FactoidPermutations(object):
 class TestCmdsListFactListFacts_OutputFormats(object):
     """Unittests related to data export."""
     @pytest.mark.parametrize('output_format', ['soap', fauxfactory.gen_latin1()])
-    def test_invalid_format(self, controller_with_logging, output_format, mocker):
+    def test_invalid_format(self, five_report_facts_ctl, output_format, mocker):
         """Make sure that passing an invalid format exits prematurely."""
-        controller = controller_with_logging
-        with pytest.raises(ClickException):
+        controller = five_report_facts_ctl
+        with pytest.raises(Exception):
             list_facts(controller, output_format=output_format)
 
-    # FIXME: Remove `controller_with_logging` from these tests that do not use it.
-    def test_csv(self, controller, controller_with_logging, mocker):
+    def test_csv(self, five_report_facts_ctl, mocker):
         """Make sure that a valid format returns the appropriate writer class."""
-        mocker.patch.object(nark.reports, 'CSVWriter')
+        mocker.patch.object(nark.reports.csv_writer.CSVWriter, 'write_facts')
+        controller = five_report_facts_ctl
         list_facts(controller, output_format='csv')
-        assert nark.reports.CSVWriter.called
+        assert nark.reports.csv_writer.CSVWriter.write_facts.called
 
-    def test_tsv(self, controller, controller_with_logging, mocker):
+    def test_tsv(self, five_report_facts_ctl, mocker):
         """Make sure that a valid format returns the appropriate writer class."""
-        mocker.patch.object(nark.reports, 'TSVWriter')
+        mocker.patch.object(nark.reports.tsv_writer.TSVWriter, 'write_facts')
+        controller = five_report_facts_ctl
         list_facts(controller, output_format='tsv')
-        assert nark.reports.TSVWriter.called
+        assert nark.reports.tsv_writer.TSVWriter.write_facts.called
 
-    def test_ical(self, controller, controller_with_logging, mocker):
+    def test_ical(self, five_report_facts_ctl, mocker):
         """Make sure that a valid format returns the appropriate writer class."""
-        mocker.patch.object(nark.reports, 'ICALWriter')
+        mocker.patch.object(nark.reports.ical_writer.ICALWriter, 'write_facts')
+        controller = five_report_facts_ctl
         list_facts(controller, output_format='ical')
-        assert nark.reports.ICALWriter.called
+        assert nark.reports.ical_writer.ICALWriter.write_facts.called
 
-    def test_xml(self, controller, controller_with_logging, mocker):
+    def test_xml(self, five_report_facts_ctl, mocker):
         """Ensure passing 'xml' as format returns appropriate writer class."""
-        mocker.patch.object(nark.reports, 'XMLWriter')
+        mocker.patch.object(nark.reports.xml_writer.XMLWriter, 'write_facts')
+        controller = five_report_facts_ctl
         list_facts(controller, output_format='xml')
-        assert nark.reports.XMLWriter.called
+        assert nark.reports.xml_writer.XMLWriter.write_facts.called
 
-    def test_with_since(self, controller, controller_with_logging, tmpdir, mocker):
+    def test_with_since(self, controller, mocker):
         """Make sure that passing a end date is passed to the fact gathering method."""
+        # (lb): Not sure utility of this test. It was from hamster-lib, so I
+        # probably refactored away any utility.
         mocker.patch.object(controller.facts, 'gather')
-        path = os.path.join(tmpdir.mkdir('report').strpath, 'report.csv')
-        mocker.patch.object(
-            nark.reports, 'CSVWriter', return_value=nark.reports.CSVWriter(path),
-        )
         since = fauxfactory.gen_datetime()
         # Get rid of fractions of a second.
         since = truncate_to_whole_seconds(since)
         list_facts(
-            controller, output_format='csv', since=since.strftime('%Y-%m-%d %H:%M'),
+            controller,
+            output_format='csv',
+            since=since.strftime('%Y-%m-%d %H:%M'),
         )
         args, kwargs = controller.facts.gather.call_args
         query_terms = args[0]
         assert query_terms.since == since
 
-    def test_with_until(self, controller, controller_with_logging, tmpdir, mocker):
+    def test_with_until(self, controller, mocker):
         """Make sure that passing a until date is passed to the fact gathering method."""
         mocker.patch.object(controller.facts, 'gather')
-        path = os.path.join(tmpdir.mkdir('report').strpath, 'report.csv')
-        mocker.patch.object(
-            nark.reports, 'CSVWriter', return_value=nark.reports.CSVWriter(path),
-        )
         until = fauxfactory.gen_datetime()
+        # Get rid of fractions of a second.
         until = truncate_to_whole_seconds(until)
         list_facts(
-            controller, output_format='csv', until=until.strftime('%Y-%m-%d %H:%M'),
+            controller,
+            output_format='csv',
+            until=until.strftime('%Y-%m-%d %H:%M'),
         )
         args, kwargs = controller.facts.gather.call_args
         query_terms = args[0]
         assert query_terms.until == until
 
-    def test_with_filename(self, controller, controller_with_logging, tmpdir, mocker):
+    def test_with_filename(self, five_report_facts_ctl, tmpdir, mocker):
         """Make sure that a valid format returns the appropriate writer class."""
         path = os.path.join(tmpdir.ensure_dir('export').strpath, 'export.csv')
-        mocker.patch.object(nark.reports, 'CSVWriter')
-        list_facts(controller, output_format='csv', file_out=path)
-        assert nark.reports.CSVWriter.called
+        mocker.patch.object(nark.reports.csv_writer.CSVWriter, 'write_facts')
+        controller = five_report_facts_ctl
+        list_facts(controller, output_format='csv', output_path=path)
+        assert nark.reports.csv_writer.CSVWriter.write_facts.called
 
