@@ -44,8 +44,8 @@ def list_facts(
     # - The named keyword arguments listed first are used for output
     #   formatting and not for the query.
     # - Args: Select columns to output.
-    hide_usage=False,
-    hide_duration=False,
+    show_usage=False,
+    show_duration=False,
     hide_description=False,
     column=None,
     # - Args: Output formatter processor writer.
@@ -134,16 +134,16 @@ def list_facts(
         #   the tabulate_results.prepare_duration may or may not use (it might
         #   call fact.delta instead) so really adding stats just to get the
         #   'Duration' is about as unnecessary as this comment.
-        # - Ignore `not hide_usage` -- 'uses' obviously 1 because not qt.is_grouped.
+        # - Ignore `show_usage` -- 'uses' obviously 1 because not qt.is_grouped.
         # - Check for 'sparkline' output, which is calculated from 'duration'.
         #   - Again, we could just do this during post-processing in tabulate_results.
         if (
-            not hide_duration
-            and (not column or (
-                True
-                and 'duration' not in column
-                and 'sparkline' not in column
-            ))
+            show_duration
+            and (
+                not column
+                or 'duration' in column
+                or 'sparkline' in column
+            )
         ):
             return True
 
@@ -154,9 +154,8 @@ def list_facts(
             return qt.sort_cols
 
         # If request includes the 'duration' column, might as well use it.
-        if not qt.include_stats or hide_usage:
-            # No 'duration' column, or user is asking to hide the 'uses'
-            # column. Fall back to default, order-by 'start'.
+        if not qt.include_stats or not show_usage:
+            # No 'duration' column, or user not asking to see it.
             return ('start',)  # The get_all default.
         return ('time',)  # Aka, sort-by 'duration'.
 
@@ -191,8 +190,8 @@ def list_facts(
             controller,
             results,
             query_terms=qt,
-            hide_usage=hide_usage,
-            hide_duration=hide_duration,
+            show_usage=show_usage,
+            show_duration=show_duration,
             hide_description=hide_description,
             custom_columns=column,
             output_format=output_format,

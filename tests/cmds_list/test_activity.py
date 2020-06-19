@@ -89,8 +89,8 @@ class TestActivities(object):
             controller,
             # Defaults.
             output_format='table',
-            hide_usage=False,
-            hide_duration=False,
+            show_usage=True,
+            show_duration=True,
             # The one we're testing.
             search_terms=[activity.category.name],
         )

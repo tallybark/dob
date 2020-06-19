@@ -83,24 +83,24 @@ class TestCmdsListFactListFacts_PresentationArguments(object):
     # ***
 
     @pytest.mark.parametrize(
-        ('include_stats', 'hide_usage', 'hide_duration', 'hide_description',), (
+        ('include_stats', 'show_usage', 'show_duration', 'hide_description',), (
             (True, True, True, True),
         )
     )
-    def test_list_facts_hide_hide_hide(
+    def test_list_facts_show_show_hide(
         self,
         five_report_facts_ctl,
         include_stats,
-        hide_usage,
-        hide_duration,
+        show_usage,
+        show_duration,
         hide_description,
     ):
         controller = five_report_facts_ctl
         list_facts(
             controller,
             include_stats=include_stats,
-            hide_usage=hide_usage,
-            hide_duration=hide_duration,
+            show_usage=show_usage,
+            show_duration=show_duration,
             hide_description=hide_description,
         )
 

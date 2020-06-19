@@ -26,8 +26,8 @@ __all__ = ('usage_activities', )
 
 def usage_activities(
     controller,
-    hide_usage=False,
-    hide_duration=False,
+    show_usage=False,
+    show_duration=False,
     output_format='table',
     table_type='texttable',
     max_width=-1,
@@ -55,8 +55,8 @@ def usage_activities(
             results,
             name_header=_("Activity@Category"),
             name_fmttr=name_fmttr,
-            hide_usage=hide_usage,
-            hide_duration=hide_duration,
+            show_usage=show_usage,
+            show_duration=show_duration,
             output_format=output_format,
             table_type=table_type,
             max_width=max_width,

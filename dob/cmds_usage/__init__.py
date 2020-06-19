@@ -31,8 +31,8 @@ def generate_usage_table(
     results,
     name_header=None,
     name_fmttr=lambda item: item.name if item else '<NULL>',
-    hide_usage=False,
-    hide_duration=False,
+    show_usage=False,
+    show_duration=False,
     output_format='table',
     table_type='texttable',
     max_width=-1,
@@ -75,15 +75,15 @@ def generate_usage_table(
         )
 
     def cull_results(results):
-        if not hide_usage and not hide_duration:
+        if show_usage and show_duration:
             return results
 
         resulted = []
         for result in results:
             newr = [result[0]]
-            if not hide_usage:
+            if show_usage:
                 newr.append(result[1])
-            if not hide_duration:
+            if show_duration:
                 newr.append(result[2])
             resulted.append(newr)
         return resulted
@@ -93,9 +93,9 @@ def generate_usage_table(
         if first_header is None:
             first_header = _("Name")
         headers = [first_header]
-        if not hide_usage:
+        if show_usage:
             headers.append(_("Uses"))
-        if not hide_duration:
+        if show_duration:
             headers.append(_("Total Time"))
         return headers
 

@@ -31,8 +31,8 @@ def list_tags(
     max_width=-1,
     output_path=None,
     # These two --hide flags are ignored but specified to keep out of kwargs.
-    hide_usage=False,
-    hide_duration=False,
+    show_usage=False,
+    show_duration=False,
     **kwargs
 ):
     """

@@ -524,17 +524,17 @@ def _postprocess_options_results_show_hide(kwargs):
 
 
 def _postprocess_options_results_show_hide_option(kwargs, argname):
-    hide_item = None
+    show_item = None
     attr_show = 'show_{}'.format(argname)
     attr_hide = 'hide_{}'.format(argname)
     if attr_show in kwargs:
-        hide_item = not kwargs[attr_show]
+        show_item = kwargs[attr_show]
     elif attr_hide in kwargs:
-        hide_item = kwargs[attr_hide]
-    if hide_item is not None:
-        kwargs[attr_hide] = hide_item
-    if attr_show in kwargs:
-        del kwargs[attr_show]
+        show_item = not kwargs[attr_hide]
+    if show_item is not None:
+        kwargs[attr_show] = show_item
+    if attr_hide in kwargs:
+        del kwargs[attr_hide]
 
 
 # ***

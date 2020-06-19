@@ -751,7 +751,7 @@ def list_activities(ctx, controller, *args, **kwargs):
 
 def query_activities(ctx, controller, *args, **kwargs):
     postprocess_options_normalize_search_args(kwargs)
-    if not kwargs['hide_usage'] or not kwargs['hide_duration']:
+    if kwargs['show_usage'] or kwargs['show_duration']:
         handler = usage_activity.usage_activities
     else:
         handler = list_activity.list_activities
@@ -774,7 +774,7 @@ def list_categories(ctx, controller, *args, **kwargs):
 
 def query_categories(ctx, controller, *args, **kwargs):
     postprocess_options_normalize_search_args(kwargs)
-    if not kwargs['hide_usage'] or not kwargs['hide_duration']:
+    if kwargs['show_usage'] or kwargs['show_duration']:
         handler = usage_category.usage_categories
     else:
         handler = list_category.list_categories
@@ -799,7 +799,7 @@ def list_tags(ctx, controller, *args, **kwargs):
 
 def query_tags(ctx, controller, *args, **kwargs):
     postprocess_options_normalize_search_args(kwargs)
-    if not kwargs['hide_usage'] or not kwargs['hide_duration']:
+    if kwargs['show_usage'] or kwargs['show_duration']:
         handler = usage_tag.usage_tags
     else:
         handler = list_tag.list_tags
