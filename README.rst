@@ -67,7 +67,7 @@ For other setup options, read the |install-guide|_.
 - Hint: You might need to |update-path|_.
 
 ##########
-Quick Peak
+Quick Peek
 ##########
 
 dob has lots of CLI commands, and it also includes an interactive terminal application.
